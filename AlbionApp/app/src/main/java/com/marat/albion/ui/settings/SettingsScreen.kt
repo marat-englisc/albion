@@ -2,7 +2,6 @@ package com.marat.albion.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +9,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -28,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
@@ -35,7 +40,6 @@ import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.data.settings.ThemeMode
-import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
@@ -68,10 +72,10 @@ fun SettingsScreen() {
             SectionHeader("Оформление", Modifier.padding(top = 16.dp))
             Column(Modifier.padding(vertical = 14.dp)) {
                 Text("Тема", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                Spacer(Modifier.height(14.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                Spacer(Modifier.height(8.dp))
+                Column(Modifier.fillMaxWidth().selectableGroup()) {
                     ThemeMode.entries.forEach { mode ->
-                        TextTab(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
+                        RadioSettingOption(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
                     }
                 }
             }
@@ -95,10 +99,10 @@ fun SettingsScreen() {
             }
             Column(Modifier.padding(vertical = 16.dp)) {
                 Text("Порядок новых карточек", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                Spacer(Modifier.height(14.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                Spacer(Modifier.height(8.dp))
+                Column(Modifier.fillMaxWidth().selectableGroup()) {
                     NewCardOrder.entries.forEach { order ->
-                        TextTab(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
+                        RadioSettingOption(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
                     }
                 }
             }
@@ -187,6 +191,34 @@ fun SettingsScreen() {
 }
 
 @Composable
+private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = Ink.Fg,
+                unselectedColor = Ink.Muted,
+            ),
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (selected) Ink.Fg else Ink.Soft,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
 internal fun SliderSetting(
     title: String,
     value: String,
@@ -234,7 +266,7 @@ internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) 
 internal fun ActionRow(title: String, onClick: () -> Unit) {
     Column {
         Text(
-            "$title  →",
+            title,
             style = MaterialTheme.typography.bodyLarge,
             color = Ink.Fg,
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
