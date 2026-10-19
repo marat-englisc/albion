@@ -1,0 +1,205 @@
+package com.marat.albion.data.db
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+/**
+ * Карточка — содержимое из xlsx. Перезаписывается при импорте; прогресс
+ * хранится отдельно в [ReviewStateEntity] и при этом не теряется.
+ *
+ * id = "<deck>:<term>#<n>", где n — номер значения одного и того же слова в таблице.
+ */
+@Entity(tableName = "cards", indices = [Index("deck"), Index("term")])
+data class CardEntity(
+    @PrimaryKey val id: String,
+    val deck: String,
+    val position: Int,
+    val term: String,
+    val ipa: String,
+    val pos: String,
+    val level: String?,
+    @ColumnInfo(name = "meaning_en") val meaningEn: String,
+    @ColumnInfo(name = "meaning_ru") val meaningRu: String,
+    val example1: String,
+    val example2: String,
+    /** Имя mp3-файла внутри assets/content/audio/<deck>/ или null. */
+    val audio: String?,
+    /** JSON [com.marat.albion.data.content.IrregularData] для неправильных глаголов. */
+    val extra: String?,
+)
+
+/** Состояние FSRS. Отсутствие строки = карточка ещё новая. */
+@Entity(tableName = "review_state", indices = [Index("deck"), Index("due")])
+data class ReviewStateEntity(
+    @PrimaryKey @ColumnInfo(name = "card_id") val cardId: String,
+    val deck: String,
+    val state: Int,
+    val step: Int,
+    val stability: Double,
+    val difficulty: Double,
+    val due: Long,
+    @ColumnInfo(name = "last_review") val lastReview: Long,
+    val reps: Int,
+    val lapses: Int,
+)
+
+@Entity(tableName = "review_log", indices = [Index("card_id"), Index("reviewed_at")])
+data class ReviewLogEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "card_id") val cardId: String,
+    val deck: String,
+    val rating: Int,
+    @ColumnInfo(name = "reviewed_at") val reviewedAt: Long,
+    /** Состояние карточки до ответа (0 — новая). */
+    @ColumnInfo(name = "state_before") val stateBefore: Int,
+    @ColumnInfo(name = "duration_ms") val durationMs: Long,
+    /** Снимок состояния до ответа — для «Отменить». null, если карточка была новой. */
+    @ColumnInfo(name = "prev_stability") val prevStability: Double?,
+    @ColumnInfo(name = "prev_difficulty") val prevDifficulty: Double?,
+    @ColumnInfo(name = "prev_due") val prevDue: Long?,
+    @ColumnInfo(name = "prev_last_review") val prevLastReview: Long?,
+    @ColumnInfo(name = "prev_step") val prevStep: Int?,
+    @ColumnInfo(name = "prev_reps") val prevReps: Int?,
+    @ColumnInfo(name = "prev_lapses") val prevLapses: Int?,
+)
+
+@Entity(tableName = "grammar_progress")
+data class GrammarProgressEntity(
+    @PrimaryKey @ColumnInfo(name = "topic_id") val topicId: String,
+    @ColumnInfo(name = "read_at") val readAt: Long?,
+    val bookmarked: Boolean,
+    @ColumnInfo(name = "opened_at") val openedAt: Long?,
+)
+
+/** Грамматическое задание из grammar_tasks.xlsx. [options] — варианты, каждый на своей строке. */
+@Entity(tableName = "grammar_tasks", indices = [Index("level"), Index("kind")])
+data class GrammarTaskEntity(
+    @PrimaryKey val id: String,
+    val position: Int,
+    val level: String,
+    val topic: Int?,
+    @ColumnInfo(name = "topic_title") val topicTitle: String,
+    /** "choice" — выбор варианта, "input" — вписать пропуск. */
+    val kind: String,
+    val prompt: String,
+    val options: String,
+    /** Правильный ответ; для ввода — допустимые варианты через « / ». */
+    val answer: String,
+    val explanation: String,
+) {
+    val optionList: List<String> get() = options.lines().filter { it.isNotBlank() }
+    val acceptedAnswers: List<String> get() = answer.split(" / ").map { it.trim() }.filter { it.isNotEmpty() }
+}
+
+/** Статистика по заданию — чтобы чаще давать те, где ошибались. */
+@Entity(tableName = "grammar_task_stats")
+data class GrammarTaskStatEntity(
+    @PrimaryKey @ColumnInfo(name = "task_id") val taskId: String,
+    val correct: Int,
+    val wrong: Int,
+    @ColumnInfo(name = "last_seen") val lastSeen: Long,
+)
+
+/** Книга библиотеки. Текст хранится отдельным файлом в памяти приложения. */
+@Entity(tableName = "books")
+data class BookEntity(
+    @PrimaryKey val id: String,
+    val title: String,
+    val author: String,
+    val level: String,
+    /** "asset" — встроенная, "user" — добавлена пользователем. */
+    val source: String,
+    @ColumnInfo(name = "source_size") val sourceSize: Long,
+    val chapters: Int,
+    val chars: Long,
+    @ColumnInfo(name = "added_at") val addedAt: Long,
+)
+
+/** Где пользователь остановился. */
+@Entity(tableName = "reading_positions")
+data class ReadingPositionEntity(
+    @PrimaryKey @ColumnInfo(name = "book_id") val bookId: String,
+    val chapter: Int,
+    val paragraph: Int,
+    val offset: Int,
+    /** Доля прочитанного 0…1. */
+    val progress: Float,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+)
+
+@Entity(tableName = "bookmarks", indices = [Index("book_id")])
+data class BookmarkEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "book_id") val bookId: String,
+    val chapter: Int,
+    val paragraph: Int,
+    val offset: Int,
+    val snippet: String,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)
+
+/**
+ * Результаты мини-игр по слову: в каждой игре своя статистика. Слово — «ошибка»,
+ * пока после последнего промаха не дано два верных ответа подряд ([streak] < 2).
+ */
+@Entity(tableName = "game_card_stats", primaryKeys = ["card_id", "game"], indices = [Index("game")])
+data class GameCardStatEntity(
+    @ColumnInfo(name = "card_id") val cardId: String,
+    val game: String,
+    val correct: Int,
+    val wrong: Int,
+    /** Верных ответов подряд после последней ошибки. */
+    val streak: Int,
+    @ColumnInfo(name = "last_seen") val lastSeen: Long,
+) {
+    val isMistake get() = wrong > 0 && streak < GameStats.CLEAR_AFTER
+}
+
+object GameStats {
+    /** Сколько верных ответов подряд снимают слово из ошибок. */
+    const val CLEAR_AFTER = 2
+}
+
+/** Выделение в книге (внутри одного абзаца) и заметка к нему. */
+@Entity(tableName = "highlights", indices = [Index("book_id")])
+data class HighlightEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "book_id") val bookId: String,
+    val chapter: Int,
+    val paragraph: Int,
+    /** Символы абзаца [start, end). */
+    val start: Int,
+    val end: Int,
+    val text: String,
+    val note: String = "",
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)
+
+/** Агрегаты для экранов колод. */
+data class DeckCounts(
+    val deck: String,
+    val total: Int,
+    val started: Int,
+    /** Повторения (state = 2), подошедшие к сроку. */
+    val due: Int,
+    /** Учебные шаги, подходящие в ближайшие 20 минут — их покажет занятие. */
+    val learningDue: Int,
+    val learning: Int,
+    val mature: Int,
+)
+
+data class DayCount(val day: Long, val count: Int)
+
+/** Статья офлайн-словаря EN → RU (FreeDict / Викисловарь), встроенного в приложение. */
+@Entity(tableName = "dictionary", indices = [Index("term")])
+data class DictionaryEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    /** Слово в нижнем регистре — ключ поиска. */
+    val term: String,
+    val headword: String,
+    val pos: String,
+    /** Значения через «; », синонимы внутри значения — через «, ». */
+    val text: String,
+)

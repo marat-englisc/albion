@@ -1,0 +1,198 @@
+package com.marat.albion.ui.study
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.marat.albion.AppContainer
+import com.marat.albion.data.content.Deck
+import com.marat.albion.data.content.IrregularData
+import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.fsrs.CardState
+import com.marat.albion.data.fsrs.Fsrs
+import com.marat.albion.data.fsrs.Rating
+import com.marat.albion.data.repo.Siblings
+import com.marat.albion.data.repo.StudyRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class StudyCard(
+    val card: CardEntity,
+    val irregular: IrregularData?,
+    val isNew: Boolean,
+    /** Карточка пришла из учебных шагов (а не из повторений/новых). */
+    val fromLearning: Boolean,
+    /** Подписи интервалов для кнопок оценки. */
+    val intervals: Map<Rating, String>,
+)
+
+data class StudyState(
+    val loading: Boolean = true,
+    val current: StudyCard? = null,
+    val revealed: Boolean = false,
+    val newCount: Int = 0,
+    val learningCount: Int = 0,
+    val reviewCount: Int = 0,
+    val answered: Int = 0,
+    val again: Int = 0,
+    val canUndo: Boolean = false,
+    val finished: Boolean = false,
+    val elapsedMs: Long = 0,
+    /** Последняя оценка — от неё зависит, куда «улетает» карточка. */
+    val lastRating: Rating? = null,
+) {
+    val remaining get() = newCount + learningCount + reviewCount
+    val progress get() = if (answered + remaining == 0) 0f else answered.toFloat() / (answered + remaining)
+}
+
+/**
+ * Сессия повторения одной колоды. Очередь как в Anki: учебные шаги (1 и 10 минут),
+ * подошедшие по времени, идут первыми; новые карточки равномерно вкраплены в повторения.
+ */
+class StudyViewModel(private val c: AppContainer, private val deck: Deck) : ViewModel() {
+
+    private val repo: StudyRepository = c.study
+    private val _state = MutableStateFlow(StudyState())
+    val state: StateFlow<StudyState> = _state.asStateFlow()
+
+    private val learning = mutableListOf<Pair<CardEntity, Long>>() // карточка → когда показать
+    private val reviews = ArrayDeque<CardEntity>()
+    private val news = ArrayDeque<CardEntity>()
+    private var reviewsSinceNew = 0
+    private var answering = false
+    private var shownAt = 0L
+    private var sessionStart = System.currentTimeMillis()
+
+    private data class UndoEntry(val logId: Long, val card: CardEntity, val rating: Rating)
+    private val undoStack = ArrayDeque<UndoEntry>()
+
+    init {
+        viewModelScope.launch {
+            val q = repo.buildQueue(deck)
+            q.learning.forEach { card -> learning += card to repo.memory(card.id).due }
+            reviews.addAll(q.reviews)
+            news.addAll(q.news.filter { n -> learning.none { it.first.id == n.id } })
+            showNext()
+        }
+    }
+
+    fun reveal() {
+        _state.update { it.copy(revealed = true) }
+    }
+
+    fun answer(rating: Rating) {
+        val current = _state.value.current ?: return
+        if (!_state.value.revealed || answering) return
+        answering = true
+        viewModelScope.launch {
+            val duration = System.currentTimeMillis() - shownAt
+            val (logId, memory) = repo.answer(current.card, rating, duration)
+            undoStack.addLast(UndoEntry(logId, current.card, rating))
+            if (undoStack.size > 20) undoStack.removeFirst()
+            if (memory.state == CardState.LEARNING || memory.state == CardState.RELEARNING) {
+                learning += current.card to memory.due
+            }
+            // Другие значения этого слова сегодня больше не показываем (сиблинги).
+            val term = Siblings.key(current.card)
+            news.removeAll { Siblings.key(it) == term && it.id != current.card.id }
+            reviews.removeAll { Siblings.key(it) == term && it.id != current.card.id }
+            _state.update {
+                it.copy(
+                    answered = it.answered + 1,
+                    again = it.again + if (rating == Rating.Again) 1 else 0,
+                    lastRating = rating,
+                )
+            }
+            showNext()
+        }
+    }
+
+    fun undo() {
+        val entry = undoStack.removeLastOrNull() ?: return
+        viewModelScope.launch {
+            val card = repo.undo(entry.logId) ?: entry.card
+            learning.removeAll { it.first.id == card.id }
+            // Текущая (ещё не отвеченная) карточка возвращается в начало своей очереди.
+            _state.value.current?.takeIf { it.card.id != card.id }?.let { cur ->
+                when {
+                    cur.fromLearning -> learning += cur.card to repo.memory(cur.card.id).due
+                    cur.isNew -> news.addFirst(cur.card)
+                    else -> reviews.addFirst(cur.card)
+                }
+            }
+            _state.update {
+                it.copy(
+                    answered = (it.answered - 1).coerceAtLeast(0),
+                    again = (it.again - if (entry.rating == Rating.Again) 1 else 0).coerceAtLeast(0),
+                    lastRating = null,
+                )
+            }
+            present(card, fromLearning = repo.memory(card.id).state.let { it == CardState.LEARNING || it == CardState.RELEARNING })
+        }
+    }
+
+    private suspend fun showNext() {
+        val now = System.currentTimeMillis()
+        learning.sortBy { it.second }
+        val dueLearning = learning.firstOrNull()?.takeIf { it.second <= now }
+        var fromLearning = true
+        val next: CardEntity? = when {
+            dueLearning != null -> { learning.remove(dueLearning); dueLearning.first }
+            reviews.isNotEmpty() || news.isNotEmpty() -> { fromLearning = false; pickReviewOrNew() }
+            learning.isNotEmpty() && learning.first().second <= now + StudyRepository.LEARN_AHEAD -> learning.removeAt(0).first
+            else -> null
+        }
+        if (next == null) {
+            answering = false
+            _state.update {
+                it.copy(
+                    loading = false, current = null, finished = true, canUndo = undoStack.isNotEmpty(),
+                    newCount = 0, learningCount = learning.size, reviewCount = 0,
+                    elapsedMs = System.currentTimeMillis() - sessionStart,
+                )
+            }
+            return
+        }
+        present(next, fromLearning)
+    }
+
+    private fun pickReviewOrNew(): CardEntity {
+        val ratio = if (news.isEmpty()) Int.MAX_VALUE else maxOf(1, reviews.size / news.size)
+        return if (reviews.isNotEmpty() && (news.isEmpty() || reviewsSinceNew < ratio)) {
+            reviewsSinceNew++
+            reviews.removeFirst()
+        } else {
+            reviewsSinceNew = 0
+            news.removeFirst()
+        }
+    }
+
+    private suspend fun present(card: CardEntity, fromLearning: Boolean) {
+        val memory = repo.memory(card.id)
+        val now = System.currentTimeMillis()
+        val fsrs = repo.scheduler()
+        val preview = fsrs.preview(memory, now)
+        val intervals = preview.mapValues { (_, m) ->
+            if (m.state == CardState.REVIEW) {
+                // Повторение в днях: показываем дни от начала учебного дня, как будет сохранено.
+                val days = maxOf(1, Math.round((m.due - now).toDouble() / Fsrs.DAY).toInt())
+                Fsrs.formatInterval(days * Fsrs.DAY)
+            } else Fsrs.formatInterval(m.due - now)
+        }
+        shownAt = now
+        answering = false
+        _state.update {
+            it.copy(
+                loading = false,
+                finished = false,
+                revealed = false,
+                current = StudyCard(card, repo.irregular(card), memory.state == CardState.NEW, fromLearning, intervals),
+                newCount = news.size,
+                learningCount = learning.size,
+                reviewCount = reviews.size,
+                canUndo = undoStack.isNotEmpty(),
+            )
+        }
+    }
+}

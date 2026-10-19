@@ -1,0 +1,572 @@
+package com.marat.albion.ui.games
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.marat.albion.AppContainer
+import com.marat.albion.LocalAppContainer
+import com.marat.albion.data.db.GrammarTaskEntity
+import com.marat.albion.data.games.AnswerCheck
+import com.marat.albion.data.games.Verdict
+import com.marat.albion.data.grammar.TopicKind
+import com.marat.albion.ui.browse.TextTab
+import com.marat.albion.ui.components.AlbionLogo
+import com.marat.albion.ui.components.EmptyState
+import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.GhostButton
+import com.marat.albion.ui.components.LevelBadge
+import com.marat.albion.ui.components.PrimaryButton
+import com.marat.albion.ui.components.SectionHeader
+import com.marat.albion.ui.components.TopBar
+import com.marat.albion.ui.nav.Navigator
+import com.marat.albion.ui.nav.TopicRoute
+import com.marat.albion.ui.theme.Easing
+import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.theme.pressScale
+import com.marat.albion.ui.theme.rememberReveal
+import com.marat.albion.ui.theme.reveal
+import kotlinx.coroutines.launch
+
+private val LEVELS = listOf("", "A1", "A2", "B1", "B2", "C1")
+
+/**
+ * Состояние грамматической игры: настройка → задания → итог.
+ * С [topic] — режим «Проверь себя»: все задания одной темы (выбор и ввод вперемешку), без настройки.
+ */
+class GrammarGameViewModel(
+    private val c: AppContainer,
+    val game: Game?,
+    val topic: Int? = null,
+    private val topicId: String? = null,
+) : ViewModel() {
+    val kind = if (game == Game.GRAMMAR_GAP) "input" else "choice"
+    var phase by mutableStateOf(Phase.Setup)
+        private set
+    var level by mutableStateOf("")
+    var count by mutableIntStateOf(10)
+    var items by mutableStateOf<List<GrammarTaskEntity>>(emptyList())
+        private set
+    var index by mutableIntStateOf(0)
+        private set
+    var correct by mutableIntStateOf(0)
+        private set
+    val mistakes = mutableStateListOf<Mistake>()
+    private val missed = mutableListOf<GrammarTaskEntity>()
+    /** Номер темы → id файла учебника (для ссылки «Правило»). */
+    var topicIds by mutableStateOf<Map<Int, String>>(emptyMap())
+        private set
+
+    init {
+        viewModelScope.launch {
+            topicIds = c.grammar.book().topics
+                .filter { it.kind == TopicKind.Lesson && it.number != null }
+                .associate { it.number!! to it.id }
+        }
+        if (topic != null) start()
+    }
+
+    fun start(retry: List<GrammarTaskEntity>? = null) {
+        phase = Phase.Loading
+        viewModelScope.launch {
+            val pool = retry?.shuffled() ?: if (topic != null) c.study.topicPool(topic) else c.study.grammarPool(kind, level, count)
+            items = pool
+            index = 0
+            correct = 0
+            mistakes.clear()
+            missed.clear()
+            phase = if (pool.isEmpty()) Phase.Summary else Phase.Playing
+        }
+    }
+
+    fun retryMistakes() = start(missed.toList())
+
+    private val shuffled = HashMap<String, List<String>>()
+
+    /** Порядок вариантов фиксируется на всю игру — не меняется после перехода к правилу. */
+    fun optionsFor(task: GrammarTaskEntity) = shuffled.getOrPut(task.id) { task.optionList.shuffled() }
+
+    fun record(task: GrammarTaskEntity, ok: Boolean, answer: String) {
+        if (ok) correct++ else {
+            mistakes += Mistake(task.prompt, answer, task.acceptedAnswers.firstOrNull() ?: task.answer)
+            missed += task
+        }
+        viewModelScope.launch { c.study.recordGrammar(task.id, ok) }
+    }
+
+    fun next() {
+        if (index + 1 < items.size) { index++; return }
+        phase = Phase.Summary
+        // Тема проверена: 70% и больше — отмечаем её изученной.
+        if (topicId != null && items.isNotEmpty() && correct * 10 >= items.size * 7) {
+            viewModelScope.launch { c.grammar.setRead(topicId, true) }
+        }
+    }
+
+    fun backToSetup() {
+        phase = Phase.Setup
+    }
+}
+
+@Composable
+fun GrammarGameHost(game: Game, navigator: Navigator) {
+    val c = LocalAppContainer.current
+    val vm = viewModel(key = "grammar-${game.name}") { GrammarGameViewModel(c, game) }
+    val total by remember(vm.kind) { c.study.observeGrammarTaskCount(vm.kind) }.collectAsStateWithLifecycle(-1)
+    val openRule: (Int) -> Unit = { n -> vm.topicIds[n]?.let { navigator.open(TopicRoute(it)) } }
+
+    BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
+
+    AnimatedContent(
+        targetState = vm.phase,
+        transitionSpec = { fadeIn(tween(320, delayMillis = 60)) togetherWith fadeOut(tween(180)) },
+        label = "phase",
+    ) { phase ->
+        when (phase) {
+            Phase.Setup -> GrammarSetup(vm, total, onBack = navigator::back)
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+                AlbionLogo(size = 40.dp, color = Ink.Faint)
+            }
+            Phase.Summary -> GameSummary(
+                game = vm.game,
+                correct = vm.correct,
+                total = vm.items.size,
+                mistakes = vm.mistakes.toList(),
+                onRestart = { vm.start() },
+                onRetryMistakes = { vm.retryMistakes() },
+                onDone = navigator::back,
+            )
+            Phase.Playing -> Column(
+                Modifier.fillMaxSize().background(Ink.Bg)
+                    .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
+            ) {
+                GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })
+                AnimatedContent(
+                    targetState = vm.index,
+                    transitionSpec = {
+                        (slideInHorizontally(tween(460, easing = Easing.Emphasized)) { it / 3 } + fadeIn(tween(300, delayMillis = 80))) togetherWith
+                            (slideOutHorizontally(tween(380, easing = Easing.EmphasizedAccelerate)) { -it / 3 } + fadeOut(tween(200)))
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "task",
+                ) { i ->
+                    val task = vm.items.getOrNull(i) ?: return@AnimatedContent
+                    TaskRound(vm, task, openRule)
+                }
+            }
+        }
+    }
+}
+
+/** Вид задания: в обычной игре — по игре, в «Проверь себя» — по самому заданию. */
+@Composable
+private fun TaskRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule: (Int) -> Unit) {
+    val gap = if (vm.topic != null) task.kind == "input" else vm.game == Game.GRAMMAR_GAP
+    if (gap) GapRound(vm, task, openRule) else ChoiceRound(vm, task, openRule)
+}
+
+/** «Проверь себя» в конце темы: сразу задания, без экрана настройки. */
+@Composable
+fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigator) {
+    val c = LocalAppContainer.current
+    val vm = viewModel(key = "quiz-$topicId") { GrammarGameViewModel(c, null, topic, topicId) }
+    // «Правило» этой же темы — просто возврат к ней.
+    val openRule: (Int) -> Unit = { n ->
+        if (n == topic) navigator.back() else vm.topicIds[n]?.let { navigator.open(TopicRoute(it)) }
+    }
+    val quizTitle = "Проверь себя · тема $topic"
+
+    AnimatedContent(
+        targetState = vm.phase,
+        transitionSpec = { fadeIn(tween(320, delayMillis = 60)) togetherWith fadeOut(tween(180)) },
+        label = "quizPhase",
+    ) { phase ->
+        when (phase) {
+            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+                AlbionLogo(size = 40.dp, color = Ink.Faint)
+            }
+            Phase.Summary -> GameSummary(
+                game = null,
+                title = title,
+                correct = vm.correct,
+                total = vm.items.size,
+                mistakes = vm.mistakes.toList(),
+                onRestart = { vm.start() },
+                onRetryMistakes = { vm.retryMistakes() },
+                onDone = navigator::back,
+                restartLabel = "Пройти ещё раз",
+            )
+            Phase.Playing -> Column(
+                Modifier.fillMaxSize().background(Ink.Bg)
+                    .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
+            ) {
+                GameTopRow(null, vm.index, vm.items.size, onClose = navigator::back, title = quizTitle)
+                AnimatedContent(
+                    targetState = vm.index,
+                    transitionSpec = {
+                        (slideInHorizontally(tween(460, easing = Easing.Emphasized)) { it / 3 } + fadeIn(tween(300, delayMillis = 80))) togetherWith
+                            (slideOutHorizontally(tween(380, easing = Easing.EmphasizedAccelerate)) { -it / 3 } + fadeOut(tween(200)))
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "quizTask",
+                ) { i ->
+                    val task = vm.items.getOrNull(i) ?: return@AnimatedContent
+                    TaskRound(vm, task, openRule)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Unit) {
+    val reveal = rememberReveal()
+    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+        TopBar(onBack = onBack)
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
+        ) {
+            Column(Modifier.reveal(reveal, 0)) {
+                Icon(vm.game!!.icon, null, tint = Ink.Fg, modifier = Modifier.size(28.dp))
+                Spacer(Modifier.height(18.dp))
+                Eyebrow("Мини-игра · %02d".format(vm.game.ordinal + 1))
+                Spacer(Modifier.height(10.dp))
+                Text(vm.game.title, style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
+                Spacer(Modifier.height(14.dp))
+                Text(vm.game.description, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+            }
+            if (total == 0) {
+                EmptyState(
+                    "Заданий пока нет",
+                    "Задания берутся из collections/grammar_tasks.xlsx. Пересоберите приложение с материалами.",
+                    Modifier.padding(top = 24.dp),
+                )
+                return@Column
+            }
+            Column(Modifier.reveal(reveal, 1)) {
+                SectionHeader("Уровень", Modifier.padding(top = 20.dp), trailing = if (total > 0) "$total" else null)
+                Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                    LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
+                }
+            }
+            Column(Modifier.reveal(reveal, 2)) {
+                SectionHeader("Длина", Modifier.padding(top = 12.dp))
+                Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
+                    listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
+                }
+            }
+            Spacer(Modifier.height(28.dp))
+            PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.reveal(reveal, 3))
+        }
+    }
+}
+
+/**
+ * Пустой пропуск — видимые символы, а не подчёркнутые пробелы: пробелы в конце строки
+ * при переносе не рисуются, и пропуск «исчезал» («It rained.» вместо «It ___ rained.»).
+ */
+internal const val GAP_MARK = "______"
+
+/** Предложение с пропуском: пустое место — линия, после ответа — вписанное слово. */
+private fun promptWithGap(prompt: String, filled: String?): AnnotatedString = buildAnnotatedString {
+    val parts = prompt.split("___")
+    parts.forEachIndexed { i, part ->
+        append(part)
+        if (i < parts.lastIndex) {
+            if (filled == null) {
+                withStyle(SpanStyle(color = Ink.Muted)) { append(GAP_MARK) }
+            } else {
+                withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontWeight = FontWeight.SemiBold, color = Ink.Fg)) { append(filled) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskHeader(task: GrammarTaskEntity) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "), Modifier.weight(1f, fill = false))
+        Spacer(Modifier.width(10.dp))
+        LevelBadge(task.level)
+    }
+}
+
+/** Пояснение и ссылка на правило после ответа. */
+@Composable
+private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
+        if (task.explanation.isNotBlank()) {
+            Row(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(14.dp)) {
+                Text(task.explanation, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+            }
+        }
+        task.topic?.let { n ->
+            Text(
+                "Правило · тема $n  →",
+                style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.Underline),
+                color = Ink.Fg,
+                // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
+                modifier = Modifier.focusProperties { canFocus = false }.clickable { openRule(n) }.padding(vertical = 12.dp),
+            )
+        }
+    }
+}
+
+// ------------------------------------------------------------------ выбор варианта
+
+@Composable
+private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule: (Int) -> Unit) {
+    val options = remember(task.id) { vm.optionsFor(task) }
+    var picked by rememberSaveable(task.id) { mutableStateOf<String?>(null) }
+    var shake by remember(task.id) { mutableIntStateOf(0) }
+    val answered = picked != null
+
+    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
+            TaskHeader(task)
+            Spacer(Modifier.height(20.dp))
+            Text(
+                promptWithGap(task.prompt, if (answered && task.prompt.contains("___")) task.answer else null),
+                style = TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp),
+                color = Ink.Fg,
+                modifier = Modifier.shakeOn(shake),
+            )
+            Spacer(Modifier.height(28.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                options.forEach { option ->
+                    OptionButton(
+                        text = option,
+                        state = when {
+                            !answered -> OptionState.Idle
+                            option == task.answer -> OptionState.Correct
+                            option == picked -> OptionState.Wrong
+                            else -> OptionState.Dim
+                        },
+                        onClick = {
+                            if (!answered) {
+                                picked = option
+                                val ok = option == task.answer
+                                if (!ok) shake++
+                                vm.record(task, ok, option)
+                            }
+                        },
+                    )
+                }
+            }
+            AnimatedVisibility(answered, enter = fadeIn(tween(300)) + expandVertically()) {
+                Explanation(task, openRule)
+            }
+        }
+        AnimatedVisibility(answered, enter = fadeIn(tween(240)) + slideInVertically { it / 2 }) {
+            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.padding(vertical = 14.dp))
+        }
+    }
+}
+
+internal enum class OptionState { Idle, Correct, Wrong, Dim }
+
+/** Вариант ответа: верный заливается, неверный выбранный — зачёркивается. */
+@Composable
+internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val bg by animateColorAsState(if (state == OptionState.Correct) Ink.Fg else Ink.Bg, tween(260), label = "bg")
+    val fg by animateColorAsState(
+        when (state) {
+            OptionState.Correct -> Ink.Bg
+            OptionState.Wrong, OptionState.Dim -> Ink.Faint
+            OptionState.Idle -> Ink.Text
+        },
+        tween(260), label = "fg",
+    )
+    val border by animateColorAsState(
+        when (state) {
+            OptionState.Correct -> Ink.Fg
+            OptionState.Wrong -> Ink.Muted
+            OptionState.Dim -> Ink.Line
+            OptionState.Idle -> Ink.LineStrong
+        },
+        tween(260), label = "border",
+    )
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 56.dp)
+            .pressScale(interaction, 0.98f)
+            .background(bg, RoundedCornerShape(4.dp))
+            .border(1.dp, border, RoundedCornerShape(4.dp))
+            .clickable(interaction, indication = null, onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyLarge.copy(textDecoration = if (state == OptionState.Wrong) TextDecoration.LineThrough else null),
+            color = fg,
+            modifier = Modifier.weight(1f),
+        )
+        when (state) {
+            OptionState.Correct -> Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(18.dp))
+            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Muted, modifier = Modifier.size(18.dp))
+            else -> {}
+        }
+    }
+}
+
+// ------------------------------------------------------------------ допиши пропуск
+
+@Composable
+private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule: (Int) -> Unit) {
+    var input by rememberSaveable(task.id) { mutableStateOf("") }
+    var verdict by remember(task.id) { mutableStateOf<Verdict?>(null) }
+    var shake by remember(task.id) { mutableIntStateOf(0) }
+    val focus = remember(task.id) { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    val accepted = task.acceptedAnswers
+
+    LaunchedEffect(task.id) { runCatching { focus.requestFocus() } }
+
+    fun check(giveUp: Boolean = false) {
+        if (verdict != null) return
+        if (!giveUp && input.isBlank()) { shake++; return }
+        val v = if (giveUp) Verdict.Wrong else AnswerCheck.check(input, accepted)
+        verdict = v
+        if (v == Verdict.Wrong) shake++
+        vm.record(task, v != Verdict.Wrong, input)
+        focusManager.clearFocus(force = true)
+        keyboard?.hide()
+    }
+
+    val filled = when (verdict) {
+        null -> null
+        Verdict.Correct -> accepted.firstOrNull { AnswerCheck.normalize(it) == AnswerCheck.normalize(input) } ?: input.trim()
+        else -> accepted.firstOrNull() ?: task.answer
+    }
+
+    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
+            TaskHeader(task)
+            Spacer(Modifier.height(20.dp))
+            Text(
+                promptWithGap(task.prompt, filled),
+                style = TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp),
+                color = Ink.Fg,
+            )
+            Spacer(Modifier.height(26.dp))
+            AnswerField(
+                value = input,
+                onChange = { if (verdict == null) input = it },
+                placeholder = "Впишите пропуск",
+                enabled = verdict == null,
+                focus = focus,
+                imeAction = ImeAction.Done,
+                onIme = { check() },
+                modifier = Modifier.shakeOn(shake),
+                struck = verdict == Verdict.Wrong,
+            )
+            AnimatedVisibility(verdict != null, enter = fadeIn(tween(300)) + expandVertically()) {
+                val v = verdict ?: Verdict.Wrong
+                Column(Modifier.fillMaxWidth().padding(top = 20.dp)) {
+                    VerdictLine(v)
+                    if (v != Verdict.Correct) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            if (v == Verdict.Typo) annotateMistakes(accepted.first(), input) else AnnotatedString(accepted.first()),
+                            style = TextStyle(fontFamily = Serif, fontSize = 28.sp),
+                            color = Ink.Fg,
+                        )
+                    }
+                    if (accepted.size > 1) {
+                        Spacer(Modifier.height(8.dp))
+                        Text("Также верно: " + accepted.drop(1).joinToString(", "), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    }
+                    Explanation(task, openRule)
+                }
+            }
+        }
+        AnimatedContent(
+            targetState = verdict != null,
+            transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
+            label = "actions",
+            modifier = Modifier.padding(vertical = 14.dp),
+        ) { answered ->
+            if (answered) {
+                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PrimaryButton("Проверить", onClick = { check() }, modifier = Modifier.weight(1.4f))
+                    GhostButton("Не знаю", onClick = { check(giveUp = true) }, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}

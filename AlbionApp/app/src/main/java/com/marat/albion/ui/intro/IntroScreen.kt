@@ -1,0 +1,130 @@
+package com.marat.albion.ui.intro
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.marat.albion.data.content.ImportStatus
+import com.marat.albion.ui.components.AlbionLogo
+import com.marat.albion.ui.components.ThinProgress
+import com.marat.albion.ui.theme.AlbionType
+import com.marat.albion.ui.theme.Easing
+import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.Serif
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+/**
+ * Загрузочный экран. Знак «рисуется»: линия горизонта растёт от центра,
+ * ноги шеврона поднимаются к вершине, затем проявляется словесный знак
+ * со сжимающейся разрядкой. Если идёт первичная загрузка таблиц —
+ * под знаком появляется тонкая линия прогресса.
+ */
+@Composable
+fun IntroScreen(status: ImportStatus, onFinished: () -> Unit) {
+    val horizon = remember { Animatable(0f) }
+    val chevron = remember { Animatable(0f) }
+    val word = remember { Animatable(0f) }
+    val tagline = remember { Animatable(0f) }
+    var showProgress by remember { mutableStateOf(false) }
+    val currentStatus by rememberUpdatedState(status)
+    val finish by rememberUpdatedState(onFinished)
+
+    LaunchedEffect(Unit) {
+        coroutineScope {
+            launch { delay(120); horizon.animateTo(1f, tween(700, easing = Easing.Emphasized)) }
+            launch { delay(420); chevron.animateTo(1f, tween(760, easing = Easing.Emphasized)) }
+            launch { delay(980); word.animateTo(1f, tween(900, easing = Easing.EmphasizedDecelerate)) }
+            launch { delay(1250); tagline.animateTo(1f, tween(700, easing = Easing.EmphasizedDecelerate)) }
+        }
+        delay(250)
+        val busy = { s: ImportStatus -> s is ImportStatus.Checking || s is ImportStatus.Importing }
+        if (busy(currentStatus)) {
+            showProgress = true
+            snapshotFlow { currentStatus }.first { !busy(it) }
+            delay(300)
+        }
+        finish()
+    }
+
+    Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            AlbionLogo(size = 112.dp, horizon = horizon.value, chevron = chevron.value)
+            Spacer(Modifier.height(36.dp))
+            val w = word.value
+            Text(
+                "ALBION",
+                style = TextStyle(
+                    fontFamily = Serif,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = (22f - 12f * w).sp,
+                ),
+                color = Ink.Fg,
+                modifier = Modifier.graphicsLayer {
+                    alpha = w
+                    translationY = (1f - w) * 24f
+                },
+            )
+            Spacer(Modifier.height(14.dp))
+            Text(
+                "BRITISH ENGLISH",
+                style = AlbionType.eyebrow.copy(letterSpacing = 4.sp),
+                color = Ink.Muted,
+                modifier = Modifier.graphicsLayer { alpha = tagline.value },
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showProgress,
+            enter = fadeIn(tween(400)),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 56.dp),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                val s = status
+                val progress = if (s is ImportStatus.Importing) (s.index - 0.5f) / s.total else 0.05f
+                ThinProgress(progress, modifier = Modifier.width(160.dp), track = Ink.High)
+                Text(
+                    when (s) {
+                        is ImportStatus.Importing -> "Готовлю карточки · ${s.deck.title}"
+                        else -> "Проверяю материалы"
+                    },
+                    style = AlbionType.eyebrow.copy(letterSpacing = 1.5.sp),
+                    color = Ink.Faint,
+                )
+            }
+        }
+    }
+}

@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "ccd22115c3ec2a83",
+    "type": "split",
+    "children": [
+      {
+        "id": "5c55e911b6aff79e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c1ada3b6270f91a6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "019 - Отрицательные предложения.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "019 - Отрицательные предложения"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "65eaf12d4af64ac8",
+    "type": "split",
+    "children": [
+      {
+        "id": "079371a4d1db8b27",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0d2e4d1aa9151aba",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "1f90b3472e669a66",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "c59091b0d23f8602",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "f7fbbb0f181534c2",
+    "type": "split",
+    "children": [
+      {
+        "id": "3759bc308c174146",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "17c5dab4fd7bae5c",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "013 - Артикль the и отсутствие артикля.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "6f0de4ba58dbd15c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "013 - Артикль the и отсутствие артикля.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "edf13ed629e541a1",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "c58f99d2be8b44d5",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "37767e1ee877e452",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "013 - Артикль the и отсутствие артикля.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "c1ada3b6270f91a6",
+  "lastOpenFiles": [
+    "012 - Артикли a и an.md",
+    "001 - Структура английского предложения.md",
+    "002 - Личные местоимения — I и me.md",
+    "007 - Исчисляемые и неисчисляемые существительные.md",
+    "125 - Британская и американская грамматика.md",
+    "100 - Предлоги места — in, on, at.md",
+    "093 - Равенство и усиление сравнений.md",
+    "092 - Превосходная степень — the best.md",
+    "091 - Сравнительная степень — bigger и more useful.md",
+    "075 - Reporting Verbs — promise, suggest, deny.md",
+    "076 - Герундий и инфинитив после глаголов.md",
+    "069 - Пассивные сообщения — it is said и is believed to.md",
+    "065 - Wish и if only — желания и сожаления.md",
+    "061 - Second Conditional — воображаемое настоящее и будущее.md",
+    "060 - First Conditional — реальное будущее условие.md",
+    "059 - Zero Conditional — общие закономерности.md",
+    "048 - Будущее с точки зрения прошлого.md",
+    "047 - Future Perfect Continuous — длительность к будущему моменту.md",
+    "046 - Future Perfect — к будущему сроку.md",
+    "045 - Future Continuous — процесс в будущем.md",
+    "033 - Present Perfect — связь прошлого с настоящим.md",
+    "025 - Present Continuous — процесс сейчас.md",
+    "018 - Вопрос к подлежащему — who called.md",
+    "013 - Артикль the и отсутствие артикля.md",
+    "011 - Числительные, даты и единицы количества.md",
+    "010 - This, that, these, those.md"
+  ]
+}
