@@ -265,17 +265,10 @@ private fun FlipCard(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val width = with(LocalDensity.current) { maxWidth.toPx() }
         val threshold = width * 0.28f
-        Surface(
+        // Handle swipes on a stationary container so the card's transforms cannot mirror the drag.
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer {
-                    rotationY = rotation
-                    scaleX = dip; scaleY = dip
-                    cameraDistance = 16f * density
-                    translationX = drag.value
-                    rotationZ = drag.value / width * 12f
-                }
-                .clip(shape)
                 .pointerInput(cardKey, revealed) {
                     if (!revealed) return@pointerInput
                     detectHorizontalDragGestures(
@@ -296,37 +289,52 @@ private fun FlipCard(
                             scope.launch { drag.snapTo(drag.value + amount) }
                         },
                     )
-                }
-                .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
-            shape = shape,
-            color = Ink.Surface,
-            border = BorderStroke(1.dp, Ink.LineStrong),
+                },
         ) {
-            Box(Modifier.fillMaxSize()) {
-                if (rotation <= 90f) {
-                    Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
-                        Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationX = drag.value
+                        rotationZ = drag.value / width * 12f
                     }
-                    Eyebrow("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp), color = Ink.Faint)
-                } else {
-                    Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }) {
-                        Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { back() }
-                        // Подсказка при смахивании.
-                        val p = (abs(drag.value) / threshold).coerceIn(0f, 1f)
-                        if (p > 0f) {
-                            val label = if (drag.value > 0) "ХОРОШО" else "СНОВА"
-                            Text(
-                                label,
-                                style = AlbionType.eyebrow.copy(letterSpacing = 3.sp),
-                                color = if (drag.value > 0) Ink.Bg else Ink.Fg,
-                                modifier = Modifier
-                                    .align(if (drag.value > 0) Alignment.TopStart else Alignment.TopEnd)
-                                    .padding(18.dp)
-                                    .graphicsLayer { alpha = p; rotationZ = if (drag.value > 0) -8f else 8f }
-                                    .background(if (drag.value > 0) Ink.Fg else Ink.Bg, RoundedCornerShape(2.dp))
-                                    .border(1.dp, Ink.Fg, RoundedCornerShape(2.dp))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                            )
+                    .graphicsLayer {
+                        rotationY = rotation
+                        scaleX = dip; scaleY = dip
+                        cameraDistance = 16f * density
+                    }
+                    .clip(shape)
+                    .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
+                shape = shape,
+                color = Ink.Surface,
+                border = BorderStroke(1.dp, Ink.LineStrong),
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    if (rotation <= 90f) {
+                        Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
+                            Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
+                        }
+                        Eyebrow("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp), color = Ink.Faint)
+                    } else {
+                        Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }) {
+                            Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { back() }
+                            // Подсказка при смахивании.
+                            val p = (abs(drag.value) / threshold).coerceIn(0f, 1f)
+                            if (p > 0f) {
+                                val label = if (drag.value > 0) "ХОРОШО" else "СНОВА"
+                                Text(
+                                    label,
+                                    style = AlbionType.eyebrow.copy(letterSpacing = 3.sp),
+                                    color = if (drag.value > 0) Ink.Bg else Ink.Fg,
+                                    modifier = Modifier
+                                        .align(if (drag.value > 0) Alignment.TopStart else Alignment.TopEnd)
+                                        .padding(18.dp)
+                                        .graphicsLayer { alpha = p; rotationZ = if (drag.value > 0) -8f else 8f }
+                                        .background(if (drag.value > 0) Ink.Fg else Ink.Bg, RoundedCornerShape(2.dp))
+                                        .border(1.dp, Ink.Fg, RoundedCornerShape(2.dp))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                                )
+                            }
                         }
                     }
                 }
