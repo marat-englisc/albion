@@ -2,6 +2,7 @@ package com.marat.albion.data.db
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -238,6 +239,21 @@ interface GrammarDao {
     @Upsert
     suspend fun upsert(entity: GrammarProgressEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfMissing(entity: GrammarProgressEntity)
+
+    @Query("UPDATE grammar_progress SET opened_at = :now WHERE topic_id = :id")
+    suspend fun markOpened(id: String, now: Long)
+
+    @Query("UPDATE grammar_progress SET read_at = CASE WHEN :read THEN COALESCE(read_at, :now) ELSE NULL END WHERE topic_id = :id")
+    suspend fun setRead(id: String, read: Boolean, now: Long)
+
+    @Query("UPDATE grammar_progress SET bookmarked = NOT bookmarked WHERE topic_id = :id")
+    suspend fun toggleBookmark(id: String)
+
+    @Query("UPDATE grammar_progress SET mastered_at = :masteredAt, quiz_at = :now, quiz_correct = :correct, quiz_total = :total, review_stage = :reviewStage, review_at = :reviewAt WHERE topic_id = :id")
+    suspend fun recordQuiz(id: String, correct: Int, total: Int, now: Long, masteredAt: Long?, reviewStage: Int, reviewAt: Long)
+
     @Query("DELETE FROM grammar_progress")
     suspend fun clear()
 }
@@ -280,13 +296,15 @@ interface GrammarTaskDao {
         SELECT t.* FROM grammar_tasks t LEFT JOIN grammar_task_stats s ON s.task_id = t.id
         WHERE t.topic = :topic
         ORDER BY CASE WHEN s.task_id IS NOT NULL AND s.wrong > s.correct THEN 0 ELSE 1 END, RANDOM()
-        LIMIT :limit
         """
     )
-    suspend fun topicPool(topic: Int, limit: Int): List<GrammarTaskEntity>
+    suspend fun topicPool(topic: Int): List<GrammarTaskEntity>
 
     @Query("SELECT COUNT(*) FROM grammar_tasks WHERE topic = :topic")
     fun observeTopicCount(topic: Int): Flow<Int>
+
+    @Query("SELECT DISTINCT topic FROM grammar_tasks WHERE topic IS NOT NULL")
+    fun observeQuizTopics(): Flow<List<Int>>
 
     @Query("SELECT * FROM grammar_task_stats WHERE task_id = :id")
     suspend fun stat(id: String): GrammarTaskStatEntity?

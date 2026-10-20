@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.data.grammar.MdBlock
+import com.marat.albion.data.grammar.InlineEmphasis
 import com.marat.albion.data.grammar.MdCallout
 import com.marat.albion.data.grammar.MdCode
 import com.marat.albion.data.grammar.MdDiagram
@@ -153,18 +154,19 @@ fun InlineText(text: String, modifier: Modifier = Modifier, style: TextStyle = b
  * **жирный**, *курсив*, ~~зачёркнутый~~, ==выделение==, `код`, [[ссылка|текст]], [текст](url), <br>.
  */
 fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Unit): AnnotatedString = buildAnnotatedString {
-    var bold = false
-    var italic = false
+    var bold = 0
+    var italic = 0
+    val emphasis = InlineEmphasis.marks(text)
     var strike = false
     var mark = false
     val linkStyles = TextLinkStyles(SpanStyle(color = Ink.Fg, textDecoration = TextDecoration.Underline))
 
     fun style() = SpanStyle(
-        fontWeight = if (bold) FontWeight.SemiBold else null,
-        fontStyle = if (italic) FontStyle.Italic else null,
+        fontWeight = if (bold > 0) FontWeight.SemiBold else null,
+        fontStyle = if (italic > 0) FontStyle.Italic else null,
         textDecoration = if (strike) TextDecoration.LineThrough else null,
         background = if (mark) Ink.High else Color.Unspecified,
-        color = if (bold) Ink.Fg else Color.Unspecified,
+        color = if (bold > 0) Ink.Fg else Color.Unspecified,
     )
 
     val sb = StringBuilder()
@@ -173,6 +175,7 @@ fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Un
     var i = 0
     while (i < text.length) {
         val ch = text[i]
+        val emphasisMark = emphasis[i]
         when {
             ch == '\\' && i + 1 < text.length && text[i + 1] in "\\`*_[]()#|~=<>!-." -> { sb.append(text[i + 1]); i += 2 }
 
@@ -180,7 +183,7 @@ fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Un
                 val end = text.indexOf('`', i + 1)
                 if (end < 0) { sb.append(ch); i++ } else {
                     flush()
-                    withStyle(SpanStyle(color = Ink.Fg, background = Ink.Code, fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Medium)) {
+                    withStyle(SpanStyle(color = Ink.Fg, background = Ink.Code, fontWeight = if (bold > 0) FontWeight.SemiBold else FontWeight.Medium)) {
                         append(" "); append(text.substring(i + 1, end)); append(" ")
                     }
                     i = end + 1
@@ -211,14 +214,15 @@ fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Un
                 }
             }
 
-            text.startsWith("**", i) || text.startsWith("__", i) -> { flush(); bold = !bold; i += 2 }
+            emphasisMark != null -> {
+                flush()
+                val delta = if (emphasisMark.opening) 1 else -1
+                if (emphasisMark.strong) bold += delta else italic += delta
+                i += emphasisMark.length
+            }
+
             text.startsWith("~~", i) -> { flush(); strike = !strike; i += 2 }
             text.startsWith("==", i) -> { flush(); mark = !mark; i += 2 }
-
-            ch == '*' || (ch == '_' && (i == 0 || !text[i - 1].isLetterOrDigit()) || (ch == '_' && italic)) -> {
-                val next = text.getOrNull(i + 1)
-                if (!italic && (next == null || next == ' ')) { sb.append(ch); i++ } else { flush(); italic = !italic; i++ }
-            }
 
             text.startsWith("<br", i, ignoreCase = true) && text.indexOf('>', i) > 0 -> {
                 sb.append('\n'); i = text.indexOf('>', i) + 1

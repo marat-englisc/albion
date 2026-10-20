@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.grammar.GrammarBook
+import com.marat.albion.data.grammar.GrammarReview
+import com.marat.albion.data.db.GrammarProgressEntity
 import com.marat.albion.data.grammar.MdDocument
 import com.marat.albion.data.grammar.MdHeading
 import com.marat.albion.data.grammar.Topic
@@ -83,7 +85,7 @@ import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
 
 @Composable
-fun TopicScreen(topicId: String, navigator: Navigator) {
+fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false) {
     val c = LocalAppContainer.current
     val scope = rememberCoroutineScope()
     var book by remember { mutableStateOf<GrammarBook?>(null) }
@@ -212,8 +214,9 @@ fun TopicScreen(topicId: String, navigator: Navigator) {
                                 val number = topic.number
                                 TopicFooter(
                                     quizCount = quizCount,
-                                    onQuiz = number?.let { n -> { navigator.open(TopicQuizRoute(n, topicId, topic.title)) } },
-                                    read = progress?.readAt != null,
+                                    onQuiz = if (fromQuiz) navigator::back else number?.let { n -> { navigator.open(TopicQuizRoute(n, topicId, topic.title)) } },
+                                    fromQuiz = fromQuiz,
+                                    progress = progress,
                                     onToggleRead = { scope.launch { c.grammar.setRead(topicId, progress?.readAt == null) } },
                                     onPrev = prev?.let { t -> { navigator.replace(TopicRoute(t.id)) } },
                                     onContents = { navigator.open(GrammarRoute) },
@@ -264,33 +267,51 @@ private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier) {
 private fun TopicFooter(
     quizCount: Int,
     onQuiz: (() -> Unit)?,
-    read: Boolean,
+    fromQuiz: Boolean,
+    progress: GrammarProgressEntity?,
     onToggleRead: () -> Unit,
     onPrev: (() -> Unit)?,
     onContents: () -> Unit,
     onNext: (() -> Unit)?,
 ) {
     Column(Modifier.padding(top = 28.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
+        val read = progress?.readAt != null
+        val mastered = progress?.masteredAt != null
         val hasQuiz = quizCount > 0 && onQuiz != null
+        val review = GrammarReview.plan(progress)
+        val now = grammarReviewTime()
         if (hasQuiz) {
             Column(Modifier.fillMaxWidth().border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).padding(20.dp)) {
                 Eyebrow("Проверь себя", color = Ink.Soft)
                 Spacer(Modifier.height(10.dp))
                 Text(
                     "${quizCount} ${tasksWord(quizCount)} по этой теме — выбор варианта и ввод ответа. " +
-                        "Если ответите верно на 70% и больше, тема отметится изученной.",
+                        "Для отметки «Освоено» нужно не менее 70% в полном тесте. Повтор ошибок — отдельная тренировка.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Ink.Muted,
                 )
                 Spacer(Modifier.height(16.dp))
-                PrimaryButton("Начать проверку", onClick = onQuiz!!, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                PrimaryButton(when {
+                    fromQuiz -> "Вернуться к тесту"
+                    review != null -> "Повторить полный тест"
+                    else -> "Начать проверку"
+                }, onClick = onQuiz, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             }
         }
-        when {
-            read -> GhostButton("Тема изучена", onClick = onToggleRead, icon = Icons.Rounded.Check)
-            hasQuiz -> GhostButton("Отметить как изученную", onClick = onToggleRead, icon = Icons.Rounded.Check)
-            else -> PrimaryButton("Отметить как изученную", onClick = onToggleRead, icon = Icons.Rounded.Check)
+        if (progress?.quizAt != null) {
+            Text(
+                (if (mastered) "Тема освоена. " else "Освоение пока не подтверждено. ") +
+                    "Последняя полная проверка: ${progress.quizCorrect} из ${progress.quizTotal} верно.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (mastered) Ink.Fg else Ink.Muted,
+            )
         }
+        if (review != null && hasQuiz) {
+            Text("Следующее повторение: ${grammarReviewDate(review.dueAt, now)}. " +
+                "Успешные полные тесты увеличивают интервал до 60 дней; менее 70% — повтор через день.",
+                style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+        }
+        GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = Icons.Rounded.Check)
         NavArrows(onPrev, onContents, onNext)
     }
 }

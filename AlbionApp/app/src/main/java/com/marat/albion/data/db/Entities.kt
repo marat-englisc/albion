@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.marat.albion.data.grammar.GrammarPrompt
 
 /**
  * Карточка — содержимое из xlsx. Перезаписывается при импорте; прогресс
@@ -71,6 +72,12 @@ data class GrammarProgressEntity(
     @ColumnInfo(name = "read_at") val readAt: Long?,
     val bookmarked: Boolean,
     @ColumnInfo(name = "opened_at") val openedAt: Long?,
+    @ColumnInfo(name = "mastered_at") val masteredAt: Long? = null,
+    @ColumnInfo(name = "quiz_at") val quizAt: Long? = null,
+    @ColumnInfo(name = "quiz_correct") val quizCorrect: Int? = null,
+    @ColumnInfo(name = "quiz_total") val quizTotal: Int? = null,
+    @ColumnInfo(name = "review_stage", defaultValue = "0") val reviewStage: Int = 0,
+    @ColumnInfo(name = "review_at") val reviewAt: Long? = null,
 )
 
 /** Грамматическое задание из grammar_tasks.xlsx. [options] — варианты, каждый на своей строке. */
@@ -85,12 +92,32 @@ data class GrammarTaskEntity(
     val kind: String,
     val prompt: String,
     val options: String,
-    /** Правильный ответ; для ввода — допустимые варианты через « / ». */
+    /**
+     * Один пропуск: варианты ввода через « / ». Несколько пропусков: части через
+     * « / », каждый альтернативный набор для ввода — с новой строки.
+     */
     val answer: String,
     val explanation: String,
 ) {
     val optionList: List<String> get() = options.lines().filter { it.isNotBlank() }
-    val acceptedAnswers: List<String> get() = answer.split(" / ").map { it.trim() }.filter { it.isNotEmpty() }
+    val acceptedAnswers: List<String> get() {
+        val parsed = GrammarPrompt(prompt)
+        val variants = when {
+            kind == "choice" -> listOf(answer)
+            parsed.gapCount > 1 -> answer.lines()
+            else -> answer.split(" / ")
+        }
+        return variants.map { it.trim() }.filter { it.isNotEmpty() }.map { value ->
+            if (kind == "input" && parsed.gapCount > 1) parsed.answerParts(value)?.joinToString(" / ") ?: value else value
+        }
+    }
+    /** Полный правильный пример для разбора ошибок; задания без пропусков показывают сам ответ. */
+    val correctAnswerText: String get() {
+        val correct = acceptedAnswers.firstOrNull() ?: answer
+        return GrammarPrompt(prompt).complete(correct) ?: correct
+    }
+    /** Тема 123 текущего учебника проверяет заглавные буквы, апостроф и пунктуацию. */
+    val requiresExactWriting: Boolean get() = topic == 123
 }
 
 /** Статистика по заданию — чтобы чаще давать те, где ошибались. */

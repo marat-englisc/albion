@@ -93,7 +93,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
     fun finish(v: Verdict, answer: String) {
         verdict = v
         if (v == Verdict.Wrong) shake++
-        vm.record(v != Verdict.Wrong, Mistake(prompt, answer, task.answer))
+        vm.record(v == Verdict.Correct, Mistake(prompt, answer, task.answer))
         focusManager.clearFocus(force = true)
         keyboard?.hide()
         playAnswer()
@@ -102,7 +102,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
     fun checkTyped(giveUp: Boolean = false) {
         if (verdict != null) return
         if (!giveUp && input.isBlank()) { shake++; return }
-        finish(if (giveUp) Verdict.Wrong else AnswerCheck.check(input, task.accepted), input)
+        finish(if (giveUp) Verdict.Wrong else AnswerCheck.checkGrammar(input, task.accepted), input)
     }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
@@ -161,7 +161,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                     if (typing && v != Verdict.Correct) {
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            if (v == Verdict.Typo) annotateMistakes(task.answer, input) else AnnotatedString(task.answer),
+                            AnnotatedString(task.answer),
                             style = TextStyle(fontFamily = Serif, fontSize = 26.sp),
                             color = Ink.Fg,
                         )
@@ -207,7 +207,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
 /** Что вписать в пропуск после ответа: ваш вариант, если он верный (burned вместо burnt). */
 private fun shownAnswer(task: TenseTask, answer: String?, verdict: Verdict): String =
     if (verdict == Verdict.Wrong || answer == null) task.answer
-    else task.accepted.firstOrNull { AnswerCheck.normalize(it) == AnswerCheck.normalize(answer) } ?: task.answer
+    else task.accepted.firstOrNull { AnswerCheck.normalizeGrammar(it) == AnswerCheck.normalizeGrammar(answer) } ?: task.answer
 
 /** Предложение: пропуск-линия с подсказкой «(go)», после ответа — вписанная форма. */
 private fun sentence(task: TenseTask, filled: String?): AnnotatedString = buildAnnotatedString {

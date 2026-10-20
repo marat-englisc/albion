@@ -1,5 +1,6 @@
 package com.marat.albion.data.games
 
+import java.util.Locale
 import kotlin.math.max
 
 /** Насколько ответ совпал с правильным. */
@@ -7,10 +8,13 @@ enum class Verdict { Correct, Typo, Wrong }
 
 /**
  * Сравнение ответов в мини-играх: без учёта регистра, лишних пробелов,
- * типографских апострофов и финальной пунктуации; мелкая опечатка
- * засчитывается как «почти».
+ * типографских апострофов и финальной пунктуации. В словарных играх мелкая
+ * опечатка засчитывается как «почти»; грамматические формы проверяются строго.
  */
 object AnswerCheck {
+
+    private val GRAMMAR_SPACES = Regex("[\\s\\p{Zs}]+")
+    private val TERMINAL_PUNCTUATION = Regex("[.!?]+$")
 
     fun normalize(s: String): String = s
         .lowercase()
@@ -59,6 +63,24 @@ object AnswerCheck {
         if (options.any { it == a }) return Verdict.Correct
         val (dist, target) = options.map { levenshtein(a, it) to it }.minByOrNull { it.first } ?: return Verdict.Wrong
         return if (dist <= tolerance(target.length)) Verdict.Typo else Verdict.Wrong
+    }
+
+    /**
+     * В грамматике близкая по написанию форма может менять время, согласование
+     * или отрицание. Засчитываем только явно допустимый ответ, без допуска опечаток.
+     * В заданиях на письмо [exactWriting] сохраняет регистр и конечную пунктуацию.
+     */
+    fun checkGrammar(answer: String, accepted: List<String>, exactWriting: Boolean = false): Verdict {
+        val actual = normalizeGrammar(answer, exactWriting)
+        if (actual.isEmpty()) return Verdict.Wrong
+        return if (accepted.any { normalizeGrammar(it, exactWriting) == actual }) Verdict.Correct else Verdict.Wrong
+    }
+
+    /** Внутренняя пунктуация и апострофы значимы: "has, gone" и "its" — другие ответы. */
+    fun normalizeGrammar(s: String, exactWriting: Boolean = false): String {
+        val text = s.replace('’', '\'').replace('‘', '\'').replace('`', '\'')
+            .replace(GRAMMAR_SPACES, " ").trim()
+        return if (exactWriting) text else text.lowercase(Locale.ROOT).replace(TERMINAL_PUNCTUATION, "").trimEnd()
     }
 
     private val SOMEONE = setOf("someone", "somebody", "something", "sb", "smb", "sth", "smth")
@@ -120,17 +142,12 @@ object AnswerCheck {
 
     /**
      * Форма неправильного глагола: можно ввести один из вариантов
-     * («abided» или «abode») либо оба через «/» или запятую.
+     * («abided» или «abode») либо оба через «/» или запятую. Каждый вариант
+     * должен быть правильной формой, опечатки не засчитываются.
      */
     fun checkForm(answer: String, variants: List<String>): Verdict {
-        val parts = answer.split('/', ',').map(::normalize).filter { it.isNotEmpty() }
-        if (parts.isEmpty()) return Verdict.Wrong
-        val verdicts = parts.map { check(it, variants) }
-        return when {
-            verdicts.all { it == Verdict.Correct } -> Verdict.Correct
-            verdicts.none { it == Verdict.Wrong } -> Verdict.Typo
-            else -> Verdict.Wrong
-        }
+        val parts = answer.split('/', ',')
+        return if (parts.all { checkGrammar(it, variants) == Verdict.Correct }) Verdict.Correct else Verdict.Wrong
     }
 
     /**

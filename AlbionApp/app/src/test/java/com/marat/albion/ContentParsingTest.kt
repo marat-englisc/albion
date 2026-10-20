@@ -5,8 +5,10 @@ import com.marat.albion.data.content.CollectionParser
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.content.IrregularData
 import com.marat.albion.data.content.XlsxReader
+import com.marat.albion.data.grammar.GrammarPrompt
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -87,6 +89,13 @@ class ContentParsingTest {
             } else {
                 assertTrue("${t.id}: есть пропуск", "___" in t.prompt)
                 assertTrue("${t.id}: есть ответ", t.acceptedAnswers.isNotEmpty())
+            }
+            val prompt = GrammarPrompt(t.prompt)
+            if (prompt.gapCount > 0) {
+                val answers = if (t.kind == "choice") t.optionList else t.acceptedAnswers
+                answers.forEach { answer ->
+                    assertNotNull("${t.id}: $answer не соответствует ${prompt.gapCount} пропускам", prompt.answerParts(answer))
+                }
             }
         }
     }

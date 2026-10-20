@@ -143,7 +143,7 @@ fun AlbionNavigation() {
         entry<StudyRoute> { StudyScreen(it.deck, navigator) }
         entry<BrowseRoute> { BrowseScreen(it.deck, navigator) }
         entry<CardRoute> { CardDetailScreen(it.cardId, navigator) }
-        entry<TopicRoute> { TopicScreen(it.topicId, navigator) }
+        entry<TopicRoute> { TopicScreen(it.topicId, navigator, fromQuiz = it.fromQuiz) }
         entry<TopicQuizRoute> { TopicQuizHost(it.topic, it.topicId, it.title, navigator) }
     }
     // Декораторы всех стеков остаются в композиции, даже когда отображается другой раздел.

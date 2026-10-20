@@ -93,4 +93,17 @@ class NavigatorTest {
         nav.open(GrammarRoute)
         assertEquals(listOf(GrammarRoute), nav.backStack.toList())
     }
+
+    @Test fun openingTheRuleKeepsTheQuizInTheStackEvenAboveTheSameLesson() {
+        val nav = navigator()
+        nav.selectTab(GrammarRoute)
+        val lesson = TopicRoute("articles")
+        val quiz = TopicQuizRoute(1, "articles", "Articles")
+        nav.open(lesson)
+        nav.open(quiz)
+        nav.open(TopicRoute("articles", fromQuiz = true))
+        assertEquals(listOf(GrammarRoute, lesson, quiz, TopicRoute("articles", fromQuiz = true)), nav.backStack.toList())
+        nav.back()
+        assertEquals(listOf(GrammarRoute, lesson, quiz), nav.backStack.toList())
+    }
 }

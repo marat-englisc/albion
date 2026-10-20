@@ -79,6 +79,8 @@ import com.marat.albion.data.db.GrammarTaskEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.data.grammar.TopicKind
+import com.marat.albion.data.grammar.GrammarPrompt
+import com.marat.albion.data.grammar.GrammarQuizSession
 import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.EmptyState
@@ -123,6 +125,9 @@ class GrammarGameViewModel(
         private set
     val mistakes = mutableStateListOf<Mistake>()
     private val missed = mutableListOf<GrammarTaskEntity>()
+    private var session: GrammarQuizSession? = null
+    var retryingMistakes by mutableStateOf(false)
+        private set
     /** Номер темы → id файла учебника (для ссылки «Правило»). */
     var topicIds by mutableStateOf<Map<Int, String>>(emptyMap())
         private set
@@ -141,6 +146,8 @@ class GrammarGameViewModel(
         viewModelScope.launch {
             val pool = retry?.shuffled() ?: if (topic != null) c.study.topicPool(topic) else c.study.grammarPool(kind, level, count)
             items = pool
+            retryingMistakes = retry != null
+            session = GrammarQuizSession(pool.map { it.id }, fullAttempt = topic != null && !retryingMistakes)
             index = 0
             correct = 0
             mistakes.clear()
@@ -157,19 +164,22 @@ class GrammarGameViewModel(
     fun optionsFor(task: GrammarTaskEntity) = shuffled.getOrPut(task.id) { task.optionList.shuffled() }
 
     fun record(task: GrammarTaskEntity, ok: Boolean, answer: String) {
+        if (phase != Phase.Playing || items.getOrNull(index)?.id != task.id || session?.record(task.id, ok) != true) return
         if (ok) correct++ else {
-            mistakes += Mistake(task.prompt, answer, task.acceptedAnswers.firstOrNull() ?: task.answer)
+            mistakes += Mistake(task.prompt, answer, task.correctAnswerText)
             missed += task
         }
         viewModelScope.launch { c.study.recordGrammar(task.id, ok) }
     }
 
     fun next() {
+        if (phase != Phase.Playing || items.getOrNull(index)?.let { session?.answered(it.id) } != true) return
         if (index + 1 < items.size) { index++; return }
         phase = Phase.Summary
-        // Тема проверена: 70% и больше — отмечаем её изученной.
-        if (topicId != null && items.isNotEmpty() && correct * 10 >= items.size * 7) {
-            viewModelScope.launch { c.grammar.setRead(topicId, true) }
+        val result = session?.result()
+        if (topicId != null && result != null && result.updatesMastery) {
+            // Сохраняем и неуспешный полный тест; повтор ошибок результат не заменяет.
+            c.appScope.launch { c.grammar.recordQuiz(topicId, result) }
         }
     }
 
@@ -240,11 +250,11 @@ private fun TaskRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRul
 fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigator) {
     val c = LocalAppContainer.current
     val vm = viewModel(key = "quiz-$topicId") { GrammarGameViewModel(c, null, topic, topicId) }
-    // «Правило» этой же темы — просто возврат к ней.
+    // Отдельная запись в стеке сохраняет текущий тест, даже если тема уже открыта под ним.
     val openRule: (Int) -> Unit = { n ->
-        if (n == topic) navigator.back() else vm.topicIds[n]?.let { navigator.open(TopicRoute(it)) }
+        vm.topicIds[n]?.let { navigator.open(TopicRoute(it, fromQuiz = true)) }
     }
-    val quizTitle = "Проверь себя · тема $topic"
+    val quizTitle = if (vm.retryingMistakes) "Повтор ошибок · тема $topic" else "Проверь себя · тема $topic"
 
     AnimatedContent(
         targetState = vm.phase,
@@ -257,7 +267,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
             }
             Phase.Summary -> GameSummary(
                 game = null,
-                title = title,
+                title = if (vm.retryingMistakes) "$title · повтор ошибок" else title,
                 correct = vm.correct,
                 total = vm.items.size,
                 mistakes = vm.mistakes.toList(),
@@ -338,16 +348,18 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
  */
 internal const val GAP_MARK = "______"
 
-/** Предложение с пропуском: пустое место — линия, после ответа — вписанное слово. */
-private fun promptWithGap(prompt: String, filled: String?): AnnotatedString = buildAnnotatedString {
-    val parts = prompt.split("___")
-    parts.forEachIndexed { i, part ->
-        append(part)
-        if (i < parts.lastIndex) {
-            if (filled == null) {
+/** Каждая часть ответа вставляется только в соответствующий пропуск. */
+internal fun promptWithGap(prompt: String, filled: String?): AnnotatedString = buildAnnotatedString {
+    val parsed = GrammarPrompt(prompt)
+    val values = filled?.let(parsed::answerParts)
+    parsed.parts.indices.forEach { i ->
+        append(parsed.textPart(i, values?.getOrNull(i)))
+        if (i < parsed.gapCount) {
+            val value = values?.get(i)
+            if (value == null) {
                 withStyle(SpanStyle(color = Ink.Muted)) { append(GAP_MARK) }
             } else {
-                withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontWeight = FontWeight.SemiBold, color = Ink.Fg)) { append(filled) }
+                withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontWeight = FontWeight.SemiBold, color = Ink.Fg)) { append(value) }
             }
         }
     }
@@ -486,29 +498,33 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
 @Composable
 private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule: (Int) -> Unit) {
     var input by rememberSaveable(task.id) { mutableStateOf("") }
-    var verdict by remember(task.id) { mutableStateOf<Verdict?>(null) }
+    var verdict by rememberSaveable(task.id) { mutableStateOf<Verdict?>(null) }
     var shake by remember(task.id) { mutableIntStateOf(0) }
     val focus = remember(task.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val accepted = task.acceptedAnswers
+    val parsed = remember(task.prompt) { GrammarPrompt(task.prompt) }
+    val submitted = parsed.answerParts(input)?.joinToString(" / ") ?: input
 
     LaunchedEffect(task.id) { runCatching { focus.requestFocus() } }
 
     fun check(giveUp: Boolean = false) {
         if (verdict != null) return
         if (!giveUp && input.isBlank()) { shake++; return }
-        val v = if (giveUp) Verdict.Wrong else AnswerCheck.check(input, accepted)
+        val v = if (giveUp) Verdict.Wrong else AnswerCheck.checkGrammar(submitted, accepted, task.requiresExactWriting)
         verdict = v
         if (v == Verdict.Wrong) shake++
-        vm.record(task, v != Verdict.Wrong, input)
+        vm.record(task, v == Verdict.Correct, input)
         focusManager.clearFocus(force = true)
         keyboard?.hide()
     }
 
     val filled = when (verdict) {
         null -> null
-        Verdict.Correct -> accepted.firstOrNull { AnswerCheck.normalize(it) == AnswerCheck.normalize(input) } ?: input.trim()
+        Verdict.Correct -> accepted.firstOrNull {
+            AnswerCheck.normalizeGrammar(it, task.requiresExactWriting) == AnswerCheck.normalizeGrammar(submitted, task.requiresExactWriting)
+        } ?: input.trim()
         else -> accepted.firstOrNull() ?: task.answer
     }
 
@@ -525,7 +541,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             AnswerField(
                 value = input,
                 onChange = { if (verdict == null) input = it },
-                placeholder = "Впишите пропуск",
+                placeholder = if (parsed.gapCount > 1) "Ответы по порядку через /" else "Впишите пропуск",
                 enabled = verdict == null,
                 focus = focus,
                 imeAction = ImeAction.Done,
@@ -540,7 +556,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
                     if (v != Verdict.Correct) {
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            if (v == Verdict.Typo) annotateMistakes(accepted.first(), input) else AnnotatedString(accepted.first()),
+                            AnnotatedString(accepted.first()),
                             style = TextStyle(fontFamily = Serif, fontSize = 28.sp),
                             color = Ink.Fg,
                         )

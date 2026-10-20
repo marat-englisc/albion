@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,7 @@ import com.marat.albion.AppContainer
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.db.GrammarProgressEntity
 import com.marat.albion.data.grammar.GrammarBook
+import com.marat.albion.data.grammar.GrammarReview
 import com.marat.albion.data.grammar.Topic
 import com.marat.albion.data.grammar.TopicKind
 import com.marat.albion.ui.browse.SearchField
@@ -59,6 +62,7 @@ import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
+import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.components.PrimaryButton
@@ -68,6 +72,7 @@ import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
+import com.marat.albion.ui.nav.TopicQuizRoute
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
@@ -86,6 +91,7 @@ data class GrammarHomeState(
     val book: GrammarBook = GrammarBook.EMPTY,
     val progress: Map<String, GrammarProgressEntity> = emptyMap(),
     val lastTopic: String? = null,
+    val reviews: List<GrammarReview.Item> = emptyList(),
 )
 
 class GrammarViewModel(c: AppContainer) : ViewModel() {
@@ -93,8 +99,10 @@ class GrammarViewModel(c: AppContainer) : ViewModel() {
         flow { emit(c.grammar.book()) },
         c.grammar.observeProgress(),
         c.settings.settings,
-    ) { book, progress, s ->
-        GrammarHomeState(false, book, progress.associateBy { it.topicId }, s.lastGrammarTopic)
+        c.grammar.observeQuizTopics(),
+    ) { book, progress, s, quizTopics ->
+        val byId = progress.associateBy { it.topicId }
+        GrammarHomeState(false, book, byId, s.lastGrammarTopic, GrammarReview.scheduled(book, byId, quizTopics.toSet()))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GrammarHomeState())
 }
 
@@ -108,17 +116,28 @@ fun GrammarScreen(navigator: Navigator) {
     var query by rememberSaveable { mutableStateOf("") }
     var level by rememberSaveable { mutableStateOf<String?>(null) }
     var bookmarksOnly by rememberSaveable { mutableStateOf(false) }
+    var reviewsOnly by rememberSaveable { mutableStateOf(false) }
     var openChapters by rememberSaveable { mutableStateOf(listOf<String>()) }
     val reveal = rememberReveal()
+    val listState = rememberLazyListState()
+    LaunchedEffect(reviewsOnly) {
+        if (reviewsOnly) listState.animateScrollToItem(2)
+    }
 
     val book = state.book
     val lessons = book.lessons
     val readCount = lessons.count { state.progress[it.id]?.readAt != null }
-    val filtering = query.isNotBlank() || level != null || bookmarksOnly
+    val masteredCount = lessons.count { state.progress[it.id]?.masteredAt != null }
+    val now = grammarReviewTime()
+    val due = state.reviews.takeWhile { it.dueAt <= now }
+    val dueIds = due.map { it.topic.id }.toSet()
+    val filtering = query.isNotBlank() || level != null || bookmarksOnly || reviewsOnly
     val open: (Topic) -> Unit = { navigator.open(TopicRoute(it.id)) }
+    val quiz: (Topic) -> Unit = { t -> t.number?.let { navigator.open(TopicQuizRoute(it, t.id, t.title)) } }
 
     LazyColumn(
         Modifier.fillMaxSize().background(Ink.Bg),
+        state = listState,
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
     ) {
         item {
@@ -138,9 +157,10 @@ fun GrammarScreen(navigator: Navigator) {
 
         item {
             Column(Modifier.padding(top = 24.dp).reveal(reveal, 1)) {
+                Eyebrow("Освоено")
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
                     Row(verticalAlignment = Alignment.Bottom) {
-                        AnimatedNumber(readCount, AlbionType.number, color = Ink.Fg)
+                        AnimatedNumber(masteredCount, AlbionType.number, color = Ink.Fg)
                         Text(" / ${lessons.size} тем", style = MaterialTheme.typography.bodyMedium, color = Ink.Faint,
                             maxLines = 1, softWrap = false, modifier = Modifier.padding(bottom = 8.dp))
                     }
@@ -151,15 +171,17 @@ fun GrammarScreen(navigator: Navigator) {
                     ) {
                         levels.forEach { lv ->
                             val inLevel = lessons.filter { it.level == lv }
-                            if (inLevel.isNotEmpty()) LevelMeter(lv, inLevel.count { state.progress[it.id]?.readAt != null }, inLevel.size)
+                            if (inLevel.isNotEmpty()) LevelMeter(lv, inLevel.count { state.progress[it.id]?.masteredAt != null }, inLevel.size)
                         }
                     }
                 }
                 Spacer(Modifier.height(14.dp))
-                ThinProgress(if (lessons.isEmpty()) 0f else readCount.toFloat() / lessons.size)
+                ThinProgress(if (lessons.isEmpty()) 0f else masteredCount.toFloat() / lessons.size)
+                Text("Прочитано: $readCount из ${lessons.size}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                    modifier = Modifier.padding(top = 10.dp))
 
                 val continueTopic = state.lastTopic?.let(book::topic)?.takeIf { it.kind == TopicKind.Lesson }
-                    ?: lessons.firstOrNull { state.progress[it.id]?.readAt == null }
+                    ?: lessons.firstOrNull { state.progress[it.id]?.masteredAt == null }
                 if (continueTopic != null) {
                     Spacer(Modifier.height(22.dp))
                     PrimaryButton(
@@ -178,9 +200,50 @@ fun GrammarScreen(navigator: Navigator) {
                     Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 14.dp),
                     horizontalArrangement = Arrangement.spacedBy(22.dp),
                 ) {
-                    TextTab("Все", level == null && !bookmarksOnly) { level = null; bookmarksOnly = false }
+                    TextTab("Все", level == null && !bookmarksOnly && !reviewsOnly) { level = null; bookmarksOnly = false; reviewsOnly = false }
                     levels.forEach { lv -> TextTab(lv, level == lv) { level = if (level == lv) null else lv } }
                     TextTab("Закладки", bookmarksOnly) { bookmarksOnly = !bookmarksOnly }
+                    TextTab("К повторению (${due.size})", reviewsOnly) { reviewsOnly = !reviewsOnly }
+                }
+            }
+        }
+
+        if (!state.loading && !filtering) item {
+            Column(Modifier.padding(top = 24.dp)) {
+                SectionHeader("Повторение грамматики", trailing = due.size.toString())
+                Panel(contentPadding = PaddingValues(18.dp)) {
+                    when {
+                        due.isNotEmpty() -> {
+                            Text("К повторению: ${due.size}", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                            Text("Сначала — темы с самой ранней датой. Полный тест обновит план повторения.",
+                                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                                modifier = Modifier.padding(top = 6.dp, bottom = 14.dp))
+                            val first = due.first().topic
+                            PrimaryButton("Повторить: ${first.number}. ${first.title}", onClick = { quiz(first) },
+                                trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                            GhostButton("Открыть правило", onClick = { open(first) }, modifier = Modifier.padding(vertical = 10.dp))
+                            TextTab("Показать очередь (${due.size})", reviewsOnly) {
+                                reviewsOnly = !reviewsOnly; query = ""; level = null; bookmarksOnly = false
+                            }
+                        }
+                        state.reviews.isNotEmpty() -> {
+                            Text("Сейчас нет тем к повторению", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                            val next = state.reviews.first()
+                            Text("Ближайшее повторение: ${grammarReviewDate(next.dueAt, now)}.\n${next.topic.number}. ${next.topic.title}",
+                                style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
+                                modifier = Modifier.padding(top = 8.dp))
+                            GhostButton("Открыть тему", onClick = { open(next.topic) }, modifier = Modifier.padding(top = 10.dp))
+                        }
+                        else -> {
+                            Text("Повторяйте темы по плану", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                            Text("Пройдите полный тест в конце темы — она появится здесь, когда придёт время повторить.",
+                                style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
+                                modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
+                    Text("Интервалы после успешных тестов: 1, 3, 7, 14, 30 и 60 дней. " +
+                        "Менее 70% — повтор через день. Досрочный тест и повтор ошибок не увеличивают интервал.",
+                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 12.dp))
                 }
             }
         }
@@ -198,7 +261,7 @@ fun GrammarScreen(navigator: Navigator) {
             book.topics.firstOrNull { it.kind == TopicKind.Contents }?.let { contents ->
                 item {
                     Text(
-                        "Как устроен учебник и условные обозначения →",
+                        "Как заниматься · маршруты A1–C1 · обозначения →",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Ink.Soft,
                         modifier = Modifier.fillMaxWidth().clickable { open(contents) }.padding(vertical = 16.dp).reveal(reveal, 5),
@@ -209,7 +272,7 @@ fun GrammarScreen(navigator: Navigator) {
             item { SectionHeader("Главы", Modifier.reveal(reveal, 6), trailing = "%02d".format(book.chapters.size)) }
             book.chapters.forEachIndexed { ci, chapter ->
                 val isOpen = chapter.title in openChapters
-                val done = chapter.topics.count { state.progress[it.id]?.readAt != null }
+                val done = chapter.topics.count { state.progress[it.id]?.masteredAt != null }
                 item(key = "chapter-${chapter.title}") {
                     ChapterRow(ci + 1, chapter.title, done, chapter.topics.size, isOpen, Modifier.animateItem().reveal(reveal, 7 + ci)) {
                         openChapters = if (isOpen) openChapters - chapter.title else openChapters + chapter.title
@@ -217,20 +280,31 @@ fun GrammarScreen(navigator: Navigator) {
                 }
                 if (isOpen) {
                     items(chapter.topics, key = { "t-${chapter.title}-${it.id}" }) { t ->
-                        TopicRow(t, state.progress[t.id], Modifier.animateItem(), onClick = { open(t) })
+                        TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, onClick = { open(t) })
                     }
                 }
             }
         } else {
             val q = query.trim().lowercase()
-            val found = book.topics.filter { t ->
+            val candidates = if (reviewsOnly) due.map { it.topic } else book.topics
+            val found = candidates.filter { t ->
                 (t.kind == TopicKind.Lesson || t.kind == TopicKind.Reference) &&
                     (q.isEmpty() || t.title.lowercase().contains(q) || t.number?.toString() == q) &&
                     (level == null || t.level == level) &&
-                    (!bookmarksOnly || state.progress[t.id]?.bookmarked == true)
+                    (!bookmarksOnly || state.progress[t.id]?.bookmarked == true) &&
+                    (!reviewsOnly || t.id in dueIds)
             }
             item { Eyebrow("Найдено: ${found.size}", Modifier.padding(vertical = 8.dp)) }
-            items(found, key = { "f-${it.id}" }) { t -> TopicRow(t, state.progress[t.id], Modifier.animateItem(), onClick = { open(t) }) }
+            items(found, key = { "f-${it.id}" }) { t ->
+                Column {
+                    TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, onClick = { open(t) })
+                    if (reviewsOnly) GhostButton("Повторить тему ${t.number}", onClick = { quiz(t) }, modifier = Modifier.padding(start = 36.dp))
+                }
+            }
+            if (found.isEmpty()) item {
+                Text(if (reviewsOnly) "Нет тем к повторению с выбранными фильтрами." else "Темы не найдены.",
+                    style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, modifier = Modifier.padding(vertical = 20.dp))
+            }
         }
     }
 }
@@ -266,7 +340,7 @@ private fun ChapterRow(index: Int, title: String, done: Int, total: Int, open: B
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
                 Spacer(Modifier.height(4.dp))
-                Text(if (done == total) "Пройдено" else "$done из $total", style = MaterialTheme.typography.bodySmall, color = if (done == total) Ink.Fg else Ink.Muted)
+                Text(if (done == total) "Освоено" else "Освоено $done из $total", style = MaterialTheme.typography.bodySmall, color = if (done == total) Ink.Fg else Ink.Muted)
             }
             Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Muted, modifier = Modifier.rotate(arrow))
         }
@@ -275,8 +349,9 @@ private fun ChapterRow(index: Int, title: String, done: Int, total: Int, open: B
 }
 
 @Composable
-private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modifier, onClick: () -> Unit) {
+private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modifier, now: Long, onClick: () -> Unit) {
     val read = progress?.readAt != null
+    val mastered = progress?.masteredAt != null
     Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(Modifier.padding(start = 36.dp, top = 14.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -284,14 +359,20 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
                 style = AlbionType.index,
                 modifier = Modifier.width(34.dp),
             )
-            Text(
-                t.title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (read) Ink.Muted else Ink.Text,
-                modifier = Modifier.weight(1f),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column(Modifier.weight(1f)) {
+                Text(t.title, style = MaterialTheme.typography.bodyLarge, color = if (mastered) Ink.Muted else Ink.Text,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                val status = when {
+                    mastered -> "Освоено"
+                    progress?.quizAt != null -> "Проверка: ${progress.quizCorrect} из ${progress.quizTotal}"
+                    read -> "Прочитано"
+                    else -> null
+                }
+                if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                GrammarReview.plan(progress)?.let { plan ->
+                    Text("Повторение: ${grammarReviewDate(plan.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = Ink.Soft)
+                }
+            }
             if (progress?.bookmarked == true) {
                 Icon(Icons.Rounded.Bookmark, null, tint = Ink.Fg, modifier = Modifier.size(15.dp))
                 Spacer(Modifier.width(8.dp))
@@ -300,11 +381,11 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
             Spacer(Modifier.width(10.dp))
             Box(
                 Modifier.size(18.dp)
-                    .background(if (read) Ink.Fg else Ink.Bg, CircleShape)
-                    .border(1.dp, if (read) Ink.Fg else Ink.LineStrong, CircleShape),
+                    .background(if (mastered) Ink.Fg else Ink.Bg, CircleShape)
+                    .border(1.dp, if (mastered) Ink.Fg else Ink.LineStrong, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                if (read) Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(12.dp))
+                if (mastered) Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(12.dp))
             }
         }
         Hairline(Modifier.padding(start = 36.dp))

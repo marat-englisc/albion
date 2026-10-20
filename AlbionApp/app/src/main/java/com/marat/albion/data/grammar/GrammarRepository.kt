@@ -1,6 +1,7 @@
 package com.marat.albion.data.grammar
 
 import android.content.res.AssetManager
+import androidx.room.withTransaction
 import com.marat.albion.data.content.ContentImporter
 import com.marat.albion.data.db.AlbionDatabase
 import com.marat.albion.data.db.GrammarProgressEntity
@@ -48,6 +49,7 @@ data class GrammarBook(
 class GrammarRepository(
     private val assets: AssetManager,
     private val db: AlbionDatabase,
+    private val now: () -> Long = System::currentTimeMillis,
 ) {
     private val mutex = Mutex()
     private var book: GrammarBook? = null
@@ -66,20 +68,32 @@ class GrammarRepository(
 
     fun observeProgress() = dao.observeAll()
     fun observeProgress(id: String) = dao.observe(id)
+    fun observeQuizTopics() = db.grammarTasks().observeQuizTopics()
 
     suspend fun markOpened(id: String) {
-        val p = dao.get(id)
-        dao.upsert(p?.copy(openedAt = System.currentTimeMillis()) ?: GrammarProgressEntity(id, null, false, System.currentTimeMillis()))
+        updateProgress(id) { dao.markOpened(id, now()) }
     }
 
     suspend fun setRead(id: String, read: Boolean) {
-        val p = dao.get(id) ?: GrammarProgressEntity(id, null, false, null)
-        dao.upsert(p.copy(readAt = if (read) System.currentTimeMillis() else null))
+        updateProgress(id) { dao.setRead(id, read, now()) }
     }
 
     suspend fun toggleBookmark(id: String) {
-        val p = dao.get(id) ?: GrammarProgressEntity(id, null, false, null)
-        dao.upsert(p.copy(bookmarked = !p.bookmarked))
+        updateProgress(id) { dao.toggleBookmark(id) }
+    }
+
+    suspend fun recordQuiz(id: String, result: GrammarQuizResult) {
+        if (!result.updatesMastery) return
+        updateProgress(id) {
+            val time = now()
+            val plan = GrammarReview.afterQuiz(dao.get(id), result.passed, time)
+            dao.recordQuiz(id, result.correct, result.total, time, if (result.passed) time else null, plan.stage, plan.dueAt)
+        }
+    }
+
+    private suspend fun updateProgress(id: String, update: suspend () -> Unit) = db.withTransaction {
+        dao.insertIfMissing(GrammarProgressEntity(id, null, false, null))
+        update()
     }
 
     suspend fun resetProgress() = dao.clear()
@@ -107,37 +121,10 @@ class GrammarRepository(
             Topic(id, number, cleanTitle.removePrefix("Справочник — "), level, kind)
         }.sortedWith(compareBy<Topic>({ it.number ?: Int.MAX_VALUE }, { it.title }))
 
-        val byId = topics.associateBy { it.id }
         val contents = topics.firstOrNull { it.kind == TopicKind.Contents }
         val contentsDoc = contents?.let { document(it.id) }
-
-        val chapters = ArrayList<Chapter>()
-        var intro: MdDocument? = null
-        if (contentsDoc != null) {
-            var current: String? = null
-            val introBlocks = ArrayList<MdBlock>()
-            for (block in contentsDoc.blocks) {
-                when {
-                    block is MdHeading && block.level == 2 -> current = block.text
-                    block is MdList && current != null -> {
-                        val linked = block.items.mapNotNull { item ->
-                            val text = (item.blocks.firstOrNull() as? MdParagraph)?.text ?: return@mapNotNull null
-                            WIKILINK.find(text)?.groupValues?.get(1)?.let { byId[it.substringBefore('#')] }
-                        }
-                        if (linked.isNotEmpty()) chapters += Chapter(current, linked)
-                    }
-                    current == null || current.startsWith("Условные") || current.startsWith("Если грамматические") ||
-                        current.startsWith("Как заниматься") -> {
-                        if (current != null && introBlocks.none { it is MdHeading && it.text == current }) {
-                            introBlocks += MdHeading(2, current)
-                        }
-                        introBlocks += block
-                    }
-                }
-            }
-            intro = MdDocument(emptyMap(), contentsDoc.title, introBlocks)
-        }
-        val lessonChapters = chapters.filter { ch -> ch.topics.any { it.kind == TopicKind.Lesson } }
+        val parsed = contentsDoc?.let { GrammarContents.extract(it, topics) }
+        val lessonChapters = parsed?.chapters.orEmpty()
         val covered = lessonChapters.flatMap { it.topics }.map { it.id }.toSet()
         val orphans = topics.filter { it.kind == TopicKind.Lesson && it.id !in covered }
         val finalChapters = if (lessonChapters.isEmpty()) {
@@ -145,7 +132,7 @@ class GrammarRepository(
         } else if (orphans.isNotEmpty()) lessonChapters + Chapter("Другие темы", orphans) else lessonChapters
 
         val references = topics.filter { it.kind == TopicKind.Reference } + topics.filter { it.kind == TopicKind.Sources }
-        return GrammarBook(topics, finalChapters, references, intro)
+        return GrammarBook(topics, finalChapters, references, parsed?.intro)
     }
 
     companion object {

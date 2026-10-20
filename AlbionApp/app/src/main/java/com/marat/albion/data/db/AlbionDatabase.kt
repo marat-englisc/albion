@@ -12,10 +12,10 @@ import androidx.room.RoomDatabase
         GrammarTaskEntity::class, GrammarTaskStatEntity::class,
         BookEntity::class, ReadingPositionEntity::class, BookmarkEntity::class, DictionaryEntity::class, HighlightEntity::class, GameCardStatEntity::class,
     ],
-    version = 6,
+    version = 8,
     exportSchema = true,
-    // v2: грамматические задания; v3: библиотека; v4: офлайн-словарь; v5: выделения в книгах; v6: ошибки в мини-играх. Прогресс карточек сохраняется.
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5), AutoMigration(from = 5, to = 6)],
+    // v8: этап и дата следующего повторения грамматики; прежние результаты сохраняются.
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5), AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8)],
 )
 abstract class AlbionDatabase : RoomDatabase() {
     abstract fun cards(): CardDao

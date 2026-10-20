@@ -31,7 +31,9 @@ class AnswerCheckTest {
         assertEquals(Verdict.Correct, AnswerCheck.checkForm("abode", variants))
         assertEquals(Verdict.Correct, AnswerCheck.checkForm("abided / abode", variants))
         assertEquals(Verdict.Correct, AnswerCheck.checkForm("Abided, abode", variants))
-        assertEquals(Verdict.Typo, AnswerCheck.checkForm("abidded", variants))
+        assertEquals(Verdict.Wrong, AnswerCheck.checkForm("abidded", variants))
+        assertEquals(Verdict.Wrong, AnswerCheck.checkForm("forgot", listOf("forgotten")))
+        assertEquals(Verdict.Wrong, AnswerCheck.checkForm("abided / ", variants))
         assertEquals(Verdict.Wrong, AnswerCheck.checkForm("abided / abidden", listOf("abided")))
         assertEquals(Verdict.Wrong, AnswerCheck.checkForm("", variants))
     }

@@ -42,6 +42,8 @@ android {
         compose = true
     }
 
+    sourceSets.getByName("androidTest").assets.srcDir("schemas")
+
     androidResources {
         // mp3/xlsx уже сжаты — не тратим время на повторное сжатие.
         noCompress += listOf("mp3", "xlsx", "epub", "pdf")

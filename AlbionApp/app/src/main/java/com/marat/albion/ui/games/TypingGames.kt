@@ -338,7 +338,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
         if (v2.isBlank() && v3.isBlank()) { shake++; return }
         val r = AnswerCheck.checkForm(v2, past.map { it.text }) to AnswerCheck.checkForm(v3, participle.map { it.text })
         result = r
-        val ok = r.first != Verdict.Wrong && r.second != Verdict.Wrong
+        val ok = r.first == Verdict.Correct && r.second == Verdict.Correct
         if (!ok) shake++
         vm.record(
             ok,
