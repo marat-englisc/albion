@@ -8,6 +8,8 @@ import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.fsrs.ReviewEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 import kotlin.random.Random
 
@@ -62,7 +64,74 @@ class FsrsOptimizerTest {
         outcome as OptimizeOutcome.Done
         println("loss ${outcome.lossBefore} → ${outcome.lossAfter}, items ${outcome.reviews}, w8=${outcome.params[8]}")
         assertTrue("ошибка прогноза уменьшилась", outcome.lossAfter < outcome.lossBefore)
+        assertTrue(outcome.improved)
+        assertEquals(optimizer.validationLoss(Fsrs.DEFAULT_W), outcome.lossBefore, 1e-12)
+        assertEquals(optimizer.validationLoss(outcome.params), outcome.lossAfter, 1e-12)
+        assertEquals(outcome.reviews, optimizer.trainingItems + outcome.validationReviews)
+        assertTrue(outcome.validationReviews >= 30)
         assertTrue("параметры в границах", outcome.params.withIndex().all { (i, v) -> v in Fsrs.BOUNDS[i] })
+    }
+
+    @Test
+    fun comparesAgainstCurrentPersonalizedParameters() {
+        val current = Fsrs.DEFAULT_W.copyOf().apply { this[2] = 7.0; this[8] = 2.8 }
+        val optimizer = FsrsOptimizer(simulate(current, cards = 120), current)
+        val outcome = optimizer.optimize(iterations = 0) as OptimizeOutcome.Done
+        assertEquals(optimizer.validationLoss(current), outcome.lossBefore, 1e-12)
+        assertArrayEquals(current, outcome.params, 0.0)
+        assertEquals(outcome.lossBefore, outcome.lossAfter, 0.0)
+        assertFalse("Текущая модель не считается улучшением самой себя", outcome.improved)
+        assertTrue(kotlin.math.abs(outcome.lossBefore - optimizer.validationLoss(Fsrs.DEFAULT_W)) > 1e-4)
+    }
+
+    /** 200 независимых карточек: последние 40 ответов — отложенная история. */
+    private fun changingHistory(validationRating: Rating): List<ReviewEvent> = (0 until 200).flatMap { i ->
+        val start = 1_700_000_000_000L
+        listOf(
+            ReviewEvent("card$i", Rating.Good.value, start),
+            ReviewEvent("card$i", (if (i < 160) Rating.Good else validationRating).value, start + (i + 1) * Fsrs.DAY),
+        )
+    }
+
+    @Test
+    fun rejectsTrainingImprovementThatMakesHeldOutPredictionsWorse() {
+        val optimizer = FsrsOptimizer(changingHistory(Rating.Again))
+        val outcome = optimizer.optimize(iterations = 60) as OptimizeOutcome.Done
+        assertEquals(160, optimizer.trainingItems)
+        assertEquals(40, outcome.validationReviews)
+        assertTrue("На обучении кандидат лучше", optimizer.trainingLoss(outcome.params) < optimizer.trainingLoss(Fsrs.DEFAULT_W))
+        assertTrue("Но на отложенной истории хуже", outcome.lossAfter > outcome.lossBefore)
+        assertFalse("Такой кандидат не должен применяться", outcome.improved)
+    }
+
+    @Test
+    fun heldOutAnswersDoNotAffectTrainingOrCandidateSelection() {
+        val correct = FsrsOptimizer(changingHistory(Rating.Good)).optimize(iterations = 20) as OptimizeOutcome.Done
+        val wrong = FsrsOptimizer(changingHistory(Rating.Again)).optimize(iterations = 20) as OptimizeOutcome.Done
+        assertArrayEquals("Ответы из проверки не участвуют в подборе", correct.params, wrong.params, 0.0)
+        assertTrue(correct.improved)
+        assertFalse(wrong.improved)
+    }
+
+    @Test
+    fun doesNotTuneWhenAllScoredAnswersHaveTheSameTimestamp() {
+        val events = (0 until 200).flatMap { i ->
+            listOf(ReviewEvent("card$i", 3, Fsrs.DAY), ReviewEvent("card$i", 3, 2 * Fsrs.DAY))
+        }
+        val outcome = FsrsOptimizer(events).optimize(iterations = 1)
+        assertTrue(outcome is OptimizeOutcome.InsufficientSplit)
+    }
+
+    @Test
+    fun rejectsInvalidAndNegligibleValidationImprovements() {
+        fun result(before: Double, after: Double, count: Int = 30) =
+            OptimizeOutcome.Done(Fsrs.DEFAULT_W, before, after, 150, 20, count)
+        assertFalse(result(0.0, 0.0).improved)
+        assertFalse(result(Double.POSITIVE_INFINITY, 0.5).improved)
+        assertFalse(result(0.5, Double.NaN).improved)
+        assertFalse(result(0.5, 0.49975).improved)
+        assertFalse(result(0.5, 0.4, count = 0).improved)
+        assertTrue(result(0.5, 0.49).improved)
     }
 
     @Test

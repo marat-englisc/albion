@@ -1,8 +1,6 @@
 package com.marat.albion.data.library
 
 import kotlinx.serialization.Serializable
-import java.io.ByteArrayInputStream
-import java.util.zip.ZipInputStream
 
 @Serializable
 data class BookContent(
@@ -33,9 +31,18 @@ data class BookPosition(val chapter: Int, val paragraph: Int, val offset: Int) :
 object BookParser {
 
     fun parse(fileName: String, bytes: ByteArray): BookContent {
-        val isZip = bytes.size > 4 && bytes[0] == 'P'.code.toByte() && bytes[1] == 'K'.code.toByte()
+        if (bytes.isEmpty()) throw BookImportException("Файл книги пуст")
+        if (bytes.size > BookInput.MAX_FILE_BYTES) throw BookImportException("Файл слишком большой: поддерживаются книги до 30 МБ")
+        val isZip = bytes.size >= 4 && bytes[0] == 'P'.code.toByte() && bytes[1] == 'K'.code.toByte() &&
+            ((bytes[2] == 3.toByte() && bytes[3] == 4.toByte()) || (bytes[2] == 5.toByte() && bytes[3] == 6.toByte()))
         return if (isZip || fileName.endsWith(".epub", true)) parseEpub(bytes, fileName)
-        else parseText(String(bytes, Charsets.UTF_8).removePrefix("\uFEFF"), fileName)
+        else {
+            val ext = fileName.substringAfterLast('.', "").lowercase(java.util.Locale.ROOT)
+            if (ext !in setOf("", "txt", "text", "md", "markdown")) {
+                throw BookImportException("Этот формат не поддерживается. Выберите TXT, MD, EPUB или текстовый PDF")
+            }
+            parseText(BookInput.decodeText(bytes), fileName)
+        }
     }
 
     // ------------------------------------------------------------------ TXT / MD
@@ -43,6 +50,7 @@ object BookParser {
     private val CHAPTER_LINE = Regex("^(CHAPTER|Chapter|ГЛАВА|Глава|PART|Part)\\s+[\\wIVXLC]+.*$")
 
     fun parseText(text: String, fileName: String = ""): BookContent {
+        BookInput.validateText(text)
         var title = ""
         var author = ""
         var level = ""
@@ -56,10 +64,10 @@ object BookParser {
             if (p.isNotEmpty()) paragraphs += p
             current.setLength(0)
         }
-        fun flushChapter() {
+        fun flushChapter(inferTitle: Boolean = false) {
             flushParagraph()
             // Короткая строка перед первой главой в TXT без разметки — это название книги.
-            if (chapters.isEmpty() && chapterTitle == null && title.isEmpty() && paragraphs.size == 1 && paragraphs[0].length < 80) {
+            if (inferTitle && chapters.isEmpty() && chapterTitle == null && title.isEmpty() && paragraphs.size == 1 && paragraphs[0].length < 80) {
                 title = paragraphs[0]
                 paragraphs.clear()
                 return
@@ -70,7 +78,7 @@ object BookParser {
             paragraphs.clear()
         }
 
-        for (raw in text.replace("\r\n", "\n").lines()) {
+        for (raw in text.replace("\r\n", "\n").replace('\r', '\n').lineSequence()) {
             val line = raw.trim()
             when {
                 line.startsWith("# ") && title.isEmpty() -> title = line.removePrefix("# ").trim()
@@ -79,7 +87,7 @@ object BookParser {
                 title.isNotEmpty() && chapters.isEmpty() && paragraphs.isEmpty() && current.isEmpty() &&
                     line.startsWith("Level:", true) -> level = line.substringAfter(':').trim()
                 line.startsWith("## ") || (CHAPTER_LINE.matches(line) && line.length < 80) -> {
-                    flushChapter()
+                    flushChapter(inferTitle = true)
                     chapterTitle = line.removePrefix("## ").trim()
                 }
                 line.isEmpty() -> flushParagraph()
@@ -87,8 +95,10 @@ object BookParser {
             }
         }
         flushChapter()
-        if (title.isEmpty()) title = fileName.substringBeforeLast('.').replace('_', ' ').replace('-', ' ').trim().ifEmpty { "Без названия" }
-        return BookContent(title, author, level, chapters.filter { it.paragraphs.isNotEmpty() })
+        if (title.isEmpty()) title = BookInput.title(fileName)
+        val readable = chapters.filter { it.paragraphs.isNotEmpty() }
+        if (readable.isEmpty()) throw BookImportException("В книге не найден текст для чтения")
+        return BookContent(title, author, level, readable)
     }
 
     // ------------------------------------------------------------------ PDF
@@ -207,67 +217,7 @@ object BookParser {
 
     // ------------------------------------------------------------------ EPUB
 
-    private val TAG = Regex("<[^>]+>")
-    private val DIV = Regex("<div\\b[^>]*>((?:(?!<div\\b).)*?)</div>", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE))
-    private val BLOCK = Regex("<(h[1-3]|p|li|blockquote)\\b[^>]*>(.*?)</\\1>", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE))
-
-    fun parseEpub(bytes: ByteArray, fileName: String = ""): BookContent {
-        val files = HashMap<String, ByteArray>()
-        ZipInputStream(ByteArrayInputStream(bytes)).use { zip ->
-            while (true) {
-                val e = zip.nextEntry ?: break
-                if (!e.isDirectory) files[e.name] = zip.readBytes()
-            }
-        }
-        fun text(path: String) = files[path]?.toString(Charsets.UTF_8)
-
-        val container = text("META-INF/container.xml") ?: error("Не найден META-INF/container.xml")
-        val opfPath = Regex("full-path=\"([^\"]+)\"").find(container)?.groupValues?.get(1) ?: error("Не найден OPF")
-        val opf = text(opfPath) ?: error("Не найден $opfPath")
-        val base = opfPath.substringBeforeLast('/', "").let { if (it.isEmpty()) "" else "$it/" }
-
-        val title = Regex("<dc:title[^>]*>(.*?)</dc:title>", RegexOption.DOT_MATCHES_ALL).find(opf)?.groupValues?.get(1)?.let(::clean)
-        val author = Regex("<dc:creator[^>]*>(.*?)</dc:creator>", RegexOption.DOT_MATCHES_ALL).find(opf)?.groupValues?.get(1)?.let(::clean)
-
-        val items = Regex("<item\\b[^>]*>").findAll(opf).map { it.value }.toList()
-        val manifest = items.associate { attr(it, "id") to attr(it, "href") }
-        // Навигационный документ EPUB 3 (оглавление) — не текст книги.
-        val navIds = items.filter { attr(it, "properties").split(' ').contains("nav") }.map { attr(it, "id") }.toSet()
-        val spine = Regex("<itemref\\b[^>]*>").findAll(opf)
-            .filter { attr(it.value, "linear") != "no" }
-            .map { attr(it.value, "idref") }
-            .filter { it !in navIds }
-            .toList()
-
-        val chapters = mutableListOf<BookChapter>()
-        for (idref in spine) {
-            val href = manifest[idref] ?: continue
-            val path = normalize(base + java.net.URLDecoder.decode(href.substringBefore('#'), "UTF-8"))
-            val html = text(path) ?: continue
-            val body = html.substringAfter("<body", html)
-            var chapterTitle: String? = null
-            val paragraphs = mutableListOf<String>()
-            var blocks = BLOCK.findAll(body).map { Triple(it.range.first, it.groupValues[1], it.groupValues[2]) }.toList()
-            // Некоторые EPUB размечают абзацы через <div> — берём самые вложенные блоки.
-            if (blocks.none { it.second.equals("p", true) }) {
-                blocks = (blocks + DIV.findAll(body).map { Triple(it.range.first, "p", it.groupValues[1]) }).sortedBy { it.first }
-            }
-            for ((_, tag, raw) in blocks) {
-                val content = clean(raw)
-                if (content.isEmpty()) continue
-                if (tag.startsWith("h", true) && chapterTitle == null && paragraphs.isEmpty()) chapterTitle = content
-                else paragraphs += content
-            }
-            if (paragraphs.isEmpty() || isFrontMatter(chapterTitle, paragraphs, path)) continue
-            chapters += BookChapter(chapterTitle ?: "Глава ${chapters.size + 1}", paragraphs)
-        }
-        if (chapters.isEmpty()) error("В EPUB не найден текст")
-        return BookContent(
-            title = title?.ifEmpty { null } ?: fileName.substringBeforeLast('.').ifEmpty { "Без названия" },
-            author = author.orEmpty(),
-            chapters = chapters,
-        )
-    }
+    fun parseEpub(bytes: ByteArray, fileName: String = ""): BookContent = EpubReader.read(bytes, fileName)
 
     /**
      * Служебные страницы: обложка, титул, копирайт, оглавление. Их узнаём по короткому
@@ -275,7 +225,6 @@ object BookParser {
      */
     internal fun isFrontMatter(title: String?, paragraphs: List<String>, path: String = ""): Boolean {
         val chars = paragraphs.sumOf { it.length }
-        if (chars < 40 && title == null) return true
         if (chars > 2500) return false
         val name = path.substringAfterLast('/').lowercase()
         if (FRONT_FILE.containsMatchIn(name)) return true
@@ -283,45 +232,10 @@ object BookParser {
         return FRONT_TEXT.containsMatchIn(text)
     }
 
-    private val FRONT_FILE = Regex("^(cover|titlepage|title|copyright|toc|nav|contents|halftitle|imprint)[^a-z]")
+    private val FRONT_FILE = Regex("^(cover|titlepage|title|copyright|toc|nav|contents|halftitle|imprint)([-_]?\\d+)?\\.[^.]+$")
     private val FRONT_TEXT = Regex(
-        "all rights reserved|copyright ©|©\\s*\\d{4}|\\bisbn\\b|table of contents|^contents\\b|" +
-            "все права защищены|^оглавление|^содержание|project gutenberg license"
+        "all rights reserved|copyright ©|©\\s*\\d{4}|^table of contents$|^contents$|" +
+            "все права защищены|^оглавление$|^содержание$|project gutenberg license"
     )
 
-    private fun attr(tag: String, name: String) =
-        Regex("\\b$name=\"([^\"]*)\"").find(tag)?.groupValues?.get(1).orEmpty()
-
-    private fun normalize(path: String): String {
-        val out = ArrayDeque<String>()
-        path.split('/').forEach { part ->
-            when (part) {
-                "", "." -> {}
-                ".." -> out.removeLastOrNull()
-                else -> out.addLast(part)
-            }
-        }
-        return out.joinToString("/")
-    }
-
-    private fun clean(html: String): String = html
-        .replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), " ")
-        .replace(TAG, "")
-        .let(::decodeEntities)
-        .replace(Regex("\\s+"), " ")
-        .trim()
-
-    private fun decodeEntities(s: String): String = Regex("&(#x?[0-9a-fA-F]+|[a-zA-Z]+);").replace(s) { m ->
-        val e = m.groupValues[1]
-        when {
-            e.startsWith("#x", true) -> e.drop(2).toIntOrNull(16)?.let { String(Character.toChars(it)) } ?: m.value
-            e.startsWith("#") -> e.drop(1).toIntOrNull()?.let { String(Character.toChars(it)) } ?: m.value
-            else -> when (e) {
-                "amp" -> "&"; "lt" -> "<"; "gt" -> ">"; "quot" -> "\""; "apos" -> "'"; "nbsp" -> " "
-                "mdash" -> "—"; "ndash" -> "–"; "hellip" -> "…"; "lsquo" -> "‘"; "rsquo" -> "’"
-                "ldquo" -> "“"; "rdquo" -> "”"
-                else -> m.value
-            }
-        }
-    }
 }

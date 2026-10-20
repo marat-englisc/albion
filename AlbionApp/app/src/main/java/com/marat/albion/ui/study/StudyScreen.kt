@@ -46,10 +46,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -109,7 +111,7 @@ fun rememberCardAudio(player: AudioPlayer): CardAudio {
 @Composable
 fun StudyScreen(deck: Deck, navigator: Navigator) {
     val c = LocalAppContainer.current
-    val vm = viewModel(key = "study-${deck.id}") { StudyViewModel(c, deck) }
+    val vm = viewModel(key = "study-${deck.id}") { StudyViewModel(c.study, deck) }
     val state by vm.state.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val audio = rememberCardAudio(c.audio)
@@ -132,6 +134,16 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
     }
 
     BackHandler { c.audio.stop(); navigator.back() }
+
+    state.error?.let { message ->
+        AlertDialog(
+            onDismissRequest = vm::dismissError,
+            containerColor = Ink.Elevated,
+            title = { Text("Не удалось записать изменения") },
+            text = { Text(message) },
+            confirmButton = { TextButton(onClick = vm::dismissError) { Text("Понятно") } },
+        )
+    }
 
     Column(
         Modifier.fillMaxSize().background(Ink.Bg)

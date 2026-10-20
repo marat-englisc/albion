@@ -156,6 +156,24 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    /** Не перезаписываем параметры, сменившиеся за время фонового подбора. */
+    suspend fun setFsrsParamsIfUnchanged(
+        expectedParams: String?, expectedUpdatedAt: Long,
+        params: String, reviews: Int, improvement: Float,
+    ): Boolean {
+        var applied = false
+        edit {
+            if (it[Keys.fsrsParams] == expectedParams && (it[Keys.fsrsUpdatedAt] ?: 0L) == expectedUpdatedAt) {
+                it[Keys.fsrsParams] = params
+                it[Keys.fsrsUpdatedAt] = System.currentTimeMillis()
+                it[Keys.fsrsReviews] = reviews
+                it[Keys.fsrsImprovement] = improvement
+                applied = true
+            }
+        }
+        return applied
+    }
+
     suspend fun contentVersion(): String? = context.dataStore.data.first()[Keys.contentVersion]
     suspend fun setContentVersion(v: String) = edit { it[Keys.contentVersion] = v }
     suspend fun dictionaryVersion(): Int = context.dataStore.data.first()[Keys.dictionaryVersion] ?: 0

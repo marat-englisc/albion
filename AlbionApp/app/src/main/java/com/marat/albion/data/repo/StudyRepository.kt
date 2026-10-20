@@ -1,5 +1,6 @@
 package com.marat.albion.data.repo
 
+import androidx.room.withTransaction
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.content.IrregularData
 import com.marat.albion.data.db.AlbionDatabase
@@ -151,10 +152,16 @@ class StudyRepository(
     /** Подбирает параметры FSRS по истории ответов и сохраняет их, если прогноз стал точнее. */
     suspend fun optimizeParams(onProgress: (Float) -> Unit): com.marat.albion.data.fsrs.OptimizeOutcome =
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            val current = settings.current()
             val events = reviews.allEvents()
-            val outcome = com.marat.albion.data.fsrs.FsrsOptimizer(events).optimize(onProgress = onProgress)
+            val initial = Fsrs.decodeParams(current.fsrsParams) ?: Fsrs.DEFAULT_W
+            val outcome = com.marat.albion.data.fsrs.FsrsOptimizer(events, initial).optimize(onProgress = onProgress)
             if (outcome is com.marat.albion.data.fsrs.OptimizeOutcome.Done && outcome.improved) {
-                settings.setFsrsParams(Fsrs.encodeParams(outcome.params), outcome.reviews, outcome.improvementPercent.toFloat())
+                val applied = settings.setFsrsParamsIfUnchanged(
+                    current.fsrsParams, current.fsrsUpdatedAt,
+                    Fsrs.encodeParams(outcome.params), outcome.reviews, outcome.improvementPercent.toFloat(),
+                )
+                if (!applied) return@withContext com.marat.albion.data.fsrs.OptimizeOutcome.Superseded
             }
             outcome
         }
@@ -174,29 +181,32 @@ class StudyRepository(
     suspend fun answer(card: CardEntity, rating: Rating, durationMs: Long, now: Long = System.currentTimeMillis()): Pair<Long, Memory> {
         val s = settings.current()
         val fsrs = schedulerFor(s)
-        val prev = reviews.state(card.id)
-        val before = prev?.toMemory() ?: Memory()
-        var next = fsrs.review(before, rating, now)
-        if (next.state == CardState.REVIEW) {
-            // Интервалы в днях привязываем к началу учебного дня, как в Anki.
-            val days = max(1, ((next.due - now).toDouble() / Fsrs.DAY).roundToInt())
-            next = next.copy(due = dayStart(now, s.dayStartHour) + days * Fsrs.DAY)
-        }
-        reviews.upsertState(next.toEntity(card.id, card.deck))
-        val logId = reviews.insertLog(
-            ReviewLogEntity(
-                cardId = card.id, deck = card.deck, rating = rating.value, reviewedAt = now,
-                stateBefore = before.state, durationMs = durationMs.coerceAtMost(MAX_DURATION),
-                prevStability = prev?.stability, prevDifficulty = prev?.difficulty, prevDue = prev?.due,
-                prevLastReview = prev?.lastReview, prevStep = prev?.step, prevReps = prev?.reps, prevLapses = prev?.lapses,
+        // Чтение прежнего состояния и обе записи — одна атомарная операция.
+        return db.withTransaction {
+            val prev = reviews.state(card.id)
+            val before = prev?.toMemory() ?: Memory()
+            var next = fsrs.review(before, rating, now)
+            if (next.state == CardState.REVIEW) {
+                // Интервалы в днях привязываем к началу учебного дня, как в Anki.
+                val days = max(1, ((next.due - now).toDouble() / Fsrs.DAY).roundToInt())
+                next = next.copy(due = dayStart(now, s.dayStartHour) + days * Fsrs.DAY)
+            }
+            reviews.upsertState(next.toEntity(card.id, card.deck))
+            val logId = reviews.insertLog(
+                ReviewLogEntity(
+                    cardId = card.id, deck = card.deck, rating = rating.value, reviewedAt = now,
+                    stateBefore = before.state, durationMs = durationMs.coerceIn(0, MAX_DURATION),
+                    prevStability = prev?.stability, prevDifficulty = prev?.difficulty, prevDue = prev?.due,
+                    prevLastReview = prev?.lastReview, prevStep = prev?.step, prevReps = prev?.reps, prevLapses = prev?.lapses,
+                )
             )
-        )
-        return logId to next
+            logId to next
+        }
     }
 
     /** Отменяет ответ: восстанавливает прежнее состояние карточки. */
-    suspend fun undo(logId: Long): CardEntity? {
-        val log = reviews.log(logId) ?: return null
+    suspend fun undo(logId: Long): CardEntity? = db.withTransaction {
+        val log = reviews.log(logId) ?: return@withTransaction null
         if (log.stateBefore == CardState.NEW || log.prevStability == null) {
             reviews.deleteState(log.cardId)
         } else {
@@ -210,7 +220,7 @@ class StudyRepository(
             )
         }
         reviews.deleteLog(logId)
-        return cards.get(log.cardId)
+        cards.get(log.cardId)
     }
 
     // ---- просмотр ----

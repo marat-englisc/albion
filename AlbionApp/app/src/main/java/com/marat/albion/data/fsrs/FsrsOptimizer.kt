@@ -12,16 +12,26 @@ sealed interface OptimizeOutcome {
     /** Недостаточно повторений с интервалом от суток. */
     data class NotEnoughData(val have: Int, val need: Int) : OptimizeOutcome
 
+    /** Повторений достаточно, но их даты не позволяют отделить обучение от проверки. */
+    data class InsufficientSplit(val trainingReviews: Int, val validationReviews: Int) : OptimizeOutcome
+
+    /** Во время подбора пользователь сменил или сбросил параметры. */
+    data object Superseded : OptimizeOutcome
+
     data class Done(
         val params: DoubleArray,
-        /** Средняя логарифмическая ошибка прогноза (меньше — лучше). */
+        /** Ошибка текущей и новой модели на отложенной истории (меньше — лучше). */
         val lossBefore: Double,
         val lossAfter: Double,
         val reviews: Int,
         val cards: Int,
+        val validationReviews: Int,
     ) : OptimizeOutcome {
-        val improved get() = lossAfter < lossBefore * 0.999
-        val improvementPercent get() = ((1 - lossAfter / lossBefore) * 100).coerceAtLeast(0.0)
+        val improved get() = validationReviews > 0 && lossBefore.isFinite() && lossAfter.isFinite() &&
+            lossBefore > 0 && lossAfter >= 0 && lossAfter <= lossBefore * 0.999
+        val improvementPercent get() = if (lossBefore > 0 && lossBefore.isFinite() && lossAfter.isFinite()) {
+            ((1 - lossAfter / lossBefore) * 100).coerceAtLeast(0.0)
+        } else 0.0
     }
 }
 
@@ -34,43 +44,58 @@ sealed interface OptimizeOutcome {
  * бинарная кросс-энтропия с фактическим ответом («Снова» = забыл).
  * Параметры подбираются Adam с численным градиентом. Начальные стабильности
  * (w0–w3) оптимизируются в логарифмической шкале, у остальных — границы как
- * в эталонном оптимизаторе. Мягкая привязка к стандартным значениям не даёт
- * «переобучиться» на небольшой истории.
+ * в эталонном оптимизаторе. Мягкая привязка к текущим значениям сдерживает
+ * переобучение. Последние 20% повторений по времени не участвуют в подборе:
+ * на них сравниваются текущие параметры и единственный выбранный кандидат.
  */
 class FsrsOptimizer(events: List<ReviewEvent>, private val initial: DoubleArray = Fsrs.DEFAULT_W) {
 
-    /** История карточки: (дней с прошлого ответа, оценка). */
-    private val sequences: List<List<Pair<Double, Rating>>> = events
+    private data class Step(val elapsed: Double, val rating: Rating, val time: Long)
+
+    private val sequences: List<List<Step>> = events
         .groupBy { it.cardId }
         .values
         .map { list ->
             val sorted = list.sortedBy { it.time }
             sorted.mapIndexed { i, e ->
                 val elapsed = if (i == 0) 0.0 else (e.time - sorted[i - 1].time).toDouble() / Fsrs.DAY
-                elapsed to Rating.of(e.rating.coerceIn(1, 4))
+                Step(elapsed, Rating.of(e.rating.coerceIn(1, 4)), e.time)
             }
         }
         .filter { it.size >= 2 }
 
-    /** Сколько повторений участвует в оценке (интервал ≥ 1 дня). */
-    val trainingItems: Int = sequences.sumOf { seq -> seq.drop(1).count { it.first >= 1.0 } }
+    private val reviewTimes = sequences.flatMap { seq -> seq.drop(1).filter { it.elapsed >= 1.0 }.map { it.time } }.sorted()
+    /** Граница по времени: ответы после неё не используются даже для выбора итерации. */
+    private val validationStart = reviewTimes.takeIf { it.size >= 2 }?.let { it[it.size - maxOf(1, it.size / 5)] }
+    private val trainingSequences = sequences.map { seq -> seq.takeWhile { validationStart != null && it.time < validationStart } }
+    val trainingItems: Int = reviewTimes.count { validationStart != null && it < validationStart }
+    val validationItems: Int = reviewTimes.size - trainingItems
 
     val cards: Int get() = sequences.size
 
-    fun loss(w: DoubleArray): Double {
+    fun loss(w: DoubleArray): Double = loss(w, Sample.All)
+
+    internal fun trainingLoss(w: DoubleArray): Double = loss(w, Sample.Training)
+    internal fun validationLoss(w: DoubleArray): Double = loss(w, Sample.Validation)
+
+    private enum class Sample { All, Training, Validation }
+
+    private fun loss(w: DoubleArray, sample: Sample): Double {
         val fsrs = Fsrs(w = w, enableFuzz = false)
         var total = 0.0
         var n = 0
-        for (seq in sequences) {
+        // При обучении не проигрываем и короткие шаги из отложенного периода.
+        val histories = if (sample == Sample.Training) trainingSequences else sequences
+        for (seq in histories) {
             var s = 0.0
             var d = 0.0
-            seq.forEachIndexed { i, (elapsed, rating) ->
+            seq.forEachIndexed { i, (elapsed, rating, time) ->
                 if (i == 0) {
                     val (s0, d0) = fsrs.memoryStep(0.0, 0.0, isNew = true, elapsedDays = 0.0, rating = rating)
                     s = s0; d = d0
                     return@forEachIndexed
                 }
-                if (elapsed >= 1.0) {
+                if (elapsed >= 1.0 && (sample != Sample.Validation || (validationStart != null && time >= validationStart))) {
                     val p = fsrs.recallProbability(elapsed, s).coerceIn(1e-4, 1 - 1e-4)
                     val y = if (rating == Rating.Again) 0.0 else 1.0
                     total += -(y * ln(p) + (1 - y) * ln(1 - p))
@@ -88,19 +113,23 @@ class FsrsOptimizer(events: List<ReviewEvent>, private val initial: DoubleArray 
         minItems: Int = MIN_ITEMS,
         onProgress: (Float) -> Unit = {},
     ): OptimizeOutcome {
-        if (trainingItems < minItems) return OptimizeOutcome.NotEnoughData(trainingItems, minItems)
+        if (reviewTimes.size < minItems) return OptimizeOutcome.NotEnoughData(reviewTimes.size, minItems)
+        val minValidation = maxOf(1, minItems / 5)
+        if (trainingItems < maxOf(1, minItems - minValidation) || validationItems < minValidation) {
+            return OptimizeOutcome.InsufficientSplit(trainingItems, validationItems)
+        }
 
         val dims = initial.size
         val x0 = DoubleArray(dims) { toX(it, initial[it]) }
         val x = x0.copyOf()
         val scale = DoubleArray(dims) { i -> if (i < 4) 1.0 else (Fsrs.BOUNDS[i].endInclusive - Fsrs.BOUNDS[i].start) }
-        // Чем меньше данных, тем сильнее держимся стандартных значений.
+        // Чем меньше обучающих данных, тем сильнее держимся текущих значений.
         val lambda = 4.0 / trainingItems
 
         fun objective(v: DoubleArray): Double {
             var reg = 0.0
             for (i in 0 until dims) { val t = (v[i] - x0[i]) / scale[i]; reg += t * t }
-            return loss(toW(v)) + lambda * reg
+            return trainingLoss(toW(v)) + lambda * reg
         }
 
         val m = DoubleArray(dims)
@@ -133,13 +162,15 @@ class FsrsOptimizer(events: List<ReviewEvent>, private val initial: DoubleArray 
             onProgress(t.toFloat() / iterations)
         }
 
-        val params = toW(best)
+        // Проверяем те же округлённые значения, которые попадут в настройки.
+        val params = Fsrs.decodeParams(Fsrs.encodeParams(toW(best)))!!
         return OptimizeOutcome.Done(
             params = params,
-            lossBefore = loss(initial),
-            lossAfter = loss(params),
-            reviews = trainingItems,
+            lossBefore = validationLoss(initial),
+            lossAfter = validationLoss(params),
+            reviews = reviewTimes.size,
             cards = cards,
+            validationReviews = validationItems,
         )
     }
 

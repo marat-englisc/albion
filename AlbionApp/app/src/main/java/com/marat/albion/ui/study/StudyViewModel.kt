@@ -2,7 +2,6 @@ package com.marat.albion.ui.study
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.marat.albion.AppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.content.IrregularData
 import com.marat.albion.data.db.CardEntity
@@ -11,6 +10,7 @@ import com.marat.albion.data.fsrs.Fsrs
 import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.repo.Siblings
 import com.marat.albion.data.repo.StudyRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,6 +41,7 @@ data class StudyState(
     val elapsedMs: Long = 0,
     /** Последняя оценка — от неё зависит, куда «улетает» карточка. */
     val lastRating: Rating? = null,
+    val error: String? = null,
 ) {
     val remaining get() = newCount + learningCount + reviewCount
     val progress get() = if (answered + remaining == 0) 0f else answered.toFloat() / (answered + remaining)
@@ -50,9 +51,8 @@ data class StudyState(
  * Сессия повторения одной колоды. Очередь как в Anki: учебные шаги (1 и 10 минут),
  * подошедшие по времени, идут первыми; новые карточки равномерно вкраплены в повторения.
  */
-class StudyViewModel(private val c: AppContainer, private val deck: Deck) : ViewModel() {
+class StudyViewModel(private val repo: StudyRepository, private val deck: Deck) : ViewModel() {
 
-    private val repo: StudyRepository = c.study
     private val _state = MutableStateFlow(StudyState())
     val state: StateFlow<StudyState> = _state.asStateFlow()
 
@@ -81,13 +81,32 @@ class StudyViewModel(private val c: AppContainer, private val deck: Deck) : View
         _state.update { it.copy(revealed = true) }
     }
 
+    fun dismissError() {
+        _state.update { it.copy(error = null) }
+    }
+
+    private fun saveFailed(message: String, cause: Exception) {
+        android.util.Log.e("Albion", message, cause)
+        answering = false
+        _state.update { it.copy(error = message, canUndo = undoStack.isNotEmpty()) }
+    }
+
     fun answer(rating: Rating) {
         val current = _state.value.current ?: return
         if (!_state.value.revealed || answering) return
         answering = true
+        _state.update { it.copy(canUndo = false, error = null) }
         viewModelScope.launch {
             val duration = System.currentTimeMillis() - shownAt
-            val (logId, memory) = repo.answer(current.card, rating, duration)
+            val (logId, memory) = try {
+                repo.answer(current.card, rating, duration)
+            } catch (e: CancellationException) {
+                answering = false
+                throw e
+            } catch (e: Exception) {
+                saveFailed("Не удалось сохранить ответ. Попробуйте ещё раз.", e)
+                return@launch
+            }
             undoStack.addLast(UndoEntry(logId, current.card, rating))
             if (undoStack.size > 20) undoStack.removeFirst()
             if (memory.state == CardState.LEARNING || memory.state == CardState.RELEARNING) {
@@ -109,9 +128,21 @@ class StudyViewModel(private val c: AppContainer, private val deck: Deck) : View
     }
 
     fun undo() {
-        val entry = undoStack.removeLastOrNull() ?: return
+        if (answering) return
+        val entry = undoStack.lastOrNull() ?: return
+        answering = true
+        _state.update { it.copy(canUndo = false, error = null) }
         viewModelScope.launch {
-            val card = repo.undo(entry.logId) ?: entry.card
+            val card = try {
+                repo.undo(entry.logId) ?: entry.card
+            } catch (e: CancellationException) {
+                answering = false
+                throw e
+            } catch (e: Exception) {
+                saveFailed("Не удалось отменить ответ. Попробуйте ещё раз.", e)
+                return@launch
+            }
+            undoStack.removeLast()
             learning.removeAll { it.first.id == card.id }
             // Текущая (ещё не отвеченная) карточка возвращается в начало своей очереди.
             _state.value.current?.takeIf { it.card.id != card.id }?.let { cur ->

@@ -69,6 +69,7 @@ import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 @Composable
 fun LibraryScreen(navigator: Navigator) {
@@ -82,13 +83,18 @@ fun LibraryScreen(navigator: Navigator) {
     val reveal = rememberReveal()
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
+        if (uri != null && !importing) {
             importing = true
+            importError = null
             scope.launch {
-                runCatching { c.library.import(uri) }
-                    .onSuccess { navigator.open(ReaderRoute(it.id)) }
-                    .onFailure { importError = it.message ?: "Не удалось открыть книгу" }
-                importing = false
+                try {
+                    val book = c.library.import(uri)
+                    navigator.open(ReaderRoute(book.id))
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    importError = e.message ?: "Не удалось открыть книгу"
+                } finally { importing = false }
             }
         }
     }
@@ -137,7 +143,7 @@ fun LibraryScreen(navigator: Navigator) {
             item {
                 Column(Modifier.padding(top = 20.dp).reveal(reveal, 4 + list.size)) {
                     GhostButton(if (importing) "Открываю…" else "Добавить книгу · TXT, EPUB, PDF", onClick = {
-                        picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream"))
+                        if (!importing) picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream"))
                     }, icon = Icons.Rounded.Add)
                     importError?.let {
                         Spacer(Modifier.height(10.dp))

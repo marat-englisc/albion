@@ -165,7 +165,7 @@ fun FsrsTuningBlock(s: Settings) {
             if (custom) {
                 "Персональные параметры · обновлены " +
                     DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(s.fsrsUpdatedAt)) +
-                    " · по ${s.fsrsReviews} повторениям · прогноз точнее на ${"%.1f".format(s.fsrsImprovement)}%"
+                    " · по ${s.fsrsReviews} повторениям · снижение ошибки последнего подбора на ${"%.1f".format(s.fsrsImprovement)}%"
             } else {
                 "Сейчас стандартные параметры FSRS-6. Алгоритм может изучить вашу историю ответов и подобрать " +
                     "параметры под то, как быстро вы запоминаете и забываете."
@@ -184,11 +184,15 @@ fun FsrsTuningBlock(s: Settings) {
                 when (val o = st.outcome) {
                     is OptimizeOutcome.NotEnoughData ->
                         "Пока мало данных: нужно хотя бы ${o.need} повторений с интервалом от суток, сейчас ${o.have}. Позанимайтесь ещё пару недель."
+                    is OptimizeOutcome.InsufficientSplit ->
+                        "Пока не удалось отделить историю для проверки: ${o.trainingReviews} повторений для обучения и ${o.validationReviews} для проверки. Позанимайтесь ещё и повторите подбор."
+                    OptimizeOutcome.Superseded ->
+                        "Параметры изменились во время подбора. Его результат не применён — запустите подбор заново."
                     is OptimizeOutcome.Done -> if (o.improved) {
-                        "Готово: ошибка прогноза ${"%.3f".format(o.lossBefore)} → ${"%.3f".format(o.lossAfter)} " +
+                        "Готово: ошибка на ${o.validationReviews} отложенных повторениях ${"%.3f".format(o.lossBefore)} → ${"%.3f".format(o.lossAfter)} " +
                             "(−${"%.1f".format(o.improvementPercent)}%). Новые параметры уже применяются к интервалам."
                     } else {
-                        "Стандартные параметры уже хорошо описывают вашу память — оставляю их."
+                        "На отложенной истории новые параметры не улучшили прогноз — текущие параметры сохранены."
                     }
                 },
                 style = MaterialTheme.typography.bodyMedium,
