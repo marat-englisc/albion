@@ -26,12 +26,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -70,7 +73,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -209,28 +214,28 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
 
 @Composable
 private fun TopRow(deck: Deck, state: StudyState, onClose: () -> Unit, onUndo: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, "Закрыть", tint = Ink.Fg) }
-        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Eyebrow(deck.title, color = Ink.Soft)
-            Spacer(Modifier.height(4.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые")
-                QueueCount(state.learningCount, "учу")
-                QueueCount(state.reviewCount + if (state.current?.isNew == false) 1 else 0, "повтор")
+    Column {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, "Закрыть", tint = Ink.Fg) }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                Text(deck.title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center)
+            }
+            IconButton(onClick = onUndo, enabled = state.canUndo) {
+                Icon(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", tint = if (state.canUndo) Ink.Fg else Ink.Faint)
             }
         }
-        IconButton(onClick = onUndo, enabled = state.canUndo) {
-            Icon(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", tint = if (state.canUndo) Ink.Fg else Ink.Faint)
+        Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
+            QueueCount(state.learningCount, "учу", Modifier.weight(1f))
+            QueueCount(state.reviewCount + if (state.current?.isNew == false) 1 else 0, "повтор", Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun QueueCount(value: Int, label: String) {
-    Row(verticalAlignment = Alignment.Bottom) {
+private fun QueueCount(value: Int, label: String, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text("$value", style = MaterialTheme.typography.labelLarge, color = if (value > 0) Ink.Fg else Ink.Faint)
-        Spacer(Modifier.width(4.dp))
         Text(label, style = MaterialTheme.typography.labelSmall, color = Ink.Faint)
     }
 }
@@ -326,7 +331,8 @@ private fun FlipCard(
                         Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
                             Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
                         }
-                        Eyebrow("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp), color = Ink.Faint)
+                        Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
+                            style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
                     } else {
                         Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }) {
                             Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { back() }
@@ -359,36 +365,53 @@ private fun FlipCard(
 /** Оценки: чем легче ответ, тем светлее кнопка. */
 @Composable
 private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Rating.entries.forEachIndexed { i, r ->
-            val (bg, fg, border) = when (r) {
-                Rating.Again -> Triple(Color.Transparent, Ink.Soft, Ink.LineStrong)
-                Rating.Hard -> Triple(Ink.Elevated, Ink.Text, Ink.Elevated)
-                Rating.Good -> Triple(Ink.Soft, Ink.Bg, Ink.Soft)
-                Rating.Easy -> Triple(Ink.Fg, Ink.Bg, Ink.Fg)
-            }
-            val interaction = remember { MutableInteractionSource() }
-            val appear = remember { Animatable(0f) }
-            LaunchedEffect(Unit) {
-                delay(i * 45L)
-                appear.animateTo(1f, tween(420, easing = Easing.EmphasizedDecelerate))
-            }
-            Column(
-                Modifier.weight(1f).height(66.dp)
-                    .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 40f }
-                    .pressScale(interaction, 0.92f)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(bg)
-                    .border(1.dp, border, RoundedCornerShape(4.dp))
-                    .clickable(interactionSource = interaction, indication = null) { onRate(r) },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(intervals[r].orEmpty(), style = MaterialTheme.typography.labelSmall, color = fg.copy(alpha = 0.6f))
-                Spacer(Modifier.height(2.dp))
-                Text(r.label, style = MaterialTheme.typography.labelLarge, color = fg)
+    val measurer = rememberTextMeasurer()
+    val labelWidth = with(LocalDensity.current) {
+        Rating.entries.maxOf { measurer.measure(it.label, MaterialTheme.typography.labelLarge).size.width }.toDp() + 12.dp
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val columns = if (labelWidth * 4 + 24.dp <= maxWidth) 4 else 2
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Rating.entries.chunked(columns).forEach { ratings ->
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ratings.forEach { r ->
+                        RatingButton(r, Rating.entries.indexOf(r), intervals[r].orEmpty(), onRate, Modifier.weight(1f))
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
+    val (bg, fg, border) = when (r) {
+        Rating.Again -> Triple(Color.Transparent, Ink.Soft, Ink.LineStrong)
+        Rating.Hard -> Triple(Ink.Elevated, Ink.Text, Ink.Elevated)
+        Rating.Good -> Triple(Ink.Soft, Ink.Bg, Ink.Soft)
+        Rating.Easy -> Triple(Ink.Fg, Ink.Bg, Ink.Fg)
+    }
+    val interaction = remember { MutableInteractionSource() }
+    val appear = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        delay(index * 45L)
+        appear.animateTo(1f, tween(420, easing = Easing.EmphasizedDecelerate))
+    }
+    Column(
+        modifier.fillMaxHeight().heightIn(min = 66.dp)
+            .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 40f }
+            .pressScale(interaction, 0.92f)
+            .clip(RoundedCornerShape(4.dp))
+            .background(bg)
+            .border(1.dp, border, RoundedCornerShape(4.dp))
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onRate(r) }
+            .padding(horizontal = 4.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(interval, style = MaterialTheme.typography.labelSmall, color = fg, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(2.dp))
+        Text(r.label, style = MaterialTheme.typography.labelLarge, color = fg, textAlign = TextAlign.Center)
     }
 }
 

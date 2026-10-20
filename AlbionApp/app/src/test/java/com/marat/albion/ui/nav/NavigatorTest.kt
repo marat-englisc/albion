@@ -1,0 +1,96 @@
+package com.marat.albion.ui.nav
+
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import com.marat.albion.data.content.Deck
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class NavigatorTest {
+    private fun navigator() = Navigator(
+        primaryRoutes.associateWith { NavBackStack<NavKey>(it) },
+        mutableIntStateOf(0),
+    )
+
+    @Test fun switchingTabsRetainsEachStack() {
+        val nav = navigator()
+        nav.open(DeckRoute(Deck.WORDS))
+        nav.selectTab(GrammarRoute)
+        nav.open(TopicRoute("articles"))
+        nav.selectTab(HomeRoute)
+        assertEquals(listOf(HomeRoute, DeckRoute(Deck.WORDS)), nav.backStack.toList())
+        nav.selectTab(GrammarRoute)
+        assertEquals(listOf(GrammarRoute, TopicRoute("articles")), nav.backStack.toList())
+    }
+
+    @Test fun selectingCurrentTabReturnsToItsRootOnly() {
+        val nav = navigator()
+        nav.open(DeckRoute(Deck.IDIOMS))
+        nav.selectTab(GrammarRoute)
+        nav.open(TopicRoute("articles"))
+        nav.selectTab(GrammarRoute)
+        assertEquals(listOf(GrammarRoute), nav.backStack.toList())
+        nav.selectTab(HomeRoute)
+        assertEquals(DeckRoute(Deck.IDIOMS), nav.backStack.last())
+    }
+
+    @Test fun backPopsScreenThenReturnsHomeFromTabRoot() {
+        val nav = navigator()
+        nav.selectTab(LibraryRoute)
+        nav.open(ReaderRoute("book"))
+        nav.back()
+        assertEquals(listOf(LibraryRoute), nav.backStack.toList())
+        nav.back()
+        assertEquals(HomeRoute, nav.selectedTab)
+        nav.back()
+        assertEquals(listOf(HomeRoute), nav.backStack.toList())
+    }
+
+    @Test fun settingsReturnsToItsCaller() {
+        val nav = navigator()
+        nav.selectTab(StatsRoute)
+        nav.openSettings()
+        nav.openSettings()
+        assertEquals(listOf(StatsRoute, SettingsRoute), nav.backStack.toList())
+        nav.back()
+        assertEquals(StatsRoute, nav.selectedTab)
+        assertEquals(listOf(StatsRoute), nav.backStack.toList())
+    }
+
+    @Test fun openingExistingRoutePopsToItWithoutDuplicateKeys() {
+        val nav = navigator()
+        nav.open(DeckRoute(Deck.WORDS))
+        nav.open(BrowseRoute(Deck.WORDS))
+        nav.open(CardRoute("card"))
+        nav.open(DeckRoute(Deck.WORDS))
+        assertEquals(listOf(HomeRoute, DeckRoute(Deck.WORDS)), nav.backStack.toList())
+    }
+
+    @Test fun replaceKeepsRootAndReusesEarlierRoute() {
+        val nav = navigator()
+        nav.open(DeckRoute(Deck.WORDS))
+        nav.open(BrowseRoute(Deck.WORDS))
+        nav.replace(CardRoute("card"))
+        assertEquals(listOf(HomeRoute, DeckRoute(Deck.WORDS), CardRoute("card")), nav.backStack.toList())
+        nav.replace(DeckRoute(Deck.WORDS))
+        assertEquals(listOf(HomeRoute, DeckRoute(Deck.WORDS)), nav.backStack.toList())
+    }
+
+    @Test fun crossSectionLinksReturnToTheOriginatingSection() {
+        val nav = navigator()
+        nav.selectTab(GamesRoute)
+        nav.open(TopicRoute("articles"))
+        nav.back()
+        assertEquals(GamesRoute, nav.selectedTab)
+        assertEquals(listOf(GamesRoute), nav.backStack.toList())
+    }
+
+    @Test fun contentsLinkOpensSectionRootWhileSwitchingTabPreservesItsPage() {
+        val nav = navigator()
+        nav.selectTab(GrammarRoute)
+        nav.open(TopicRoute("articles"))
+        nav.open(GrammarRoute)
+        assertEquals(listOf(GrammarRoute), nav.backStack.toList())
+    }
+}

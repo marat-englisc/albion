@@ -133,7 +133,7 @@ private fun Heading(h: MdHeading, modifier: Modifier) {
             Spacer(Modifier.height(14.dp))
             InlineText(h.text, style = TextStyle(fontFamily = Serif, fontSize = 25.sp * scale, lineHeight = 31.sp * scale, color = Ink.Fg, letterSpacing = (-0.3).sp))
         }
-        3 -> InlineText(h.text.uppercase(), modifier.padding(top = 10.dp), style = AlbionType.eyebrow.copy(color = Ink.Soft, fontSize = 11.sp * scale))
+        3 -> InlineText(h.text.uppercase(), modifier.padding(top = 10.dp), style = AlbionType.eyebrow.copy(color = Ink.Soft, fontSize = 13.sp * scale))
         else -> InlineText(h.text, modifier.padding(top = 4.dp), style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp * scale, color = Ink.Fg))
     }
 }
@@ -412,7 +412,7 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
             ) {
                 Icon(l.icon, null, tint = Ink.Fg, modifier = Modifier.size(17.dp))
                 Spacer(Modifier.width(10.dp))
-                InlineText(c.title.uppercase(), Modifier.weight(1f), style = AlbionType.eyebrow.copy(color = Ink.Fg, fontSize = 11.sp * scale))
+                InlineText(c.title.uppercase(), Modifier.weight(1f), style = AlbionType.eyebrow.copy(color = Ink.Fg, fontSize = 13.sp * scale))
                 if (c.foldable) Icon(Icons.Rounded.ExpandMore, if (open) "Свернуть" else "Развернуть", tint = Ink.Fg, modifier = Modifier.rotate(arrow))
             }
             AnimatedVisibility(

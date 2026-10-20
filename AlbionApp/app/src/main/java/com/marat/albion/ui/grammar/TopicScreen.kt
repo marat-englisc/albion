@@ -216,7 +216,7 @@ fun TopicScreen(topicId: String, navigator: Navigator) {
                                     read = progress?.readAt != null,
                                     onToggleRead = { scope.launch { c.grammar.setRead(topicId, progress?.readAt == null) } },
                                     onPrev = prev?.let { t -> { navigator.replace(TopicRoute(t.id)) } },
-                                    onContents = { navigator.switchTab(GrammarRoute) },
+                                    onContents = { navigator.open(GrammarRoute) },
                                     onNext = next?.let { t -> { navigator.replace(TopicRoute(t.id)) } },
                                 )
                             }

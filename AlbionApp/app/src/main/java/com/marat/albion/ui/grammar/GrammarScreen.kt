@@ -63,6 +63,7 @@ import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.ScreenHeader
+import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
@@ -122,7 +123,7 @@ fun GrammarScreen(navigator: Navigator) {
     ) {
         item {
             Box(Modifier.reveal(reveal, 0)) {
-                ScreenHeader("Грамматика", eyebrow = "Учебник · от нуля до C1")
+                ScreenHeader("Грамматика", eyebrow = "Учебник · от нуля до C1", trailing = { SettingsShortcut(navigator::openSettings) })
             }
         }
 
@@ -137,13 +138,21 @@ fun GrammarScreen(navigator: Navigator) {
 
         item {
             Column(Modifier.padding(top = 24.dp).reveal(reveal, 1)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    AnimatedNumber(readCount, AlbionType.number, color = Ink.Fg)
-                    Text(" / ${lessons.size} тем", style = MaterialTheme.typography.bodyMedium, color = Ink.Faint, modifier = Modifier.padding(bottom = 8.dp))
-                    Spacer(Modifier.weight(1f))
-                    levels.forEach { lv ->
-                        val inLevel = lessons.filter { it.level == lv }
-                        if (inLevel.isNotEmpty()) LevelMeter(lv, inLevel.count { state.progress[it.id]?.readAt != null }, inLevel.size)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        AnimatedNumber(readCount, AlbionType.number, color = Ink.Fg)
+                        Text(" / ${lessons.size} тем", style = MaterialTheme.typography.bodyMedium, color = Ink.Faint,
+                            maxLines = 1, softWrap = false, modifier = Modifier.padding(bottom = 8.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Row(
+                        Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                    ) {
+                        levels.forEach { lv ->
+                            val inLevel = lessons.filter { it.level == lv }
+                            if (inLevel.isNotEmpty()) LevelMeter(lv, inLevel.count { state.progress[it.id]?.readAt != null }, inLevel.size)
+                        }
                     }
                 }
                 Spacer(Modifier.height(14.dp))
@@ -228,13 +237,13 @@ fun GrammarScreen(navigator: Navigator) {
 
 @Composable
 private fun LevelMeter(level: String, done: Int, total: Int) {
-    Column(Modifier.padding(start = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.width(3.dp).height(28.dp).background(Ink.Line), contentAlignment = Alignment.BottomCenter) {
             val p by animateFloatAsState(done.toFloat() / total, tween(900, easing = Easing.Emphasized), label = "lvl")
             Box(Modifier.width(3.dp).height(28.dp * p).background(Ink.Fg))
         }
         Spacer(Modifier.height(6.dp))
-        Text(level, style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+        Text(level, style = MaterialTheme.typography.labelSmall, color = Ink.Muted, maxLines = 1, softWrap = false)
     }
 }
 

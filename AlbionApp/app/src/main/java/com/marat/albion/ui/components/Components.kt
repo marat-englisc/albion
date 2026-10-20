@@ -35,6 +35,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Inventory2
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -48,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -83,22 +86,29 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String
 
 /** Шапка вкладки: крупный антиквенный заголовок и подзаголовок. */
 @Composable
-fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, trailing: @Composable (() -> Unit)? = null) {
-    Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 28.dp, bottom = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                if (eyebrow != null) {
-                    Eyebrow(eyebrow)
-                    Spacer(Modifier.height(10.dp))
+fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, trailing: @Composable (() -> Unit)? = null) {
+    Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier).padding(top = 28.dp, bottom = 8.dp)) {
+        if (eyebrow != null || trailing != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) {
+                    if (eyebrow != null) Eyebrow(eyebrow)
                 }
-                Text(title, style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
+                trailing?.invoke()
             }
-            trailing?.invoke()
+            Spacer(Modifier.height(10.dp))
         }
+        Text(title, style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
         if (subtitle != null) {
             Spacer(Modifier.height(6.dp))
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
         }
+    }
+}
+
+@Composable
+fun SettingsShortcut(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(Icons.Outlined.Settings, contentDescription = "Настройки", tint = Ink.Fg, modifier = Modifier.size(24.dp))
     }
 }
 
@@ -149,7 +159,7 @@ fun PrimaryButton(
             .pressScale(interaction)
             .clip(MaterialTheme.shapes.small)
             .background(lerpColor(Ink.Elevated, Ink.Fg, bg))
-            .clickable(interactionSource = interaction, indication = null, enabled = enabled, onClick = onClick)
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (trailingIcon != null) Arrangement.SpaceBetween else Arrangement.Center,
@@ -160,7 +170,7 @@ fun PrimaryButton(
                 Icon(icon, null, tint = fg, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(10.dp))
             }
-            Text(text, style = MaterialTheme.typography.titleMedium, color = fg, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            Text(text, style = MaterialTheme.typography.titleMedium, color = fg)
         }
         if (trailingIcon != null) {
             Spacer(Modifier.width(12.dp))
@@ -176,12 +186,12 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
     Row(
         modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .heightIn(min = 52.dp)
             .pressScale(interaction)
             .clip(MaterialTheme.shapes.small)
             .border(1.dp, Ink.LineStrong, MaterialTheme.shapes.small)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
-            .padding(horizontal = 20.dp),
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -189,7 +199,7 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
             Icon(icon, null, tint = Ink.Text, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(10.dp))
         }
-        Text(text, style = MaterialTheme.typography.labelLarge, color = Ink.Text)
+        Text(text, style = MaterialTheme.typography.labelLarge, color = Ink.Text, textAlign = TextAlign.Center)
     }
 }
 

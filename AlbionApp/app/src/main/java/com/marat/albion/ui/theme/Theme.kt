@@ -13,10 +13,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -57,8 +54,8 @@ val DarkPalette = Palette(
     fg = Color(0xFFFFFFFF),
     text = Color(0xFFEDEDED),
     soft = Color(0xFFC4C4C4),
-    muted = Color(0xFF8C8C8C),
-    faint = Color(0xFF555555),
+    muted = Color(0xFFA8A8A8),
+    faint = Color(0xFF929292),
     code = Color(0xFF1C1C1C),
 )
 
@@ -74,8 +71,8 @@ val LightPalette = Palette(
     fg = Color(0xFF000000),
     text = Color(0xFF151515),
     soft = Color(0xFF3B3B3B),
-    muted = Color(0xFF6E6E6E),
-    faint = Color(0xFFA8A8A8),
+    muted = Color(0xFF555555),
+    faint = Color(0xFF626262),
     code = Color(0xFFEFEFEF),
 )
 
@@ -157,12 +154,12 @@ private val typography = Typography(
     titleLarge = base.titleLarge.copy(fontWeight = FontWeight.Medium, letterSpacing = (-0.2).sp),
     titleMedium = base.titleMedium.copy(fontWeight = FontWeight.Medium),
     titleSmall = base.titleSmall.copy(fontWeight = FontWeight.Medium),
-    labelLarge = base.labelLarge.copy(fontWeight = FontWeight.Medium, letterSpacing = 0.4.sp),
-    labelMedium = base.labelMedium.copy(fontWeight = FontWeight.Medium, letterSpacing = 0.6.sp),
-    labelSmall = base.labelSmall.copy(fontWeight = FontWeight.Medium, letterSpacing = 1.sp),
-    bodyLarge = base.bodyLarge.copy(lineHeight = 26.sp, letterSpacing = 0.1.sp),
-    bodyMedium = base.bodyMedium.copy(lineHeight = 21.sp),
-    bodySmall = base.bodySmall.copy(lineHeight = 18.sp),
+    labelLarge = base.labelLarge.copy(fontSize = 15.sp, lineHeight = 21.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.2.sp),
+    labelMedium = base.labelMedium.copy(fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.25.sp),
+    labelSmall = base.labelSmall.copy(fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.3.sp),
+    bodyLarge = base.bodyLarge.copy(fontSize = 17.sp, lineHeight = 27.sp, letterSpacing = 0.1.sp),
+    bodyMedium = base.bodyMedium.copy(fontSize = 15.sp, lineHeight = 23.sp),
+    bodySmall = base.bodySmall.copy(fontSize = 14.sp, lineHeight = 21.sp),
 )
 
 private val shapes = Shapes(
@@ -175,7 +172,7 @@ private val shapes = Shapes(
 
 object AlbionType {
     /** Мелкие заглавные с широкой разрядкой — подписи секций. */
-    val eyebrow = TextStyle(fontFamily = Sans, fontSize = 11.sp, fontWeight = FontWeight.Medium, letterSpacing = 2.2.sp)
+    val eyebrow = TextStyle(fontFamily = Sans, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.8.sp)
     /** Транскрипция. */
     val ipa get() = TextStyle(fontFamily = Serif, fontSize = 18.sp, fontStyle = FontStyle.Italic, color = Ink.Muted)
     /** Крупные цифры статистики — тонкий гротеск. */
@@ -185,27 +182,10 @@ object AlbionType {
     val index get() = TextStyle(fontFamily = Serif, fontSize = 15.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
-private fun mix(a: Palette, b: Palette, t: Float, isDark: Boolean) = Palette(
-    isDark = isDark,
-    bg = lerp(a.bg, b.bg, t), raised = lerp(a.raised, b.raised, t), surface = lerp(a.surface, b.surface, t),
-    elevated = lerp(a.elevated, b.elevated, t), high = lerp(a.high, b.high, t), line = lerp(a.line, b.line, t),
-    lineStrong = lerp(a.lineStrong, b.lineStrong, t), fg = lerp(a.fg, b.fg, t), text = lerp(a.text, b.text, t),
-    soft = lerp(a.soft, b.soft, t), muted = lerp(a.muted, b.muted, t), faint = lerp(a.faint, b.faint, t),
-    code = lerp(a.code, b.code, t),
-)
-
-/**
- * Тема приложения. При переключении тёмная ↔ светлая все тона плавно
- * перетекают друг в друга (≈ 450 мс), а не меняются скачком.
- */
+/** Палитра переключается целиком: при смешивании светлой и тёмной тем текст сливался с фоном. */
 @Composable
 fun AlbionTheme(dark: Boolean = true, content: @Composable () -> Unit) {
-    val lightness by animateFloatAsState(if (dark) 0f else 1f, tween(450, easing = Easing.Standard), label = "theme")
-    val palette = when (lightness) {
-        0f -> DarkPalette
-        1f -> LightPalette
-        else -> mix(DarkPalette, LightPalette, lightness, isDark = dark)
-    }
+    val palette = if (dark) DarkPalette else LightPalette
     SideEffect { if (Ink.palette != palette) Ink.palette = palette }
     MaterialTheme(colorScheme = schemeOf(palette), typography = typography, shapes = shapes, content = content)
 }

@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +56,8 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
+import com.marat.albion.ui.components.ScreenHeader
+import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.ReaderRoute
@@ -102,16 +101,12 @@ fun LibraryScreen(navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
             item {
-                Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 28.dp).reveal(reveal, 0)) {
-                    Eyebrow("Чтение с переводом")
-                    Spacer(Modifier.height(10.dp))
-                    Text("Библиотека", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Коснитесь слова — увидите перевод и справку из ваших карточек. Удерживайте палец на тексте — переведётся " +
+                Box(Modifier.reveal(reveal, 0)) {
+                    ScreenHeader(
+                        "Библиотека", eyebrow = "Чтение с переводом",
+                        subtitle = "Коснитесь слова — увидите перевод и справку из ваших карточек. Удерживайте палец на тексте — переведётся " +
                             "предложение; протяните — выделите любой фрагмент.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Ink.Muted,
+                        trailing = { SettingsShortcut(navigator::openSettings) },
                     )
                 }
             }

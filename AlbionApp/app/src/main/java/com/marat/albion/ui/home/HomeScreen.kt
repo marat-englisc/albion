@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,9 +34,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -54,6 +57,7 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
+import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.DeckRoute
 import com.marat.albion.ui.nav.GrammarRoute
@@ -129,15 +133,19 @@ fun HomeScreen(navigator: Navigator) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AlbionLogo(size = 22.dp)
                     Spacer(Modifier.width(10.dp))
-                    Eyebrow("Albion", color = Ink.Fg)
-                    Spacer(Modifier.weight(1f))
-                    if (state.streak > 0) {
-                        Text("${state.streak}", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                        Spacer(Modifier.width(6.dp))
-                        Eyebrow(if (state.streak == 1) "день" else "дней подряд")
-                    }
+                    Eyebrow("Albion", Modifier.weight(1f), color = Ink.Fg)
+                    SettingsShortcut(navigator::openSettings)
                 }
-                Spacer(Modifier.height(40.dp))
+                if (state.streak > 0) {
+                    val days = when {
+                        state.streak % 100 in 11..14 -> "дней"
+                        state.streak % 10 == 1 -> "день"
+                        state.streak % 10 in 2..4 -> "дня"
+                        else -> "дней"
+                    }
+                    Text("${state.streak} $days подряд", style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                }
+                Spacer(Modifier.height(28.dp))
                 Eyebrow(date)
                 Spacer(Modifier.height(10.dp))
                 Text(greeting(), style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
@@ -195,11 +203,29 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
     val due = state.decks.sumOf { it.due }
     val new = state.decks.sumOf { it.newAvailable }
     val next = state.decks.firstOrNull { it.due > 0 } ?: state.decks.firstOrNull { it.newAvailable > 0 }
+    val measurer = rememberTextMeasurer()
+    val labelWidth = with(LocalDensity.current) {
+        measurer.measure("ПОВТОРИТЬ", AlbionType.eyebrow).size.width.toDp() + 12.dp
+    }
     Column(modifier) {
-        Row {
-            Metric(due, "повторить", Modifier.weight(1f))
-            Metric(new, "новых", Modifier.weight(1f))
-            Metric(state.reviewsToday, "ответов", Modifier.weight(1f))
+        BoxWithConstraints {
+            if (labelWidth * 3 <= maxWidth) {
+                Row {
+                    Metric(due, "повторить", Modifier.weight(1f))
+                    Metric(new, "новых", Modifier.weight(1f))
+                    Metric(state.reviewsToday, "ответов", Modifier.weight(1f))
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    listOf("Повторить" to due, "Новых" to new, "Ответов" to state.reviewsToday).forEach { (label, value) ->
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(label, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted, modifier = Modifier.weight(1f))
+                            Spacer(Modifier.width(16.dp))
+                            AnimatedNumber(value, AlbionType.numberSmall, color = Ink.Fg)
+                        }
+                    }
+                }
+            }
         }
         Spacer(Modifier.height(24.dp))
         GoalBar(state.reviewsToday, state.dailyGoal)

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,8 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.SectionHeader
+import com.marat.albion.ui.components.SettingsShortcut
+import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
@@ -44,7 +47,7 @@ import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.delay
 
 @Composable
-fun StatsScreen() {
+fun StatsScreen(navigator: Navigator) {
     val c = LocalAppContainer.current
     val stats by remember { c.study.observeStats() }.collectAsStateWithLifecycle(null)
     val reveal = rememberReveal()
@@ -53,7 +56,7 @@ fun StatsScreen() {
         Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp).padding(bottom = 32.dp),
     ) {
-        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Статистика FSRS") }
+        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Статистика FSRS", trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
         Column(Modifier.padding(top = 28.dp).reveal(reveal, 1)) {
@@ -148,7 +151,7 @@ private fun BarChart(values: List<Int>, labels: Pair<String, String>, hollow: Bo
 @Composable
 private fun DeckBreakdown(s: Stats) {
     val byId = s.counts.associateBy { it.deck }
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Legend(Ink.Muted, "учу")
         Legend(Ink.Soft, "повтор")
         Legend(Ink.Fg, "выучено")

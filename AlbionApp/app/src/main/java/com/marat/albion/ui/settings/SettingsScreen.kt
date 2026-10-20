@@ -45,6 +45,7 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinSlider
 import com.marat.albion.ui.components.ScreenHeader
+import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.rememberReveal
@@ -53,7 +54,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onBack: () -> Unit) {
     val c = LocalAppContainer.current
     val s by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val status by c.importer.status.collectAsStateWithLifecycle()
@@ -62,120 +63,122 @@ fun SettingsScreen() {
     val repo = c.settings
     val reveal = rememberReveal()
 
-    Column(
-        Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp).padding(bottom = 32.dp),
-    ) {
-        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Настройки") }
+    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+        TopBar(onBack = onBack)
+        Column(
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp).padding(bottom = 32.dp),
+        ) {
+            Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Настройки", includeStatusBarInsets = false) }
 
-        Column(Modifier.reveal(reveal, 1)) {
-            SectionHeader("Оформление", Modifier.padding(top = 16.dp))
-            Column(Modifier.padding(vertical = 14.dp)) {
-                Text("Тема", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                Spacer(Modifier.height(8.dp))
-                Column(Modifier.fillMaxWidth().selectableGroup()) {
-                    ThemeMode.entries.forEach { mode ->
-                        RadioSettingOption(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
+            Column(Modifier.reveal(reveal, 1)) {
+                SectionHeader("Оформление", Modifier.padding(top = 16.dp))
+                Column(Modifier.padding(vertical = 14.dp)) {
+                    Text("Тема", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                    Spacer(Modifier.height(8.dp))
+                    Column(Modifier.fillMaxWidth().selectableGroup()) {
+                        ThemeMode.entries.forEach { mode ->
+                            RadioSettingOption(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
+                        }
                     }
                 }
+                Hairline()
             }
-            Hairline()
-        }
 
-        Column(Modifier.reveal(reveal, 2)) { GoalReminderSection(s) }
+            Column(Modifier.reveal(reveal, 2)) { GoalReminderSection(s) }
 
-        Column(Modifier.reveal(reveal, 2)) {
-            SectionHeader("Повторение · FSRS")
-            SliderSetting(
-                "Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
-                "Вероятность вспомнить карточку в момент показа. Выше — чаще повторения. Рекомендуется 90%.",
-                s.desiredRetention, 0.80f..0.97f, 16,
-            ) { scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) } }
-            SliderSetting("Новых карточек в день", "${s.newPerDay}", "Для каждой колоды отдельно.", s.newPerDay.toFloat(), 0f..100f, 19) {
-                scope.launch { repo.setNewPerDay((it / 5).roundToInt() * 5) }
-            }
-            SliderSetting("Повторений в день", "${s.reviewsPerDay}", null, s.reviewsPerDay.toFloat(), 50f..1000f, 18) {
-                scope.launch { repo.setReviewsPerDay((it / 50).roundToInt() * 50) }
-            }
-            Column(Modifier.padding(vertical = 16.dp)) {
-                Text("Порядок новых карточек", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                Spacer(Modifier.height(8.dp))
-                Column(Modifier.fillMaxWidth().selectableGroup()) {
-                    NewCardOrder.entries.forEach { order ->
-                        RadioSettingOption(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
+            Column(Modifier.reveal(reveal, 2)) {
+                SectionHeader("Повторение · FSRS")
+                SliderSetting(
+                    "Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
+                    "Вероятность вспомнить карточку в момент показа. Выше — чаще повторения. Рекомендуется 90%.",
+                    s.desiredRetention, 0.80f..0.97f, 16,
+                ) { scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) } }
+                SliderSetting("Новых карточек в день", "${s.newPerDay}", "Для каждой колоды отдельно.", s.newPerDay.toFloat(), 0f..100f, 19) {
+                    scope.launch { repo.setNewPerDay((it / 5).roundToInt() * 5) }
+                }
+                SliderSetting("Повторений в день", "${s.reviewsPerDay}", null, s.reviewsPerDay.toFloat(), 50f..1000f, 18) {
+                    scope.launch { repo.setReviewsPerDay((it / 50).roundToInt() * 50) }
+                }
+                Column(Modifier.padding(vertical = 16.dp)) {
+                    Text("Порядок новых карточек", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                    Spacer(Modifier.height(8.dp))
+                    Column(Modifier.fillMaxWidth().selectableGroup()) {
+                        NewCardOrder.entries.forEach { order ->
+                            RadioSettingOption(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
+                        }
                     }
                 }
+                Hairline()
+                SliderSetting(
+                    "Начало нового дня", "%02d:00".format(s.dayStartHour),
+                    "Ночные занятия до этого часа засчитываются в предыдущий день.",
+                    s.dayStartHour.toFloat(), 0f..8f, 7,
+                ) { scope.launch { repo.setDayStartHour(it.roundToInt()) } }
+                FsrsTuningBlock(s)
             }
-            Hairline()
-            SliderSetting(
-                "Начало нового дня", "%02d:00".format(s.dayStartHour),
-                "Ночные занятия до этого часа засчитываются в предыдущий день.",
-                s.dayStartHour.toFloat(), 0f..8f, 7,
-            ) { scope.launch { repo.setDayStartHour(it.roundToInt()) } }
-            FsrsTuningBlock(s)
-        }
 
-        Column(Modifier.reveal(reveal, 3)) {
-            SectionHeader("Карточки и озвучка")
-            SwitchSetting("Озвучивать слово при показе", s.autoplayFront) { scope.launch { repo.setAutoplayFront(it) } }
-            SwitchSetting("Озвучивать при перевороте", s.autoplayBack) { scope.launch { repo.setAutoplayBack(it) } }
-            SwitchSetting("Транскрипция на лицевой стороне", s.showIpaOnFront) { scope.launch { repo.setShowIpaOnFront(it) } }
-            SwitchSetting("Русское значение на обороте", s.showRussian) { scope.launch { repo.setShowRussian(it) } }
-            SliderSetting(
-                "Громкость озвучки", if (s.playbackVolume == 0f) "без звука" else "${(s.playbackVolume * 100).roundToInt()}%",
-                "Относительно громкости медиа на телефоне.",
-                s.playbackVolume, 0f..1f, 9,
-            ) {
-                val v = (it * 10).roundToInt() / 10f
-                c.audio.setVolume(v)
-                scope.launch { repo.setPlaybackVolume(v) }
+            Column(Modifier.reveal(reveal, 3)) {
+                SectionHeader("Карточки и озвучка")
+                SwitchSetting("Озвучивать слово при показе", s.autoplayFront) { scope.launch { repo.setAutoplayFront(it) } }
+                SwitchSetting("Озвучивать при перевороте", s.autoplayBack) { scope.launch { repo.setAutoplayBack(it) } }
+                SwitchSetting("Транскрипция на лицевой стороне", s.showIpaOnFront) { scope.launch { repo.setShowIpaOnFront(it) } }
+                SwitchSetting("Русское значение на обороте", s.showRussian) { scope.launch { repo.setShowRussian(it) } }
+                SliderSetting(
+                    "Громкость озвучки", if (s.playbackVolume == 0f) "без звука" else "${(s.playbackVolume * 100).roundToInt()}%",
+                    "Относительно громкости медиа на телефоне.",
+                    s.playbackVolume, 0f..1f, 9,
+                ) {
+                    val v = (it * 10).roundToInt() / 10f
+                    c.audio.setVolume(v)
+                    scope.launch { repo.setPlaybackVolume(v) }
+                }
+                SliderSetting("Скорость озвучки", "×%.1f".format(s.playbackSpeed), null, s.playbackSpeed, 0.5f..1.5f, 9) {
+                    val v = (it * 10).roundToInt() / 10f
+                    c.audio.setSpeed(v)
+                    scope.launch { repo.setPlaybackSpeed(v) }
+                }
             }
-            SliderSetting("Скорость озвучки", "×%.1f".format(s.playbackSpeed), null, s.playbackSpeed, 0.5f..1.5f, 9) {
-                val v = (it * 10).roundToInt() / 10f
-                c.audio.setSpeed(v)
-                scope.launch { repo.setPlaybackSpeed(v) }
+
+            Column(Modifier.reveal(reveal, 4)) {
+                SectionHeader("Учебник")
+                SliderSetting("Размер текста", "${(s.grammarTextScale * 100).roundToInt()}%", null, s.grammarTextScale, 0.85f..1.4f, 10) {
+                    scope.launch { repo.setGrammarTextScale(it) }
+                }
+                ActionRow("Сбросить отметки прочитанного") { confirmGrammarReset = true }
             }
-        }
 
-        Column(Modifier.reveal(reveal, 4)) {
-            SectionHeader("Учебник")
-            SliderSetting("Размер текста", "${(s.grammarTextScale * 100).roundToInt()}%", null, s.grammarTextScale, 0.85f..1.4f, 10) {
-                scope.launch { repo.setGrammarTextScale(it) }
+            Column(Modifier.reveal(reveal, 5)) {
+                SectionHeader("Материалы")
+                Text(
+                    when (val st = status) {
+                        ImportStatus.Checking -> "Проверка…"
+                        is ImportStatus.Importing -> "Загрузка: ${st.deck.title} (${st.index}/${st.total})"
+                        ImportStatus.Ready -> "Материалы загружены"
+                        ImportStatus.Empty -> "В сборке нет материалов"
+                        is ImportStatus.Failed -> "Ошибка: ${st.message}"
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Ink.Text,
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Таблицы, озвучка и учебник вшиваются в приложение при сборке. После обновления таблиц пересоберите приложение — " +
+                        "изменения подтянутся автоматически, прогресс сохранится.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Ink.Muted,
+                )
+                Spacer(Modifier.height(8.dp))
+                ActionRow("Перечитать таблицы сейчас") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
             }
-            ActionRow("Сбросить отметки прочитанного") { confirmGrammarReset = true }
-        }
 
-        Column(Modifier.reveal(reveal, 5)) {
-            SectionHeader("Материалы")
-            Text(
-                when (val st = status) {
-                    ImportStatus.Checking -> "Проверка…"
-                    is ImportStatus.Importing -> "Загрузка: ${st.deck.title} (${st.index}/${st.total})"
-                    ImportStatus.Ready -> "Материалы загружены"
-                    ImportStatus.Empty -> "В сборке нет материалов"
-                    is ImportStatus.Failed -> "Ошибка: ${st.message}"
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                color = Ink.Text,
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "Таблицы, озвучка и учебник вшиваются в приложение при сборке. После обновления таблиц пересоберите приложение — " +
-                    "изменения подтянутся автоматически, прогресс сохранится.",
-                style = MaterialTheme.typography.bodySmall,
-                color = Ink.Muted,
-            )
-            Spacer(Modifier.height(8.dp))
-            ActionRow("Перечитать таблицы сейчас") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
-        }
-
-        Column(Modifier.fillMaxWidth().padding(top = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            AlbionLogo(size = 28.dp, color = Ink.Faint)
-            Spacer(Modifier.height(10.dp))
-            Eyebrow("Albion 1.0 · FSRS-6", color = Ink.Faint)
+            Column(Modifier.fillMaxWidth().padding(top = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                AlbionLogo(size = 28.dp, color = Ink.Faint)
+                Spacer(Modifier.height(10.dp))
+                Eyebrow("Albion 1.0 · FSRS-6", color = Ink.Faint)
+            }
         }
     }
-
     if (confirmGrammarReset) {
         AlertDialog(
             onDismissRequest = { confirmGrammarReset = false },

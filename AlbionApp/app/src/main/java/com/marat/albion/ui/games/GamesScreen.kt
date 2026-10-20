@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ScreenHeader
+import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.nav.GameRoute
 import com.marat.albion.ui.nav.Navigator
@@ -48,7 +49,7 @@ fun GamesScreen(navigator: Navigator) {
     ) {
         item {
             Box(Modifier.reveal(reveal, 0)) {
-                ScreenHeader("Игры", eyebrow = "Практика", subtitle = "Тренировки в свободном режиме — расписание FSRS они не меняют.")
+                ScreenHeader("Игры", eyebrow = "Практика", subtitle = "Тренировки в свободном режиме — расписание FSRS они не меняют.", trailing = { SettingsShortcut(navigator::openSettings) })
             }
         }
         item { SectionHeader("Мини-игры", Modifier.padding(top = 16.dp).reveal(reveal, 1), trailing = "%02d".format(Game.entries.size)) }
