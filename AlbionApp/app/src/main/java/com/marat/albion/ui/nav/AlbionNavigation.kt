@@ -102,7 +102,7 @@ private val tabs = listOf(
     Tab(HomeRoute, "Карточки", Icons.Outlined.Layers),
     Tab(GrammarRoute, "Учебник", Icons.AutoMirrored.Outlined.MenuBook),
     Tab(LibraryRoute, "Чтение", Icons.Outlined.AutoStories),
-    Tab(GamesRoute, "Игры", Icons.Outlined.SportsEsports),
+    Tab(GamesRoute, "Практика", Icons.Outlined.SportsEsports),
     Tab(StatsRoute, "Прогресс", Icons.Outlined.Insights),
 )
 

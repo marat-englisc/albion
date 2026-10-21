@@ -210,19 +210,20 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
 
     Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 28.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Chip(card.pos)
                 LevelBadge(card.level)
             }
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(12.dp))
             Text(
                 card.meaningRu,
-                style = TextStyle(fontFamily = Serif, fontSize = 24.sp, lineHeight = 32.sp),
+                style = MaterialTheme.typography.bodyLarge,
                 color = Ink.Fg,
-                textAlign = TextAlign.Center,
+                textAlign = if (card.meaningRu.length > 80) TextAlign.Start else TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
             AnimatedVisibility(showEn && verdict == null, enter = expandVertically() + fadeIn()) {
                 Text(
@@ -233,33 +234,28 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                     modifier = Modifier.padding(top = 12.dp),
                 )
             }
-            Spacer(Modifier.height(30.dp))
-            Text(
-                skeleton(card.term, if (verdict != null) letters else hints),
-                style = TextStyle(fontFamily = Serif, fontSize = 18.sp, letterSpacing = 1.sp),
-                color = if (verdict != null) Ink.Faint else Ink.Muted,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(14.dp))
-            AnswerField(
-                value = input,
-                onChange = { if (verdict == null) input = it },
-                placeholder = "Ваш ответ",
-                enabled = verdict == null,
-                focus = focus,
-                imeAction = ImeAction.Done,
-                onIme = { check() },
-                modifier = Modifier.shakeOn(shake),
-                struck = verdict == Verdict.Wrong,
-            )
+            if (verdict == null) {
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    skeleton(card.term, hints),
+                    style = TextStyle(fontFamily = Serif, fontSize = 17.sp, letterSpacing = 1.sp),
+                    color = Ink.Muted,
+                    textAlign = TextAlign.Center,
+                )
+            }
 
             AnimatedVisibility(
                 verdict != null,
                 enter = fadeIn(tween(300)) + slideInVertically(tween(420)) { it / 3 },
             ) {
                 val v = verdict ?: Verdict.Wrong
-                Column(Modifier.fillMaxWidth().padding(top = 28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     VerdictLine(v)
+                    if (input.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text("Ваш ответ: $input", style = MaterialTheme.typography.bodyMedium,
+                            color = Ink.Muted, textAlign = TextAlign.Center)
+                    }
                     Spacer(Modifier.height(14.dp))
                     Text(
                         if (v == Verdict.Typo) annotateMistakes(card.term, input) else AnnotatedString(card.term),
@@ -287,11 +283,24 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             }
         }
 
+        // Поле остаётся над кнопками и клавиатурой, даже если определение длинное.
+        if (verdict == null) {
+            AnswerField(
+                value = input,
+                onChange = { input = it },
+                placeholder = "Ваш ответ",
+                enabled = true,
+                focus = focus,
+                imeAction = ImeAction.Done,
+                onIme = { check() },
+                modifier = Modifier.padding(top = 8.dp).shakeOn(shake),
+            )
+        }
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 10.dp),
         ) { answered ->
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)

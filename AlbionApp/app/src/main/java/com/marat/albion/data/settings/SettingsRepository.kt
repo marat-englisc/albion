@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -89,6 +90,7 @@ class SettingsRepository(private val context: Context) {
         val fsrsImprovement = floatPreferencesKey("fsrs_improvement")
         val readerScale = floatPreferencesKey("reader_text_scale")
         val readerMarkWords = booleanPreferencesKey("reader_mark_words")
+        val viewedHelp = stringSetPreferencesKey("viewed_help")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
@@ -120,6 +122,10 @@ class SettingsRepository(private val context: Context) {
             readerMarkWords = p[Keys.readerMarkWords] ?: true,
         )
     }
+
+    val viewedHelp: Flow<Set<String>> = context.dataStore.data.map { it[Keys.viewedHelp].orEmpty() }
+
+    suspend fun markHelpViewed(key: String) = edit { it[Keys.viewedHelp] = it[Keys.viewedHelp].orEmpty() + key }
 
     suspend fun current(): Settings = settings.first()
 

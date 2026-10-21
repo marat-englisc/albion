@@ -1,6 +1,7 @@
 package com.marat.albion.ui.grammar
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +45,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,6 +121,7 @@ fun GrammarScreen(navigator: Navigator) {
     var level by rememberSaveable { mutableStateOf<String?>(null) }
     var bookmarksOnly by rememberSaveable { mutableStateOf(false) }
     var reviewsOnly by rememberSaveable { mutableStateOf(false) }
+    var reviewDetails by rememberSaveable { mutableStateOf(false) }
     var openChapters by rememberSaveable { mutableStateOf(listOf<String>()) }
     val reveal = rememberReveal()
     val listState = rememberLazyListState()
@@ -209,41 +214,49 @@ fun GrammarScreen(navigator: Navigator) {
         }
 
         if (!state.loading && !filtering) item {
-            Column(Modifier.padding(top = 24.dp)) {
+            Column(Modifier.padding(top = 8.dp)) {
                 SectionHeader("Повторение грамматики", trailing = due.size.toString())
                 Panel(contentPadding = PaddingValues(18.dp)) {
                     when {
                         due.isNotEmpty() -> {
-                            Text("К повторению: ${due.size}", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                            Text("Сначала — темы с самой ранней датой. Полный тест обновит план повторения.",
-                                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
-                                modifier = Modifier.padding(top = 6.dp, bottom = 14.dp))
                             val first = due.first().topic
                             PrimaryButton("Повторить: ${first.number}. ${first.title}", onClick = { quiz(first) },
                                 trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
-                            GhostButton("Открыть правило", onClick = { open(first) }, modifier = Modifier.padding(vertical = 10.dp))
-                            TextTab("Показать очередь (${due.size})", reviewsOnly) {
-                                reviewsOnly = !reviewsOnly; query = ""; level = null; bookmarksOnly = false
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                TextButton(onClick = { open(first) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.Fg) }
+                                TextButton(onClick = {
+                                    reviewsOnly = true; query = ""; level = null; bookmarksOnly = false
+                                }, modifier = Modifier.weight(1f)) { Text("Очередь (${due.size})", color = Ink.Fg) }
                             }
                         }
                         state.reviews.isNotEmpty() -> {
-                            Text("Сейчас нет тем к повторению", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
                             val next = state.reviews.first()
-                            Text("Ближайшее повторение: ${grammarReviewDate(next.dueAt, now)}.\n${next.topic.number}. ${next.topic.title}",
+                            Text("Следующее повторение: ${grammarReviewDate(next.dueAt, now)}", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                            Text("${next.topic.number}. ${next.topic.title}",
                                 style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
                                 modifier = Modifier.padding(top = 8.dp))
-                            GhostButton("Открыть тему", onClick = { open(next.topic) }, modifier = Modifier.padding(top = 10.dp))
+                            TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.Fg) }
                         }
                         else -> {
-                            Text("Повторяйте темы по плану", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                            Text("Пройдите полный тест в конце темы — она появится здесь, когда придёт время повторить.",
+                            Text("Пройдите тест в конце темы — здесь появится её ближайшее повторение.",
                                 style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
-                                modifier = Modifier.padding(top = 8.dp))
+                            )
                         }
                     }
-                    Text("Интервалы после успешных тестов: 1, 3, 7, 14, 30 и 60 дней. " +
-                        "Менее 70% — повтор через день. Досрочный тест и повтор ошибок не увеличивают интервал.",
-                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 12.dp))
+                    TextButton(onClick = { reviewDetails = !reviewDetails }, modifier = Modifier.semantics {
+                        stateDescription = if (reviewDetails) "Развёрнуто" else "Свёрнуто"
+                    }) {
+                        Text("Как работает повторение", color = Ink.Fg, modifier = Modifier.weight(1f, fill = false))
+                        Spacer(Modifier.width(6.dp))
+                        Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Muted,
+                            modifier = Modifier.size(18.dp).rotate(if (reviewDetails) 180f else 0f))
+                    }
+                    AnimatedVisibility(reviewDetails) {
+                        Text("Сначала повторяются темы с самой ранней датой. Полный тест обновляет план. " +
+                            "Интервалы после успешных тестов: 1, 3, 7, 14, 30 и 60 дней. " +
+                            "Менее 70% — повтор через день. Досрочный тест и повтор ошибок не увеличивают интервал.",
+                            style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 4.dp))
+                    }
                 }
             }
         }

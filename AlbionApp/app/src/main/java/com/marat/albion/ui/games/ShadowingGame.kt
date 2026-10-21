@@ -73,8 +73,6 @@ import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Serif
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -113,8 +111,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
 
     DisposableEffect(Unit) { onDispose { recorder.clear() } }
     LaunchedEffect(card.id) {
-        delay(350)
-        c.audio.play(deck, card.audio, card.term, "orig:${card.id}")
+        c.audio.playDelayed(deck, card.audio, card.term, "orig:${card.id}", delayMs = 350)
     }
     // Мелодика диктора — один раз на карточку, в фоне.
     LaunchedEffect(card.id) {
@@ -162,9 +159,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     fun compare() {
         scope.launch {
             playOriginal()
-            c.audio.playing.first { it == null }
-            delay(250)
-            playMine()
+            c.audio.playFileAfterCurrent(file, "mine:${card.id}")
         }
     }
 

@@ -115,12 +115,14 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
 
     fun next() {
         if (phase != Phase.Playing || !answered) return
+        c.audio.stop()
         if (index + 1 >= items.size) phase = Phase.Summary else index++
         answered = false
         questionStartedAt = SystemClock.elapsedRealtime()
     }
 
     fun backToSetup() {
+        c.audio.stop()
         phase = Phase.Setup
     }
 

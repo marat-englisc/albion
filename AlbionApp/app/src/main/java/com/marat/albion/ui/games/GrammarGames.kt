@@ -17,6 +17,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,6 +88,7 @@ import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
@@ -308,19 +310,21 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
 private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Unit) {
     val reveal = rememberReveal()
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
-        TopBar(onBack = onBack)
+        TopBar(onBack = onBack) {
+            FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
+        }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
             Column(Modifier.reveal(reveal, 0)) {
                 Icon(vm.game!!.icon, null, tint = Ink.Fg, modifier = Modifier.size(28.dp))
-                Spacer(Modifier.height(18.dp))
-                Eyebrow("Мини-игра · %02d".format(vm.game.ordinal + 1))
-                Spacer(Modifier.height(10.dp))
-                Text(vm.game.title, style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
-                Spacer(Modifier.height(14.dp))
-                Text(vm.game.description, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                Spacer(Modifier.height(12.dp))
+                Eyebrow("Упражнение · %02d".format(vm.game.ordinal + 1))
+                Spacer(Modifier.height(8.dp))
+                Text(vm.game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+                Spacer(Modifier.height(6.dp))
+                Text(vm.game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
             }
             if (total == 0) {
                 EmptyState(
@@ -332,13 +336,13 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
             }
             Column(Modifier.reveal(reveal, 1)) {
                 SectionHeader("Уровень", Modifier.padding(top = 20.dp), trailing = if (total > 0) "$total" else null)
-                Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(22.dp)) {
                     LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
                 }
             }
             Column(Modifier.reveal(reveal, 2)) {
                 SectionHeader("Длина", Modifier.padding(top = 12.dp))
-                Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
+                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
                     listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
                 }
             }

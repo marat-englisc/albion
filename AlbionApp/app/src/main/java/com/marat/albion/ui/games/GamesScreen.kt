@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.marat.albion.ui.components.Hairline
+import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.SectionHeader
@@ -49,10 +50,15 @@ fun GamesScreen(navigator: Navigator) {
     ) {
         item {
             Box(Modifier.reveal(reveal, 0)) {
-                ScreenHeader("Игры", eyebrow = "Практика", subtitle = "Тренировки в свободном режиме — расписание FSRS они не меняют.", trailing = { SettingsShortcut(navigator::openSettings) })
+                ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
+                    Row {
+                        FeatureHelp("practice", "Как заниматься", "Выберите упражнение, колоду или уровень и длину занятия.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в статистике, расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
+                        SettingsShortcut(navigator::openSettings)
+                    }
+                })
             }
         }
-        item { SectionHeader("Мини-игры", Modifier.padding(top = 16.dp).reveal(reveal, 1), trailing = "%02d".format(Game.entries.size)) }
+        item { SectionHeader("Упражнения", Modifier.padding(top = 8.dp).reveal(reveal, 1), trailing = "%02d".format(Game.entries.size)) }
         itemsIndexed(Game.entries) { i, game ->
             GameRow(i + 1, game, Modifier.reveal(reveal, 2 + i)) { navigator.open(GameRoute(game)) }
         }

@@ -32,8 +32,9 @@ class NavigationUiTest {
         c.importer.importIfNeeded()
         val before = c.study.observeStats().first().games.firstOrNull { it.game == Game.IRREGULAR.name }?.answers ?: 0
         ActivityScenario.launch(MainActivity::class.java).use {
-            click(awaitNode { it.text?.toString() == "Игры" || it.contentDescription?.toString() == "Игры" })
+            click(awaitNode { it.text?.toString() == "Практика" || it.contentDescription?.toString() == "Практика" })
             clickText("Неправильные глаголы")
+            dismissFeatureHelp()
             click(scrollToNode { it.text?.toString() == "Начать" })
             val check = clickableBounds(awaitNode { it.text?.toString() == "Проверить" })
             val skip = clickableBounds(awaitNode { it.text?.toString() == "Я не знаю" })
@@ -68,6 +69,7 @@ class NavigationUiTest {
             clickText("Учебник")
             setSearch("articles")
             clickText("Чтение")
+            dismissFeatureHelp()
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "articles" }
             clickDescription("Настройки")
@@ -82,9 +84,9 @@ class NavigationUiTest {
             clickText("Учебник")
             setSearch("present")
             clickText("Прогресс")
-            awaitNode { it.text?.toString() == "КАРТОЧКИ И ИГРЫ" }
+            awaitNode { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
             scenario.recreate()
-            awaitNode { it.text?.toString() == "КАРТОЧКИ И ИГРЫ" }
+            awaitNode { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "present" }
         }
@@ -96,6 +98,7 @@ class NavigationUiTest {
             click(awaitNode { it.text?.toString()?.matches(Regex("\\d+\\. .+")) == true })
             awaitNode { it.contentDescription?.toString() == "Размер текста" }
             clickText("Чтение")
+            dismissFeatureHelp()
             clickText("Учебник")
             awaitNode { it.contentDescription?.toString() == "Размер текста" }
             clickText("Учебник")
@@ -209,6 +212,13 @@ class NavigationUiTest {
             putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, query)
         }))
         awaitNode { it.isEditable && it.text?.toString() == query }
+    }
+
+    private fun dismissFeatureHelp() {
+        val root = instrumentation.uiAutomation.rootInActiveWindow ?: return
+        if (find(root) { it.text?.toString() in setOf("Как читать", "Как заниматься") } != null) {
+            clickText("Понятно")
+        }
     }
 
     private fun clickText(text: String) = click(awaitNode { it.text?.toString() == text })

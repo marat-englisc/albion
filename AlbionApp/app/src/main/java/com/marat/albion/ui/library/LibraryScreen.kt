@@ -51,6 +51,7 @@ import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.library.LibraryBook
 import com.marat.albion.data.library.ModelState
 import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
@@ -104,9 +105,13 @@ fun LibraryScreen(navigator: Navigator) {
                 Box(Modifier.reveal(reveal, 0)) {
                     ScreenHeader(
                         "Библиотека", eyebrow = "Чтение с переводом",
-                        subtitle = "Коснитесь слова — увидите перевод и справку из ваших карточек. Удерживайте палец на тексте — переведётся " +
-                            "предложение; протяните — выделите любой фрагмент.",
-                        trailing = { SettingsShortcut(navigator::openSettings) },
+                        trailing = {
+                            Row {
+                                FeatureHelp("library", "Как читать",
+                                    "Коснитесь слова, чтобы увидеть перевод и справку из карточек.\n\nУдерживайте палец на тексте для перевода предложения. Протяните палец, чтобы выбрать любой фрагмент.\n\nВ окне перевода можно выделить текст и добавить заметку. Закладки, заметки и размер текста доступны в панели читалки.\n\nСловарь работает сразу без интернета. Для перевода предложений приложение один раз скачает языковую модель, затем перевод тоже работает офлайн.")
+                                SettingsShortcut(navigator::openSettings)
+                            }
+                        },
                     )
                 }
             }
@@ -115,7 +120,7 @@ fun LibraryScreen(navigator: Navigator) {
             val continueBook = list.firstOrNull { it.lastRead != null && it.progress < 0.999f }
             if (continueBook != null) {
                 item {
-                    Column(Modifier.padding(top = 28.dp).reveal(reveal, 1)) {
+                    Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)) {
                         PrimaryButton(
                             text = "Продолжить · ${continueBook.book.title}",
                             onClick = { navigator.open(ReaderRoute(continueBook.book.id)) },
@@ -125,7 +130,7 @@ fun LibraryScreen(navigator: Navigator) {
                 }
             }
 
-            item { SectionHeader("Книги", Modifier.padding(top = 24.dp).reveal(reveal, 2), trailing = "%02d".format(list.size)) }
+            item { SectionHeader("Книги", Modifier.padding(top = 12.dp).reveal(reveal, 2), trailing = "%02d".format(list.size)) }
             itemsIndexed(list, key = { _, b -> b.book.id }) { i, b ->
                 BookRow(
                     item = b,
@@ -149,14 +154,14 @@ fun LibraryScreen(navigator: Navigator) {
 
             item {
                 Column(Modifier.padding(top = 8.dp).reveal(reveal, 5 + list.size)) {
-                    SectionHeader("Перевод на устройстве")
+                    SectionHeader("Офлайн-перевод")
                     Text(
-                        "Слова переводит встроенный словарь EN → RU (62 тыс. статей, Викисловарь) — сразу и без интернета. " +
-                            when (model) {
-                                ModelState.Ready -> "Модель перевода фраз Google ML Kit загружена: предложения тоже переводятся офлайн."
-                                ModelState.Downloading -> "Модель перевода фраз Google ML Kit загружается в фоне…"
-                                else -> "Модель перевода фраз Google ML Kit скачается сама, как только появится интернет."
-                            },
+                        when (model) {
+                            ModelState.Ready -> "Слова и предложения готовы к переводу."
+                            ModelState.Downloading -> "Словарь готов · загружается перевод предложений…"
+                            ModelState.Failed -> "Словарь готов · перевод предложений пока недоступен."
+                            else -> "Словарь готов · для загрузки перевода предложений нужен интернет."
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = Ink.Muted,
                     )

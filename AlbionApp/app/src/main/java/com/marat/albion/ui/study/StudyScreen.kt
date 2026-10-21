@@ -127,8 +127,7 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
         val card = current?.card ?: return@LaunchedEffect
         val d = Deck.byId(card.deck) ?: deck
         if ((!state.revealed && settings.autoplayFront) || (state.revealed && settings.autoplayBack)) {
-            delay(180) // даём карточке появиться
-            c.audio.play(d, card.audio, card.term, "term:${card.id}")
+            c.audio.playDelayed(d, card.audio, card.term, "term:${card.id}", delayMs = 180)
         }
     }
 

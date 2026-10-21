@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +64,7 @@ import androidx.core.content.ContextCompat
 import com.marat.albion.data.content.Deck
 import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
@@ -186,30 +188,33 @@ fun GameSetup(
 ) {
     val reveal = rememberReveal()
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
-        TopBar(onBack = onBack)
+        TopBar(onBack = onBack) {
+            FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
+                "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
+        }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
             Column(Modifier.reveal(reveal, 0)) {
                 Icon(game.icon, null, tint = Ink.Fg, modifier = Modifier.size(28.dp))
-                Spacer(Modifier.height(18.dp))
-                Eyebrow("Мини-игра · %02d".format(game.ordinal + 1))
-                Spacer(Modifier.height(10.dp))
-                Text(game.title, style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
-                Spacer(Modifier.height(14.dp))
-                Text(game.description, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                Spacer(Modifier.height(12.dp))
+                Eyebrow("Упражнение · %02d".format(game.ordinal + 1))
+                Spacer(Modifier.height(8.dp))
+                Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+                Spacer(Modifier.height(6.dp))
+                Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
             }
             if (game.decks.size > 1) {
                 Column(Modifier.reveal(reveal, 1)) {
-                    SectionHeader("Колода", Modifier.padding(top = 20.dp))
+                    SectionHeader("Колода", Modifier.padding(top = 8.dp))
                     OptionGrid(game.decks.map { it.title }, game.decks.indexOf(deck)) { onDeck(game.decks[it]) }
                 }
             }
             if (game.modes.isNotEmpty()) {
                 Column(Modifier.reveal(reveal, 1)) {
                     SectionHeader("Режим", Modifier.padding(top = 20.dp))
-                    Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
                         game.modes.forEachIndexed { i, m -> TextTab(m, mode == i) { onMode(i) } }
                     }
                 }
@@ -217,14 +222,7 @@ fun GameSetup(
             if (mistakes > 0) {
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Ошибки", Modifier.padding(top = 12.dp), trailing = "%02d".format(mistakes))
-                    Text(
-                        "Слова, на которых вы ошибались в этой игре, попадутся первыми. " +
-                            "Слово уходит из ошибок после двух верных ответов подряд.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Ink.Muted,
-                        modifier = Modifier.padding(top = 10.dp),
-                    )
-                    Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
                         TextTab("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
                         TextTab("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
                     }
@@ -232,7 +230,7 @@ fun GameSetup(
             }
             Column(Modifier.reveal(reveal, 2)) {
                 SectionHeader("Длина", Modifier.padding(top = 12.dp))
-                Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
+                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
                     counts.forEach { n -> TextTab(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
                 }
             }
@@ -313,7 +311,7 @@ fun GameSummary(
     onDone: () -> Unit,
     scoreLabel: String = "верно",
     title: String = game?.title.orEmpty(),
-    restartLabel: String = "Новая игра",
+    restartLabel: String = "Ещё раз",
 ) {
     val ring = remember { Animatable(0f) }
     val ratio = if (total == 0) 0f else correct.toFloat() / total
@@ -339,7 +337,7 @@ fun GameSummary(
         Spacer(Modifier.height(28.dp))
         Text(
             when {
-                total == 0 -> "Нет слов для игры"
+                total == 0 -> "Нет слов для упражнения"
                 ratio >= 0.9f -> "Excellent."
                 ratio >= 0.7f -> "Well done."
                 ratio >= 0.4f -> "Keep going."
@@ -357,7 +355,7 @@ fun GameSummary(
             Column(Modifier.fillMaxWidth().reveal(reveal, 3)) {
                 SectionHeader("Ошибки", Modifier.padding(top = 20.dp), trailing = "%02d".format(mistakes.size))
                 Text(
-                    "Сохранены — в следующей игре эти слова попадутся первыми.",
+                    "Сохранены — в следующем занятии эти слова попадутся первыми.",
                     style = MaterialTheme.typography.bodySmall,
                     color = Ink.Muted,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),

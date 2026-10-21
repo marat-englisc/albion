@@ -61,7 +61,9 @@ import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.DeckRoute
 import com.marat.albion.ui.nav.GrammarRoute
+import com.marat.albion.ui.nav.LibraryRoute
 import com.marat.albion.ui.nav.Navigator
+import com.marat.albion.ui.nav.ReaderRoute
 import com.marat.albion.ui.nav.StudyRoute
 import com.marat.albion.ui.nav.TopicRoute
 import com.marat.albion.ui.theme.AlbionType
@@ -129,7 +131,7 @@ fun HomeScreen(navigator: Navigator) {
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
     ) {
         item {
-            Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 22.dp).reveal(reveal, 0)) {
+            Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp).reveal(reveal, 0)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AlbionLogo(size = 22.dp)
                     Spacer(Modifier.width(10.dp))
@@ -143,12 +145,12 @@ fun HomeScreen(navigator: Navigator) {
                         state.streak % 10 in 2..4 -> "дня"
                         else -> "дней"
                     }
-                    Text("${state.streak} $days подряд", style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    Text("${state.streak} $days подряд", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
                 }
-                Spacer(Modifier.height(28.dp))
+                Spacer(Modifier.height(12.dp))
                 Eyebrow(date)
-                Spacer(Modifier.height(10.dp))
-                Text(greeting(), style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
+                Spacer(Modifier.height(4.dp))
+                Text(greeting(), style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
             }
         }
 
@@ -175,25 +177,23 @@ fun HomeScreen(navigator: Navigator) {
         }
 
         item {
-            TodayBlock(state, Modifier.padding(top = 32.dp).reveal(reveal, 1)) { navigator.open(StudyRoute(it)) }
+            TodayBlock(state, Modifier.padding(top = 16.dp).reveal(reveal, 1)) { navigator.open(StudyRoute(it)) }
         }
 
-        item { SectionHeader("Колоды", Modifier.padding(top = 28.dp).reveal(reveal, 2), trailing = "0${Deck.entries.size}") }
-        itemsIndexed(state.decks, key = { _, it -> it.deck.id }) { i, summary ->
-            DeckRow(i + 1, summary, Modifier.reveal(reveal, 3 + i)) { navigator.open(DeckRoute(summary.deck)) }
-        }
-
-        item { SectionHeader("Чтение", Modifier.padding(top = 28.dp).reveal(reveal, 8)) }
-        item { ReadingBlock(Modifier.reveal(reveal, 9), navigator) }
-
-        item { SectionHeader("Грамматика", Modifier.padding(top = 28.dp).reveal(reveal, 9)) }
+        item { SectionHeader("Продолжить", Modifier.padding(top = 6.dp).reveal(reveal, 2)) }
+        item { ReadingBlock(Modifier.reveal(reveal, 3), navigator) }
         item {
             GrammarBlock(
                 state,
-                Modifier.reveal(reveal, 10),
+                Modifier.reveal(reveal, 4),
                 onOpenBook = { navigator.switchTab(GrammarRoute) },
                 onContinue = { navigator.open(TopicRoute(it.id)) },
             )
+        }
+
+        item { SectionHeader("Колоды", Modifier.padding(top = 8.dp).reveal(reveal, 5), trailing = "0${Deck.entries.size}") }
+        itemsIndexed(state.decks, key = { _, it -> it.deck.id }) { i, summary ->
+            DeckRow(i + 1, summary, Modifier.reveal(reveal, 6 + i)) { navigator.open(DeckRoute(summary.deck)) }
         }
     }
 }
@@ -208,6 +208,8 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
         measurer.measure("ПОВТОРИТЬ", AlbionType.eyebrow).size.width.toDp() + 12.dp
     }
     Column(modifier) {
+        Eyebrow("Сегодня", color = Ink.Soft)
+        Spacer(Modifier.height(8.dp))
         BoxWithConstraints {
             if (labelWidth * 3 <= maxWidth) {
                 Row {
@@ -227,9 +229,9 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
                 }
             }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(14.dp))
         GoalBar(state.reviewsToday, state.dailyGoal)
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(14.dp))
         if (next != null) {
             PrimaryButton(
                 text = (if (next.started == 0) "Начать · " else "Продолжить · ") + next.deck.title,
@@ -240,7 +242,7 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
             Hairline()
             Spacer(Modifier.height(14.dp))
             Text(
-                "На сегодня всё. FSRS сам подберёт момент для следующего повторения.",
+                "На сегодня всё. Следующее повторение появится здесь.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Ink.Muted,
             )
@@ -251,7 +253,7 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
 @Composable
 private fun Metric(value: Int, label: String, modifier: Modifier = Modifier) {
     Column(modifier) {
-        AnimatedNumber(value, AlbionType.number, color = if (value == 0) Ink.Faint else Ink.Fg)
+        AnimatedNumber(value, AlbionType.numberSmall, color = if (value == 0) Ink.Faint else Ink.Fg)
         Spacer(Modifier.height(2.dp))
         Eyebrow(label)
     }
@@ -292,46 +294,27 @@ private fun DeckRow(index: Int, summary: DeckSummary, modifier: Modifier, onClic
 @Composable
 private fun GrammarBlock(state: HomeState, modifier: Modifier, onOpenBook: () -> Unit, onContinue: (Topic) -> Unit) {
     val total = state.grammar.lessons.size
-    Panel(modifier.padding(top = 8.dp), onClick = onOpenBook, contentPadding = PaddingValues(20.dp)) {
-        Row(verticalAlignment = Alignment.Bottom) {
+    val topic = state.continueTopic
+    Panel(modifier.padding(top = 8.dp), onClick = { if (topic != null) onContinue(topic) else onOpenBook() }, contentPadding = PaddingValues(14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Учебник", style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                Text("Грамматика", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    if (total == 0) "Темы появятся вместе с материалами" else "От нуля до C1 · $total тем",
+                    topic?.let { listOfNotNull(it.number?.toString(), it.title).joinToString(". ") }
+                        ?: if (total == 0) "Темы появятся вместе с материалами" else "Учебник · $total тем",
                     style = MaterialTheme.typography.bodySmall,
                     color = Ink.Muted,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (total > 0) {
-                AnimatedNumber(state.grammarRead, AlbionType.numberSmall, color = Ink.Fg)
-                Text(" / $total", style = MaterialTheme.typography.bodyMedium, color = Ink.Faint, modifier = Modifier.padding(bottom = 4.dp))
-            }
+            Spacer(Modifier.width(12.dp))
+            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
         }
         if (total > 0) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
             ThinProgress(state.grammarRead.toFloat() / total)
-        }
-        state.continueTopic?.let { topic ->
-            Spacer(Modifier.height(18.dp))
-            Row(
-                Modifier.fillMaxWidth().clickable { onContinue(topic) }.padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Eyebrow("Продолжить чтение")
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        listOfNotNull(topic.number?.toString(), topic.title).joinToString(". "),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Ink.Text,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
-            }
         }
     }
 }
@@ -368,17 +351,20 @@ private fun ReadingBlock(modifier: Modifier, navigator: Navigator) {
     val c = LocalAppContainer.current
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(emptyList())
     val current = books.firstOrNull { it.lastRead != null && it.progress < 0.999f } ?: books.firstOrNull()
-    Panel(modifier.padding(top = 8.dp), onClick = { navigator.switchTab(com.marat.albion.ui.nav.LibraryRoute) }, contentPadding = PaddingValues(20.dp)) {
+    Panel(modifier, onClick = {
+        if (current != null && current.lastRead != null) navigator.open(ReaderRoute(current.book.id))
+        else navigator.switchTab(LibraryRoute)
+    }, contentPadding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (current != null) {
-                com.marat.albion.ui.library.BookCover(current.book.title, Modifier.size(width = 46.dp, height = 66.dp))
-                Spacer(Modifier.width(16.dp))
+                com.marat.albion.ui.library.BookCover(current.book.title, Modifier.size(width = 32.dp, height = 46.dp))
+                Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text("Библиотека", style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                Text("Чтение", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    current?.let { if (it.lastRead != null) "Читаете: ${it.book.title}" else "${books.size} ${com.marat.albion.ui.library.pluralRu(books.size, "книга", "книги", "книг")} · перевод касанием" }
+                    current?.book?.title
                         ?: "Книги с переводом касанием",
                     style = MaterialTheme.typography.bodySmall,
                     color = Ink.Muted,
@@ -386,10 +372,11 @@ private fun ReadingBlock(modifier: Modifier, navigator: Navigator) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            Spacer(Modifier.width(12.dp))
             Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
         }
         if (current != null && current.lastRead != null) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
             ThinProgress(current.progress)
         }
     }
