@@ -7,6 +7,8 @@ import com.marat.albion.data.db.AlbionDatabase
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.db.DayCount
 import com.marat.albion.data.db.DeckCounts
+import com.marat.albion.data.db.GameAnswerLogEntity
+import com.marat.albion.data.db.GameTotals
 import com.marat.albion.data.db.ReviewLogEntity
 import com.marat.albion.data.db.ReviewStateEntity
 import com.marat.albion.data.fsrs.CardState
@@ -59,6 +61,7 @@ class StudyRepository(
 ) {
     private val cards = db.cards()
     private val reviews = db.reviews()
+    private val games = db.gameActivity()
 
     // ---- время учебного дня ----
 
@@ -245,7 +248,10 @@ class StudyRepository(
     fun observeGameMistakes(deck: Deck, game: String, withAudio: Boolean = false) = cards.observeGameMistakes(deck.id, game, withAudio)
 
     /** Запоминает ответ в игре: ошибка ставит слово в начало следующих игр, два верных подряд — снимают. */
-    suspend fun recordGame(cardId: String, game: String, ok: Boolean) {
+    suspend fun recordGame(
+        cardId: String, game: String, ok: Boolean, durationMs: Long = 0,
+        now: Long = System.currentTimeMillis(),
+    ) = db.withTransaction {
         val old = cards.gameStat(cardId, game)
         cards.upsertGameStat(
             com.marat.albion.data.db.GameCardStatEntity(
@@ -254,9 +260,11 @@ class StudyRepository(
                 correct = (old?.correct ?: 0) + if (ok) 1 else 0,
                 wrong = (old?.wrong ?: 0) + if (ok) 0 else 1,
                 streak = if (ok) (old?.streak ?: 0) + 1 else 0,
-                lastSeen = System.currentTimeMillis(),
+                lastSeen = now,
             )
         )
+        games.insert(GameAnswerLogEntity(game = game, itemId = cardId, correct = ok, answeredAt = now,
+            durationMs = durationMs.coerceIn(0, MAX_GAME_DURATION)))
     }
 
     /** Грамматические задания для игры; level = "" — все уровни. */
@@ -270,7 +278,10 @@ class StudyRepository(
 
     fun observeTopicTaskCount(topic: Int) = db.grammarTasks().observeTopicCount(topic)
 
-    suspend fun recordGrammar(taskId: String, ok: Boolean) {
+    suspend fun recordGrammar(
+        taskId: String, ok: Boolean, kind: String, durationMs: Long = 0,
+        now: Long = System.currentTimeMillis(),
+    ) = db.withTransaction {
         val dao = db.grammarTasks()
         val old = dao.stat(taskId)
         dao.upsertStat(
@@ -278,9 +289,11 @@ class StudyRepository(
                 taskId = taskId,
                 correct = (old?.correct ?: 0) + if (ok) 1 else 0,
                 wrong = (old?.wrong ?: 0) + if (ok) 0 else 1,
-                lastSeen = System.currentTimeMillis(),
+                lastSeen = now,
             )
         )
+        games.insert(GameAnswerLogEntity(game = if (kind == "input") "GRAMMAR_GAP" else "GRAMMAR_CHOICE",
+            itemId = taskId, correct = ok, answeredAt = now, durationMs = durationMs.coerceIn(0, MAX_GAME_DURATION)))
     }
 
     fun observeCard(id: String) = cards.observe(id)
@@ -295,25 +308,30 @@ class StudyRepository(
     // ---- статистика ----
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun observeStats(): Flow<Stats> = settings.settings.map { it.dayStartHour }.distinctUntilChanged().flatMapLatest { hour ->
-        val now = System.currentTimeMillis()
+    fun observeStats(): Flow<Stats> = combine(minuteTicker, settings.settings.map { it.dayStartHour }.distinctUntilChanged()) { now, hour ->
+        now to hour
+    }.flatMapLatest { (now, hour) ->
         val shift = dayShift(hour, now)
         val today = (now + shift) / Fsrs.DAY
         val todayStart = dayStart(now, hour)
         val monthAgo = todayStart - 29 * Fsrs.DAY
         combine(
-            reviews.observeDaily(monthAgo, shift),
+            combine(reviews.observeDaily(monthAgo, shift), games.observeDaily(monthAgo, shift)) { cards, games ->
+                (cards + games).groupBy { it.day }.map { (day, counts) -> DayCount(day, counts.sumOf { it.count }) }.sortedBy { it.day }
+            },
             reviews.observeForecast(todayStart + 15 * Fsrs.DAY, shift),
-            reviews.observeActiveDays(shift),
+            combine(reviews.observeActiveDays(shift), games.observeActiveDays(shift)) { cards, games ->
+                (cards + games).distinct().sortedDescending()
+            },
             combine(reviews.observeReviewAnswers(monthAgo), reviews.observeReviewPassed(monthAgo)) { a, p -> a to p },
             combine(
                 reviews.observeTotalReviews(),
-                reviews.observeTimeSince(todayStart),
+                combine(reviews.observeTimeSince(todayStart), games.observeTimeSince(todayStart)) { cards, games -> cards + games },
                 reviews.observeReviewsSince(todayStart),
                 cards.observeCounts(now),
-            ) { total, time, todayCount, counts -> listOf(total, time, todayCount, counts) },
+                combine(games.observeTotals(), games.observeAnswersSince(todayStart)) { totals, todayCount -> totals to todayCount },
+            ) { total, time, todayCount, counts, games -> StatsSummary(total, time, todayCount, counts, games.first, games.second) },
         ) { daily, forecast, activeDays, retention, misc ->
-            @Suppress("UNCHECKED_CAST")
             Stats(
                 today = today,
                 daily = daily,
@@ -322,10 +340,12 @@ class StudyRepository(
                 streak = streak(activeDays, today),
                 retention = if (retention.first == 0) null else retention.second.toFloat() / retention.first,
                 retentionSample = retention.first,
-                totalReviews = misc[0] as Int,
-                timeTodayMs = misc[1] as Long,
-                reviewsToday = misc[2] as Int,
-                counts = misc[3] as List<DeckCounts>,
+                totalReviews = misc.total,
+                timeTodayMs = misc.time,
+                reviewsToday = misc.today,
+                counts = misc.counts,
+                games = misc.games,
+                gameAnswersToday = misc.gamesToday,
             )
         }
     }
@@ -344,9 +364,15 @@ class StudyRepository(
         /** Как в Anki: учебные шаги, наступающие в ближайшие 20 минут, показываем сразу. */
         const val LEARN_AHEAD = 20 * 60_000L
         private const val MAX_DURATION = 60_000L
+        private const val MAX_GAME_DURATION = 10 * 60_000L
         private const val SIBLING_MARGIN = 50
     }
 }
+
+private data class StatsSummary(
+    val total: Int, val time: Long, val today: Int, val counts: List<DeckCounts>,
+    val games: List<GameTotals>, val gamesToday: Int,
+)
 
 data class Stats(
     val today: Long,
@@ -359,7 +385,13 @@ data class Stats(
     val timeTodayMs: Long,
     val reviewsToday: Int,
     val counts: List<DeckCounts>,
-)
+    val games: List<GameTotals>,
+    val gameAnswersToday: Int,
+) {
+    val answersToday get() = reviewsToday + gameAnswersToday
+    val totalGameAnswers get() = games.sumOf { it.answers }
+    val gameAccuracy get() = if (totalGameAnswers == 0) null else games.sumOf { it.correct }.toFloat() / totalGameAnswers
+}
 
 fun ReviewStateEntity.toMemory() = Memory(state, step, stability, difficulty, due, lastReview, reps, lapses)
 

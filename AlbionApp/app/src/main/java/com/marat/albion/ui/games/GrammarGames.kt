@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import android.os.SystemClock
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -126,6 +128,7 @@ class GrammarGameViewModel(
     val mistakes = mutableStateListOf<Mistake>()
     private val missed = mutableListOf<GrammarTaskEntity>()
     private var session: GrammarQuizSession? = null
+    private var questionStartedAt = 0L
     var retryingMistakes by mutableStateOf(false)
         private set
     /** Номер темы → id файла учебника (для ссылки «Правило»). */
@@ -152,6 +155,7 @@ class GrammarGameViewModel(
             correct = 0
             mistakes.clear()
             missed.clear()
+            questionStartedAt = SystemClock.elapsedRealtime()
             phase = if (pool.isEmpty()) Phase.Summary else Phase.Playing
         }
     }
@@ -169,12 +173,14 @@ class GrammarGameViewModel(
             mistakes += Mistake(task.prompt, answer, task.correctAnswerText)
             missed += task
         }
-        viewModelScope.launch { c.study.recordGrammar(task.id, ok) }
+        val duration = SystemClock.elapsedRealtime() - questionStartedAt
+        val answeredAt = System.currentTimeMillis()
+        c.appScope.launch { c.study.recordGrammar(task.id, ok, task.kind, duration, answeredAt) }
     }
 
     fun next() {
         if (phase != Phase.Playing || items.getOrNull(index)?.let { session?.answered(it.id) } != true) return
-        if (index + 1 < items.size) { index++; return }
+        if (index + 1 < items.size) { index++; questionStartedAt = SystemClock.elapsedRealtime(); return }
         phase = Phase.Summary
         val result = session?.result()
         if (topicId != null && result != null && result.updatesMastery) {
@@ -578,10 +584,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PrimaryButton("Проверить", onClick = { check() }, modifier = Modifier.weight(1.4f))
-                    GhostButton("Не знаю", onClick = { check(giveUp = true) }, modifier = Modifier.weight(1f))
-                }
+                GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
             }
         }
     }

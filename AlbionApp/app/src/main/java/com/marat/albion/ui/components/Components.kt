@@ -170,7 +170,7 @@ fun PrimaryButton(
                 Icon(icon, null, tint = fg, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(10.dp))
             }
-            Text(text, style = MaterialTheme.typography.titleMedium, color = fg)
+            Text(text, style = MaterialTheme.typography.titleMedium, color = fg, textAlign = TextAlign.Center)
         }
         if (trailingIcon != null) {
             Spacer(Modifier.width(12.dp))
@@ -186,12 +186,12 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
     Row(
         modifier
             .fillMaxWidth()
-            .heightIn(min = 52.dp)
+            .heightIn(min = 56.dp)
             .pressScale(interaction)
             .clip(MaterialTheme.shapes.small)
             .border(1.dp, Ink.LineStrong, MaterialTheme.shapes.small)
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -199,7 +199,7 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
             Icon(icon, null, tint = Ink.Text, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(10.dp))
         }
-        Text(text, style = MaterialTheme.typography.labelLarge, color = Ink.Text, textAlign = TextAlign.Center)
+        Text(text, style = MaterialTheme.typography.titleMedium, color = Ink.Text, textAlign = TextAlign.Center)
     }
 }
 

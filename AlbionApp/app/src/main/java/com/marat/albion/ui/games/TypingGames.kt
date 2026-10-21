@@ -297,15 +297,11 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PrimaryButton("Проверить", onClick = { check() })
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        GhostButton(
-                            if (hints < letters - 1) "Буква" else "Определение",
-                            onClick = { if (hints < letters - 1) hints++ else showEn = true },
-                            modifier = Modifier.weight(1f),
-                        )
-                        GhostButton("Не знаю", onClick = { check(giveUp = true) }, modifier = Modifier.weight(1f))
-                    }
+                    GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
+                    GhostButton(
+                        if (hints < letters - 1) "Буква" else "Определение",
+                        onClick = { if (hints < letters - 1) hints++ else showEn = true },
+                    )
                 }
             }
         }
@@ -333,10 +329,11 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
     val past = data?.forms?.getOrNull(1)?.variants.orEmpty()
     val participle = data?.forms?.getOrNull(2)?.variants.orEmpty()
 
-    fun check() {
+    fun check(giveUp: Boolean = false) {
         if (result != null) return
-        if (v2.isBlank() && v3.isBlank()) { shake++; return }
-        val r = AnswerCheck.checkForm(v2, past.map { it.text }) to AnswerCheck.checkForm(v3, participle.map { it.text })
+        if (!giveUp && v2.isBlank() && v3.isBlank()) { shake++; return }
+        val r = if (giveUp) Verdict.Wrong to Verdict.Wrong
+            else AnswerCheck.checkForm(v2, past.map { it.text }) to AnswerCheck.checkForm(v3, participle.map { it.text })
         result = r
         val ok = r.first == Verdict.Correct && r.second == Verdict.Correct
         if (!ok) shake++
@@ -412,7 +409,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 14.dp),
         ) { answered ->
             if (answered) PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
-            else PrimaryButton("Проверить", onClick = { check() })
+            else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Я не знаю")
         }
     }
 }

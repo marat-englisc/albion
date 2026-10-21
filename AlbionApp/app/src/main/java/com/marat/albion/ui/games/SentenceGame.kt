@@ -53,7 +53,6 @@ import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
@@ -200,10 +199,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PrimaryButton("Проверить", onClick = { check() }, modifier = Modifier.weight(1.4f))
-                    GhostButton("Подсказка", onClick = { hint() }, modifier = Modifier.weight(1f))
-                }
+                GameAnswerActions(onCheck = { check() }, onSecondary = { hint() }, secondaryLabel = "Подсказка")
             }
         }
     }

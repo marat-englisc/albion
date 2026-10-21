@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import android.os.SystemClock
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -69,6 +71,8 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
         private set
     val mistakes = mutableStateListOf<Mistake>()
     private val missed = mutableListOf<CardEntity>()
+    private var answered = false
+    private var questionStartedAt = 0L
 
     fun start(retry: List<CardEntity>? = null) {
         phase = Phase.Loading
@@ -86,6 +90,8 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
             correct = 0
             mistakes.clear()
             missed.clear()
+            answered = false
+            questionStartedAt = SystemClock.elapsedRealtime()
             phase = if (pool.isEmpty()) Phase.Summary else Phase.Playing
         }
     }
@@ -94,17 +100,24 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
 
     /** Засчитать текущий вопрос. */
     fun record(ok: Boolean, mistake: Mistake? = null) {
+        if (phase != Phase.Playing || answered) return
         val card = items.getOrNull(index) ?: return
+        answered = true
+        val duration = SystemClock.elapsedRealtime() - questionStartedAt
+        val answeredAt = System.currentTimeMillis()
         if (ok) correct++ else {
             mistake?.let { mistakes += it }
             missed += card
         }
         // Запоминаем и между играми: ошибки попадутся первыми в следующий раз.
-        viewModelScope.launch { c.study.recordGame(card.id, game.name, ok) }
+        c.appScope.launch { c.study.recordGame(card.id, game.name, ok, duration, answeredAt) }
     }
 
     fun next() {
+        if (phase != Phase.Playing || !answered) return
         if (index + 1 >= items.size) phase = Phase.Summary else index++
+        answered = false
+        questionStartedAt = SystemClock.elapsedRealtime()
     }
 
     fun backToSetup() {

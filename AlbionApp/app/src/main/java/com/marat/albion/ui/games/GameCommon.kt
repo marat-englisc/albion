@@ -13,9 +13,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -278,6 +280,22 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
             Text("${(index + 1).coerceAtMost(total)} / $total", style = AlbionType.index.copy(color = Ink.Soft), modifier = Modifier.padding(end = 16.dp))
         }
         ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = 24.dp))
+    }
+}
+
+/** Равные кнопки ответа; высота растёт вместе с системным размером текста. */
+@Composable
+internal fun GameAnswerActions(
+    onCheck: () -> Unit,
+    onSecondary: () -> Unit,
+    secondaryLabel: String = "Не знаю",
+) {
+    Row(
+        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        PrimaryButton("Проверить", onCheck, Modifier.weight(1f).fillMaxHeight())
+        GhostButton(secondaryLabel, onSecondary, Modifier.weight(1f).fillMaxHeight())
     }
 }
 

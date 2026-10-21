@@ -48,7 +48,7 @@ interface CardDao {
         """
         SELECT c.* FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
         WHERE c.deck = :deck
-          AND (:query = '' OR c.term LIKE '%' || :query || '%' OR c.meaning_ru LIKE '%' || :query || '%')
+          AND (:query = '' OR c.term LIKE '%' || :query || '%')
           AND (:filter = 0
                OR (:filter = 1 AND r.card_id IS NULL)
                OR (:filter = 2 AND r.state IN (1, 3))

@@ -101,7 +101,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
 
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = navigator::back, title = deck.title)
-        SearchField(query, { query = it }, "Поиск по-английски или по-русски", Modifier.padding(horizontal = 24.dp))
+        SearchField(query, { query = it }, "Поиск по-английски", Modifier.padding(horizontal = 24.dp))
         Row(
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(22.dp),

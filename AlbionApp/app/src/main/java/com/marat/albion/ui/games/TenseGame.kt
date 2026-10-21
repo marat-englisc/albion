@@ -55,7 +55,6 @@ import com.marat.albion.data.games.TenseTask
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
@@ -194,10 +193,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
         ) { answered ->
             when {
                 answered -> PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
-                typing -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PrimaryButton("Проверить", onClick = { checkTyped() }, modifier = Modifier.weight(1.4f))
-                    GhostButton("Не знаю", onClick = { checkTyped(giveUp = true) }, modifier = Modifier.weight(1f))
-                }
+                typing -> GameAnswerActions(onCheck = { checkTyped() }, onSecondary = { checkTyped(giveUp = true) })
                 else -> Spacer(Modifier.height(1.dp))
             }
         }

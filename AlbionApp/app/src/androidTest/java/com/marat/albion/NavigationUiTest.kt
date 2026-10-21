@@ -13,6 +13,7 @@ import com.marat.albion.data.db.GrammarTaskEntity
 import com.marat.albion.data.grammar.GrammarQuizResult
 import com.marat.albion.data.grammar.GrammarRepository
 import com.marat.albion.data.grammar.GrammarReview
+import com.marat.albion.ui.games.Game
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -25,6 +26,42 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavigationUiTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
+
+    @Test fun irregularGiveUpRevealsBothFormsAndKeepsEqualActionButtons(): Unit = runBlocking {
+        val c = (instrumentation.targetContext.applicationContext as AlbionApp).container
+        c.importer.importIfNeeded()
+        val before = c.study.observeStats().first().games.firstOrNull { it.game == Game.IRREGULAR.name }?.answers ?: 0
+        ActivityScenario.launch(MainActivity::class.java).use {
+            click(awaitNode { it.text?.toString() == "Игры" || it.contentDescription?.toString() == "Игры" })
+            clickText("Неправильные глаголы")
+            click(scrollToNode { it.text?.toString() == "Начать" })
+            val check = clickableBounds(awaitNode { it.text?.toString() == "Проверить" })
+            val skip = clickableBounds(awaitNode { it.text?.toString() == "Я не знаю" })
+            assertEquals(check.width(), skip.width())
+            assertEquals(check.height(), skip.height())
+            assertEquals(check.top, skip.top)
+            assertEquals(check.bottom, skip.bottom)
+            clickText("Я не знаю")
+            awaitNode { it.text?.toString() == "НЕВЕРНО" }
+            clickText("Дальше")
+            awaitNode { it.text?.toString() == "2 / 20" }
+            awaitNode { it.text?.toString() == "Я не знаю" }
+            clickDescription("Закрыть")
+            clickDescription("Назад")
+            click(awaitNode { it.text?.toString() == "Прогресс" || it.contentDescription?.toString() == "Прогресс" })
+            val saved = withTimeout(5_000) {
+                c.study.observeStats().first { s -> s.games.any { g -> g.game == Game.IRREGULAR.name && g.answers == before + 1 } }
+            }.games.first { it.game == Game.IRREGULAR.name }
+            scrollToNode { it.text?.toString() == "Неправильные глаголы" }
+            scrollToNode { it.text?.toString() == "${saved.correct} из ${saved.answers} верно · ${(saved.accuracy!! * 100).toInt()}% · ошибок: ${saved.wrong}" }
+        }
+    }
+
+    private fun clickableBounds(node: AccessibilityNodeInfo): Rect {
+        var target = node
+        while (!target.isClickable) target = target.parent ?: error("No clickable ancestor")
+        return Rect().also(target::getBoundsInScreen)
+    }
 
     @Test fun searchSurvivesTabSwitchAndSettingsRoundTrip() {
         ActivityScenario.launch(MainActivity::class.java).use {
@@ -45,9 +82,9 @@ class NavigationUiTest {
             clickText("Учебник")
             setSearch("present")
             clickText("Прогресс")
-            awaitNode { it.text?.toString() == "СТАТИСТИКА FSRS" }
+            awaitNode { it.text?.toString() == "КАРТОЧКИ И ИГРЫ" }
             scenario.recreate()
-            awaitNode { it.text?.toString() == "СТАТИСТИКА FSRS" }
+            awaitNode { it.text?.toString() == "КАРТОЧКИ И ИГРЫ" }
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "present" }
         }

@@ -37,6 +37,7 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.SettingsShortcut
+import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
@@ -56,45 +57,82 @@ fun StatsScreen(navigator: Navigator) {
         Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp).padding(bottom = 32.dp),
     ) {
-        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Статистика FSRS", trailing = { SettingsShortcut(navigator::openSettings) }) }
+        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и игры", trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
         Column(Modifier.padding(top = 28.dp).reveal(reveal, 1)) {
             Row {
                 Tile(s.streak, "дней подряд", Modifier.weight(1f))
-                Tile(s.reviewsToday, "ответов сегодня", Modifier.weight(1f))
+                Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
             }
             Spacer(Modifier.height(20.dp))
             Hairline()
             Spacer(Modifier.height(20.dp))
             Row {
-                Tile(s.retention?.let { (it * 100).toInt() }, "удержание · 30 дн", Modifier.weight(1f), suffix = "%")
+                Tile(s.retention?.let { (it * 100).toInt() }, "удержание FSRS · 30 дн", Modifier.weight(1f), suffix = "%")
                 Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
             }
         }
 
         Column(Modifier.reveal(reveal, 2)) {
-            SectionHeader("30 дней", trailing = "Σ ${days(s.daily, s.today - 29, s.today).sum()}")
+            SectionHeader("Активность · 30 дней", trailing = "Σ ${days(s.daily, s.today - 29, s.today).sum()}")
             BarChart(days(s.daily, s.today - 29, s.today), labels = "30 дн назад" to "сегодня")
+            Text("Ответы в карточках и играх", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                modifier = Modifier.padding(top = 8.dp))
         }
 
         Column(Modifier.reveal(reveal, 3)) {
+            GameBreakdown(s)
+        }
+
+        Column(Modifier.reveal(reveal, 4)) {
             SectionHeader("Прогноз", trailing = "14 дн")
             BarChart(days(s.forecast, s.today, s.today + 13), labels = "сегодня" to "+13 дн", hollow = true)
         }
 
-        Column(Modifier.reveal(reveal, 4)) {
+        Column(Modifier.reveal(reveal, 5)) {
             SectionHeader("Колоды")
             DeckBreakdown(s)
         }
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Всего ответов: ${s.totalReviews}. Удержание — доля повторений, на которые вы ответили не «Снова».",
+            "Всего ответов: ${s.totalReviews + s.totalGameAnswers} · карточки: ${s.totalReviews}, игры: ${s.totalGameAnswers}. " +
+                "Удержание FSRS — доля повторений карточек, на которые вы ответили не «Снова».",
             style = MaterialTheme.typography.bodySmall,
             color = Ink.Faint,
         )
     }
+}
+
+@Composable
+private fun GameBreakdown(s: Stats) {
+    SectionHeader("Игры", trailing = "${s.totalGameAnswers} ответов")
+    Spacer(Modifier.height(16.dp))
+    Row {
+        Tile(s.gameAnswersToday, "ответов сегодня", Modifier.weight(1f))
+        Tile(s.gameAccuracy?.let { (it * 100).toInt() }, "верных ответов", Modifier.weight(1f), suffix = "%")
+    }
+    Spacer(Modifier.height(18.dp))
+    val totals = s.games.associateBy { it.game }
+    Game.entries.forEach { game ->
+        val result = totals[game.name]
+        Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+            Text(game.title, style = MaterialTheme.typography.titleSmall, color = Ink.Text)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                if (result == null || result.answers == 0) "Пока нет ответов"
+                else "${result.correct} из ${result.answers} верно · ${(result.accuracy!! * 100).toInt()}% · ошибок: ${result.wrong}",
+                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+            )
+        }
+        Hairline()
+    }
+    Text(
+        "Суммарные результаты включают прежние игры и проверки тем. " +
+            "История игр по дням и время занятий записываются с этого обновления. Расписание FSRS игры не меняют.",
+        style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 12.dp),
+    )
 }
 
 private fun days(source: List<DayCount>, from: Long, to: Long): List<Int> {
