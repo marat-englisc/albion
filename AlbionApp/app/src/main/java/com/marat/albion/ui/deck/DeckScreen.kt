@@ -45,6 +45,7 @@ import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.BrowseRoute
+import com.marat.albion.ui.nav.LibraryRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.StudyRoute
 import com.marat.albion.ui.theme.AlbionType
@@ -77,13 +78,26 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
-        ) {
+        ) deckContent@{
             Column(Modifier.reveal(reveal, 0)) {
                 Eyebrow("Колода · %02d".format(deck.ordinal + 1))
                 Spacer(Modifier.height(12.dp))
                 Text(deck.title, style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
                 Spacer(Modifier.height(8.dp))
                 Text(deck.subtitle, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+            }
+
+            if (deck == Deck.BOOK_WORDS && summary.total == 0) {
+                Spacer(Modifier.height(24.dp))
+                Text("Добавьте первое слово", style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                Spacer(Modifier.height(10.dp))
+                Text("Откройте книгу, коснитесь слова и нажмите «Добавить в “Слова из книг”». " +
+                    "Перевод и пример можно поправить перед сохранением.",
+                    style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                Spacer(Modifier.height(20.dp))
+                PrimaryButton("Открыть библиотеку", onClick = { navigator.switchTab(LibraryRoute) },
+                    trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                return@deckContent
             }
 
             Row(Modifier.padding(top = 36.dp).reveal(reveal, 1)) {

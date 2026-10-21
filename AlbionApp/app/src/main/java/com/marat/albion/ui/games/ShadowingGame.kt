@@ -15,7 +15,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -32,7 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SlowMotionVideo
-import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +53,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -227,10 +230,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             }
 
             AnimatedVisibility(hasTake && !recording, enter = fadeIn()) {
-                Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    GhostButton("Диктор → я", onClick = ::compare, icon = Icons.Rounded.SwapHoriz, modifier = Modifier.weight(1f))
-                    GhostButton("Моя запись", onClick = ::playMine, icon = Icons.Rounded.PlayArrow, modifier = Modifier.weight(1f))
-                }
+                PlaybackActions(onCompare = ::compare, onPlayMine = ::playMine)
             }
         }
         PrimaryButton(
@@ -239,6 +239,36 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
             modifier = Modifier.padding(vertical = 14.dp),
         )
+    }
+}
+
+@Composable
+private fun PlaybackActions(onCompare: () -> Unit, onPlayMine: () -> Unit) {
+    val compareLabel = "Диктор → я"
+    val mineLabel = "Моя запись"
+    val style = MaterialTheme.typography.titleMedium
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val labelWidth = maxOf(
+        measurer.measure(compareLabel, style, softWrap = false).size.width,
+        measurer.measure(mineLabel, style, softWrap = false).size.width,
+    )
+    val requiredWidth = with(density) { labelWidth.toDp() } + 24.dp
+    val padding = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 18.dp)) {
+        // При крупном системном шрифте даём каждой подписи всю ширину экрана.
+        if ((maxWidth - 10.dp) / 2 >= requiredWidth) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                GhostButton(compareLabel, onCompare, Modifier.weight(1f), contentPadding = padding)
+                GhostButton(mineLabel, onPlayMine, Modifier.weight(1f), contentPadding = padding)
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                GhostButton(compareLabel, onCompare, contentPadding = padding)
+                GhostButton(mineLabel, onPlayMine, contentPadding = padding)
+            }
+        }
     }
 }
 

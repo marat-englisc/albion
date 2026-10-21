@@ -84,6 +84,9 @@ import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.db.BookmarkEntity
 import com.marat.albion.data.library.BookContent
 import com.marat.albion.data.library.BookPosition
+import com.marat.albion.data.library.BookWordSource
+import com.marat.albion.data.content.Deck
+import com.marat.albion.ui.nav.DeckRoute
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
@@ -454,6 +457,12 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     onHighlight = { note -> vm.addHighlight(block.chapter, block.paragraph, absStart, absEnd, text, note) },
                     onNote = { h, note -> vm.updateNote(h.id, note) },
                     onDeleteHighlight = { h -> vm.deleteHighlight(h.id) },
+                    bookSource = BookWordSource(bookId, vm.title, book.chapters[block.chapter].title),
+                    bookExample = paragraph.substring(
+                        sentenceAt(paragraph, absStart).first,
+                        sentenceAt(paragraph, (absEnd - 1).coerceAtLeast(absStart)).last + 1,
+                    ).trim(),
+                    onOpenBookWords = { selection = null; navigator.open(DeckRoute(Deck.BOOK_WORDS)) },
                 )
             }
         }

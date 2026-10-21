@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
@@ -34,6 +35,7 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.content.FormVariant
 import com.marat.albion.data.content.IrregularData
 import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.library.BookWordsRepository
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
@@ -187,6 +189,15 @@ fun CardBack(card: CardEntity, irregular: IrregularData?, audio: CardAudio, modi
                     examples.forEach { ExampleLine(it, listOf(card.term)) }
                 }
             }
+        }
+        val source = remember(card.id, card.extra) { BookWordsRepository.source(card) }
+        if (source != null) {
+            Spacer(Modifier.height(20.dp))
+            Hairline()
+            Spacer(Modifier.height(12.dp))
+            Eyebrow("Из книги")
+            Text(listOf(source.title, source.chapter).filter { it.isNotBlank() }.joinToString(" · "),
+                style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         }
     }
 }

@@ -40,7 +40,7 @@ class ContentParsingTest {
 
     @Test
     fun simpleDecksParseWithAudio() {
-        for (deck in Deck.entries - Deck.IRREGULAR) {
+        for (deck in Deck.bundled - Deck.IRREGULAR) {
             val r = rows(deck)
             val cards = parser.parseCards(deck, r, audio(deck))
             val withoutAudio = cards.filter { it.audio == null }

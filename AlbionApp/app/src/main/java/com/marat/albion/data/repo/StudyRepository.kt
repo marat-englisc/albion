@@ -327,7 +327,8 @@ class StudyRepository(
     suspend fun resetDeck(deck: Deck) = reviews.resetDeck(deck.id)
 
     fun irregular(card: CardEntity): IrregularData? =
-        card.extra?.let { runCatching { json.decodeFromString(IrregularData.serializer(), it) }.getOrNull() }
+        if (card.deck != Deck.IRREGULAR.id) null
+        else card.extra?.let { runCatching { json.decodeFromString(IrregularData.serializer(), it) }.getOrNull() }
 
     // ---- статистика ----
 

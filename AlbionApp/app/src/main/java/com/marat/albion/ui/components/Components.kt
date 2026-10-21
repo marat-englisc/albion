@@ -181,7 +181,13 @@ fun PrimaryButton(
 
 /** Второстепенная кнопка: прозрачная с тонкой рамкой. */
 @Composable
-fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: ImageVector? = null) {
+fun GhostButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+) {
     val interaction = remember { MutableInteractionSource() }
     Row(
         modifier
@@ -191,7 +197,7 @@ fun GhostButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
             .clip(MaterialTheme.shapes.small)
             .border(1.dp, Ink.LineStrong, MaterialTheme.shapes.small)
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {

@@ -42,7 +42,7 @@ class ContentImporter(
     suspend fun importIfNeeded(force: Boolean = false) = withContext(Dispatchers.IO) {
         try {
             _status.value = ImportStatus.Checking
-            val available = Deck.entries.filter { assetExists(COLLECTIONS, it.file) }
+            val available = Deck.bundled.filter { assetExists(COLLECTIONS, requireNotNull(it.file)) }
             val tasksBytes = if (assetExists(COLLECTIONS, GRAMMAR_TASKS)) {
                 assets.open("$COLLECTIONS/$GRAMMAR_TASKS").use { it.readBytes() }
             } else null

@@ -13,6 +13,15 @@ interface CardDao {
     @Upsert
     suspend fun upsert(cards: List<CardEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfMissing(card: CardEntity): Long
+
+    @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM cards WHERE deck = :deck")
+    suspend fun nextPosition(deck: String): Int
+
+    @Query("SELECT * FROM cards WHERE deck = :deck AND id LIKE :prefix || '%' ORDER BY position")
+    fun observeWithPrefix(deck: String, prefix: String): Flow<List<CardEntity>>
+
     @Query("SELECT id FROM cards WHERE deck = :deck")
     suspend fun idsOf(deck: String): List<String>
 
@@ -224,6 +233,9 @@ interface ReviewDao {
 
     @Query("DELETE FROM review_log WHERE deck = :deck")
     suspend fun deleteLogs(deck: String)
+
+    @Query("DELETE FROM review_log WHERE card_id = :cardId")
+    suspend fun deleteCardLogs(cardId: String)
 }
 
 @Dao

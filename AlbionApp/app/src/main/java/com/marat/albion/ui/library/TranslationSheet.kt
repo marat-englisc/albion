@@ -56,6 +56,7 @@ import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.library.DictEntry
+import com.marat.albion.data.library.BookWordSource
 import com.marat.albion.data.library.ModelState
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
@@ -91,6 +92,9 @@ fun TranslationSheet(
     onHighlight: ((String) -> Unit)? = null,
     onNote: (HighlightEntity, String) -> Unit = { _, _ -> },
     onDeleteHighlight: (HighlightEntity) -> Unit = {},
+    bookSource: BookWordSource? = null,
+    bookExample: String = "",
+    onOpenBookWords: () -> Unit = {},
 ) {
     val c = LocalAppContainer.current
     val audio = rememberCardAudio(c.audio)
@@ -157,6 +161,10 @@ fun TranslationSheet(
                 style = TextStyle(fontFamily = Serif, fontSize = if (isWord) 34.sp else 20.sp, lineHeight = if (isWord) 40.sp else 29.sp),
                 color = Ink.Fg,
             )
+            if (bookSource != null) {
+                BookWordAction(text, cards, entries.orEmpty(), (result as? TranslationResult.Done)?.text,
+                    bookSource, bookExample, onOpenBookWords)
+            }
             if (onHighlight != null) {
                 HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
             }

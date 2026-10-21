@@ -28,10 +28,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,6 +72,7 @@ import com.marat.albion.ui.study.rememberCardAudio
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Serif
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -215,6 +218,9 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     val settings by c.settings.settings.collectAsStateWithLifecycle(com.marat.albion.data.settings.Settings())
     val audio = rememberCardAudio(c.audio)
     val scope = rememberCoroutineScope()
+    var confirmRemove by rememberSaveable(cardId) { mutableStateOf(false) }
+    var removing by remember { mutableStateOf(false) }
+    var removeError by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = navigator::back)
@@ -242,8 +248,41 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
                     Spacer(Modifier.height(18.dp))
                     GhostButton("Сделать новой", onClick = { scope.launch { c.study.resetCard(cardId) } })
                 }
+                if (current.deck == Deck.BOOK_WORDS.id) {
+                    Spacer(Modifier.height(18.dp))
+                    GhostButton("Удалить из «Слова из книг»", onClick = { removeError = false; confirmRemove = true })
+                }
             }
         }
+    }
+    if (confirmRemove) {
+        AlertDialog(
+            onDismissRequest = { if (!removing) confirmRemove = false },
+            containerColor = Ink.Elevated,
+            title = { Text("Удалить слово?", color = Ink.Fg) },
+            text = {
+                Text(if (removeError) "Не удалось удалить слово. Попробуйте ещё раз."
+                    else "Карточка «${card?.term.orEmpty()}» и история её повторений будут удалены.", color = Ink.Muted)
+            },
+            confirmButton = {
+                TextButton(enabled = !removing, onClick = {
+                    removing = true
+                    scope.launch {
+                        try {
+                            c.bookWords.remove(cardId)
+                            navigator.back()
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            removeError = true
+                        } finally {
+                            removing = false
+                        }
+                    }
+                }) { Text(if (removing) "Удаляю…" else "Удалить", color = Ink.Fg) }
+            },
+            dismissButton = { TextButton(enabled = !removing, onClick = { confirmRemove = false }) { Text("Отмена", color = Ink.Muted) } },
+        )
     }
 }
 

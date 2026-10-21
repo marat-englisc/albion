@@ -35,6 +35,7 @@ class AppContainer(context: Context) {
     val tuner = com.marat.albion.data.repo.FsrsTuner(study, appScope)
     val dictionary = com.marat.albion.data.library.Dictionary(context.assets, database, settings, json)
     val library = com.marat.albion.data.library.LibraryRepository(context, database, json, dictionary)
+    val bookWords = com.marat.albion.data.library.BookWordsRepository(database, json)
     val translator = com.marat.albion.data.library.Translator(context, appScope)
 }
 

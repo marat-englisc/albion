@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey
 import com.marat.albion.data.grammar.GrammarPrompt
 
 /**
- * Карточка — содержимое из xlsx. Перезаписывается при импорте; прогресс
- * хранится отдельно в [ReviewStateEntity] и при этом не теряется.
+ * Карточка — материал из xlsx или личное слово из книги. Импорт обновляет только
+ * встроенные колоды; прогресс хранится отдельно в [ReviewStateEntity].
  *
- * id = "<deck>:<term>#<n>", где n — номер значения одного и того же слова в таблице.
+ * Для xlsx id = "<deck>:<term>#<n>"; личные слова используют ключи слова и значения.
  */
 @Entity(tableName = "cards", indices = [Index("deck"), Index("term")])
 data class CardEntity(
@@ -27,7 +27,7 @@ data class CardEntity(
     val example2: String,
     /** Имя mp3-файла внутри assets/content/audio/<deck>/ или null. */
     val audio: String?,
-    /** JSON [com.marat.albion.data.content.IrregularData] для неправильных глаголов. */
+    /** JSON IrregularData для глаголов или BookWordSource для личных слов из книг. */
     val extra: String?,
 )
 
