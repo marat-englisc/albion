@@ -204,6 +204,9 @@ data class HighlightEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
 
+/** Для отбора в занятие достаточно id и термина; текст карточек читается после отбора. */
+data class StudyCandidate(val id: String, val term: String)
+
 /** Агрегаты для экранов колод. */
 data class DeckCounts(
     val deck: String,

@@ -1,6 +1,6 @@
 package com.marat.albion
 
-import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.db.StudyCandidate
 import com.marat.albion.data.repo.Siblings
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -8,7 +8,7 @@ import org.junit.Test
 class SiblingsTest {
 
     private fun card(id: String, term: String) =
-        CardEntity(id, "phrasal_verbs", 0, term, "", "", null, "", "", "", "", null, null)
+        StudyCandidate(id, term)
 
     @Test
     fun oneMeaningPerWordPerDay() {

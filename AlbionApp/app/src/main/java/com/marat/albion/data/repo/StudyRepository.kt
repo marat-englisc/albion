@@ -11,6 +11,7 @@ import com.marat.albion.data.db.GameAnswerLogEntity
 import com.marat.albion.data.db.GameTotals
 import com.marat.albion.data.db.ReviewLogEntity
 import com.marat.albion.data.db.ReviewStateEntity
+import com.marat.albion.data.db.StudyCandidate
 import com.marat.albion.data.fsrs.CardState
 import com.marat.albion.data.fsrs.Fsrs
 import com.marat.albion.data.fsrs.Memory
@@ -54,6 +55,12 @@ data class SessionQueue(
     val news: List<CardEntity>,
 )
 
+private data class QueuePlan(
+    val learning: List<CardEntity>,
+    val reviews: List<StudyCandidate>,
+    val news: List<StudyCandidate>,
+)
+
 class StudyRepository(
     private val db: AlbionDatabase,
     private val settings: SettingsRepository,
@@ -95,24 +102,23 @@ class StudyRepository(
             .flatMapLatest { (now, s) ->
                 val since = dayStart(now, s.dayStartHour)
                 combine(cards.observeCounts(now), reviews.observeReviewsSince(since)) { counts, _ -> counts }
-                    .map { counts -> buildSummaries(counts, s, since) }
+                    .map { counts -> buildSummaries(counts, s, now) }
             }
 
-    private suspend fun buildSummaries(counts: List<DeckCounts>, s: Settings, since: Long): List<DeckSummary> {
+    private suspend fun buildSummaries(counts: List<DeckCounts>, s: Settings, now: Long): List<DeckSummary> = db.withTransaction {
         val byId = counts.associateBy { it.deck }
-        return Deck.entries.map { deck ->
+        Deck.entries.map { deck ->
             val c = byId[deck.id]
             if (c == null) DeckSummary(deck) else {
-                val newDone = reviews.countSince(deck.id, CardState.NEW, since)
-                val reviewDone = reviews.countSince(deck.id, CardState.REVIEW, since)
+                val plan = planQueue(deck, s, now)
                 DeckSummary(
                     deck = deck,
                     total = c.total,
                     started = c.started,
-                    due = minOf(c.due, max(0, s.reviewsPerDay - reviewDone)) + c.learningDue,
+                    due = plan.reviews.size + plan.learning.size,
                     learning = c.learning,
                     mature = c.mature,
-                    newAvailable = minOf(c.total - c.started, max(0, s.newPerDay - newDone)),
+                    newAvailable = plan.news.size,
                 )
             }
         }
@@ -122,20 +128,38 @@ class StudyRepository(
 
     suspend fun buildQueue(deck: Deck, now: Long = System.currentTimeMillis()): SessionQueue {
         val s = settings.current()
+        return db.withTransaction {
+            val plan = planQueue(deck, s, now)
+            val selected = (plan.reviews + plan.news).map { it.id }
+                .chunked(500).flatMap { cards.getMany(it) }.associateBy { it.id }
+            SessionQueue(
+                learning = plan.learning,
+                reviews = plan.reviews.map { selected.getValue(it.id) },
+                news = plan.news.map { selected.getValue(it.id) },
+            )
+        }
+    }
+
+    /** Единый отбор для занятия, счётчиков колод и напоминаний. */
+    private suspend fun planQueue(deck: Deck, s: Settings, now: Long): QueuePlan {
         val since = dayStart(now, s.dayStartHour)
         val newLeft = max(0, s.newPerDay - reviews.countSince(deck.id, CardState.NEW, since))
         val reviewLeft = max(0, s.reviewsPerDay - reviews.countSince(deck.id, CardState.REVIEW, since))
         val learning = reviews.learningDue(deck.id, now + LEARN_AHEAD)
-        // Берём с запасом: часть карточек может уйти как сиблинги (другое значение того же слова).
-        val dueReviews = if (reviewLeft > 0) reviews.reviewDue(deck.id, now, reviewLeft + SIBLING_MARGIN).shuffled() else emptyList()
-        val newCandidates = if (newLeft > 0) cards.newCards(
-            deck.id, newLeft + SIBLING_MARGIN,
+        // Лимиты применяем после исключения сиблингов: доступное слово может стоять
+        // после любого числа отложенных значений. Пока читаем только id и термин.
+        val dueReviews = if (reviewLeft > 0) reviews.reviewCandidates(deck.id, now).shuffled() else emptyList()
+        val newCandidates = if (newLeft > 0) cards.newCandidates(
+            deck.id,
             byLevel = s.newOrder == NewCardOrder.LEVEL,
             random = s.newOrder == NewCardOrder.RANDOM,
         ) else emptyList()
-        val answeredToday = reviews.termsAnsweredSince(deck.id, since).map { it.trim().lowercase() }.toSet()
-        val (picked, fresh) = Siblings.select(learning, dueReviews, newCandidates, answeredToday, reviewLeft, newLeft)
-        return SessionQueue(learning = learning, reviews = picked, news = fresh)
+        val answeredToday = reviews.termsAnsweredSince(deck.id, since).map(Siblings::key).toSet()
+        val (picked, fresh) = Siblings.select(
+            learning.map { StudyCandidate(it.id, it.term) }, dueReviews, newCandidates,
+            answeredToday, reviewLeft, newLeft,
+        )
+        return QueuePlan(learning = learning, reviews = picked, news = fresh)
     }
 
     /** Карточки учебных шагов, которые подойдут в ближайшие [LEARN_AHEAD] мс. */
@@ -176,7 +200,7 @@ class StudyRepository(
         val s = settings.current()
         val since = dayStart(now, s.dayStartHour)
         // «Ждут повторения» — с учётом дневных лимитов, как на главном экране.
-        val due = buildSummaries(cards.observeCounts(now).first(), s, since).sumOf { it.due }
+        val due = buildSummaries(cards.observeCounts(now).first(), s, now).sumOf { it.due }
         return reviews.countAllSince(since) to due
     }
 
@@ -365,7 +389,6 @@ class StudyRepository(
         const val LEARN_AHEAD = 20 * 60_000L
         private const val MAX_DURATION = 60_000L
         private const val MAX_GAME_DURATION = 10 * 60_000L
-        private const val SIBLING_MARGIN = 50
     }
 }
 

@@ -22,6 +22,9 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :id")
     suspend fun get(id: String): CardEntity?
 
+    @Query("SELECT * FROM cards WHERE id IN (:ids)")
+    suspend fun getMany(ids: List<String>): List<CardEntity>
+
     @Query("SELECT * FROM cards WHERE id = :id")
     fun observe(id: String): Flow<CardEntity?>
 
@@ -30,7 +33,7 @@ interface CardDao {
 
     @Query(
         """
-        SELECT c.* FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
+        SELECT c.id, c.term FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
         WHERE c.deck = :deck AND r.card_id IS NULL
         ORDER BY
           CASE WHEN :byLevel THEN
@@ -38,10 +41,9 @@ interface CardDao {
                          WHEN 'C1' THEN 5 WHEN 'C2' THEN 6 ELSE 7 END
           ELSE 0 END,
           CASE WHEN :random THEN RANDOM() ELSE c.position END
-        LIMIT :limit
         """
     )
-    suspend fun newCards(deck: String, limit: Int, byLevel: Boolean, random: Boolean): List<CardEntity>
+    suspend fun newCandidates(deck: String, byLevel: Boolean, random: Boolean): List<StudyCandidate>
 
     /** filter: 0 — все, 1 — новые, 2 — изучаются, 3 — на повторении, 4 — к повторению сейчас. */
     @Query(
@@ -150,13 +152,12 @@ interface ReviewDao {
 
     @Query(
         """
-        SELECT c.* FROM cards c JOIN review_state r ON r.card_id = c.id
+        SELECT c.id, c.term FROM cards c JOIN review_state r ON r.card_id = c.id
         WHERE c.deck = :deck AND r.state = 2 AND r.due <= :now
         ORDER BY r.due
-        LIMIT :limit
         """
     )
-    suspend fun reviewDue(deck: String, now: Long, limit: Int): List<CardEntity>
+    suspend fun reviewCandidates(deck: String, now: Long): List<StudyCandidate>
 
     /** Слова, на которые отвечали с [since], — чтобы не показывать сегодня их другие значения. */
     @Query("SELECT DISTINCT c.term FROM review_log l JOIN cards c ON c.id = l.card_id WHERE l.deck = :deck AND l.reviewed_at >= :since")

@@ -1,6 +1,7 @@
 package com.marat.albion.data.repo
 
 import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.db.StudyCandidate
 
 /**
  * «Сиблинги» — карточки одного и того же слова с разными значениями (take off: «взлетать»,
@@ -10,7 +11,8 @@ import com.marat.albion.data.db.CardEntity
  */
 object Siblings {
 
-    fun key(card: CardEntity) = card.term.trim().lowercase()
+    fun key(card: CardEntity) = key(card.term)
+    fun key(term: String) = term.trim().lowercase()
 
     /**
      * Повторения и новые на сегодня без сиблингов.
@@ -18,19 +20,19 @@ object Siblings {
      * [answeredToday] — слова, на которые сегодня уже отвечали в этой колоде.
      */
     fun select(
-        learning: List<CardEntity>,
-        reviews: List<CardEntity>,
-        news: List<CardEntity>,
+        learning: List<StudyCandidate>,
+        reviews: List<StudyCandidate>,
+        news: List<StudyCandidate>,
         answeredToday: Set<String>,
         reviewLimit: Int,
         newLimit: Int,
-    ): Pair<List<CardEntity>, List<CardEntity>> {
+    ): Pair<List<StudyCandidate>, List<StudyCandidate>> {
         val taken = HashSet(answeredToday)
-        learning.forEach { taken += key(it) }
-        val pickedReviews = reviews.filter { taken.add(key(it)) }.take(reviewLimit)
+        learning.forEach { taken += key(it.term) }
+        val pickedReviews = reviews.filter { taken.add(key(it.term)) }.take(reviewLimit)
         // Отложенные повторения не должны «освобождать» слово для новой карточки.
-        reviews.forEach { taken += key(it) }
-        val pickedNews = news.filter { taken.add(key(it)) }.take(newLimit)
+        reviews.forEach { taken += key(it.term) }
+        val pickedNews = news.filter { taken.add(key(it.term)) }.take(newLimit)
         return pickedReviews to pickedNews
     }
 }
