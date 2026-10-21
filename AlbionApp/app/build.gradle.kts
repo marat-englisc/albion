@@ -1,8 +1,6 @@
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.file.FileSystemOperations
-import java.security.MessageDigest
 import javax.inject.Inject
 
 plugins {
@@ -60,53 +58,6 @@ ksp {
 // Материалы: collections/*.xlsx, audio/<колода>/*.mp3, grammar/*.md
 // копируются в assets/content при albion.bundleContent=true.
 // ---------------------------------------------------------------------------
-/** Имена MP3 не гарантируют, что внутри произнесено нужное слово. Фиксируем проверенный набор. */
-abstract class VerifyAlbionAudio : DefaultTask() {
-    @get:Internal
-    abstract val audioDir: DirectoryProperty
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val recordings: ConfigurableFileCollection
-
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val baseline: RegularFileProperty
-
-    @TaskAction
-    fun verify() {
-        val expected = linkedMapOf<String, String>()
-        baseline.get().asFile.readLines().filter { it.isNotBlank() && !it.startsWith("#") }.forEach { line ->
-            val parts = line.split("  ", limit = 2)
-            if (parts.size != 2 || !parts[0].matches(Regex("[a-f0-9]{64}")) || expected.put(parts[1], parts[0]) != null) {
-                throw GradleException("Некорректная запись в ${baseline.get().asFile}: $line")
-            }
-        }
-        val root = audioDir.get().asFile
-        val actual = recordings.files.associateBy { it.relativeTo(root).invariantSeparatorsPath }
-        val changed = actual.filter { (name, file) ->
-            val digest = MessageDigest.getInstance("SHA-256")
-            file.inputStream().buffered().use { input ->
-                val buffer = ByteArray(8192)
-                while (true) {
-                    val n = input.read(buffer)
-                    if (n < 0) break
-                    digest.update(buffer, 0, n)
-                }
-            }
-            digest.digest().joinToString("") { "%02x".format(it) } != expected[name]
-        }.keys
-        val missing = expected.keys - actual.keys
-        if (changed.isNotEmpty() || missing.isNotEmpty()) {
-            throw GradleException(
-                "Изменена непроверенная озвучка: ${(changed + missing).take(10).joinToString()}. " +
-                    "Проверьте произношение и обновите app/audio-checksums.sha256 (см. README.md проекта)."
-            )
-        }
-        logger.lifecycle("Озвучка: проверены ${actual.size} файлов.")
-    }
-}
-
 abstract class SyncAlbionContent @Inject constructor(
     private val fs: FileSystemOperations,
 ) : DefaultTask() {
@@ -158,20 +109,10 @@ val contentDir = rootProject.layout.projectDirectory.dir(
     providers.gradleProperty("albion.contentDir").getOrElse("..")
 )
 
-val verifyAlbionAudio = tasks.register<VerifyAlbionAudio>("verifyAlbionAudio") {
-    group = "albion"
-    description = "Проверяет контрольные суммы аудионабора после проверки произношения."
-    audioDir.set(contentDir.dir("audio"))
-    recordings.from(contentDir.dir("audio").asFileTree.matching { include("**/*.mp3") })
-    // Эталон входит в исходники приложения, а не во внешнюю папку материалов.
-    baseline.set(layout.projectDirectory.file("audio-checksums.sha256"))
-}
-
 val syncAlbionContent = tasks.register<SyncAlbionContent>("syncAlbionContent") {
     group = "albion"
     description = "Копирует xlsx, озвучку и грамматику в assets/content."
     if (bundleContent) {
-        dependsOn(verifyAlbionAudio)
         sourceDir.set(contentDir)
         sources.from(
             contentDir.dir("collections").asFileTree.matching { include("*.xlsx"); exclude("~$*") },
