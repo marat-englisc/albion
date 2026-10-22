@@ -10,7 +10,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,11 +46,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -305,17 +299,10 @@ private fun ReportCard(r: ShadowReport) {
             },
         )
 
-        if (r.originalPitch.count { !it.isNaN() } >= 5) {
-            Spacer(Modifier.height(16.dp))
-            Eyebrow("Мелодика")
-            Spacer(Modifier.height(8.dp))
-            ContourChart(r)
-            Spacer(Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                Legend(dashed = false, label = "диктор")
-                Legend(dashed = true, label = "вы")
-            }
-        }
+        Spacer(Modifier.height(16.dp))
+        Eyebrow("Мелодика")
+        Spacer(Modifier.height(8.dp))
+        MelodyChart(r)
 
         if (r.tips.isNotEmpty() || r.overall >= 85) {
             Spacer(Modifier.height(16.dp))
@@ -346,61 +333,5 @@ private fun Scale(label: String, value: Int, note: String?) {
         Box(Modifier.fillMaxWidth().height(3.dp).background(Ink.Line)) {
             Box(Modifier.fillMaxWidth(fill.value).fillMaxHeight().background(Ink.Fg))
         }
-    }
-}
-
-/** Мелодика: диктор — сплошная линия, вы — пунктир; фон — громкость диктора. */
-@Composable
-private fun ContourChart(r: ShadowReport) {
-    val fg = Ink.Fg
-    val muted = Ink.Muted
-    val line = Ink.Line
-    Canvas(Modifier.fillMaxWidth().height(110.dp)) {
-        val n = r.originalPitch.size
-        if (n < 2) return@Canvas
-        val dx = size.width / (n - 1)
-        val all = (r.originalPitch.toList() + r.minePitch.toList()).filter { !it.isNaN() }
-        val lo = minOf(-4f, all.minOrNull() ?: -4f)
-        val hi = maxOf(4f, all.maxOrNull() ?: 4f)
-        fun y(semi: Float) = size.height * (1f - (semi - lo) / (hi - lo)) * 0.86f + size.height * 0.07f
-
-        // Громкость диктора — тонкие столбики снизу.
-        val barW = maxOf(1f, dx * 0.6f)
-        for (i in 0 until n) {
-            val h = r.originalEnergy[i] * size.height * 0.35f
-            drawLine(line, Offset(i * dx, size.height), Offset(i * dx, size.height - h), strokeWidth = barW)
-        }
-
-        fun contour(values: FloatArray): Path {
-            val p = Path()
-            var open = false
-            for (i in 0 until n) {
-                val v = values[i]
-                if (v.isNaN()) { open = false; continue }
-                if (!open) { p.moveTo(i * dx, y(v)); open = true } else p.lineTo(i * dx, y(v))
-            }
-            return p
-        }
-        drawPath(contour(r.originalPitch), fg, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
-        drawPath(
-            contour(r.minePitch), muted,
-            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))),
-        )
-    }
-}
-
-@Composable
-private fun Legend(dashed: Boolean, label: String) {
-    val fg = Ink.Fg
-    val muted = Ink.Muted
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(width = 22.dp, height = 8.dp)) {
-            drawLine(
-                if (dashed) muted else fg, Offset(0f, size.height / 2), Offset(size.width, size.height / 2),
-                strokeWidth = 2.dp.toPx(), pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(6f, 5f)) else null,
-            )
-        }
-        Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
     }
 }

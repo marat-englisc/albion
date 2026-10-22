@@ -50,6 +50,26 @@ class ProsodyTest {
     }
 
     @Test
+    fun yinFindsPitchWithBreathNoise() {
+        val random = java.util.Random(21)
+        val x = FloatArray(rate / 2) { i ->
+            val phase = 2 * PI * 200 * i / rate
+            (0.25 * sin(phase) + 0.12 * sin(2 * phase) + 0.1 * random.nextGaussian()).toFloat()
+        }
+        assertEquals(200f, ProsodyAnalyzer.yin(x, rate / 4), 5f)
+    }
+
+    @Test
+    fun unvoicedNoiseDoesNotCreateMelody() {
+        val random = java.util.Random(21)
+        val x = FloatArray(rate * 2) { i ->
+            if (i in rate / 2 until rate * 3 / 2) (random.nextGaussian() * 0.15).toFloat() else 0f
+        }
+        val analyzed = ProsodyAnalyzer.analyze(x)!!
+        assertEquals(0, analyzed.voiced)
+    }
+
+    @Test
     fun silenceIsRejected() {
         assertNull(ProsodyAnalyzer.analyze(FloatArray(rate) { 0f }))
     }

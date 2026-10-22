@@ -106,19 +106,26 @@ object ProsodyAnalyzer {
             running += d[tau]
             cmnd[tau] = if (running == 0f) 1f else d[tau] * tau / running
         }
-        var tau = TAU_MIN
-        while (tau <= TAU_MAX) {
-            if (cmnd[tau] < 0.15f) {
-                while (tau + 1 <= TAU_MAX && cmnd[tau + 1] < cmnd[tau]) tau++
-                // Параболическое уточнение минимума.
-                val a = cmnd[tau - 1]; val b = cmnd[tau]; val c = cmnd[tau + 1]
-                val denom = a - 2 * b + c
-                val shift = if (denom != 0f) 0.5f * (a - c) / denom else 0f
-                return RATE / (tau + shift.coerceIn(-1f, 1f))
+        fun period(threshold: Float): Int? {
+            var tau = TAU_MIN
+            while (tau <= TAU_MAX) {
+                if (cmnd[tau] < threshold) {
+                    while (tau + 1 <= TAU_MAX && cmnd[tau + 1] < cmnd[tau]) tau++
+                    return tau
+                }
+                tau++
             }
-            tau++
+            return null
         }
-        return Float.NaN
+        // Сначала ищем отчётливый период. На придыхании и мягких окончаниях
+        // допускаем более слабый: строгий порог терял слышимый тон целыми слогами.
+        // Шумовые кадры без выраженного минимума по-прежнему не получают высоту.
+        val tau = period(0.15f) ?: period(0.25f) ?: return Float.NaN
+        // Параболическое уточнение минимума.
+        val a = cmnd[tau - 1]; val b = cmnd[tau]; val c = cmnd[tau + 1]
+        val denom = a - 2 * b + c
+        val shift = if (denom != 0f) 0.5f * (a - c) / denom else 0f
+        return RATE / (tau + shift.coerceIn(-1f, 1f))
     }
 
     private fun medianFilter(v: FloatArray, size: Int): FloatArray {
