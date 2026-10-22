@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 18
+prerequisites: 17
+keywords: кто что вопрос subject question
 tags:
   - english/grammar
   - english/A2
@@ -9,59 +11,28 @@ tags:
 # Вопрос к подлежащему — who called
 
 > [!abstract] Коротко
-> - Если неизвестен **тот, кто действует**, `who/what` встаёт на место подлежащего, порядок не меняется: `Who called?`
-> - Если неизвестен **объект**, нужен обычный вопрос с помощником: `Who did you call?`
-> - Проверка: подставь ответ. `Anna called` → `Who called?`; `I called Anna` → `Who did you call?`
+> **Who called?** — кто позвонил? **Who did you call?** — кому ты позвонил?
 
-<!-- beginner-intro:start -->
-## Простыми словами
+Если `who/what` само заменяет подлежащее, в нейтральном положительном вопросе не добавляй `do/does/did`. Форма глагола сохраняется.
 
-Сравни «Кто позвонил?» и «Кому ты позвонил?». В первом вопросе мы ищем **того, кто действует**. Во втором герой уже известен — «ты», а ищем получателя действия. В английском эти вопросы строятся по-разному.
+## Примеры
 
-Если `who/what` само занимает место героя, в обычном положительном вопросе не добавляй `do/does/did`: `Who called?`. Если герой назван отдельно (`you`, `she`, `Tom`), используй обычный вопросительный порядок: `Who did you call?`. Сравнивай роли, а не только русское вопросительное слово.
+- **Anna lives here → Who lives here?** — Ищем того, кто живёт.
+- **Mike broke it → Who broke it?** — Прошлое остаётся в `broke`.
+- **You called Anna → Who did you call?** — Подлежащее `you` уже есть; нужен `did`.
+- **Which bus goes to the station?** — Вся группа `which bus` — подлежащее.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Если `who` или `what` само является подлежащим, порядок слов остаётся как в утверждении. В простых положительных вопросах `do/does/did` не добавляем.
-
-| О чём спрашиваем | Схема | Пример |
-| --- | --- | --- |
-| Кто совершил действие | Who + глагол…? | Who called you? |
-| Кого затронуло действие | Who + do/does/did + S + V…? | Who did you call? |
-
-В вопросе к подлежащему форма времени сохраняется: `Who lives here?`, `Who broke it?`. В отрицательном вопросе возможно `do`: `Who doesn't understand?`. В Continuous и Perfect вспомогательный нужен: `Who is waiting?`.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **Who lives next door?** — Кто живёт по соседству?  
-   **Разбор:** неизвестен сам житель. `Who` заменяет подлежащее; у `lives` обычное окончание `-s`.
-2. **Who did you see?** — Кого ты увидел?  
-   **Разбор:** действие выполняет `you`, поэтому `who` не подлежащее. Нужен помощник `did`.
-3. **What happened?** — Что случилось?  
-   **Разбор:** `what` называет неизвестное событие. Форма прошлого `happened` сохраняется без `did`.
-4. **Which bus goes to the station?** — Какой автобус идёт до вокзала?  
-   **Разбор:** вся группа `which bus` заменяет героя предложения. Поэтому `goes`, без `does`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **Who sent this email?** — Кто отправил это письмо?
-- **Who did your sister marry?** — За кого вышла замуж твоя сестра?
-- **What made you laugh?** — Что тебя рассмешило?
-
-> [!tip] Проверка
-> Подставь ответ: **Anna sent it** → **Who sent it?** Если ответ заменяет дополнение, сохраняй обычную вопросительную схему.
+> [!warning] Когда помощник остаётся
+> **Who is waiting? Who has left?** — он нужен для формы времени. **Who doesn't understand?** — для отрицания. **Who DID call?** возможно с особым ударением: «Так кто же всё-таки позвонил?»
 
 ## Проверь себя
 
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
-1. Задай вопрос к выделенному: ***Mike** broke the window.*
-2. Задай вопрос к выделенному: *Mike broke **the window**.*
-3. Исправь ошибку: *Who did call you?* (имеется в виду «Кто тебе позвонил?»)
-4. Задай вопрос к выделенному: ***Ten people** live in this house.*
+1. Задай вопрос к выделенному: **Mike** broke the window.
+2. Задай вопрос к выделенному: Mike broke **the window**.
+3. Исправь ошибку: *Who did call you?* (нейтральный вопрос «Кто тебе позвонил?», без усиления)
+4. Задай вопрос к выделенному: **Ten people** live in this house.
 5. Переведи: «Что случилось?»
 6. Переведи: «Кого ты ждёшь?»
 
@@ -73,11 +44,9 @@ tags:
 > 5. **What happened?** — `what` — подлежащее, поэтому без `did`.
 > 6. **Who are you waiting for?** — ждёшь ты, значит `who` — объект; нужен обычный вопросительный порядок.
 
-## Источники
-
-- [British Council — Question forms](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/question-forms)
-- [Cambridge Dictionary — Subjects](https://dictionary.cambridge.org/grammar/british-grammar/subjects)
+> [!info]- Источники
+> - [British Council — Question forms](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/question-forms)
+> - [Cambridge Dictionary — Subjects](https://dictionary.cambridge.org/grammar/british-grammar/subjects)
 
 ---
-
 [[017 - Общие и специальные вопросы|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[019 - Отрицательные предложения|Следующая тема →]]

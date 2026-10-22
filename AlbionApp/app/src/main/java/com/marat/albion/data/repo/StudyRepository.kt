@@ -298,7 +298,7 @@ class StudyRepository(
     fun observeGrammarTaskCount(kind: String) = db.grammarTasks().observeCount(kind)
 
     /** «Проверь себя» после темы учебника. */
-    suspend fun topicPool(topic: Int) = db.grammarTasks().topicPool(topic)
+    suspend fun topicPool(topic: Int) = com.marat.albion.data.grammar.GrammarQuizSelection.select(db.grammarTasks().topicPool(topic))
 
     fun observeTopicTaskCount(topic: Int) = db.grammarTasks().observeTopicCount(topic)
 

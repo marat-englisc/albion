@@ -1,6 +1,8 @@
 ---
 level: C1
 order: 134
+prerequisites: 87
+keywords: деепричастный причастный оборот participle clause
 tags:
   - english/grammar
   - english/C1
@@ -9,71 +11,25 @@ tags:
 # Сложные причастные обороты — Having been told, weather permitting
 
 > [!abstract] Коротко
-> - Формы причастия: `doing` (одновременно, актив) · `done` / `being done` (пассив) · `having done` (раньше, актив) · `having been done` (раньше, пассив).
-> - **Независимый оборот** имеет своё подлежащее: `The work finished, we went home`; `Weather permitting, we'll eat outside`.
-> - `with + N + V-ing/V3` — «при том что, с»: `With prices rising, people spend less`. Связки перед причастием: `when, while, after, before, since, once, if, unless, though`.
+> В причастном обороте сначала определи **кто действует, актив или пассив и было ли действие раньше**.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+| Форма | Смысл |
+| --- | --- |
+| doing | активное действие, часто одновременно |
+| done / being done | пассивное состояние / процесс |
+| having done | активное действие раньше |
+| having been done | пассивное действие раньше |
+| not knowing | отрицание |
 
-На B2 ты научился сокращать придаточные: `Feeling tired, I went to bed`. На C1 обороты становятся плотнее и разнообразнее. Например, можно показать, что одно действие было раньше другого и при этом совершено над подлежащим: `Having been warned, we took umbrellas` — «Поскольку нас предупредили, мы взяли зонты».
+## Примеры
 
-Вторая новинка — **независимый оборот**. Обычно подлежащее оборота совпадает с подлежащим главной части. Но в книжном стиле у оборота может быть своё подлежащее: `The meeting over, everyone left` — «Когда собрание закончилось, все ушли». Такие обороты часто встречаются в литературе, новостях и академических текстах. Их важно уметь читать, а в письме использовать умеренно.
+- **Having read the report, she called.** — Прочитав отчёт, она позвонила: оба действия её.
+- **Having been told the news, she cried.** — Узнав новость от другого человека, она заплакала.
+- **Weather permitting, we'll go out.** — Если погода позволит, мы пойдём гулять. У оборота своё подлежащее `weather`.
+- **The work finished, we went home.** — Закончив работу, мы пошли домой. Буквально: «Работа была закончена, и мы ушли»; у оборота своё подлежащее `the work`.
 
-### Наглядная схема
-
-Выбор формы причастия по двум вопросам:
-
-```mermaid
-flowchart TD
-    A{"Подлежащее делает само?"} -->|Да| B{"Раньше главного действия?"}
-    A -->|Нет, с ним делают| C{"Раньше главного действия?"}
-    B -->|Нет| D["doing"]
-    B -->|Да| E["having done"]
-    C -->|Нет| F["done / being done"]
-    C -->|Да| G["having been done"]
-```
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-| Форма | Смысл | Пример |
-| --- | --- | --- |
-| V-ing | одновременно, актив | **Walking** home, I met Tom. |
-| V3 | пассив, состояние | **Built** in 1890, the house needs repairs. |
-| being + V3 | пассив, процесс/причина | **Being watched**, he felt nervous. |
-| having + V3 | раньше, актив | **Having read** the report, she called him. |
-| having been + V3 | раньше, пассив | **Having been rejected** twice, he gave up. |
-| not + причастие | отрицание | **Not knowing** what to do, I waited. |
-| связка + причастие | уточняет связь | **After talking** to her, I felt better. **Once opened**, keep in the fridge. |
-| N + причастие (независимый) | у оборота своё подлежащее | **The rain having stopped**, we went out. |
-| with + N + V-ing/V3 | сопровождающее обстоятельство | **With** his eyes **closed**, he listened. |
-
-**Устойчивые независимые обороты:** `weather permitting` (если позволит погода), `all things considered` (с учётом всего), `generally speaking`, `strictly speaking`, `judging by/from…`, `considering…`, `given…`, `that said` (при этом).
-
-**Висячее причастие** (dangling participle) — ошибка, когда подлежащие не совпадают: *Driving to work, the sun blinded me* (солнце не ехало). Правильно: `Driving to work, I was blinded by the sun`.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **Having finished the project, the team celebrated.** — Закончив проект, команда отпраздновала это.  
-   **Разбор:** `having finished` — сначала закончили, потом праздновали; исполнитель один — команда.
-2. **Having been told the news, she burst into tears.** — Когда ей сообщили новость, она расплакалась.  
-   **Разбор:** новость сообщили ей (пассив) и раньше, чем она заплакала → `having been told`.
-3. **Weather permitting, the concert will take place outdoors.** — Если позволит погода, концерт пройдёт на открытом воздухе.  
-   **Разбор:** устойчивый независимый оборот с собственным подлежащим `weather`.
-4. **With so many people watching, I felt nervous.** — Когда на меня смотрело столько людей, я нервничал.  
-   **Разбор:** `with + N + V-ing` описывает обстоятельство, на фоне которого происходит главное.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **Not wanting to wake the baby, she whispered.** — Не желая будить ребёнка, она шептала.
-- **All things considered, the trip was a success.** — В целом поездка удалась.
-- **Once installed, the app updates automatically.** — После установки приложение обновляется автоматически.
-
-> [!warning] Частая ошибка
-> Висячий оборот: *Having eaten lunch, the bus left* — получается, что обедал автобус. Правильно: **Having eaten lunch, we caught the bus**.
+> [!warning] Не «висячее» причастие
+> **Driving to work, I was blinded by the sun**, без *Driving to work, the sun…*: солнце не ехало. Отдельное подлежащее нужно назвать явно: **with his eyes closed / the rain having stopped**.
 
 ## Проверь себя
 
@@ -91,15 +47,13 @@ flowchart TD
 > 2. **Having been injured, he couldn't play.** — раньше, пассив.
 > 3. **Not knowing the way, I asked a policeman.** — отрицание перед причастием.
 > 4. **The work done, we went home.** — у оборота своё подлежащее `the work`.
-> 5. **With the door open, we could hear everything.** — `with + N + прилагательное/причастие`.
-> 6. **Walking into the room, I was hit by the smell of coffee.** / **When I walked into the room, the smell of coffee hit me.** — подлежащие должны совпадать, иначе «шёл запах».
+> 5. **With the door open, we could hear everything.** — `with + существительное + прилагательное/причастие`.
+> 6. **Walking into the room, I was hit by the smell of coffee.** / **When I walked into the room, the smell of coffee hit me.** — в первом варианте оборот относится к подлежащему `I`. Во втором использованы две полные части со своими подлежащими: `I` и `the smell of coffee`.
 
-## Источники
-
-- [Cambridge Dictionary — Clauses: finite and non-finite](https://dictionary.cambridge.org/grammar/british-grammar/clauses-finite-and-non-finite)
-- [Cambridge Dictionary — Detached impersonal style](https://dictionary.cambridge.org/grammar/british-grammar/detached-impersonal-style)
-- [Cambridge Dictionary — Finite and non-finite verbs](https://dictionary.cambridge.org/grammar/british-grammar/finite-and-non-finite-verbs)
+> [!info]- Источники
+> - [Cambridge Dictionary — Clauses: finite and non-finite](https://dictionary.cambridge.org/grammar/british-grammar/clauses-finite-and-non-finite)
+> - [Cambridge Dictionary — Detached impersonal style](https://dictionary.cambridge.org/grammar/british-grammar/detached-impersonal-style)
+> - [Cambridge Dictionary — Finite and non-finite verbs](https://dictionary.cambridge.org/grammar/british-grammar/finite-and-non-finite-verbs)
 
 ---
-
 [[133 - Времена для вежливости и дистанции — I was wondering|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[135 - Эллипсис и замещение — so, not, do so, to|Следующая тема →]]

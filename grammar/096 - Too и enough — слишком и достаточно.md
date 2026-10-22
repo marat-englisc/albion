@@ -1,6 +1,8 @@
 ---
 level: B1
 order: 96
+prerequisites: 89
+keywords:
 tags:
   - english/grammar
   - english/B1
@@ -9,53 +11,23 @@ tags:
 # Too и enough — слишком и достаточно
 
 > [!abstract] Коротко
-> - `too + adj` — **слишком** (проблема): `too hot to drink`.
-> - `adj + enough` — **достаточно** качества: `warm enough`; `enough + N` — достаточно количества: `enough money`.
-> - `too many + исчисляемое`, `too much + неисчисляемое`. Продолжение: `for someone`, `to + V`.
+> **Too — больше нужного, обычно проблема. Enough — достаточно.** `Too` не равно просто «очень».
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-`Too` означает «выше нужной границы», обычно с проблемой: чай настолько горячий, что пить нельзя. `Enough` означает «граница достигнута»: денег хватает. Это не просто другие слова для «очень» и «много».
-
-Порядок запоминай двумя кусочками: **качество + enough**, но **enough + вещь**. `Warm enough` — достаточно тепло; `enough clothes` — достаточно одежды. Чтобы объяснить, для чего хватает или не хватает, добавь `to + V`.
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`Too` означает больше нужного или допустимого; `enough` — столько, сколько необходимо. `Too` обычно подразумевает проблему и не равно простому «очень».
-
-| Смысл | Схема |
+| Что описываешь | Порядок |
 | --- | --- |
-| Слишком | too + adj/adv |
-| Достаточно качества | adj/adv + enough |
-| Достаточно количества | enough + N |
-| Слишком много | too many + множественное; too much + неисчисляемое |
-| Для кого / для действия | …for someone / …to V |
+| слишком холодно | too cold |
+| достаточно тёплый | warm enough |
+| достаточно времени | enough time |
+| слишком много книг / воды | too many books / too much water |
 
-`Not good enough` — недостаточно хороший. Сравни: `big enough boxes` — коробки достаточно большие; `enough big boxes` — достаточно больших коробок по количеству.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **It's too cold to swim.** — Слишком холодно, чтобы плавать.
+- **She's old enough to drive.** — Ей достаточно лет, чтобы водить.
+- **We haven't got enough money.** — У нас недостаточно денег.
 
-1. **This bag is too heavy for me.** — Эта сумка для меня слишком тяжёлая.  
-   **Разбор:** вес превышает подходящий предел; `for me` указывает, для кого это проблема.
-2. **The water is warm enough to swim in.** — Вода достаточно тёплая для купания.  
-   **Разбор:** качества хватает; `enough` стоит после `warm`.
-3. **We don't have enough chairs.** — Нам не хватает стульев.  
-   **Разбор:** речь о количестве предметов, поэтому `enough` перед существительным.
-4. **There are too many cars and too much noise.** — Здесь слишком много машин и шума.  
-   **Разбор:** машины считаем → `many`; шум неисчисляемый → `much`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **The tea is too hot to drink.** — Чай слишком горячий, чтобы его пить.
-- **She isn't old enough to drive.** — Она ещё недостаточно взрослая, чтобы водить.
-- **We have enough time to finish.** — У нас достаточно времени, чтобы закончить.
-
-> [!warning] Частая ошибка
-> **Warm enough**, а не *enough warm*; **enough money**, а не *money enough* в обычной модели.
+> [!warning] Место enough
+> После признака, перед предметом: **big enough / enough boxes**. **Big enough boxes** — достаточно большие коробки; **enough big boxes** — достаточное количество больших коробок.
 
 ## Проверь себя
 
@@ -69,17 +41,15 @@ tags:
 6. Исправь ошибку: *This exercise is too much difficult.*
 
 > [!success]- Ответы и пояснения
-> 1. **enough** — качества не хватает → `adj + enough`.
+> 1. **enough** — качества не хватает → `прилагательное + enough`.
 > 2. **too** — превышение с проблемой.
-> 3. **We don't have enough chairs.** — количество → `enough + N`.
+> 3. **We don't have enough chairs.** — количество → `enough + существительное`.
 > 4. **many** — люди исчисляемые.
 > 5. **He isn't tall enough to play basketball.** — `enough` после прилагательного.
 > 6. **This exercise is too difficult.** — перед прилагательным — просто `too`.
 
-## Источники
-
-- [British Council — Using 'enough'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/using-enough)
+> [!info]- Источники
+> - [British Council — Using 'enough'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/using-enough)
 
 ---
-
 [[095 - Усиливающие слова — very, absolutely, quite|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[097 - So и such — усиление и результат|Следующая тема →]]

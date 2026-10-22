@@ -1,6 +1,8 @@
 ---
 level: B1
 order: 109
+prerequisites: 103
+keywords:
 tags:
   - english/grammar
   - english/B1
@@ -9,54 +11,23 @@ tags:
 # Other, another и the other
 
 > [!abstract] Коротко
-> - `another + единственное` — ещё один, другой (любой): `another cup`.
-> - `other + множественное` — другие: `other people`. `others` — другие (без существительного после).
-> - `the other` — второй из двух / оставшийся известный; `the others` — остальные.
+> **Another** — «ещё один» или «другой, не этот»: **another cup**. **Other** — «другие» или «другой» перед существительным с определителем: **other people**, **my other bag**. **The other** — «второй из двух» или «оставшийся, о котором нам известно».
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-«Другой» может означать ещё один неизвестный предмет, второй из двух или остальных участников. Английский различает эти ситуации. `Another` — ещё один; `the other` — определённый оставшийся, например вторая перчатка.
-
-Если после слова будет существительное во множественном числе, используй `other books`. Если название заменяешь целиком, можно `others`. Конечное `-s` в `others` означает, что слово уже самостоятельно заменяет «другие предметы/люди».
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Эти слова выражают «другой», «ещё один» или «оставшийся». Выбор зависит от числа и того, определён ли предмет.
-
-| Форма | Значение / модель |
+| Форма | Пример |
 | --- | --- |
-| another + единственное | ещё один / другой неопределённый |
-| other + множественное/неисчисляемое | другие / другая часть |
-| the other + единственное | второй из двух / известный оставшийся |
-| the other + множественное | остальные определённые |
-| others | другие, без следующего существительного |
-| the others | остальные, без следующего существительного |
+| another + единственное | another cup |
+| other + множественное/неисчисляемое | other people / other information |
+| the other + единственное/множественное | the other shoe / the other students |
+| others — без существительного | Some stayed; others left. |
+| the others — остальные | Where are the others? |
 
-`Another` возможно перед числом: `another two days` — ещё два дня. `Other` перед единственным исчисляемым требует дополнительного определителя: `my other bag`, `the other option`.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **One bag is mine; the other is yours.** — Одна сумка моя, вторая твоя.
+- **I'd like another coffee.** — Я бы хотел ещё кофе: ещё одну порцию.
+- **We need another two days.** — Нужно ещё два дня: `another` может стоять перед числом.
 
-1. **Can I have another biscuit?** — Можно ещё одно печенье?  
-   **Разбор:** ещё один неопределённый экземпляр → `another + единственное`.
-2. **One shoe is here. Where's the other?** — Один ботинок здесь. Где второй?  
-   **Разбор:** в паре остался один известный ботинок → `the other`.
-3. **Do you have other sizes?** — У вас есть другие размеры?  
-   **Разбор:** после `other` стоит существительное `sizes`; окончание `-s` получает оно.
-4. **Some stayed; the others went home.** — Некоторые остались, остальные ушли домой.  
-   **Разбор:** `the others` заменяет оставшуюся часть уже известной группы без повторения названия.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **Could I have another cup?** — Можно мне ещё одну чашку?
-- **I can't find my other shoe.** — Не могу найти второй ботинок.
-- **Some people stayed; others left.** — Некоторые остались, другие ушли.
-
-> [!warning] Частая ошибка
-> **Other people**, а не *others people*: `others` уже заменяет существительное.
+Перед единственным `other` нужен определитель: **my other bag / the other option**.
 
 ## Проверь себя
 
@@ -77,10 +48,8 @@ tags:
 > 5. **There are other ways to do it.** — перед существительным — `other` без `-s`.
 > 6. **Can I have another piece?** — `another` пишется слитно.
 
-## Источники
-
-- [Cambridge Dictionary — Other, others, the other or another ?](https://dictionary.cambridge.org/us/grammar/british-grammar/other-others-the-other-or-another)
+> [!info]- Источники
+> - [Cambridge Dictionary — Other, others, the other or another ?](https://dictionary.cambridge.org/us/grammar/british-grammar/other-others-the-other-or-another)
 
 ---
-
 [[108 - Both, either и neither — два варианта|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[110 - Возвратные местоимения и each other|Следующая тема →]]

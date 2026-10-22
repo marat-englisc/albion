@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 42
+prerequisites: 3
+keywords: собираюсь намерение going to
 tags:
   - english/grammar
   - english/A2
@@ -9,51 +11,20 @@ tags:
 # Be going to — намерения и видимые признаки
 
 > [!abstract] Коротко
-> - `be going to + V` — **намерение**, решённое заранее: `I'm going to learn Spanish`.
-> - Прогноз по **видимым признакам**: `Look at the clouds! It's going to rain`.
-> - Нужны все части: `am/is/are` + `going to` + V.
+> **Be going to** — уже принятое намерение или прогноз по видимым признакам.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+Схема: **подлежащее + am/is/are + going to + начальная форма глагола**. Отрицание: **I'm not going to go**. Вопрос: **Are you going to go?**
 
-`Be going to` часто означает, что намерение уже появилось **до разговора**. Другая частая ситуация — прогноз по видимым признакам: облака уже собираются, значит скоро пойдёт дождь.
+## Примеры
 
-Это цельная конструкция: сначала нужное `am/is/are`, потом `going to`, потом начальная форма действия. В `I'm going to cook` слово `going` не означает, что я куда-то иду; вся группа сообщает о намерении готовить. А в `I'm going to the shop` после `to` место — это обычное движение.
+- **I'm going to learn to drive.** — Я собираюсь научиться водить: решил заранее.
+- **Look at those clouds. It's going to rain.** — Посмотри на тучи: сейчас есть признаки дождя.
+- **I'll call her. / I'm going to call her.** — Решил сейчас. / Уже собирался.
 
-## Правило и схема
-<!-- beginner-intro:end -->
+`Going to` не гарантирует, что план осуществится, и не обязательно относится к близкому будущему. Различие с `will` зависит от того, как говорящий представляет ситуацию: значения могут пересекаться. В упражнениях ниже выбирай наиболее обычный вариант для указанного смысла.
 
-`Be going to` выражает намерение, принятое до момента речи, или прогноз по признакам, которые видны сейчас.
-
-## Схема
-
-- `S + am/is/are going to + V`.
-- `S + am/is/are not going to + V`.
-- `Am/Is/Are + S + going to + V?`
-
-Сравни: `I'll call her` — решил сейчас; `I'm going to call her` — уже собирался. `Going to` не означает, что действие обязательно случится, и не требует близкого будущего. В `I'm going to the station` после `to` стоит место — это обычный глагол движения.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **I'm going to learn to drive this year.** — В этом году я собираюсь научиться водить.  
-   **Разбор:** сообщаю о заранее возникшем намерении.
-2. **Look at those clouds. It's going to rain.** — Посмотри на облака. Сейчас пойдёт дождь.  
-   **Разбор:** прогноз основан на признаках, которые видим сейчас.
-3. **She isn't going to sell her car.** — Она не собирается продавать машину.  
-   **Разбор:** `not` добавляем к `is`; `going to sell` сохраняем.
-4. **Are you going to call him?** — Ты собираешься ему позвонить?  
-   **Разбор:** вопрос начинается с формы `be` — `are`. После `going to` стоит `call`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **We're going to paint the kitchen this weekend.** — На этих выходных мы собираемся покрасить кухню.
-- **Look at that glass! It's going to fall.** — Посмотри на стакан! Он сейчас упадёт.
-- **Are you going to apply for the job?** — Ты собираешься подать заявку на эту работу?
-
-> [!warning] Частая ошибка
-> Не пропускай `be`: **We are going to leave**, а не *We going to leave*.
+> [!warning] Намерение или движение?
+> **I'm going to call** — собираюсь позвонить. **I'm going to the station** — еду на вокзал: после `to` названо место.
 
 ## Проверь себя
 
@@ -74,11 +45,9 @@ tags:
 > 5. **I'm not going to watch the match.** — `not` после `am`.
 > 6. **She is going to study medicine.** — не пропускай `is`.
 
-## Источники
-
-- [British Council — Future forms: 'will', 'be going to' and present continuous](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous)
-- [Cambridge Dictionary — Going to](https://dictionary.cambridge.org/us/grammar/british-grammar/going-)
+> [!info]- Источники
+> - [British Council — Future forms: 'will', 'be going to' and present continuous](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous)
+> - [Cambridge Dictionary — Going to](https://dictionary.cambridge.org/us/grammar/british-grammar/going-)
 
 ---
-
 [[041 - Will — решения, обещания и прогнозы|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[043 - Present Continuous и Present Simple для будущего|Следующая тема →]]

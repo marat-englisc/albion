@@ -18,6 +18,9 @@ data class Topic(
     val title: String,
     val level: String?,
     val kind: TopicKind,
+    val prerequisites: List<Int> = emptyList(),
+    val keywords: String = "",
+    val searchText: String = "",
 )
 
 enum class TopicKind { Lesson, Reference, Contents, Sources }
@@ -34,8 +37,9 @@ data class GrammarBook(
     private val byId = topics.associateBy { it.id }
     fun topic(id: String) = byId[id]
     val lessons get() = topics.filter { it.kind == TopicKind.Lesson }
-    fun next(id: String) = lessons.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { lessons.getOrNull(it + 1) }
-    fun previous(id: String) = lessons.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { lessons.getOrNull(it - 1) }
+    val learningOrder by lazy { GrammarLearningPath.ordered(topics) }
+    fun next(id: String) = learningOrder.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { learningOrder.getOrNull(it + 1) }
+    fun previous(id: String) = learningOrder.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { learningOrder.getOrNull(it - 1) }
 
     companion object {
         val EMPTY = GrammarBook(emptyList(), emptyList(), emptyList(), null)
@@ -105,9 +109,12 @@ class GrammarRepository(
 
         val topics = files.map { file ->
             val id = file.removeSuffix(".md")
-            val head = runCatching {
-                assets.open("${ContentImporter.GRAMMAR}/$file").bufferedReader().useLines { it.take(40).toList() }
-            }.getOrDefault(emptyList())
+            val source = runCatching {
+                assets.open("${ContentImporter.GRAMMAR}/$file").bufferedReader().use { it.readText() }
+            }.getOrDefault("")
+            val document = MarkdownParser.parse(source)
+            documents[id] = document
+            val head = source.lineSequence().take(40).toList()
             val level = head.firstOrNull { it.startsWith("level:") }?.substringAfter(":")?.trim()
             val h1 = head.firstOrNull { it.startsWith("# ") }?.removePrefix("# ")?.trim()
             val number = NUMBERED.find(id)?.groupValues?.get(1)?.toIntOrNull()
@@ -118,7 +125,11 @@ class GrammarRepository(
                 else -> TopicKind.Lesson
             }
             val cleanTitle = h1 ?: id.replace(NUMBERED, "")
-            Topic(id, number, cleanTitle.removePrefix("Справочник — "), level, kind)
+            Topic(id, number, cleanTitle.removePrefix("Справочник — "), level, kind,
+                prerequisites = document.frontmatter["prerequisites"].orEmpty().split(',').mapNotNull { it.trim().toIntOrNull() },
+                keywords = document.frontmatter["keywords"].orEmpty(),
+                searchText = GrammarSearch.text(document),
+            )
         }.sortedWith(compareBy<Topic>({ it.number ?: Int.MAX_VALUE }, { it.title }))
 
         val contents = topics.firstOrNull { it.kind == TopicKind.Contents }

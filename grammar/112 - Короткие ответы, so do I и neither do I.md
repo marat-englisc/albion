@@ -1,6 +1,8 @@
 ---
 level: B1
 order: 112
+prerequisites: 17, 19
+keywords: я тоже я тоже не so neither
 tags:
   - english/grammar
   - english/B1
@@ -9,55 +11,21 @@ tags:
 # Короткие ответы, so do I и neither do I
 
 > [!abstract] Коротко
-> - Короткий ответ = подлежащее + **помощник** из вопроса: `Can you swim? — Yes, I can`.
-> - «Я тоже»: после «да» → `So + помощник + I` (`So do I`); после «нет» → `Neither + помощник + I` (`Neither did I`).
-> - Разговорно: `Me too` / `Me neither`. `I think so` / `I hope not`.
+> В коротком ответе оставь **подходящий помощник**. **So do I — я тоже. Neither do I — я тоже не.**
 
-<!-- beginner-intro:start -->
-## Простыми словами
+## Примеры
 
-В коротком ответе английский оставляет **грамматический помощник**, чтобы не повторять всё предложение. После `Can you swim?` достаточно `Yes, I can`. После обычного действия в Simple таким заместителем становится `do/does/did`.
+- **Are you ready? — Yes, I am.** — Ты готов? — Да.
+- **I like tea. — So do I.** — Люблю чай. — Я тоже.
+- **I can't swim. — Neither can I.** — Не умею плавать. — Я тоже не умею.
+- **She went. — So did we.** — Она пошла. — Мы тоже.
 
-Для «я тоже» посмотри на исходную фразу: она положительная → `So + помощник + I`; отрицательная → `Neither + помощник + I`. Выбирай помощник по конструкции собеседника, а не один универсальный `do` для всех случаев.
+Схемы согласия: **so + вспомогательный или модальный глагол + подлежащее** — «тоже»; **neither/nor + вспомогательный или модальный глагол + подлежащее** — «тоже не». Подходит и основная форма `be`: **I'm tired — So am I**.
 
-## Правило и схема
-<!-- beginner-intro:end -->
+Если помощника не было, используй **do/does/did** по времени. После отрицания подходят **neither/nor**. Разговорно: **Me too / Me neither**.
 
-Чтобы не повторять всё сказанное, оставляем подходящий вспомогательный или модальный глагол. Он соответствует исходному времени и смыслу.
-
-| Задача | Модель |
-| --- | --- |
-| Короткий ответ | Yes, S + auxiliary. / No, S + auxiliary + not. |
-| «Я тоже» после утверждения | So + auxiliary + I. |
-| «Я тоже не» после отрицания | Neither/Nor + auxiliary + I. |
-| Разговорный вариант | Me too. / Me neither. |
-
-Если исходный глагол — обычный в Present/Past Simple, используй `do/does/did`. `I think/hope so` заменяет положительное содержание; `I hope not` — отрицательное. В ответе `I think so` слово `so` не требует перестановки.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **I'm hungry. — So am I.** — Я голоден. — Я тоже.  
-   **Разбор:** исходный глагол `am`; в ответе о себе тоже `am`, не `do`.
-2. **I like coffee. — So do I.** — Я люблю кофе. — Я тоже.  
-   **Разбор:** обычное действие в Present Simple заменяется помощником `do`.
-3. **I didn't go. — Neither did I.** — Я не пошёл. — Я тоже.  
-   **Разбор:** отрицательное прошлое → `neither + did`; второе `not` не добавляем.
-4. **Have you finished? — No, I haven't.** — Ты закончил? — Нет.  
-   **Разбор:** вопрос Perfect с `have`; короткий ответ сохраняет тот же помощник.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I'm going to the party. — So am I.** — Я иду на вечеринку. — Я тоже.
-- **I haven't seen it. — Neither have I.** — Я это не видел. — Я тоже.
-- **Is it going to rain? — I hope not.** — Будет дождь? — Надеюсь, нет.
-
-> [!warning] Частая ошибка
-> **So am I** после **I'm tired**, но **So do I** после **I work here**. Для несогласия: **I don't / I do**, по смыслу.
-
-> [!tip] Дальше по теме
-> [[135 - Эллипсис и замещение — so, not, do so, to|Эллипсис и замещение — so, not, do so, to]]
+> [!warning] Не путай два so
+> **I think so / I hope so** — думаю / надеюсь, что да: без инверсии. Отрицательный ответ: **I don't think so / I hope not**.
 
 ## Проверь себя
 
@@ -78,11 +46,9 @@ tags:
 > 5. **Neither can I.** — отрицание с `can`.
 > 6. **Neither did I.** — прошлое отрицание с `did`.
 
-## Источники
-
-- [Cambridge Dictionary — Ellipsis](https://dictionary.cambridge.org/grammar/british-grammar/ellipsis)
-- [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
+> [!info]- Источники
+> - [Cambridge Dictionary — Ellipsis](https://dictionary.cambridge.org/grammar/british-grammar/ellipsis)
+> - [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
 
 ---
-
 [[111 - One и ones — замена существительного|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[113 - Question Tags — вопросы-хвостики|Следующая тема →]]

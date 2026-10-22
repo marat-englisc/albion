@@ -33,8 +33,9 @@ object XlsxReader {
     }
 
     private fun parser(bytes: ByteArray): XmlPullParser =
-        XmlPullParserFactory.newInstance().apply { isNamespaceAware = false }.newPullParser().apply {
-            setInput(ByteArrayInputStream(bytes), "UTF-8")
+        XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser().apply {
+            // Автоопределение кодировки также убирает UTF-8 BOM перед XML-декларацией.
+            setInput(ByteArrayInputStream(bytes), null)
         }
 
     private fun firstSheetPath(entries: Map<String, ByteArray>): String? {
@@ -45,7 +46,9 @@ object XlsxReader {
             val p = parser(workbook)
             while (p.next() != XmlPullParser.END_DOCUMENT) {
                 if (p.eventType == XmlPullParser.START_TAG && p.name == "sheet") {
-                    firstRid = p.getAttributeValue(null, "r:id"); break
+                    firstRid = p.getAttributeValue("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id")
+                        ?: p.getAttributeValue(null, "r:id")
+                    break
                 }
             }
             if (firstRid != null) {

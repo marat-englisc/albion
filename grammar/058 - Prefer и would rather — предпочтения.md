@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 58
+prerequisites: 24, 28
+keywords: предпочитать лучше rather prefer
 tags:
   - english/grammar
   - english/B2
@@ -9,53 +11,23 @@ tags:
 # Prefer и would rather — предпочтения
 
 > [!abstract] Коротко
-> - Вообще: `prefer A to B` — `I prefer tea to coffee`, `I prefer walking to driving`.
-> - Сейчас/конкретно: `would prefer to V` — `I'd prefer to stay`; `would rather V (than V)` — `I'd rather stay`.
-> - Про другого человека: `I'd rather you + Past Simple` — `I'd rather you didn't smoke`.
-
-<!-- beginner-intro:start -->
-## Простыми словами
-
-Предпочтение — это выбор между вариантами: чай или кофе, пойти или остаться. `Prefer` часто описывает вкусы вообще; `would prefer/would rather` удобны для конкретного решения. Смысл похож, но слова после них строятся по-разному.
-
-С `would prefer` нужно `to go`, с `would rather` — просто `go`. Если желаемое действие должен выполнить **другой человек**, после `would rather` назови его и используй Past Simple. Эта прошедшая форма выражает желательность сейчас, а не время «вчера».
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`Prefer` сравнивает предпочтения вообще. `Would prefer` и `would rather` часто относятся к конкретному выбору сейчас или в будущем.
+> **Prefer** — предпочитаю вообще. **Would prefer / would rather** — часто конкретный выбор.
 
 | Модель | Пример |
 | --- | --- |
-| prefer N to N | prefer tea to coffee |
-| prefer V-ing to V-ing | prefer walking to driving |
-| would prefer to V | I'd prefer to stay. |
-| would rather V than V | I'd rather walk than wait. |
-| would rather + другой S + Past Simple | I'd rather you stayed. |
+| prefer + существительное + to + существительное | I prefer tea to coffee. |
+| prefer + глагол с -ing + to + глагол с -ing | I prefer walking to driving. |
+| would prefer to + глагол | I'd prefer to stay. |
+| would rather + глагол | I'd rather walk than wait. |
+| would rather + подлежащее другой части + глагол в Past Simple | I'd rather you stayed. |
 
-При одном исполнителе: `I'd rather not go`. При другом отрицание переносится в придаточное: `I'd rather you didn't go`. Прошедшая форма в последней модели относится к желательному настоящему/будущему, а не прошлому.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **I'd rather not go.** — Я бы предпочёл не идти.
+- **I'd rather you didn't go.** — Я бы предпочёл, чтобы ты не ходил.
 
-1. **I prefer tea to coffee.** — Я предпочитаю чай кофе.  
-   **Разбор:** сравниваем существительные; между ними предлог `to`, не `than`.
-2. **I'd prefer to stay here.** — Я бы предпочёл остаться здесь.  
-   **Разбор:** после `would prefer` действие вводится через `to`.
-3. **I'd rather stay here than go out.** — Я бы лучше остался здесь, чем пошёл куда-то.  
-   **Разбор:** после `rather` и `than` стоят начальные формы без `to`.
-4. **I'd rather you called tomorrow.** — Я бы предпочёл, чтобы ты позвонил завтра.  
-   **Разбор:** звонить будет `you`, поэтому появляется отдельная часть с `called`; действие ещё в будущем.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I prefer cooking to eating out.** — Я предпочитаю готовить, а не есть вне дома.
-- **We'd prefer to leave early.** — Мы бы предпочли уйти пораньше.
-- **I'd rather you didn't tell anyone.** — Я бы предпочёл, чтобы ты никому не говорил.
-
-> [!warning] Частая ошибка
-> **Would rather go**, без `to` и `-ing`. Но **would prefer to go**.
+> [!warning] Чей выбор действия?
+> **I'd rather stay** — остаюсь я, без `to`. **I'd rather you stayed** — остаёшься ты; прошедшая форма относится к желаемому сейчас или в будущем.
 
 ## Проверь себя
 
@@ -76,11 +48,9 @@ tags:
 > 5. **I'd rather walk.** — после `rather` без `to`.
 > 6. **I'd rather go by train than fly.** — `would rather A than B`, обе формы без `to`.
 
-## Источники
-
-- [Cambridge Dictionary — Prefer](https://dictionary.cambridge.org/grammar/british-grammar/prefer-would-prefer)
-- [Cambridge Dictionary — Would rather, would sooner](https://dictionary.cambridge.org/uk/grammar/british-grammar/would-rather-would-sooner)
+> [!info]- Источники
+> - [Cambridge Dictionary — Prefer](https://dictionary.cambridge.org/grammar/british-grammar/prefer-would-prefer)
+> - [Cambridge Dictionary — Would rather, would sooner](https://dictionary.cambridge.org/uk/grammar/british-grammar/would-rather-would-sooner)
 
 ---
-
 [[057 - Модальные формы о несделанном и лишнем|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[059 - Zero Conditional — общие закономерности|Следующая тема →]]

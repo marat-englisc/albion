@@ -108,7 +108,7 @@ private val LEVELS = listOf("", "A1", "A2", "B1", "B2", "C1")
 
 /**
  * Состояние грамматической игры: настройка → задания → итог.
- * С [topic] — режим «Проверь себя»: все задания одной темы (выбор и ввод вперемешку), без настройки.
+ * С [topic] — режим «Проверь себя»: смешанная выборка из банка темы, без настройки.
  */
 class GrammarGameViewModel(
     private val c: AppContainer,
@@ -551,7 +551,11 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             AnswerField(
                 value = input,
                 onChange = { if (verdict == null) input = it },
-                placeholder = if (parsed.gapCount > 1) "Ответы по порядку через /" else "Впишите пропуск",
+                placeholder = when {
+                    parsed.gapCount > 1 -> "Ответы по порядку через /"
+                    parsed.gapCount == 1 -> "Впишите пропуск"
+                    else -> "Напишите ответ целиком"
+                },
                 enabled = verdict == null,
                 focus = focus,
                 imeAction = ImeAction.Done,

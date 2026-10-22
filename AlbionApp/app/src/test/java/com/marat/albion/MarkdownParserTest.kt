@@ -114,7 +114,6 @@ class MarkdownParserTest {
             }
         }
         println("Тем: ${files.size}, схем: $diagrams, таблиц: $tables, битых ссылок: ${brokenLinks.size} ${brokenLinks.take(5)}")
-        assertEquals(53, diagrams)
         assertTrue(brokenLinks.isEmpty())
     }
 

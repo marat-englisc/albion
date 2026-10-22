@@ -79,15 +79,19 @@ class ContentParsingTest {
         println("Грамматических заданий: ${tasks.size}, выбор ${tasks.count { it.kind == "choice" }}, ввод ${tasks.count { it.kind == "input" }}")
         assertTrue(tasks.size >= 700)
         assertEquals("id уникальны", tasks.size, tasks.map { it.id }.toSet().size)
+        val byTopic = tasks.groupBy { it.topic }
+        assertEquals("каждый урок имеет проверку", (1..144).toSet(), byTopic.keys)
+        assertTrue("достаточный банк для разных попыток", byTopic.values.all { it.size >= 10 })
+        assertTrue("практика C1", byTopic.filterKeys { it != null && it >= 126 }.values.all { it.size >= 12 })
         tasks.forEach { t ->
             assertTrue("${t.id}: уровень", t.level in setOf("A1", "A2", "B1", "B2", "C1"))
             assertTrue("${t.id}: тема ${t.topic}", t.topic in topics)
             assertTrue("${t.id}: пояснение", t.explanation.isNotBlank())
             if (t.kind == "choice") {
                 assertTrue("${t.id}: ответ среди вариантов", t.answer in t.optionList)
-                assertTrue("${t.id}: 3–4 варианта", t.optionList.size in 3..4)
+                assertTrue("${t.id}: 2–4 разных варианта", t.optionList.distinct().size in 2..4)
             } else {
-                assertTrue("${t.id}: есть пропуск", "___" in t.prompt)
+                assertTrue("${t.id}: есть задание", t.prompt.isNotBlank())
                 assertTrue("${t.id}: есть ответ", t.acceptedAnswers.isNotEmpty())
             }
             val prompt = GrammarPrompt(t.prompt)

@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 75
+prerequisites: 72, 76, 77
+keywords:
 tags:
   - english/grammar
   - english/B2
@@ -9,56 +11,24 @@ tags:
 # Reporting Verbs — promise, suggest, deny
 
 > [!abstract] Коротко
-> - Вместо `said` — точный глагол: обещал, предложил, отрицал, извинился. **У каждого своя модель**.
-> - `+ to V`: agree, offer, promise, refuse. `+ кого + to V`: advise, remind, persuade, warn. `+ V-ing`: admit, deny, suggest. `+ предлог + V-ing`: apologise for, insist on.
-> - `suggest` — только `suggest doing` или `suggest that…`, никогда *suggest me to do*.
-
-<!-- beginner-intro:start -->
-## Простыми словами
-
-Вместо общего «сказал» можно точнее назвать поступок словами: пообещал, предложил, признался, отказался. Но у каждого английского глагола свой **шаблон продолжения**. Русское «чтобы» не даёт одной универсальной формулы.
-
-Учи связку целиком: `promise to do`, `remind someone to do`, `suggest doing`, `apologise for doing`. Для `suggest` можно также дать целое предложение с `that`. Если меняешь сам глагол, перепроверь и модель после него.
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Точный глагол передачи речи показывает, было ли это обещание, совет, отрицание или предложение. У каждого глагола своя модель управления.
+> Глагол передачи речи показывает **обещание, отказ, совет или признание**. Учи его вместе с моделью.
 
 | Модель | Частые глаголы |
 | --- | --- |
-| verb + to V | agree, offer, promise, refuse, threaten |
-| verb + someone + to V | advise, encourage, invite, persuade, remind, warn |
-| verb + V-ing | admit, deny, suggest, recommend |
-| verb + предлог + V-ing | apologise for, insist on |
-| verb + (that) + предложение | explain, admit, suggest, claim |
+| + to do | agree, offer, promise, refuse, threaten |
+| + кого + to do | advise, invite, remind, encourage, warn |
+| + doing | admit, deny, suggest, recommend |
+| + предлог + doing | apologise for, insist on |
+| + that + предложение | explain, admit, suggest, claim |
 
-Для совета возможны `suggest that we go` и `suggest that we should go`. `Explain` не принимает адресата без предлога: `explain the problem to me`.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **He promised to help.** — Он обещал помочь.
+- **She denied taking the money.** — Она отрицала, что взяла деньги.
+- **I suggest going / that we go / that we should go.** — Предлагаю пойти.
 
-1. **He offered to carry my bag.** — Он предложил понести мою сумку.  
-   **Разбор:** выполнить действие предлагает сам говорящий; модель `offer to + V`.
-2. **She reminded me to pay.** — Она напомнила мне заплатить.  
-   **Разбор:** платит `me`, поэтому адресат стоит между `reminded` и `to pay`.
-3. **He suggested taking a taxi.** — Он предложил взять такси.  
-   **Разбор:** после `suggest` подходит `V-ing`; модель `suggested me to take` не используется.
-4. **They apologised for being late.** — Они извинились за опоздание.  
-   **Разбор:** после предлога `for` действие оформлено через `being`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **He promised to return the book.** — Он обещал вернуть книгу.
-- **She advised me to take a break.** — Она посоветовала мне сделать перерыв.
-- **They denied taking the money.** — Они отрицали, что брали деньги.
-
-> [!warning] Частая ошибка
-> **Suggested leaving / suggested that I leave**, а не *suggested me to leave*. Модель нужно учить вместе с глаголом.
-
-> [!tip] Дальше по теме
-> [[130 - Сослагательное наклонение — I suggest that he be|Сослагательное наклонение — I suggest that he be]]
+> [!warning] Не переноси модель другого глагола
+> **Suggest going**, без *suggest me to go*. **Explain it to me**, без *explain me it*.
 
 ## Проверь себя
 
@@ -72,18 +42,16 @@ tags:
 6. Исправь ошибку: *She suggested me to see a doctor.*
 
 > [!success]- Ответы и пояснения
-> 1. **He offered to help me.** — `offer + to V`.
-> 2. **She denied taking the money.** — `deny + V-ing`.
-> 3. **Tom suggested going to the beach.** — `suggest + V-ing`.
-> 4. **Mum reminded me to buy milk.** — `remind + кого + to V`.
-> 5. **He apologised for being late.** — `apologise for + V-ing`.
-> 6. **She suggested (that) I (should) see a doctor. / She suggested seeing a doctor.** — у `suggest` нет модели «кого + to V».
+> 1. **He offered to help me.** — `offer + to + начальная форма`.
+> 2. **She denied taking the money.** — `deny + глагол с -ing`.
+> 3. **Tom suggested going to the beach.** — `suggest + глагол с -ing`.
+> 4. **Mum reminded me to buy milk.** — `remind + кого + to + начальная форма`.
+> 5. **He apologised for being late.** — `apologise for + глагол с -ing`.
+> 6. **She suggested (that) I (should) see a doctor.** — у `suggest` нет модели «кого + to + начальная форма». Если из контекста понятно, кому нужен врач, возможна и модель **She suggested seeing a doctor**.
 
-## Источники
-
-- [British Council — Reported speech: reporting verbs](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/reported-speech-reporting-verbs)
-- [British Council — Verbs followed by the infinitive](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/verbs-followed-infinitive)
+> [!info]- Источники
+> - [British Council — Reported speech: reporting verbs](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/reported-speech-reporting-verbs)
+> - [British Council — Verbs followed by the infinitive](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/verbs-followed-infinitive)
 
 ---
-
 [[074 - Косвенные просьбы, приказы и предупреждения|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[076 - Герундий и инфинитив после глаголов|Следующая тема →]]

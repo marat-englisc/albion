@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 60
+prerequisites: 41, 59
+keywords: условие первое first conditional
 tags:
   - english/grammar
   - english/A2
@@ -9,51 +11,20 @@ tags:
 # First Conditional — реальное будущее условие
 
 > [!abstract] Коротко
-> - First Conditional — **реальное будущее**: `If it rains, we'll stay at home`.
-> - Формула: `If + Present Simple, will + V`. В части с `if` — без `will`!
-> - Вместо `will` возможны `can, may, should` или повелительное: `If you see her, tell her`.
+> First Conditional — **возможное будущее условие и его результат**.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+Основная схема: **if + подлежащее + глагол в Present Simple, подлежащее + will + начальная форма глагола без to**. Часть с `if` выражает условие, другая часть — результат. Вместо `will` в результате возможны `can/may/must` или повелительная форма.
 
-Первый тип нужен для **конкретного возможного будущего**: «Если завтра будет дождь, останемся дома». Говорящий рассматривает условие как реальный вариант. Это не обещание, что дождь обязательно будет.
+В условии можно использовать и другие формы настоящего времени, если этого требует смысл: **If you're working tomorrow…** — «Если ты завтра работаешь…».
 
-В части с `if` будущее обычно выражается настоящей формой: `if it rains`. В результате ставь `will`, другой подходящий модальный глагол или команду. Сравни `if` — неизвестно, случится ли, и `when` — говорящий ожидает, что событие случится.
+## Примеры
 
-## Правило и схема
-<!-- beginner-intro:end -->
+- **If it rains tomorrow, we'll stay home.** — Если завтра будет дождь, останемся дома.
+- **If you finish early, call me.** — Если закончишь рано, позвони.
+- **If you're working tomorrow, we can meet on Sunday.** — Если завтра работаешь, можем встретиться в воскресенье.
 
-Первое условное описывает будущее событие, которое говорящий считает реальным или возможным, и его результат.
-
-## Схема
-
-`If + S + Present Simple, S + will + V`
-
-В главной части вместо `will` возможны `can`, `may`, `must` или команда. В условии можно использовать Present Continuous или Perfect, если этого требует смысл: `If you're working tomorrow…`, `If you've finished by six…`.
-
-Для ожидаемого события `when` означает «когда», а `if` — «если»: `When he arrives…` предполагает, что он приедет.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **If I finish early, I'll call you.** — Если закончу рано, позвоню тебе.  
-   **Разбор:** реальная будущая возможность; после `if` настоящее `finish`, без `will`.
-2. **If you're hungry, you can have a sandwich.** — Если ты голоден, можешь взять бутерброд.  
-   **Разбор:** результат выражен разрешением `can`, а не обязательно `will`.
-3. **Take a taxi if you miss the bus.** — Возьми такси, если пропустишь автобус.  
-   **Разбор:** главная часть — инструкция; условие идёт после неё без обязательной запятой.
-4. **When I get home, I'll make dinner.** — Когда я приду домой, приготовлю ужин.  
-   **Разбор:** приход домой ожидается, поэтому `when`; форма в зависимой части всё равно настоящая.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **If it rains, we'll stay inside.** — Если пойдёт дождь, мы останемся в помещении.
-- **You can borrow my bike if you need it.** — Можешь взять мой велосипед, если он тебе нужен.
-- **If you see Maya, tell her to call me.** — Если увидишь Майю, скажи ей позвонить мне.
-
-> [!warning] Частая ошибка
-> Для обычного будущего условия **if it rains**, а не *if it will rain*. `Will` после `if` встречается в других значениях, например готовности, и не является основной моделью.
+> [!warning] Обычное условие — без will
+> **If it rains**, а не *if it will rain*. Настоящее время здесь имеет будущий смысл. **When he arrives** предполагает приезд, **if he arrives** оставляет его под вопросом.
 
 ## Проверь себя
 
@@ -72,13 +43,11 @@ tags:
 > 3. **calls, tell** — в результате — повелительное наклонение.
 > 4. **When** — событие ожидается наверняка.
 > 5. **If it is sunny, we'll go to the beach.** — после `if` не ставим `will`.
-> 6. **If you're late, I won't wait.** — реальное будущее: `if` + Present, `won't` + V.
+> 6. **If you're late, I won't wait.** — реальное будущее: `if` + подлежащее + глагол в настоящем времени; в результате — подлежащее + `won't` + начальная форма.
 
-## Источники
-
-- [British Council — Conditionals: zero, first and second](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-zero-first-second)
-- [Cambridge Dictionary — Conditionals: other expressions ( unless, should, as long as )](https://dictionary.cambridge.org/us/grammar/british-grammar/conditionals-other-expressions-unless-should-as-long-as)
+> [!info]- Источники
+> - [British Council — Conditionals: zero, first and second](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-zero-first-second)
+> - [Cambridge Dictionary — Conditionals: other expressions ( unless, should, as long as )](https://dictionary.cambridge.org/us/grammar/british-grammar/conditionals-other-expressions-unless-should-as-long-as)
 
 ---
-
 [[059 - Zero Conditional — общие закономерности|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[061 - Second Conditional — воображаемое настоящее и будущее|Следующая тема →]]

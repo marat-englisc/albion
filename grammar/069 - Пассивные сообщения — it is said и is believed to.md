@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 69
+prerequisites: 68
+keywords:
 tags:
   - english/grammar
   - english/B2
@@ -9,54 +11,24 @@ tags:
 # Пассивные сообщения — it is said и is believed to
 
 > [!abstract] Коротко
-> - Сообщения и мнения без источника: `It is said / believed / reported that…`
-> - Или с человеком в начале: `He is said to live abroad` (сейчас), `He is said to have left` (раньше).
-> - `to have + V3` — действие произошло раньше сообщения.
+> **It is said / He is said to…** передаёт сообщение или мнение без точного указания источника.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+| Модель | Пример |
+| --- | --- |
+| It is said that + предложение | It is said that he lives abroad. |
+| подлежащее + am/is/are said + to + начальная форма | He is said to live abroad. |
+| более раннее действие: to + have + третья форма | He is said to have left. |
 
-В новостях встречается «сообщается», «считается», «говорят». Автор передаёт чужую информацию, а не обязательно подтверждает её сам. В английском можно начать с формального `it` или сразу с человека/предмета, о котором сообщают.
+Если более раннее действие направлено на подлежащее, нужна пассивная форма **to have been + третья форма глагола**: **The castle is believed to have been built in the 12th century** — «Считается, что этот замок построили в XII веке».
 
-`It is believed that…` вводит целую мысль. `He is believed to…` начинает с человека. Если его действие было **раньше**, чем нынешнее сообщение, нужен `to have + V3`. Сначала научись узнавать эти модели при чтении; сложные варианты не обязательны для первого прохода.
+## Примеры
 
-## Правило и схема
-<!-- beginner-intro:end -->
+- **She is believed to be rich.** — Считается, что она богата сейчас.
+- **She is believed to have left yesterday.** — Считается, что она уехала вчера: отъезд раньше нынешнего мнения.
+- **It was reported that the road was closed.** — Сообщалось, что дорога закрыта.
 
-В новостях и официальной речи пассив позволяет передать чужое мнение или сообщение, не называя источник конкретно. Это знакомство с пограничной темой B2/C1.
-
-## Основные модели
-
-- `It + is/was + said/believed/thought/reported + that + предложение`.
-- `S + is/was + said/believed/thought + to + V` — действие одновременно с мнением или позднее по смыслу.
-- `S + is/was + said/believed/thought + to have + V3` — действие раньше сообщения/мнения.
-
-Не все глаголы допускают все модели: учи устойчивые сочетания. `To have + V3` показывает предшествование; время сообщения выражено в `is/was`.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **It is reported that the road is closed.** — Сообщается, что дорога закрыта.  
-   **Разбор:** после `that` идёт полное предложение; `it` не обозначает конкретный предмет.
-2. **The road is reported to be closed.** — По сообщениям, дорога закрыта.  
-   **Разбор:** та же информация, но дорога вынесена в начало; дальше `to be`, без `that`.
-3. **He is believed to live in Canada.** — Считается, что он живёт в Канаде.  
-   **Разбор:** нынешнее мнение о нынешней ситуации → обычный инфинитив `to live`.
-4. **He is believed to have left the country.** — Считается, что он покинул страну.  
-   **Разбор:** отъезд произошёл раньше нынешнего мнения → `to have left`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **It is said that the house is empty.** — Говорят, что дом пуст.
-- **The house is believed to be empty.** — Считается, что дом пуст.
-- **The painting is thought to have disappeared in 1990.** — Считается, что картина исчезла в 1990 году.
-
-> [!warning] Частая ошибка
-> **He is said to live abroad**, а не *He is said that he lives abroad*. Для `that` нужна модель с **It is said that…**
-
-> [!tip] Дальше по теме
-> [[143 - Смягчение высказываний — seem, tend to, arguably|Смягчение высказываний — seem, tend to, arguably]]
+> [!warning] Два времени
+> **Is/was** показывает время сообщения; **to have done** — действие раньше него. Не каждый глагол передачи сообщения допускает обе модели: проверяй сочетание в словаре.
 
 ## Проверь себя
 
@@ -77,11 +49,9 @@ tags:
 > 5. **She is said to live in Paris. / It is said that she lives in Paris.** — не смешивай две модели.
 > 6. **The castle is believed to have been built in the 12th century. / It is believed that the castle was built in the 12th century.** — постройка раньше мнения → перфектный пассивный инфинитив.
 
-## Источники
-
-- [British Council — Active and passive voice](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/active-passive-voice)
-- [British Council — Advanced passives review](https://learnenglish.britishcouncil.org/comment/200769)
+> [!info]- Источники
+> - [British Council — Active and passive voice](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/active-passive-voice)
+> - [British Council — Advanced passives review](https://learnenglish.britishcouncil.org/comment/200769)
 
 ---
-
 [[068 - Passive Voice во временах и с модальными глаголами|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[070 - Have и get something done — услуга или воздействие|Следующая тема →]]

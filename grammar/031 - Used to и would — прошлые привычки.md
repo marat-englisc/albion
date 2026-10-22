@@ -1,6 +1,8 @@
 ---
 level: B1
 order: 31
+prerequisites: 28
+keywords:
 tags:
   - english/grammar
   - english/B1
@@ -9,51 +11,23 @@ tags:
 # Used to и would — прошлые привычки
 
 > [!abstract] Коротко
-> - `used to + V` — **раньше было, а теперь нет**: привычки и состояния. `I used to smoke.`
-> - Вопрос и отрицание: `Did you use to…?`, `I didn't use to…` — без `-d`.
-> - `would + V` — повторяющиеся действия в воспоминаниях, но **не состояния**: `We would play outside every day`.
+> **Used to** — раньше делал или был таким, теперь иначе. **Would** — повторявшееся действие в воспоминании.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+| Что описываем | Форма |
+| --- | --- |
+| прошлую привычку или состояние | used to + начальная форма |
+| отрицание | didn't use to + глагол |
+| вопрос | Did you use to + глагол? |
+| повторявшееся действие, период уже понятен | would + глагол |
 
-`Used to` удобно для воспоминаний «раньше так было, а теперь иначе». Можно говорить о действии (`used to play`) или состоянии (`used to be shy`). Это не описание одного случая и не форма настоящей привычки.
+## Примеры
 
-`Would` тоже встречается в воспоминаниях, но обычно для повторявшихся **действий**, когда прошлый период уже задан. Для «раньше жил», «раньше знал» безопаснее `used to`. В отрицании и вопросе с `did` пишем `use to`: букву `d` уже взял на себя помощник.
+- **I used to live in Samara.** — Раньше я жил в Самаре.
+- **Every summer, Grandad would take us fishing.** — Каждое лето дедушка брал нас на рыбалку.
+- **She didn't use to like fish.** — Раньше она не любила рыбу.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`Used to` описывает прежние привычки и состояния, которые теперь изменились. `Would` в рассказе описывает повторявшиеся действия, когда прошлый период уже понятен.
-
-| | Схема | Употребление |
-| --- | --- | --- |
-| Used to | S + used to + V | действия и состояния |
-| Отрицание / вопрос | didn't use to / Did S use to…? | прежние привычки |
-| Would | S + would + V | повторявшиеся действия |
-
-Для состояния обычно нужен `used to`: `We used to live there`. Past Simple тоже подходит для привычек, но сам по себе не подчёркивает, что ситуация изменилась. Для одного случая используй Past Simple.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **I used to walk to school.** — Раньше я ходил в школу пешком.  
-   **Разбор:** это прежняя привычка; фраза подсказывает, что сейчас ситуация другая.
-2. **She used to be shy.** — Раньше она была застенчивой.  
-   **Разбор:** описывается состояние. Для такого значения подходит `used to`, а не обычное привычное `would`.
-3. **When we were children, Dad would read to us every night.** — Когда мы были детьми, папа каждый вечер читал нам.  
-   **Разбор:** прошлый период назван, а чтение повторялось. Поэтому возможно `would read`.
-4. **Did you use to live here?** — Ты раньше здесь жил?  
-   **Разбор:** вопрос с `did`; далее `use to` без конечного `d`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I used to dislike coffee.** — Раньше я не любил кофе.
-- **Did you use to play chess?** — Ты раньше играл в шахматы?
-- **Every winter, we would visit our grandparents.** — Каждую зиму мы навещали бабушку и дедушку.
-
-> [!warning] Частая ошибка
-> После **did**: **use to**, без `-d`. Не путай с **be used to doing**: [[032 - Be used to и get used to — привыкнуть|Be used to и get used to — привыкнуть]].
+> [!warning] Состояния и один случай
+> **I used to have long hair**, обычно без `would`. Для одного законченного события нужен Past Simple.
 
 ## Проверь себя
 
@@ -74,11 +48,9 @@ tags:
 > 5. **would** — повторяющееся действие в воспоминаниях.
 > 6. **I used to get up early when I was at school.** — в утверждении — `used to`.
 
-## Источники
-
-- [British Council — Past habits: 'used to', 'would' and the past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2-grammar/past-habits-used-to-would-past-simple)
-- [Cambridge Dictionary — Would](https://dictionary.cambridge.org/grammar/british-grammar/would)
+> [!info]- Источники
+> - [British Council — Past habits: 'used to', 'would' and the past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2-grammar/past-habits-used-to-would-past-simple)
+> - [Cambridge Dictionary — Would](https://dictionary.cambridge.org/grammar/british-grammar/would)
 
 ---
-
 [[030 - Past Continuous и Past Simple — фон и событие|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[032 - Be used to и get used to — привыкнуть|Следующая тема →]]

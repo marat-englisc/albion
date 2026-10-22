@@ -1,6 +1,8 @@
 ---
 level: B1
 order: 97
+prerequisites: 89, 12
+keywords:
 tags:
   - english/grammar
   - english/B1
@@ -9,55 +11,23 @@ tags:
 # So и such — усиление и результат
 
 > [!abstract] Коротко
-> - `so + adj/adv` — `so cold`, `so quickly`.
-> - `such (a/an) + adj + N` — `such a cold day`, `such nice people`, `such bad weather`.
-> - Результат: `so/such … that` — `It was so late that we took a taxi`. С количеством: `so many / so much / so few / so little`.
+> **So + признак. Such + предмет с описанием.** Результат можно добавить через `that`.
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-`So` усиливает сам признак: «такой высокий». `Such` усиливает группу с названием предмета: «такой высокий человек». Поэтому первым делом проверь, есть ли после усилителя существительное.
-
-Без существительного → `so + признак`; с существительным → обычно `such + группа`. Для одного исчисляемого предмета после `such` нужен `a/an`. Дальше можно добавить `that` и результат: «настолько…, что…». С `many/much/few/little` используется отдельная модель с `so`.
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`So` усиливает прилагательное или наречие. `Such` усиливает существительное или всю именную группу. Обе модели могут связываться с результатом через `that`.
-
-| Схема | Пример |
+| Модель | Пример |
 | --- | --- |
-| so + adj/adv | so cold, so quickly |
-| such a/an + adj + N, единственное | such a cold day |
-| such + adj + множественное/неисчисляемое | such kind people, such bad weather |
+| so + прилагательное/наречие | so cold / so quickly |
+| such + a/an + прилагательное (если нужно) + исчисляемое существительное в единственном числе | such a cold day |
+| such + прилагательное (если нужно) + существительное во множественном числе или неисчисляемое | such kind people / such bad weather |
 | so many/few + множественное | so many questions |
 | so much/little + неисчисляемое | so little time |
-| so/such…that + результат | so tired that I fell asleep |
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+## Примеры
 
-1. **The story was so interesting.** — История была такой интересной.  
-   **Разбор:** после `so` только признак `interesting`, без существительного.
-2. **It was such an interesting story.** — Это была такая интересная история.  
-   **Разбор:** теперь есть `story`; выбираем `such an + прилагательное + существительное`.
-3. **We had such bad weather that we stayed indoors.** — Погода была такой плохой, что мы остались дома.  
-   **Разбор:** `weather` неисчисляемое, поэтому нет `a`; `that` вводит результат.
-4. **I had so much work that I missed lunch.** — Работы было так много, что я пропустил обед.  
-   **Разбор:** перед `much work` ставим `so`, несмотря на наличие существительного.
-<!-- beginner-examples:end -->
+- **I was so tired that I fell asleep.** — Я так устал, что уснул.
+- **It was such a good book that I read it twice.** — Книга была такой хорошей, что прочитал дважды.
 
-## Дополнительные примеры
-
-- **She's such a talented singer.** — Она такая талантливая певица.
-- **She spoke so quietly that I couldn't hear.** — Она говорила так тихо, что я не слышал.
-- **There were so many people that we left.** — Людей было так много, что мы ушли.
-
-> [!warning] Частая ошибка
-> **Such a good idea**, а не *so good idea*. Перед сравнительной формой: **so much better**.
-
-> [!tip] Дальше по теме
-> [[126 - Инверсия после отрицательных слов — Never have I|Инверсия после отрицательных слов — Never have I]]
+> [!warning] Не теряй артикль
+> **Such an interesting idea**, а не *such interesting idea*.
 
 ## Проверь себя
 
@@ -78,10 +48,8 @@ tags:
 > 5. **It was such a good film.** — есть существительное → `such a`.
 > 6. **I've never seen such a beautiful view.** — исчисляемое в единственном числе требует `a`.
 
-## Источники
-
-- [British Council — Intensifiers: 'so' and 'such'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/intensifiers-so-such)
+> [!info]- Источники
+> - [British Council — Intensifiers: 'so' and 'such'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/intensifiers-so-such)
 
 ---
-
 [[096 - Too и enough — слишком и достаточно|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[098 - Наречия — форма и место в предложении|Следующая тема →]]

@@ -1,6 +1,8 @@
 ---
 level: A1
 order: 20
+prerequisites: 3
+keywords: команда просьба запрет imperative
 tags:
   - english/grammar
   - english/A1
@@ -9,53 +11,22 @@ tags:
 # Повелительное наклонение и let's
 
 > [!abstract] Коротко
-> - Команда или просьба = начальная форма глагола без подлежащего: `Open the door.`
-> - Запрет: `Don't + V` — `Don't touch it.` Давай(те) вместе: `Let's + V`, не будем: `Let's not + V`.
-> - `Please` смягчает просьбу, но очень вежливо — вопросом: `Could you…?`
+> Команда или инструкция начинается с **начальной формы глагола**. Подлежащее `you` обычно не нужно.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+- Просьба: **Please + глагол** или `please` в конце.
+- Запрет: **Don't + глагол**.
+- Предложение сделать вместе: **Let's + глагол**.
+- Предложение не делать: **Let's not + глагол**.
 
-Повелительная форма — это инструкция, просьба или приглашение: «Открой», «Посмотри», «Давай начнём». Адресат понятен: человек, с которым говорят. Поэтому обычное `you` перед глаголом чаще опускают.
+## Примеры
 
-Начни с начальной формы глагола: `Open`. Для запрета поставь `Don't`: `Don't open`. Для предложения сделать что-то вместе используй `Let's` = `let us`: `Let's go`. `Please` делает просьбу мягче, но тон и ситуация тоже важны; вежливые вопросы разобраны в теме просьб.
+- **Open the window, please.** — Открой окно, пожалуйста.
+- **Don't be late.** — Не опаздывай. С `be` здесь тоже нужен `don't`.
+- **Let's go home.** — Пойдём домой.
+- **Let's not argue.** — Давай не спорить.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Для команды, инструкции или приглашения используй начальную форму глагола без подлежащего. Обычно подразумевается `you`. `Please` делает просьбу вежливее, но тон тоже важен.
-
-## Схемы
-
-- `V…` — сделай: **Open the window.**
-- `Don't + V…` — не делай: **Don't touch it.**
-- `Be + характеристика` / `Don't be…` — **Be careful.**
-- `Let's + V…` — давай/давайте вместе.
-- `Let's not + V…` — давай/давайте не будем.
-
-Для более мягкой просьбы часто лучше вопрос: `Could you open the window, please?` — см. [[051 - Разрешение и вежливые просьбы|Разрешение и вежливые просьбы]].
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **Turn left at the lights.** — Поверни налево у светофора.  
-   **Разбор:** инструкция начинается сразу с `turn`; подразумевается «ты/вы».
-2. **Please be quiet.** — Пожалуйста, потише.  
-   **Разбор:** даже для состояния в команде нужна начальная форма `be`, а не `are`.
-3. **Don't touch the screen.** — Не трогай экран.  
-   **Разбор:** отрицательная команда строится как `don't + V` независимо от числа адресатов.
-4. **Let's not hurry.** — Давай не будем спешить.  
-   **Разбор:** действие относится и к говорящему, и к собеседнику. Отрицание после `let's` — `not`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **Please take a seat.** — Пожалуйста, садитесь.
-- **Don't be late.** — Не опаздывай.
-- **Let's meet after lunch.** — Давай встретимся после обеда.
-
-> [!warning] Частая ошибка
-> **Let's go**, а не *Let's to go*. Апостроф обязателен: **let's** = `let us`.
+> [!warning] Без to
+> **Let's go**, а не *let's to go*. Вежливую просьбу незнакомому человеку часто лучше оформить вопросом: **Could you help me?**
 
 ## Проверь себя
 
@@ -64,23 +35,21 @@ tags:
 1. Переведи: «Не опаздывай!»
 2. Переведи: «Давай пойдём в кино».
 3. Переведи: «Давайте не будем спорить».
-4. Исправь ошибку: *Be not afraid!*
+4. Скажи в обычном разговорном стиле: *Be not afraid!*
 5. Исправь ошибку: *Let's to start.*
-6. Исправь ошибку: *You sit down, please.* (вежливая просьба)
+6. Сделай просьбу без явного подлежащего: *You sit down, please.*
 
 > [!success]- Ответы и пояснения
 > 1. **Don't be late!** — запрет с `be` тоже строится через `don't`.
 > 2. **Let's go to the cinema.** — `let's` + начальная форма, без `to`.
 > 3. **Let's not argue.** — отрицание после `let's` — просто `not`.
-> 4. **Don't be afraid!** — запрет строится через `don't`.
+> 4. **Don't be afraid!** — обычная разговорная форма. `Be not afraid` возможно в торжественном или архаичном стиле.
 > 5. **Let's start.** — после `let's` — глагол без `to`.
 > 6. **Sit down, please. / Please sit down.** — в повелительном предложении `you` обычно не ставят.
 
-## Источники
-
-- [British Council — Personal pronouns](https://learnenglish.britishcouncil.org/grammar/english-grammar-reference/personal-pronouns)
-- [Cambridge Dictionary — Infinitives with and without to](https://dictionary.cambridge.org/grammar/british-grammar/infinitives)
+> [!info]- Источники
+> - [British Council — Personal pronouns](https://learnenglish.britishcouncil.org/grammar/english-grammar-reference/personal-pronouns)
+> - [Cambridge Dictionary — Infinitives with and without to](https://dictionary.cambridge.org/grammar/british-grammar/infinitives)
 
 ---
-
 [[019 - Отрицательные предложения|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[021 - Сокращения — I'm, don't, 's и 'd|Следующая тема →]]

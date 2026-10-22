@@ -113,8 +113,9 @@ class NavigationUiTest {
         val c = (context.applicationContext as AlbionApp).container
         c.importer.importIfNeeded()
         val topic = c.grammar.book().lessons.first { it.number == 142 }
-        // Эта тема в исходном наборе без интерактивных заданий; добавляем два только на время теста.
-        assertTrue(c.study.topicPool(142).isEmpty())
+        // В курсе есть настоящий банк темы; на время сценария используем два детерминированных задания.
+        val bundledTasks = c.database.grammarTasks().topicPool(142)
+        assertTrue(bundledTasks.size >= 12)
         val previous = c.database.grammar().get(topic.id)
         val lastTopic = c.settings.settings.first().lastGrammarTopic
         val tasks = (1..2).map { n ->
@@ -122,6 +123,7 @@ class NavigationUiTest {
                 "Review check $n: ___ runs.", "He\nThey\nI", "He", "He takes a singular verb.")
         }
         try {
+            c.database.grammarTasks().delete(bundledTasks.map { it.id })
             c.database.grammarTasks().upsert(tasks)
             GrammarRepository(context.assets, c.database, now = { System.currentTimeMillis() - 2 * 86_400_000L })
                 .recordQuiz(topic.id, GrammarQuizResult(2, 2, true))
@@ -160,6 +162,7 @@ class NavigationUiTest {
             }
         } finally {
             c.database.grammarTasks().delete(tasks.map { it.id })
+            c.database.grammarTasks().upsert(bundledTasks)
             tasks.forEach { task -> c.database.openHelper.writableDatabase.execSQL("DELETE FROM grammar_task_stats WHERE task_id = ?", arrayOf(task.id)) }
             if (previous != null) c.database.grammar().upsert(previous)
             else c.database.openHelper.writableDatabase.execSQL("DELETE FROM grammar_progress WHERE topic_id = ?", arrayOf(topic.id))

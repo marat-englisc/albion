@@ -1,6 +1,8 @@
 ---
 level: A1
 order: 10
+prerequisites: 3
+keywords: этот тот эти те, demonstratives
 tags:
   - english/grammar
   - english/A1
@@ -9,50 +11,23 @@ tags:
 # This, that, these, those
 
 > [!abstract] Коротко
-> - Близко: `this` (один) / `these` (несколько). Далеко: `that` (один) / `those` (несколько).
-> - Слово может стоять перед существительным (`this book`) или вместо него (`I like this`).
-> - Согласуй число: `this is`, но `these are`.
+> **This / these** — это рядом. **That / those** — то дальше.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+| Один | Несколько |
+| --- | --- |
+| this book — эта книга | these books — эти книги |
+| that book — та книга | those books — те книги |
 
-Эти слова работают как указательный жест: «вот этот» или «вон тот». Нужно сделать два выбора: предмет близко или далеко, и предмет один или их несколько. Близость может быть не только физической: `this idea` — идея, которую сейчас обсуждаем.
+Слова могут стоять перед существительным или заменять его. Когда эти слова сами являются подлежащим, с `this/that` в настоящем времени используют **is**, с `these/those` — **are**. Выбор числа сохраняется и перед существительным: **this book is**, **these books are**.
 
-Один рядом → `this`, несколько рядом → `these`. Один дальше → `that`, несколько дальше → `those`. Слово может стоять перед существительным (`this book`) или вместо него (`I like this`). Согласуй и глагол: `this is`, но `these are`.
+## Примеры
 
-## Правило и схема
-<!-- beginner-intro:end -->
+- **This is my brother.** — Это мой брат: представляю человека.
+- **Are those your keys?** — Те ключи твои?
+- **That was a good idea.** — Это была хорошая мысль: отсылаю к уже сказанному.
 
-Указательные слова помогают выделить предмет по близости: в пространстве, времени или разговоре.
-
-| | Ближе к говорящему | Дальше от говорящего |
-| --- | --- | --- |
-| Единственное / неисчисляемое | this | that |
-| Множественное | these | those |
-
-Слово может стоять перед существительным (`this book`) или самостоятельно (`This is mine`). Временная близость: `this week` — текущая неделя; `those days` — те дни.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **This cup is hot.** — Эта чашка горячая.  
-   **Разбор:** одна чашка рядом с говорящим → `this`; один предмет → `is`.
-2. **These cups are clean.** — Эти чашки чистые.  
-   **Разбор:** чашек несколько и они рядом → `these` и `are`.
-3. **Who is that man over there?** — Кто тот мужчина вон там?  
-   **Разбор:** `over there` подчёркивает расстояние. Для одного человека выбираем `that`.
-4. **I like those.** — Мне нравятся вон те.  
-   **Разбор:** предметы видны из ситуации, поэтому их название можно опустить. `Those` самостоятельно заменяет несколько предметов.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **This coffee is too strong.** — Этот кофе слишком крепкий.
-- **Those houses are old.** — Те дома старые.
-- **Are these your keys?** — Это твои ключи?
-
-> [!warning] Частая ошибка
-> Число должно совпадать: **these books are**, а не *this books is*. Не ставь артикль рядом: **that house**, а не *the that house*.
+> [!warning] Согласуй число
+> **These books**, а не *this books*.
 
 ## Проверь себя
 
@@ -71,12 +46,10 @@ tags:
 > 3. **are** — `those` — множественное число.
 > 4. **These apples are sweet.** — яблок несколько → `these`.
 > 5. **I don't like that colour.** — `that` уже указывает предмет, артикль рядом не ставим.
-> 6. **Those days were difficult.** — прошедший период мысленно «далеко» → `those`.
+> 6. **These days were difficult. / Those days were difficult.** — выбор `these/those` зависит от того, насколько близким говорящий представляет период; прошлое время само не запрещает `these`.
 
-## Источники
-
-- [Cambridge Dictionary — Determiners ( the, my, some, this )](https://dictionary.cambridge.org/grammar/british-grammar/determiners-the-my-some-this.)
+> [!info]- Источники
+> - [Cambridge Dictionary — Determiners ( the, my, some, this )](https://dictionary.cambridge.org/grammar/british-grammar/determiners-the-my-some-this.)
 
 ---
-
 [[009 - Притяжательные слова — my и mine|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[011 - Числительные, даты и единицы количества|Следующая тема →]]

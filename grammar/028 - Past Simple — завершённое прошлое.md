@@ -1,6 +1,8 @@
 ---
 level: A1
 order: 28
+prerequisites: 16, 22
+keywords: прошедшее простое past simple
 tags:
   - english/grammar
   - english/A1
@@ -9,51 +11,21 @@ tags:
 # Past Simple — завершённое прошлое
 
 > [!abstract] Коротко
-> - Past Simple — **законченное** событие в прошлом: `yesterday, last week, in 2020, ago`.
-> - Утверждение: `V2` (`worked`, `went`). Вопрос/отрицание: `did/didn't + V` — `Did you go?`, `I didn't go`.
-> - `did` уже показывает прошлое, поэтому глагол после него в начальной форме.
+> Past Simple — **событие, состояние или привычка в завершённом прошлом**. Когда именно — сказано или понятно из разговора.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+- Утверждение: **подлежащее + вторая форма глагола**. У правильного глагола добавляется `-ed`: **worked**; у неправильного используется особая форма: **go → went**.
+- Отрицание: **didn't + начальная форма**.
+- Вопрос: **Did + подлежащее + начальная форма?**
 
-Past Simple рассказывает о событии как о части **законченного прошлого**. Это может быть вчерашний разговор, год жизни в другом городе или давняя привычка. Главное — мы мысленно помещаем ситуацию в прошлый период, а не рассматриваем результат из сегодняшнего дня.
+## Примеры
 
-В утверждении поставь вторую форму: `worked`, `went`. В вопросе и отрицании прошлое показывает `did/didn't`, поэтому действие возвращается к начальной форме. Окончание `-ed` не ставится на каждый глагол: у неправильных форм есть отдельный список.
+- **We saw a film last night.** — Вчера вечером мы посмотрели фильм. `See → saw`.
+- **She didn't call.** — Она не позвонила.
+- **Did they move in 2019?** — Они переехали в 2019 году?
+- **I opened the door, went in and sat down.** — Открыл дверь, вошёл и сел: последовательность событий.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Past Simple описывает событие, состояние или привычку в завершённом прошлом. Время может быть названо (`yesterday`, `in 2020`) или понятно из контекста.
-
-## Схема
-
-- Утверждение: `S + V2` — правильное `-ed` или неправильная форма.
-- Отрицание: `S + didn't + V`.
-- Вопрос: `Did + S + V?`
-
-В повествовании последовательные Past Simple обычно показывают порядок событий: `I opened the door, went in and sat down`. Форма основного глагола одинакова для всех лиц; исключение `be`: [[029 - To be в прошлом — was и were|To be в прошлом — was и were]].
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **I cleaned the kitchen yesterday.** — Вчера я убрал кухню.  
-   **Разбор:** вчера — законченный период. Правильный `clean` получает `-ed`.
-2. **She bought a new bag last week.** — На прошлой неделе она купила новую сумку.  
-   **Разбор:** `buy → bought` — неправильная вторая форма; `buyed` не используется.
-3. **We didn't go out.** — Мы никуда не выходили.  
-   **Разбор:** прошедшее время уже выражено через `didn't`; дальше `go`, не `went`.
-4. **Did he call you?** — Он тебе позвонил?  
-   **Разбор:** перед человеком стоит `did`, после него начальная форма `call`; окончание `-ed` убираем.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **We visited York last summer.** — Мы посетили Йорк прошлым летом.
-- **She didn't hear the phone.** — Она не услышала телефон.
-- **When did you leave?** — Когда ты ушёл?
-
-> [!warning] Частая ошибка
-> **Did you see him?**, а не *Did you saw him?* Завершённое время вроде **last week** обычно не сочетается с Present Perfect: [[034 - Present Perfect или Past Simple|Present Perfect или Past Simple]].
+> [!warning] После did — начальная форма
+> **Did you go?**, а не *Did you went?* У `be` отдельные формы **was/were**.
 
 ## Проверь себя
 
@@ -74,10 +46,8 @@ Past Simple описывает событие, состояние или при�
 > 5. **Did you go to school?** — после `did` — `go`.
 > 6. **I bought it two years ago.** — законченное прошлое с `ago`; `buy → bought`.
 
-## Источники
-
-- [British Council — Past continuous and past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/past-continuous-past-simple)
+> [!info]- Источники
+> - [British Council — Past continuous and past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/past-continuous-past-simple)
 
 ---
-
 [[027 - Present Simple или Present Continuous|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[029 - To be в прошлом — was и were|Следующая тема →]]

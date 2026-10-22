@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 80
+prerequisites: 77, 67
+keywords:
 tags:
   - english/grammar
   - english/B2
@@ -9,54 +11,19 @@ tags:
 # Инфинитив без to — make, let, help и восприятие
 
 > [!abstract] Коротко
-> - Без `to`: `make + кого + V` (заставить), `let + кого + V` (позволить), `help + кого + (to) V`.
-> - Восприятие: `see/hear + кого + V` (целиком) или `V-ing` (процесс): `I saw him leave / leaving`.
-> - В пассиве `to` появляется: `We were made to wait`. Вместо пассива `let` — `be allowed to`.
+> После **make/let + кого** нужен глагол **без to**. После `help` возможны оба варианта.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+## Примеры
 
-`To` — частый спутник инфинитива, но не обязательная часть каждой модели. После `make` и `let` второй глагол стоит без `to`: `let me go`. После `help` допустимы оба варианта.
+- **They made us wait.** — Нас заставили ждать.
+- **Let me help.** — Позволь помочь.
+- **She helped me (to) carry the bags.** — Она помогла нести сумки.
+- **I saw him cross the road. / I saw him crossing the road.** — Видел переход целиком. / Видел в процессе.
 
-У глаголов восприятия сравни целое событие и видимый фрагмент: `saw him leave` — увидел уход как событие; `saw him leaving` — застал процесс. В пассиве шаблон может меняться: `made us wait` → `we were made to wait`.
+Так различают формы после **see, hear, watch, notice**: начальная форма — событие целиком, `-ing` — процесс.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Инфинитив не всегда содержит `to`. После основных модальных глаголов и некоторых глагольных моделей используем начальную форму без него.
-
-| Модель | Значение |
-| --- | --- |
-| make + O + V | заставить |
-| let + O + V | позволить |
-| help + O + (to) V | помочь; оба варианта |
-| see/hear/watch/notice + O + V | воспринять событие целиком |
-| see/hear/watch/notice + O + V-ing | наблюдать процесс |
-
-В пассиве `make` получает `to`: `We were made to wait`. Вместо пассива с `let` обычно используем `be allowed to`. После `see/hear` в пассивной инфинитивной модели тоже появляется `to`: `He was seen to leave`.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **Let me help you.** — Позволь мне помочь тебе.  
-   **Разбор:** после `let + me` сразу `help`, без `to`.
-2. **The noise made me wake up.** — Шум заставил меня проснуться.  
-   **Разбор:** `make + someone + V`; второй глагол без `to`.
-3. **We were made to wait.** — Нас заставили ждать.  
-   **Разбор:** это пассивная версия `make`; здесь `to` появляется.
-4. **I heard her singing.** — Я слышал, как она пела.  
-   **Разбор:** `singing` подчёркивает процесс, который я слышал, без утверждения о всей песне от начала до конца.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **They made us wait outside.** — Они заставили нас ждать снаружи.
-- **Let me explain.** — Позволь мне объяснить.
-- **I saw her cross the road.** — Я видел, как она перешла дорогу.
-- **I saw her crossing the road.** — Я видел её в процессе перехода дороги.
-
-> [!warning] Частая ошибка
-> **Make him do**, но **allow him to do**. Выбор зависит от модели глагола.
+> [!warning] В пассиве после make и see появляется to
+> **We were made to wait. He was seen to leave.** Для разрешения обычно **We were allowed to leave**, без пассива с `let`.
 
 ## Проверь себя
 
@@ -70,17 +37,15 @@ tags:
 6. Выбери: I heard someone (call / to call) my name.
 
 > [!success]- Ответы и пояснения
-> 1. **clean** — `make + кого + V` без `to`.
-> 2. **explain** — `let + кого + V`.
+> 1. **clean** — `make + кого + начальная форма` без `to`.
+> 2. **explain** — `let + кого + начальная форма`.
 > 3. **to wait** — в пассиве после `make` нужно `to`.
-> 4. **We were allowed to use the pool.** — у `let` нет обычного пассива.
+> 4. **We were allowed to use the pool.** — разрешение в пассиве обычно передают через `be allowed to`.
 > 5. **She made him apologise.** — в активной модели без `to`.
 > 6. **call** — после `hear + кого` — инфинитив без `to`.
 
-## Источники
-
-- [Cambridge Dictionary — Infinitives with and without to](https://dictionary.cambridge.org/grammar/british-grammar/infinitives)
+> [!info]- Источники
+> - [Cambridge Dictionary — Infinitives with and without to](https://dictionary.cambridge.org/grammar/british-grammar/infinitives)
 
 ---
-
 [[079 - Инфинитив или -ing со сменой смысла|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[081 - Цель — to, in order to, so that|Следующая тема →]]

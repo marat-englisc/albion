@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 81
+prerequisites: 76
+keywords:
 tags:
   - english/grammar
   - english/A2
@@ -9,52 +11,23 @@ tags:
 # Цель — to, in order to, so that
 
 > [!abstract] Коротко
-> - Цель «зачем?» = `to + V`: `I went out to buy milk`.
-> - Формальнее: `in order to`, `so as to`. Отрицательная цель: `in order not to / so as not to`.
-> - Другой исполнитель или модальность → `so that + S + can/could/will/would`: `so that you can find us`.
+> Чтобы сказать **зачем**, обычно достаточно **to + глагол**: **I called to ask**.
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-Цель отвечает на вопрос **«зачем?»**, а не «почему так получилось?». «Пошёл в магазин купить хлеб» → цель похода. Если оба действия выполняет один человек, английский обычно использует простой `to + V`.
-
-Если у цели другой исполнитель, удобнее целая часть `so that + человек + глагол`. Для отрицательной цели безопасная ясная модель — `in order not to`. `For + -ing` чаще объясняет функцию предмета, а не личную цель конкретного похода.
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Чтобы объяснить, **зачем** совершается действие, используй инфинитив цели. Он обычно относится к тому же исполнителю, что и главное действие. `So that` удобно, если нужно явно назвать другого исполнителя или выразить возможность.
-
-| Форма | Схема |
+| Модель | Когда нужна |
 | --- | --- |
-| Нейтральная цель | to + V |
-| Более явная / официальная | in order to / so as to + V |
-| Отрицательная цель | in order not to / so as not to + V |
-| Целое придаточное | so that + S + can/could/will/would… |
+| to do | нейтральная цель |
+| in order to / so as to do | явная или более формальная цель |
+| in order not to / so as not to do | отрицательная цель |
+| so that + подлежащее + сказуемое | цель в виде отдельного предложения; часто с can/could, will/would |
 
-`For + N` показывает назначение: `a bag for books`. `For + V-ing` часто описывает функцию предмета: `a tool for cutting glass`.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **I went out to buy milk.** — Вышел купить молока: делаю оба действия сам.
+- **I spoke slowly so that everyone could understand.** — Говорил медленно, чтобы все могли понять.
+- **A tool for cutting glass.** — Инструмент для резки стекла: функция предмета.
 
-1. **I called to ask a question.** — Я позвонил, чтобы задать вопрос.  
-   **Разбор:** звоню и спрашиваю я; цель вводится через `to ask`.
-2. **She left early in order not to be late.** — Она вышла рано, чтобы не опоздать.  
-   **Разбор:** отрицательная цель: `not` перед `to be`.
-3. **I'll write it down so that you can remember it.** — Я это запишу, чтобы ты мог запомнить.  
-   **Разбор:** записываю я, запоминаешь ты; после `so that` можно назвать другого исполнителя.
-4. **This knife is for cutting bread.** — Этот нож предназначен для нарезки хлеба.  
-   **Разбор:** описываем функцию предмета, поэтому `for + cutting`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I went out to buy milk.** — Я вышел, чтобы купить молоко.
-- **She whispered so as not to wake the baby.** — Она шептала, чтобы не разбудить ребёнка.
-- **I'll send a map so that you can find us.** — Я пришлю карту, чтобы вы смогли нас найти.
-
-> [!warning] Частая ошибка
-> **I came to help**, а не *I came for help you*.
+> [!warning] Цель человека и функция вещи
+> **I went to buy bread**, а не *I went for buying bread*. **For + существительное** подходит: **a bag for books**.
 
 ## Проверь себя
 
@@ -68,18 +41,16 @@ tags:
 6. Исправь ошибку: *He works hard for to earn money.*
 
 > [!success]- Ответы и пояснения
-> 1. **I came to help.** — цель — `to + V`.
-> 2. **She whispered so as not to wake / in order not to wake the baby.** — отрицательная цель → `so as not to`.
+> 1. **I came to help.** — цель — `to + начальная форма`.
+> 2. **She whispered so as not to wake the baby. / She whispered in order not to wake the baby.** — отрицательная цель → `so as not to`.
 > 3. **I'll write it down so that you won't forget. / …so that you don't forget.** — разные исполнители → `so that`.
-> 4. **for** — функция предмета → `for + V-ing`.
-> 5. **I went to the shop to buy bread.** — цель действия — `to + V`.
+> 4. **for** — функция предмета → `for + глагол с -ing`.
+> 5. **I went to the shop to buy bread.** — цель действия — `to + начальная форма`.
 > 6. **He works hard to earn money.** — `for to` не используется.
 
-## Источники
-
-- [British Council — Infinitive of purpose](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/infinitive-purpose)
-- [Cambridge Dictionary — Conjunctions: causes, reasons, results and purpose](https://dictionary.cambridge.org/grammar/british-grammar/conjunctions-causes-reasons-results-and-purpose)
+> [!info]- Источники
+> - [British Council — Infinitive of purpose](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/infinitive-purpose)
+> - [Cambridge Dictionary — Conjunctions: causes, reasons, results and purpose](https://dictionary.cambridge.org/grammar/british-grammar/conjunctions-causes-reasons-results-and-purpose)
 
 ---
-
 [[080 - Инфинитив без to — make, let, help и восприятие|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[082 - Пассивный инфинитив и герундий|Следующая тема →]]

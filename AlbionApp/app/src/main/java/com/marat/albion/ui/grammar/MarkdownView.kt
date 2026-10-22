@@ -129,10 +129,10 @@ fun MdBlocks(blocks: List<MdBlock>, modifier: Modifier = Modifier, spacing: Dp =
 private fun Heading(h: MdHeading, modifier: Modifier) {
     val scale = LocalMdEnv.current.scale
     when (h.level) {
-        1, 2 -> Column(modifier.padding(top = 22.dp, bottom = 2.dp)) {
+        1, 2 -> Column(modifier.padding(top = 14.dp, bottom = 2.dp)) {
             Box(Modifier.width(24.dp).height(1.dp).background(Ink.Fg))
             Spacer(Modifier.height(14.dp))
-            InlineText(h.text, style = TextStyle(fontFamily = Serif, fontSize = 25.sp * scale, lineHeight = 31.sp * scale, color = Ink.Fg, letterSpacing = (-0.3).sp))
+            InlineText(h.text, style = TextStyle(fontFamily = Serif, fontSize = 22.sp * scale, lineHeight = 28.sp * scale, color = Ink.Fg, letterSpacing = (-0.3).sp))
         }
         3 -> InlineText(h.text.uppercase(), modifier.padding(top = 10.dp), style = AlbionType.eyebrow.copy(color = Ink.Soft, fontSize = 13.sp * scale))
         else -> InlineText(h.text, modifier.padding(top = 4.dp), style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp * scale, color = Ink.Fg))

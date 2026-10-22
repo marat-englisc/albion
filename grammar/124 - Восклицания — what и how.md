@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 124
+prerequisites: 89, 12
+keywords:
 tags:
   - english/grammar
   - english/A2
@@ -9,51 +11,23 @@ tags:
 # Восклицания — what и how
 
 > [!abstract] Коротко
-> - `What + (a/an) + adj + N!` — `What a nice day!`, `What lovely flowers!`, `What awful weather!`
-> - `How + adj/adv!` — `How nice!`, `How quickly she runs!`
-> - Порядок после — как в утверждении: `How kind you are!` (не *are you*).
+> В восклицании **What + предмет**, **How + признак или способ действия**.
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-Восклицание усиливает впечатление: «Как красиво!» или «Какой красивый дом!». Выбор зависит от того, **называешь ли ты предмет**. `What` сопровождает группу с существительным, `how` — сам признак или способ действия.
-
-С одним исчисляемым предметом после `what` нужен `a/an`: `What a day!`. С множественным или неисчисляемым названием его нет. В полной конструкции сохраняй порядок утверждения: `How kind you are!`, а не вопросительный `are you`.
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Восклицательная конструкция усиливает впечатление: «какой…!», «как…!». `What` относится к именной группе, `how` — к прилагательному или наречию.
-
-| Схема | Пример |
+| Модель | Пример |
 | --- | --- |
-| What + a/an + adj + N, единственное | What a beautiful day! |
-| What + adj + N, множественное/неисчисляемое | What lovely flowers! |
-| How + adj/adv + (S + глагол) | How quickly she runs! |
+| What + a/an + прилагательное (если нужно) + исчисляемое существительное в единственном числе | What a beautiful day! |
+| What + множественное/неисчисляемое | What lovely flowers! What bad weather! |
+| How + прилагательное | How beautiful! |
+| How + наречие + подлежащее + сказуемое | How quickly she runs! |
 
-В полной конструкции порядок обычно как в утверждении: `What a good idea it is!`, не вопросительная инверсия. Короткая форма без подлежащего и глагола особенно часта в речи.
+## Примеры
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+- **What an interesting idea!** — Какая интересная мысль!
+- **How kind of you!** — Как мило с твоей стороны!
+- **What a good idea it is!** — Какая это хорошая мысль: в полной конструкции порядок утверждения.
 
-1. **What a lovely garden!** — Какой чудесный сад!  
-   **Разбор:** назван один исчисляемый предмет `garden`, поэтому `what a`.
-2. **What beautiful flowers!** — Какие красивые цветы!  
-   **Разбор:** цветы во множественном числе; `a/an` не ставится.
-3. **What terrible weather!** — Какая ужасная погода!  
-   **Разбор:** `weather` неисчисляемое, поэтому тоже без `a/an`, хотя по-русски «какая».
-4. **How quickly you finished!** — Как быстро ты закончил!  
-   **Разбор:** усиливаем способ действия `quickly`; дальше порядок утверждения `you finished`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **What an amazing view!** — Какой потрясающий вид!
-- **What interesting people!** — Какие интересные люди!
-- **How kind you are!** — Как ты добр!
-
-> [!warning] Частая ошибка
-> **What a surprise!**, но **What good news!**: неисчисляемое `news` не получает `a/an`.
+> [!warning] Не вопросительная инверсия
+> **How fast he runs!**, а не *How fast does he run!* для этого восклицания.
 
 ## Проверь себя
 
@@ -74,10 +48,8 @@ tags:
 > 5. **What good news!** — `news` неисчисляемое.
 > 6. **How tall he is!** — в восклицании порядок утверждения.
 
-## Источники
-
-- [Cambridge Dictionary — Exclamations](https://dictionary.cambridge.org/us/grammar/british-grammar/exclamations)
+> [!info]- Источники
+> - [Cambridge Dictionary — Exclamations](https://dictionary.cambridge.org/us/grammar/british-grammar/exclamations)
 
 ---
-
 [[123 - Заглавные буквы, апостроф и пунктуация|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[125 - Британская и американская грамматика|Следующая тема →]]

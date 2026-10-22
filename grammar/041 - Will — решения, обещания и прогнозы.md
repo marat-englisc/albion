@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 41
+prerequisites: 22
+keywords: будущее future will
 tags:
   - english/grammar
   - english/A2
@@ -9,54 +11,19 @@ tags:
 # Will — решения, обещания и прогнозы
 
 > [!abstract] Коротко
-> - `will + V` — решение **в момент речи**, обещание, предложение помощи, прогноз-мнение.
-> - После `will` — начальная форма без `to` и без `-s`: `She will come`. Отрицание `won't`.
-> - Для предложения помощи и совместного действия в британском английском: `Shall I…? / Shall we…?`
+> **Will** часто используют для решения, принятого в момент разговора, обещания, предложения помощи или прогноза на основе мнения.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+Схема утверждения: **подлежащее + will + начальная форма глагола без to**. Отрицание: **подлежащее + will not + начальная форма**. Сокращения: **'ll = will**, **won't = will not**. Вопрос: **Will you help?**
 
-`Will` — один из способов говорить о будущем. Он часто нужен, когда решение появляется **во время разговора**, когда обещаем помощь или делаем прогноз. Для заранее подготовленного плана английский часто выбирает другую конструкцию.
+## Примеры
 
-После `will` всегда начальная форма без `to`: `will help`, даже с `he/she`. Отрицание — `will not`, обычно `won't`. Вопрос начинается с `will`. Сокращение `'ll` удобно в речи: `I'll`, `she'll`. Слово `will` не нужно добавлять ко всем предложениям о будущем.
+- **The phone's ringing. I'll answer it.** — Телефон звонит. Я отвечу: решил сейчас.
+- **I'll help you tomorrow.** — Я помогу тебе завтра: обещание.
+- **I think it will rain.** — Думаю, будет дождь: прогноз.
+- **Shall we go?** — Пойдём? В BrE `Shall I/we…?` часто используют для предложений.
 
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`Will` используется для решения в момент речи, обещания, предложения помощи и прогноза. Не всякое будущее автоматически выражается через `will`.
-
-## Схема
-
-- `S + will + V`; сокращённо `'ll`.
-- `S + won't + V`.
-- `Will + S + V?`
-
-Прогноз часто выражает мнение: `I think it will be useful`. `Won't` также может означать отказ: `The door won't open` — дверь никак не открывается. `Shall I…? / Shall we…?` употребляется для предложения помощи или совместного действия, особенно в британском английском.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **The phone is ringing. I'll answer it.** — Телефон звонит. Я отвечу.  
-   **Разбор:** решение принято прямо сейчас в ответ на ситуацию.
-2. **I think you'll enjoy this book.** — Думаю, тебе понравится эта книга.  
-   **Разбор:** это прогноз или мнение говорящего о будущем.
-3. **I won't forget your birthday.** — Я не забуду твой день рождения.  
-   **Разбор:** `won't` = `will not`; здесь отрицательное обещание.
-4. **Will you help me with this box?** — Поможешь мне с этой коробкой?  
-   **Разбор:** вопрос с `will` может быть просьбой; дальше `help`, без `to` и окончаний.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I'll carry that bag for you.** — Я понесу твою сумку.
-- **I won't tell anyone.** — Я никому не скажу.
-- **Do you think they'll agree?** — Думаешь, они согласятся?
-
-> [!warning] Частая ошибка
-> После **will** нет `to` и `-s`: **She will come**, а не *will to come* или *will comes*.
-
-> [!tip] Дальше по теме
-> [[132 - Be to и формальные способы о будущем — be due to, be set to|Be to и формальные способы о будущем — be due to, be set to]]
+> [!warning] Будущее — не всегда will
+> Заранее принятое намерение часто передаёт **going to**, договорённость — Present Continuous. **The door won't open** может означать «дверь никак не открывается».
 
 ## Проверь себя
 
@@ -77,11 +44,9 @@ tags:
 > 5. **She will call you later.** — после `will` нет `to`.
 > 6. **He will come tomorrow.** — после `will` нет `-s`.
 
-## Источники
-
-- [British Council — Future forms: 'will', 'be going to' and present continuous](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous)
-- [Cambridge Dictionary — Future](https://dictionary.cambridge.org/grammar/british-grammar/future)
+> [!info]- Источники
+> - [British Council — Future forms: 'will', 'be going to' and present continuous](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous)
+> - [Cambridge Dictionary — Future](https://dictionary.cambridge.org/grammar/british-grammar/future)
 
 ---
-
 [[040 - Повествовательные времена — как рассказать историю|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[042 - Be going to — намерения и видимые признаки|Следующая тема →]]

@@ -86,8 +86,8 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String
 
 /** Шапка вкладки: крупный антиквенный заголовок и подзаголовок. */
 @Composable
-fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, trailing: @Composable (() -> Unit)? = null) {
-    Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier).padding(top = 28.dp, bottom = 8.dp)) {
+fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, compact: Boolean = false, trailing: @Composable (() -> Unit)? = null) {
+    Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier).padding(top = if (compact) 12.dp else 28.dp, bottom = 8.dp)) {
         if (eyebrow != null || trailing != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {
@@ -97,7 +97,7 @@ fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = nul
             }
             Spacer(Modifier.height(10.dp))
         }
-        Text(title, style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
+        Text(title, style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displaySmall, color = Ink.Fg)
         if (subtitle != null) {
             Spacer(Modifier.height(6.dp))
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)

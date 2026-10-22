@@ -1,6 +1,8 @@
 ---
 level: A2
 order: 35
+prerequisites: 33
+keywords:
 tags:
   - english/grammar
   - english/A2
@@ -9,62 +11,24 @@ tags:
 # For, since и how long
 
 > [!abstract] Коротко
-> - `for` + **длительность**: `for two hours, for ten years`.
-> - `since` + **точка начала**: `since Monday, since 2020, since I moved here`.
-> - Ситуация длится до сих пор → Present Perfect: `I've known her for years` (не *I know her for years*).
+> **For — сколько времени. Since — с какого момента. How long — как долго?**
 
-<!-- beginner-intro:start -->
-## Простыми словами
-
-`For` отвечает «как долго?»: два часа, десять лет. `Since` отвечает «с какого момента?»: с утра, с 2020 года. Это не два взаимозаменяемых перевода русского «в течение»: после них нужны разные типы информации.
-
-Нарисуй отрезок. Вся его длина — `for two years`; левая граница — `since 2024`. Если ситуация тянется до настоящего, часто используем Present Perfect. Само `for` не требует Perfect: законченная поездка тоже могла длиться `for two weeks`.
-
-### Наглядная схема
-
-`Since` называет левую границу, `for` — длину всего промежутка до сейчас.
-
-```mermaid
-flowchart LR
-    A["Начало: since Monday"] --> B["Длительность: for three days"]
-    B --> C["СЕЙЧАС: ещё продолжается"]
-```
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-`For` указывает **длительность**, `since` — **начальную точку**. Когда действие или состояние продолжается до настоящего, обычно нужен Present Perfect Simple или Continuous.
-
-| Выражение | Пример |
+| Длительность: for | Начало: since |
 | --- | --- |
-| for + период | for ten minutes, for years |
-| since + точка | since Monday, since 2022 |
-| since + событие в прошлом | since I moved here |
-| how long | How long have you lived here? |
+| for two hours | since nine o'clock |
+| for five years | since 2021 |
+| for a long time | since I moved here |
 
-`For` употребляется и в других временах: `I stayed for a week` — пребывание закончено. Состояния чаще требуют Simple (`have known`), продолжающаяся деятельность — часто Continuous (`have been studying`).
+Если ситуация длится до настоящего момента, обычно нужен Present Perfect: **have lived / have been living**. Для состояний вроде `know` обычно выбирают **Present Perfect Simple**: **have known**, а не **have been knowing**.
 
-<!-- beginner-examples:start -->
-## Примеры с разбором
+## Примеры
 
-1. **I've worked here for two years.** — Я работаю здесь два года.  
-   **Разбор:** `two years` — длительность, поэтому `for`; работа продолжается.
-2. **I've worked here since May.** — Я работаю здесь с мая.  
-   **Разбор:** май — начальная точка, поэтому `since`, а не `for`.
-3. **How long have you known her?** — Как давно ты её знаешь?  
-   **Разбор:** `how long` спрашивает длительность до настоящего; `know` обычно не используют в Continuous.
-4. **We stayed there for a week last summer.** — Прошлым летом мы пробыли там неделю.  
-   **Разбор:** `for` обозначает длительность, но период завершён; поэтому Past Simple `stayed`.
-<!-- beginner-examples:end -->
+- **I've known him since school.** — Знаю его со школы.
+- **How long have you lived here?** — Как давно ты здесь живёшь?
+- **I stayed for a week.** — Я пробыл неделю: период закончился.
 
-## Дополнительные примеры
-
-- **I've known her for ten years.** — Я знаю её десять лет.
-- **He's worked here since April.** — Он работает здесь с апреля.
-- **It's been raining since we arrived.** — Дождь идёт с тех пор, как мы приехали.
-
-> [!warning] Частая ошибка
-> **Since 2020**, но **for six years**. Не *I know her for ten years*, если состояние началось раньше и продолжается сейчас.
+> [!warning] For не означает Perfect
+> Длительность бывает в прошлом и будущем: **waited for an hour**, **will stay for a week**. Выбирай время по ситуации.
 
 ## Проверь себя
 
@@ -81,15 +45,13 @@ flowchart LR
 > 1. **since** — 2018 — точка начала.
 > 2. **for** — двадцать лет — длительность.
 > 3. **since** — прошлая пятница — точка начала.
-> 4. **How long have you lived here? / How long have you been living here?** — длительность до сейчас → Present Perfect.
+> 4. **How long have you lived here? / How long have you been living here?** — длительность до настоящего момента → Present Perfect.
 > 5. **I've known him since school.** — состояние длится до сих пор → Present Perfect.
 > 6. **We waited for two hours.** — с длительностью только `for`.
 
-## Источники
-
-- [British Council — Present perfect](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/present-perfect)
-- [Cambridge Dictionary — Present perfect continuous ( I have been working )](https://dictionary.cambridge.org/us/grammar/british-grammar/present-perfect-i-have-been)
+> [!info]- Источники
+> - [British Council — Present perfect](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/present-perfect)
+> - [Cambridge Dictionary — Present perfect continuous ( I have been working )](https://dictionary.cambridge.org/us/grammar/british-grammar/present-perfect-i-have-been)
 
 ---
-
 [[034 - Present Perfect или Past Simple|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[036 - Just, already, yet, still, ever и never|Следующая тема →]]

@@ -57,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.grammar.GrammarBook
 import com.marat.albion.data.grammar.GrammarReview
+import com.marat.albion.data.grammar.GrammarQuizSelection
 import com.marat.albion.data.db.GrammarProgressEntity
 import com.marat.albion.data.grammar.MdDocument
 import com.marat.albion.data.grammar.MdHeading
@@ -201,9 +202,10 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 40.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        item(key = "header") { TopicHeader(topic, doc!!, Modifier.reveal(reveal, 0)) }
+                        item(key = "header") { TopicHeader(topic, doc!!, Modifier.reveal(reveal, 0),
+                            book?.lessons.orEmpty().filter { it.number in topic?.prerequisites.orEmpty() }) }
                         itemsIndexed(blocks, key = { i, _ -> "b$i" }) { i, block ->
                             MdBlockView(block, Modifier.reveal(reveal, 1 + i, step = 45))
                         }
@@ -241,7 +243,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
 }
 
 @Composable
-private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier) {
+private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier, prerequisites: List<Topic>) {
     Column(modifier.padding(top = 8.dp, bottom = 6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Eyebrow(
@@ -257,8 +259,13 @@ private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier) {
             LevelBadge(topic?.level)
         }
         Spacer(Modifier.height(14.dp))
-        Text((doc.title ?: topic?.title.orEmpty()).removePrefix("Справочник — "), style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
-        Spacer(Modifier.height(22.dp))
+        Text((doc.title ?: topic?.title.orEmpty()).removePrefix("Справочник — "), style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+        if (prerequisites.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+            InlineText("Сначала: " + prerequisites.joinToString(" · ") { "[[${it.id}|${it.number}. ${it.title}]]" },
+                style = MaterialTheme.typography.bodySmall.copy(color = Ink.Muted))
+        }
+        Spacer(Modifier.height(16.dp))
         Hairline()
     }
 }
@@ -285,8 +292,8 @@ private fun TopicFooter(
                 Eyebrow("Проверь себя", color = Ink.Soft)
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "${quizCount} ${tasksWord(quizCount)} по этой теме — выбор варианта и ввод ответа. " +
-                        "Для отметки «Освоено» нужно не менее 70% в полном тесте. Повтор ошибок — отдельная тренировка.",
+                    "В тесте — ${minOf(quizCount, GrammarQuizSelection.SIZE)} из $quizCount заданий. " +
+                        "Для отметки «Освоено» нужно не менее 70% верных ответов. При новой попытке набор меняется.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Ink.Muted,
                 )
@@ -313,15 +320,6 @@ private fun TopicFooter(
         }
         GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = Icons.Rounded.Check)
         NavArrows(onPrev, onContents, onNext)
-    }
-}
-
-private fun tasksWord(n: Int): String {
-    val m10 = n % 10; val m100 = n % 100
-    return when {
-        m10 == 1 && m100 != 11 -> "задание"
-        m10 in 2..4 && m100 !in 12..14 -> "задания"
-        else -> "заданий"
     }
 }
 

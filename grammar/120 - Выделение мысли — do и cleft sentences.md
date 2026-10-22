@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 120
+prerequisites: 22, 84
+keywords:
 tags:
   - english/grammar
   - english/B2
@@ -9,54 +11,22 @@ tags:
 # Выделение мысли — do и cleft sentences
 
 > [!abstract] Коротко
-> - Усиление обычного глагола: `do/does/did + V` — `I do like it!`, `She did call`.
-> - It-cleft: `It was + выделенное + that/who + остальное` — `It was Max who broke it`.
-> - What-cleft: `What + придаточное + is + главное` — `What I need is a holiday`.
+> Чтобы подчеркнуть важную часть мысли, можно использовать ударное **do**, конструкцию **It was…that/who…** — «именно…» или **What…is…** — «то, что…, — это…».
 
-<!-- beginner-intro:start -->
-## Простыми словами
+В конструкции **It is/was + выделяемая часть + that/who + остальная часть предложения** слово `who` подходит для людей, а `that` — и для людей, и для других выделяемых частей: **It was Tom who/that called**, **It was yesterday that we met**.
 
-Иногда важен акцент: «Я **правда** понимаю» или «Ключ нашёл **именно Лео**». Английский может усилить обычный глагол через `do` или вынести важную часть в специальную рамку `It was… that/who…`.
+## Примеры
 
-Это дополнительный способ организовать мысль, а не обязательный шаблон повседневной фразы. Сначала сформулируй обычное предложение, затем реши, что нужно выделить. После усилительного `does/did` основной глагол остаётся в начальной форме, как в вопросах и отрицаниях.
+- **I do agree.** — Я действительно согласен.
+- **She does work hard.** — Она и правда много работает.
+- **It was Anna who called.** — Именно Анна позвонила.
+- **It was yesterday that we met.** — Мы встретились именно вчера.
+- **What I need is a break.** — Что мне нужно — так это отдых.
 
-## Правило и схема
-<!-- beginner-intro:end -->
+После **do/does/did** — начальная форма, а время сохраняется: **I did call** — я всё-таки звонил.
 
-Иногда нужно подчеркнуть не новую информацию целиком, а определённый факт, человека или действие. Здесь базовые модели; сложные выделительные конструкции развиваются дальше на C1.
-
-| Приём | Схема |
-| --- | --- |
-| Усилить обычный глагол | S + do/does/did + V |
-| Выделить человека, предмет, время | It is/was + выделенная часть + that/who + остальное |
-| Выделить нужную вещь/действие | What + придаточное + be + выделенная часть |
-
-`Do/does/did` произносится с ударением и не меняет основного времени. В выделительной модели сохраняй согласование в придаточном: `It was the students who were late`.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **I do like your idea.** — Мне действительно нравится твоя идея.  
-   **Разбор:** `do` произносится с ударением и подтверждает факт, например вопреки сомнению собеседника.
-2. **She did call yesterday.** — Она всё-таки звонила вчера.  
-   **Разбор:** прошлое показано через `did`, поэтому `call`, не `called`.
-3. **It was Max who broke the cup.** — Чашку разбил именно Макс.  
-   **Разбор:** выделен исполнитель. Нейтральная основа — `Max broke the cup`.
-4. **What I need is more time.** — Что мне нужно, так это больше времени.  
-   **Разбор:** начало подготавливает тему потребности, а после `is` назван главный ответ.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **I do understand your problem.** — Я действительно понимаю твою проблему.
-- **It was Leo who found the key.** — Именно Лео нашёл ключ.
-- **What I need is a short break.** — Что мне нужно, так это короткий перерыв.
-
-> [!warning] Частая ошибка
-> **She does like it**, а не *does likes it*. Выделительная конструкция подчёркивает выбранную часть, поэтому используй её, когда акцент нужен.
-
-> [!tip] Дальше по теме
-> [[128 - Продвинутое выделение — All I want, The reason why, What happened was|Продвинутое выделение — All I want, The reason why, What happened was]] · [[127 - Фронтинг и обособление — Much as I like it, Strange as it seems|Фронтинг и обособление — Much as I like it, Strange as it seems]]
+> [!warning] Согласование внутри конструкции
+> **It was the students who were late**: `were` относится к студентам. Не добавляй в придаточное лишнее местоимение: **It was Anna who called**, без `she`.
 
 ## Проверь себя
 
@@ -77,12 +47,10 @@ tags:
 > 5. **What I need is some sleep.** — what-cleft выносит главное в конец.
 > 6. **She does like chocolate.** — после `does` начальная форма.
 
-## Источники
-
-- [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
-- [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
-- [Cambridge Dictionary — Word order: structures](https://dictionary.cambridge.org/grammar/british-grammar/word-order-structures)
+> [!info]- Источники
+> - [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
+> - [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
+> - [Cambridge Dictionary — Word order: structures](https://dictionary.cambridge.org/grammar/british-grammar/word-order-structures)
 
 ---
-
 [[119 - Формальное it — погода, время и оценка|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[121 - Составные существительные и прилагательные|Следующая тема →]]

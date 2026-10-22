@@ -1,6 +1,8 @@
 ---
 level: B2
 order: 62
+prerequisites: 38, 61
+keywords: условие третье бы would have
 tags:
   - english/grammar
   - english/B2
@@ -9,62 +11,20 @@ tags:
 # Third Conditional — другое прошлое
 
 > [!abstract] Коротко
-> - Third Conditional — **другое прошлое**, которого уже не изменить: `If I had left earlier, I would have caught the train`.
-> - Формула: `If + had + V3, would have + V3`.
-> - `'d` = `had` перед V3 и `would` перед `have`: `If I'd known, I'd have helped`.
+> Third Conditional — **другое уже завершённое прошлое и другой результат тогда**.
 
-<!-- beginner-intro:start -->
-## Простыми словами
+Схема: **if + подлежащее + had + третья форма глагола, подлежащее + would + have + третья форма глагола**. Часть с `if` — воображаемое условие в прошлом; другая часть — результат, который тогда мог бы получиться.
 
-Третий тип — мысленный «повтор» уже завершённого прошлого. Мы не можем изменить вчерашнее событие, но можем представить: «Если бы вышли раньше, успели бы». И условие, и результат относятся к **тогда**, а не к сейчас.
+## Примеры
 
-В условии нужны `had + V3`, в результате `would have + V3`. Два сокращения `'d` могут означать разное: `If I'd known` = `had known`; `I'd have helped` = `would have helped`. Проверяй следующее слово, чтобы раскрыть сокращение.
+- **If I'd studied, I would have passed.** — Если бы я занимался, сдал бы экзамен. Не занимался и не сдал.
+- **We wouldn't have missed the train if we'd left earlier.** — Не опоздали бы, если бы вышли раньше.
+- **If you'd asked, I could have helped.** — Если бы ты попросил, я мог бы помочь.
 
-### Наглядная схема
+В результате **could have** подчёркивает возможность, **might have** — менее уверенный исход. Порядок частей не меняет смысл.
 
-Обе воображаемые части относятся к прошлому.
-
-```mermaid
-flowchart LR
-    A["ФАКТ: вышли поздно → опоздали"] --> B["ДРУГОЕ ПРОШЛОЕ: had left earlier"]
-    B --> C["ДРУГОЙ ИСХОД ТОГДА: would have caught the train"]
-```
-
-## Правило и схема
-<!-- beginner-intro:end -->
-
-Третье условное воображает **изменение уже завершённого прошлого** и другой результат в прошлом. События изменить нельзя; конструкция позволяет обсудить сожаление, ошибку или альтернативный исход.
-
-## Схема
-
-`If + S + had + V3, S + would have + V3`
-
-`Could have` вместо `would have` выражает возможность, `might have` — менее уверенный результат. Порядок частей не меняет смысл.
-
-<!-- beginner-examples:start -->
-## Примеры с разбором
-
-1. **If I'd seen you, I'd have said hello.** — Если бы я тебя увидел, я бы поздоровался.  
-   **Разбор:** в обычном контексте не увидел и не поздоровался; представляем другой исход прошлого.
-2. **We'd have arrived on time if we'd left earlier.** — Мы бы приехали вовремя, если бы выехали раньше.  
-   **Разбор:** результат стоит первым; формы и смысл от перестановки не меняются.
-3. **If she hadn't helped, I couldn't have finished.** — Если бы она не помогла, я не смог бы закончить.  
-   **Разбор:** фактически помощь была; `couldn't have` описывает отсутствие возможности в альтернативном прошлом.
-4. **If we'd booked sooner, we might have paid less.** — Если бы мы забронировали раньше, возможно, заплатили бы меньше.  
-   **Разбор:** `might have` делает воображаемый результат менее уверенным, чем `would have`.
-<!-- beginner-examples:end -->
-
-## Дополнительные примеры
-
-- **If we'd left earlier, we'd have caught the train.** — Если бы мы вышли раньше, мы бы успели на поезд.
-- **She might have passed if she'd revised more.** — Возможно, она сдала бы экзамен, если бы больше повторяла.
-- **If I hadn't lost the key, I could have opened the door.** — Если бы я не потерял ключ, я смог бы открыть дверь.
-
-> [!warning] Частая ошибка
-> В условии **had known**, в результате **would have helped**. Не *if I would have known*. Сокращение `'d` означает `had` перед `V3`, но `would` перед `V`.
-
-> [!tip] Дальше по теме
-> [[129 - Условия без if — Had I known, but for, supposing|Условия без if — Had I known, but for, supposing]]
+> [!warning] Два значения 'd
+> **If I'd known = if I had known**. **I'd have helped = I would have helped**.
 
 ## Проверь себя
 
@@ -80,15 +40,13 @@ flowchart LR
 > [!success]- Ответы и пояснения
 > 1. **had told, would have helped** — обе части о прошлом.
 > 2. **wouldn't have been, had caught** — результат и условие в прошлом.
-> 3. **If I had known, I would have come.** — перед V3 `'d` = `had`, перед `have` — `would`.
+> 3. **If I had known, I would have come.** — перед третьей формой глагола `'d` = `had`, перед `have` — `would`.
 > 4. **If I had had an umbrella, I wouldn't have got wet.** — меняем реальное прошлое на воображаемое.
 > 5. **If we had booked, we would have got a table.** — оба факта в прошлом → Third Conditional.
-> 6. **If I had seen him, I would have said hello.** — в условии `had + V3`, не `would have`.
+> 6. **If I had seen him, I would have said hello.** — в условии `had + третья форма`, не `would have`.
 
-## Источники
-
-- [British Council — Conditionals: third and mixed](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-third-mixed)
+> [!info]- Источники
+> - [British Council — Conditionals: third and mixed](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-third-mixed)
 
 ---
-
 [[061 - Second Conditional — воображаемое настоящее и будущее|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[063 - Mixed Conditionals — разные времена условия и результата|Следующая тема →]]
