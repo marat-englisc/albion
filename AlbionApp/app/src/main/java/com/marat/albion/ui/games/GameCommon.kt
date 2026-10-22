@@ -317,21 +317,27 @@ fun GameSummary(
     val ratio = if (total == 0) 0f else correct.toFloat() / total
     LaunchedEffect(Unit) { ring.animateTo(ratio, tween(1100, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
+    val ringSize = 150.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
     Column(
         Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
             .windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp, top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(Modifier.size(150.dp).reveal(reveal, 0), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.size(150.dp)) {
+        Box(Modifier.size(ringSize).reveal(reveal, 0), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize()) {
                 val w = 2.dp.toPx()
                 drawCircle(Ink.Line, style = Stroke(w))
                 drawArc(Ink.Fg, -90f, 360f * ring.value, false, style = Stroke(w * 1.5f, cap = StrokeCap.Round))
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(Modifier.padding(horizontal = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 AnimatedNumber((ratio * 100).toInt(), AlbionType.number, color = Ink.Fg, suffix = "%")
-                Eyebrow("$correct из $total $scoreLabel")
+                Text(
+                    "$correct ИЗ $total\n${scoreLabel.uppercase()}",
+                    style = AlbionType.eyebrow,
+                    color = Ink.Muted,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
         Spacer(Modifier.height(28.dp))
@@ -361,19 +367,17 @@ fun GameSummary(
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                 )
                 mistakes.forEach { m ->
-                    Column(Modifier.padding(vertical = 10.dp)) {
+                    Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
                         Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                         Spacer(Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(m.correct, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg, modifier = Modifier.weight(1f, fill = false))
-                            if (m.answer.isNotBlank()) {
-                                Spacer(Modifier.width(12.dp))
-                                Text(
-                                    m.answer,
-                                    style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
-                                    color = Ink.Faint,
-                                )
-                            }
+                        Text(m.correct, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                        if (m.answer.isNotBlank()) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                m.answer,
+                                style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
+                                color = Ink.Faint,
+                            )
                         }
                     }
                     Hairline()
