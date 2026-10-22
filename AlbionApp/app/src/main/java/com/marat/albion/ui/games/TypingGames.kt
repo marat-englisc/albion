@@ -9,11 +9,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +33,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,12 +47,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -179,6 +189,42 @@ internal fun VerdictLine(verdict: Verdict) {
 
 // ------------------------------------------------------------------ ввод ответа
 
+/** Контрастный разбор ошибки: введённый вариант и правильное слово в одном блоке. */
+@Composable
+private fun WrongAnswerFeedback(answer: String, correct: String) {
+    Column(
+        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.small)
+            .background(Ink.Surface).border(1.dp, Ink.LineStrong, MaterialTheme.shapes.small)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+    ) {
+        Row(
+            Modifier.fillMaxWidth().background(Ink.Fg).padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(Icons.Rounded.Close, null, tint = Ink.Bg, modifier = Modifier.size(28.dp))
+            Text("Неверно", style = MaterialTheme.typography.titleLarge, color = Ink.Bg)
+        }
+        Column(Modifier.fillMaxWidth().padding(16.dp)) {
+            Eyebrow("Ваш ответ")
+            Spacer(Modifier.height(4.dp))
+            Text(
+                answer.ifBlank { "Ответ не дан" },
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    textDecoration = if (answer.isNotBlank()) TextDecoration.LineThrough else null,
+                ),
+                color = Ink.Text,
+            )
+            Spacer(Modifier.height(14.dp))
+            Hairline()
+            Spacer(Modifier.height(14.dp))
+            Eyebrow("Правильный ответ")
+            Spacer(Modifier.height(6.dp))
+            Text(correct, style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
+        }
+    }
+}
+
 @Composable
 fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
     val c = LocalAppContainer.current
@@ -250,19 +296,23 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             ) {
                 val v = verdict ?: Verdict.Wrong
                 Column(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    VerdictLine(v)
-                    if (input.isNotBlank()) {
-                        Spacer(Modifier.height(8.dp))
-                        Text("Ваш ответ: $input", style = MaterialTheme.typography.bodyMedium,
-                            color = Ink.Muted, textAlign = TextAlign.Center)
+                    if (v == Verdict.Wrong) {
+                        WrongAnswerFeedback(input, card.term)
+                    } else {
+                        VerdictLine(v)
+                        if (input.isNotBlank()) {
+                            Spacer(Modifier.height(8.dp))
+                            Text("Ваш ответ: $input", style = MaterialTheme.typography.bodyMedium,
+                                color = Ink.Muted, textAlign = TextAlign.Center)
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        Text(
+                            if (v == Verdict.Typo) annotateMistakes(card.term, input) else AnnotatedString(card.term),
+                            style = TextStyle(fontFamily = Serif, fontSize = 34.sp, lineHeight = 40.sp),
+                            color = Ink.Fg,
+                            textAlign = TextAlign.Center,
+                        )
                     }
-                    Spacer(Modifier.height(14.dp))
-                    Text(
-                        if (v == Verdict.Typo) annotateMistakes(card.term, input) else AnnotatedString(card.term),
-                        style = TextStyle(fontFamily = Serif, fontSize = 34.sp, lineHeight = 40.sp),
-                        color = Ink.Fg,
-                        textAlign = TextAlign.Center,
-                    )
                     Spacer(Modifier.height(10.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (card.ipa.isNotBlank()) {
@@ -306,11 +356,24 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
-                    GhostButton(
-                        if (hints < letters - 1) "Буква" else "Определение",
-                        onClick = { if (hints < letters - 1) hints++ else showEn = true },
-                    )
+                    Row(
+                        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        GhostButton(
+                            if (hints < letters - 1) "Буква" else "Определение",
+                            onClick = { if (hints < letters - 1) hints++ else showEn = true },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
+                        )
+                        GhostButton(
+                            "Не знаю",
+                            onClick = { check(giveUp = true) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
+                        )
+                    }
+                    PrimaryButton("Проверить", onClick = { check() })
                 }
             }
         }
