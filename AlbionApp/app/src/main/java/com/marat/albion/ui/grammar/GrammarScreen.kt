@@ -382,11 +382,11 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
     val read = progress?.readAt != null
     val mastered = progress?.masteredAt != null
     Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Row(Modifier.padding(start = 36.dp, top = 14.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(start = 7.dp, top = 14.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 t.number?.takeIf { t.kind == TopicKind.Lesson }?.toString() ?: "§",
                 style = AlbionType.index,
-                modifier = Modifier.width(34.dp),
+                modifier = Modifier.width(36.dp),
             )
             Column(Modifier.weight(1f)) {
                 Text(t.title, style = MaterialTheme.typography.bodyLarge, color = if (mastered) Ink.Muted else Ink.Text,
@@ -417,7 +417,7 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
                 if (mastered) Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(12.dp))
             }
         }
-        Hairline(Modifier.padding(start = 36.dp))
+        Hairline()
     }
 }
 
