@@ -21,16 +21,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.data.settings.ThemeMode
+import com.marat.albion.data.settings.ThemeStyle
 import com.marat.albion.ui.intro.IntroScreen
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
-import com.marat.albion.ui.theme.DarkPalette
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.LightPalette
+import com.marat.albion.ui.theme.paletteFor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,26 +42,28 @@ class MainActivity : ComponentActivity() {
         val initial = runBlocking { container.settings.current() }
         val systemDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
-        Ink.palette = if (isDark(initial.themeMode, systemDark)) DarkPalette else LightPalette
+        Ink.palette = paletteFor(isDark(initial.themeMode, systemDark), initial.themeStyle == ThemeStyle.SOFT)
 
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
             val dark = isDark(settings.themeMode, isSystemInDarkTheme())
+            val soft = settings.themeStyle == ThemeStyle.SOFT
+            val palette = paletteFor(dark, soft)
 
             // Значки статус-бара и навигации — светлые на тёмной теме, тёмные на светлой.
-            DisposableEffect(dark) {
+            DisposableEffect(palette) {
                 enableEdgeToEdge(
                     statusBarStyle = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
                     else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
                     navigationBarStyle = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
                     else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
                 )
-                window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(if (dark) Color.BLACK else Color.WHITE))
+                window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(palette.bg.toArgb()))
                 onDispose {}
             }
 
             CompositionLocalProvider(LocalAppContainer provides container) {
-                AlbionTheme(dark = dark) {
+                AlbionTheme(dark = dark, soft = soft) {
                     // Заставка — только при холодном старте; приложение под ней
                     // начинает рисоваться в момент ухода заставки, чтобы каскадные
                     // анимации главного экрана совпали с её исчезновением.
@@ -70,10 +74,13 @@ class MainActivity : ComponentActivity() {
                         AnimatedVisibility(
                             visible = introVisible,
                             enter = androidx.compose.animation.EnterTransition.None,
-                            exit = fadeOut(tween(520, easing = Easing.Emphasized)) +
-                                scaleOut(tween(620, easing = Easing.EmphasizedAccelerate), targetScale = 1.12f),
+                            exit = fadeOut(tween(180, easing = Easing.Emphasized)) +
+                                scaleOut(tween(220, easing = Easing.EmphasizedAccelerate), targetScale = 1.04f),
                         ) {
-                            IntroScreen(status = status, onFinished = { introVisible = false })
+                            IntroScreen(status = status, full = !initial.introSeen, onFinished = {
+                                introVisible = false
+                                if (!initial.introSeen) container.appScope.launch { container.settings.markIntroSeen() }
+                            })
                         }
                     }
                 }

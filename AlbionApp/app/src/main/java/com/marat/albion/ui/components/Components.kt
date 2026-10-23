@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -51,6 +52,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -73,13 +76,25 @@ fun Hairline(modifier: Modifier = Modifier, color: Color = Ink.Line) {
 /** Заголовок секции в духе журнальной вёрстки: «КОЛОДЫ ————————— 05». */
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    Row(modifier.fillMaxWidth().padding(top = 18.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Eyebrow(title, color = Ink.Soft)
-        Spacer(Modifier.width(14.dp))
-        Hairline(Modifier.weight(1f))
-        if (trailing != null) {
-            Spacer(Modifier.width(14.dp))
-            Text(trailing, style = AlbionType.index)
+    val measurer = rememberTextMeasurer()
+    val naturalWidth = with(LocalDensity.current) {
+        (measurer.measure(title.uppercase(), AlbionType.eyebrow, softWrap = false).size.width +
+            (trailing?.let { measurer.measure(it, AlbionType.index, softWrap = false).size.width } ?: 0)).toDp() + 40.dp
+    }
+    BoxWithConstraints(modifier.fillMaxWidth().padding(top = 18.dp, bottom = 8.dp)) {
+        val compact = naturalWidth > maxWidth
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            if (compact) {
+                Eyebrow(title, Modifier.weight(1f), color = Ink.Soft)
+            } else {
+                Eyebrow(title, color = Ink.Soft)
+                Spacer(Modifier.width(14.dp))
+                Hairline(Modifier.weight(1f))
+            }
+            if (trailing != null) {
+                Spacer(Modifier.width(14.dp))
+                Text(trailing, style = AlbionType.index, maxLines = 1, softWrap = false)
+            }
         }
     }
 }
@@ -216,7 +231,9 @@ fun lerpColor(a: Color, b: Color, t: Float) = androidx.compose.ui.graphics.lerp(
 fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 44.dp, primary: Boolean = true) {
     val interaction = remember { MutableInteractionSource() }
     Box(
-        modifier.size(size).pressScale(interaction, 0.9f),
+        modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.94f)
+            .clip(CircleShape)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         if (playing) {
@@ -237,8 +254,7 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
             Modifier.size(size)
                 .clip(CircleShape)
                 .background(if (playing) Ink.Fg else if (primary) Ink.Elevated else Color.Transparent)
-                .border(1.dp, if (playing) Ink.Fg else Ink.LineStrong, CircleShape)
-                .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+                .border(1.dp, if (playing) Ink.Fg else Ink.LineStrong, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -277,7 +293,7 @@ fun Chip(text: String, modifier: Modifier = Modifier) {
 /** Тонкая линия прогресса — 2 dp, без скруглений. */
 @Composable
 fun ThinProgress(progress: Float, modifier: Modifier = Modifier, color: Color = Ink.Fg, track: Color = Ink.Line) {
-    val p by animateFloatAsState(progress.coerceIn(0f, 1f), tween(900, easing = Easing.Emphasized), label = "progress")
+    val p by animateFloatAsState(progress.coerceIn(0f, 1f), tween(300, easing = Easing.Emphasized), label = "progress")
     Box(modifier.fillMaxWidth().height(2.dp).background(track)) {
         Box(Modifier.fillMaxWidth(p).height(2.dp).background(color))
     }

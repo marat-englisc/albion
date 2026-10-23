@@ -57,7 +57,7 @@ class GrammarContentsTest {
         assertEquals(listOf(MdHeading(2, "Chapter"), MdParagraph("Introduction to this chapter."), MdParagraph("More advice.")), result.intro.blocks)
     }
 
-    @Test fun actualContentsKeepAllInstructionsAndFiveLevelRoutes() {
+    @Test fun actualContentsKeepAllInstructionsAndFiveLevelGroups() {
         val dir = File("../../grammar").canonicalFile
         assumeTrue(dir.isDirectory)
         val topics = dir.listFiles().orEmpty().filter { it.extension == "md" }.map { file ->
@@ -80,8 +80,8 @@ class GrammarContentsTest {
         val steps = blocks.drop(study + 1).first() as MdList
         assertTrue(steps.ordered)
         assertEquals(5, steps.items.size)
-        assertTrue(blocks.contains(MdHeading(2, "Маршруты по уровням")))
-        val routes = blocks.filterIsInstance<MdCallout>().filter { it.title.startsWith("Маршрут ") }
+        assertTrue(blocks.contains(MdHeading(2, "Темы по уровням")))
+        val routes = blocks.filterIsInstance<MdCallout>().filter { it.title.startsWith("Темы ") }
         assertEquals(listOf(24, 32, 35, 34, 19), routes.map { (it.blocks.single() as MdList).items.size })
         assertTrue(routes.all { it.foldable && !it.initiallyExpanded })
         assertEquals(144, routes.sumOf { (it.blocks.single() as MdList).items.size })

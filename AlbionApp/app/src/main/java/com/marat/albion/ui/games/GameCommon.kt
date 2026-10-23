@@ -315,7 +315,7 @@ fun GameSummary(
 ) {
     val ring = remember { Animatable(0f) }
     val ratio = if (total == 0) 0f else correct.toFloat() / total
-    LaunchedEffect(Unit) { ring.animateTo(ratio, tween(1100, easing = Easing.Emphasized)) }
+    LaunchedEffect(Unit) { ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
     val ringSize = 150.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
     Column(

@@ -108,16 +108,16 @@ private val tabs = listOf(
 
 // Переход вглубь: новый экран въезжает справа и «приближается», старый уходит в глубину.
 private fun forward(): ContentTransform =
-    (slideInHorizontally(tween(480, easing = Easing.Emphasized)) { (it * 0.18f).toInt() } +
-        fadeIn(tween(320, delayMillis = 60)) +
-        scaleIn(tween(480, easing = Easing.Emphasized), initialScale = 0.96f)) togetherWith
-        (fadeOut(tween(220)) + scaleOut(tween(480, easing = Easing.Emphasized), targetScale = 0.94f))
+    (slideInHorizontally(tween(220, easing = Easing.Emphasized)) { (it * 0.08f).toInt() } +
+        fadeIn(tween(180)) +
+        scaleIn(tween(220, easing = Easing.Emphasized), initialScale = 0.985f)) togetherWith
+        (fadeOut(tween(140)) + scaleOut(tween(220, easing = Easing.Emphasized), targetScale = 0.98f))
 
 private fun backward(): ContentTransform =
-    (fadeIn(tween(320, delayMillis = 80)) + scaleIn(tween(480, easing = Easing.Emphasized), initialScale = 0.94f)) togetherWith
-        (slideOutHorizontally(tween(420, easing = Easing.Emphasized)) { (it * 0.2f).toInt() } +
-            fadeOut(tween(260)) +
-            scaleOut(tween(420, easing = Easing.Emphasized), targetScale = 0.97f))
+    (fadeIn(tween(180)) + scaleIn(tween(220, easing = Easing.Emphasized), initialScale = 0.98f)) togetherWith
+        (slideOutHorizontally(tween(220, easing = Easing.Emphasized)) { (it * 0.1f).toInt() } +
+            fadeOut(tween(160)) +
+            scaleOut(tween(220, easing = Easing.Emphasized), targetScale = 0.985f))
 
 @Composable
 fun AlbionNavigation() {
@@ -169,8 +169,8 @@ fun AlbionNavigation() {
         bottomBar = {
             AnimatedVisibility(
                 visible = showBar,
-                enter = fadeIn(tween(300)) + slideInVertically(tween(420, easing = Easing.Emphasized)) { it },
-                exit = fadeOut(tween(160)) + slideOutVertically(tween(260)) { it },
+                enter = fadeIn(tween(180)) + slideInVertically(tween(220, easing = Easing.Emphasized)) { it },
+                exit = fadeOut(tween(120)) + slideOutVertically(tween(180)) { it },
             ) {
                 BottomBar(navigator.selectedTab, navigator::selectTab)
             }
@@ -219,7 +219,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val isSelected = i == index
-                    val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(320), label = "tab")
+                    val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "tab")
                     Column(
                         Modifier.width(if (isSelected) selectedWidth else otherWidth).fillMaxHeight().heightIn(min = 80.dp)
                             .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -149,11 +150,11 @@ fun GrammarScreen(navigator: Navigator) {
     val quiz: (Topic) -> Unit = { t -> t.number?.let { navigator.open(TopicQuizRoute(it, t.id, t.title)) } }
 
     LazyColumn(
-        Modifier.fillMaxSize().background(Ink.Bg),
+        Modifier.fillMaxSize().background(Ink.Bg).imePadding(),
         state = listState,
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
     ) {
-        item {
+        item(key = "header") {
             Box(Modifier.reveal(reveal, 0)) {
                 ScreenHeader("Грамматика", eyebrow = "Короткие уроки · A1–C1", compact = true, trailing = { SettingsShortcut(navigator::openSettings) })
             }
@@ -168,7 +169,7 @@ fun GrammarScreen(navigator: Navigator) {
             return@LazyColumn
         }
 
-        item {
+        if (!filtering) item(key = "overview") {
             Column(Modifier.padding(top = 10.dp).reveal(reveal, 1)) {
                 Eyebrow("Освоено")
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
@@ -207,7 +208,7 @@ fun GrammarScreen(navigator: Navigator) {
             }
         }
 
-        item {
+        item(key = "search") {
             Column(Modifier.padding(top = 18.dp).reveal(reveal, 2)) {
                 SearchField(query, { query = it }, "Правило, пример или тема…")
                 Row(
@@ -278,7 +279,7 @@ fun GrammarScreen(navigator: Navigator) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text("Как заниматься · маршруты A1–C1", style = MaterialTheme.typography.bodyMedium,
+                        Text("Как заниматься · темы по уровням", style = MaterialTheme.typography.bodyMedium,
                             color = Ink.Soft, modifier = Modifier.weight(1f))
                         Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null,
                             tint = Ink.Soft, modifier = Modifier.size(20.dp))

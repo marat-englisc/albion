@@ -214,12 +214,12 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
             if (labelWidth * 3 <= maxWidth) {
                 Row {
                     Metric(due, "повторить", Modifier.weight(1f))
-                    Metric(new, "новых", Modifier.weight(1f))
+                    Metric(new, "доступно\nновых", Modifier.weight(1f))
                     Metric(state.reviewsToday, "ответов", Modifier.weight(1f))
                 }
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf("Повторить" to due, "Новых" to new, "Ответов" to state.reviewsToday).forEach { (label, value) ->
+                    listOf("Повторить" to due, "Доступно новых" to new, "Ответов" to state.reviewsToday).forEach { (label, value) ->
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text(label, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(16.dp))
@@ -332,16 +332,16 @@ private fun GoalBar(done: Int, goal: Int) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (check > 0.01f) {
                 Icon(
-                    Icons.Rounded.Check, null, tint = Ink.Fg,
+                    Icons.Rounded.Check, null, tint = Ink.Success,
                     modifier = Modifier.size(16.dp).graphicsLayer { scaleX = check; scaleY = check },
                 )
                 Spacer(Modifier.width(8.dp))
             }
-            Eyebrow(if (reached) "Цель дня выполнена" else "Цель дня", Modifier.weight(1f), color = if (reached) Ink.Fg else Ink.Muted)
+            Eyebrow(if (reached) "Цель дня выполнена" else "Цель дня", Modifier.weight(1f), color = if (reached) Ink.Success else Ink.Muted)
             Text("${minOf(done, 9999)} / $goal", style = AlbionType.index.copy(color = Ink.Soft))
         }
         Spacer(Modifier.height(10.dp))
-        ThinProgress(if (goal == 0) 0f else done.toFloat() / goal)
+        ThinProgress(if (goal == 0) 0f else done.toFloat() / goal, color = if (reached) Ink.Success else Ink.Fg)
     }
 }
 

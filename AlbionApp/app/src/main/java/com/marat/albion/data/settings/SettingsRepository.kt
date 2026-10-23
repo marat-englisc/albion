@@ -24,6 +24,10 @@ enum class ThemeMode(val title: String) {
     DARK("Тёмная"), LIGHT("Светлая"), SYSTEM("Как в системе")
 }
 
+enum class ThemeStyle(val title: String) {
+    MONO("Монохромная"), SOFT("Бумага и графит")
+}
+
 data class Settings(
     val desiredRetention: Float = 0.9f,
     val newPerDay: Int = 20,
@@ -40,6 +44,9 @@ data class Settings(
     val dayStartHour: Int = 4,
     val lastGrammarTopic: String? = null,
     val themeMode: ThemeMode = ThemeMode.DARK,
+    val themeStyle: ThemeStyle = ThemeStyle.MONO,
+    /** Полная заставка показывается один раз; последующие запуски — короткие. */
+    val introSeen: Boolean = false,
     /** Показывать русское значение на обороте карточек. */
     val showRussian: Boolean = true,
     /** Дневная цель — ответов в день по всем колодам. */
@@ -78,6 +85,8 @@ class SettingsRepository(private val context: Context) {
         val contentVersion = stringPreferencesKey("content_version")
         val dictionaryVersion = intPreferencesKey("dictionary_version")
         val themeMode = stringPreferencesKey("theme_mode")
+        val themeStyle = stringPreferencesKey("theme_style")
+        val introSeen = booleanPreferencesKey("intro_seen")
         val showRussian = booleanPreferencesKey("show_russian")
         val dailyGoal = intPreferencesKey("daily_goal")
         val reminderEnabled = booleanPreferencesKey("reminder_enabled")
@@ -108,6 +117,8 @@ class SettingsRepository(private val context: Context) {
             dayStartHour = p[Keys.dayStart] ?: 4,
             lastGrammarTopic = p[Keys.lastTopic],
             themeMode = p[Keys.themeMode]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.DARK,
+            themeStyle = p[Keys.themeStyle]?.let { runCatching { ThemeStyle.valueOf(it) }.getOrNull() } ?: ThemeStyle.MONO,
+            introSeen = p[Keys.introSeen] ?: false,
             showRussian = p[Keys.showRussian] ?: true,
             dailyGoal = p[Keys.dailyGoal] ?: 30,
             reminderEnabled = p[Keys.reminderEnabled] ?: false,
@@ -142,6 +153,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDayStartHour(v: Int) = edit { it[Keys.dayStart] = v }
     suspend fun setLastGrammarTopic(v: String) = edit { it[Keys.lastTopic] = v }
     suspend fun setThemeMode(v: ThemeMode) = edit { it[Keys.themeMode] = v.name }
+    suspend fun setThemeStyle(v: ThemeStyle) = edit { it[Keys.themeStyle] = v.name }
+    suspend fun markIntroSeen() = edit { it[Keys.introSeen] = true }
     suspend fun setShowRussian(v: Boolean) = edit { it[Keys.showRussian] = v }
     suspend fun setDailyGoal(v: Int) = edit { it[Keys.dailyGoal] = v }
     suspend fun setReminderEnabled(v: Boolean) = edit { it[Keys.reminderEnabled] = v }

@@ -52,28 +52,28 @@ import kotlinx.coroutines.launch
  * под знаком появляется тонкая линия прогресса.
  */
 @Composable
-fun IntroScreen(status: ImportStatus, onFinished: () -> Unit) {
-    val horizon = remember { Animatable(0f) }
-    val chevron = remember { Animatable(0f) }
-    val word = remember { Animatable(0f) }
-    val tagline = remember { Animatable(0f) }
+fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Unit) {
+    val horizon = remember { Animatable(if (full) 0f else 1f) }
+    val chevron = remember { Animatable(if (full) 0f else 1f) }
+    val word = remember { Animatable(if (full) 0f else 1f) }
+    val tagline = remember { Animatable(if (full) 0f else 1f) }
     var showProgress by remember { mutableStateOf(false) }
     val currentStatus by rememberUpdatedState(status)
     val finish by rememberUpdatedState(onFinished)
 
     LaunchedEffect(Unit) {
-        coroutineScope {
-            launch { delay(120); horizon.animateTo(1f, tween(700, easing = Easing.Emphasized)) }
-            launch { delay(420); chevron.animateTo(1f, tween(760, easing = Easing.Emphasized)) }
-            launch { delay(980); word.animateTo(1f, tween(900, easing = Easing.EmphasizedDecelerate)) }
-            launch { delay(1250); tagline.animateTo(1f, tween(700, easing = Easing.EmphasizedDecelerate)) }
+        if (full) coroutineScope {
+            launch { horizon.animateTo(1f, tween(320, easing = Easing.Emphasized)) }
+            launch { delay(120); chevron.animateTo(1f, tween(360, easing = Easing.Emphasized)) }
+            launch { delay(280); word.animateTo(1f, tween(400, easing = Easing.EmphasizedDecelerate)) }
+            launch { delay(400); tagline.animateTo(1f, tween(300, easing = Easing.EmphasizedDecelerate)) }
         }
-        delay(250)
+        delay(if (full) 80 else 100)
         val busy = { s: ImportStatus -> s is ImportStatus.Checking || s is ImportStatus.Importing }
         if (busy(currentStatus)) {
             showProgress = true
             snapshotFlow { currentStatus }.first { !busy(it) }
-            delay(300)
+            delay(80)
         }
         finish()
     }
@@ -108,7 +108,7 @@ fun IntroScreen(status: ImportStatus, onFinished: () -> Unit) {
 
         AnimatedVisibility(
             visible = showProgress,
-            enter = fadeIn(tween(400)),
+            enter = fadeIn(tween(180)),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 56.dp),
         ) {

@@ -170,12 +170,12 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
                         contentKey = { it.card.id + it.isNew },
                         transitionSpec = {
                             val dir = if (state.lastRating == Rating.Again) -1 else 1
-                            (fadeIn(tween(260, delayMillis = 90)) +
-                                scaleIn(tween(520, easing = Easing.Emphasized), initialScale = 0.92f) +
-                                slideInVertically(tween(520, easing = Easing.Emphasized)) { it / 12 }) togetherWith
-                                (slideOutHorizontally(tween(420, easing = Easing.EmphasizedAccelerate)) { dir * it } +
-                                    fadeOut(tween(300)) +
-                                    scaleOut(tween(420), targetScale = 0.9f))
+                            (fadeIn(tween(180, delayMillis = 30)) +
+                                scaleIn(tween(240, easing = Easing.Emphasized), initialScale = 0.97f) +
+                                slideInVertically(tween(240, easing = Easing.Emphasized)) { it / 24 }) togetherWith
+                                (slideOutHorizontally(tween(220, easing = Easing.EmphasizedAccelerate)) { dir * it } +
+                                    fadeOut(tween(160)) +
+                                    scaleOut(tween(220), targetScale = 0.97f))
                         },
                         label = "card",
                     ) { sc ->
@@ -194,8 +194,8 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
                     AnimatedContent(
                         targetState = state.revealed,
                         transitionSpec = {
-                            (fadeIn(tween(260, delayMillis = 120)) + slideInVertically(tween(420, easing = Easing.Emphasized)) { it / 2 }) togetherWith
-                                (fadeOut(tween(140)) + slideOutVertically(tween(200)) { it / 3 })
+                            (fadeIn(tween(160, delayMillis = 30)) + slideInVertically(tween(200, easing = Easing.Emphasized)) { it / 4 }) togetherWith
+                                (fadeOut(tween(100)) + slideOutVertically(tween(140)) { it / 4 })
                         },
                         label = "actions",
                     ) { revealed ->
@@ -270,10 +270,10 @@ private fun FlipCard(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (revealed) 180f else 0f,
-        animationSpec = tween(620, easing = Easing.Emphasized),
+        animationSpec = tween(300, easing = Easing.Emphasized),
         label = "flip",
     )
-    val dip = 1f - 0.07f * sin((rotation / 180f) * PI).toFloat()
+    val dip = 1f - 0.03f * sin((rotation / 180f) * PI).toFloat()
     val drag = remember(cardKey) { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val shape = RoundedCornerShape(10.dp)
@@ -361,7 +361,7 @@ private fun FlipCard(
 }
 
 
-/** Оценки: чем легче ответ, тем светлее кнопка. */
+/** «Хорошо» — основное действие; остальные оценки сохраняют равную область нажатия. */
 @Composable
 private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) {
     val measurer = rememberTextMeasurer()
@@ -386,20 +386,20 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) 
 private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
     val (bg, fg, border) = when (r) {
         Rating.Again -> Triple(Color.Transparent, Ink.Soft, Ink.LineStrong)
-        Rating.Hard -> Triple(Ink.Elevated, Ink.Text, Ink.Elevated)
-        Rating.Good -> Triple(Ink.Soft, Ink.Bg, Ink.Soft)
-        Rating.Easy -> Triple(Ink.Fg, Ink.Bg, Ink.Fg)
+        Rating.Hard -> Triple(Ink.Elevated, Ink.Text, Ink.LineStrong)
+        Rating.Good -> Triple(Ink.Fg, Ink.Bg, Ink.Fg)
+        Rating.Easy -> Triple(Ink.Raised, Ink.Text, Ink.LineStrong)
     }
     val interaction = remember { MutableInteractionSource() }
     val appear = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        delay(index * 45L)
-        appear.animateTo(1f, tween(420, easing = Easing.EmphasizedDecelerate))
+        delay(index * 20L)
+        appear.animateTo(1f, tween(180, easing = Easing.EmphasizedDecelerate))
     }
     Column(
         modifier.fillMaxHeight().heightIn(min = 66.dp)
-            .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 40f }
-            .pressScale(interaction, 0.92f)
+            .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
+            .pressScale(interaction, 0.96f)
             .clip(RoundedCornerShape(4.dp))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(4.dp))
@@ -408,9 +408,10 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(interval, style = MaterialTheme.typography.labelSmall, color = fg, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(2.dp))
         Text(r.label, style = MaterialTheme.typography.labelLarge, color = fg, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(2.dp))
+        Text(interval, style = MaterialTheme.typography.labelSmall,
+            color = if (r == Rating.Good) Ink.Bg else Ink.Muted, textAlign = TextAlign.Center)
     }
 }
 
@@ -420,8 +421,8 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
     val circle = remember { Animatable(0f) }
     val tick = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        circle.animateTo(1f, tween(700, easing = Easing.Emphasized))
-        tick.animateTo(1f, tween(380, easing = Easing.EmphasizedDecelerate))
+        circle.animateTo(1f, tween(320, easing = Easing.Emphasized))
+        tick.animateTo(1f, tween(200, easing = Easing.EmphasizedDecelerate))
     }
     Column(
         Modifier.fillMaxSize().padding(28.dp),

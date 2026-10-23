@@ -3,11 +3,13 @@ package com.marat.albion.ui.stats
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +25,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
@@ -34,10 +45,12 @@ import com.marat.albion.data.db.DayCount
 import com.marat.albion.data.repo.Stats
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
+import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.games.Game
+import com.marat.albion.ui.library.pluralRu
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
@@ -45,7 +58,9 @@ import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
-import kotlinx.coroutines.delay
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun StatsScreen(navigator: Navigator) {
@@ -57,10 +72,10 @@ fun StatsScreen(navigator: Navigator) {
         Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp).padding(bottom = 32.dp),
     ) {
-        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", trailing = { SettingsShortcut(navigator::openSettings) }) }
+        Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
-        Column(Modifier.padding(top = 28.dp).reveal(reveal, 1)) {
+        Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)) {
             Row {
                 Tile(s.streak, "дней подряд", Modifier.weight(1f))
                 Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
@@ -69,14 +84,14 @@ fun StatsScreen(navigator: Navigator) {
             Hairline()
             Spacer(Modifier.height(20.dp))
             Row {
-                Tile(s.retention?.let { (it * 100).toInt() }, "удержание FSRS · 30 дн", Modifier.weight(1f), suffix = "%")
+                Tile(s.retention?.let { (it * 100).toInt() }, "удержание FSRS\nза 30 дней", Modifier.weight(1f), suffix = "%")
                 Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
             }
         }
 
         Column(Modifier.reveal(reveal, 2)) {
             SectionHeader("Активность · 30 дней", trailing = "Σ ${days(s.daily, s.today - 29, s.today).sum()}")
-            BarChart(days(s.daily, s.today - 29, s.today), labels = "30 дн назад" to "сегодня")
+            BarChart(days(s.daily, s.today - 29, s.today), startDay = s.today - 29)
             Text("Ответы в карточках и упражнениях", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
                 modifier = Modifier.padding(top = 8.dp))
         }
@@ -87,7 +102,7 @@ fun StatsScreen(navigator: Navigator) {
 
         Column(Modifier.reveal(reveal, 4)) {
             SectionHeader("Прогноз", trailing = "14 дн")
-            BarChart(days(s.forecast, s.today, s.today + 13), labels = "сегодня" to "+13 дн", hollow = true)
+            BarChart(days(s.forecast, s.today, s.today + 13), startDay = s.today, forecast = true)
         }
 
         Column(Modifier.reveal(reveal, 5)) {
@@ -107,7 +122,7 @@ fun StatsScreen(navigator: Navigator) {
 
 @Composable
 private fun GameBreakdown(s: Stats) {
-    SectionHeader("Практика", trailing = "${s.totalGameAnswers} ответов")
+    SectionHeader("Практика", trailing = "${s.totalGameAnswers} ${pluralRu(s.totalGameAnswers, "ответ", "ответа", "ответов")}")
     Spacer(Modifier.height(16.dp))
     Row {
         Tile(s.gameAnswersToday, "ответов сегодня", Modifier.weight(1f))
@@ -142,59 +157,84 @@ private fun days(source: List<DayCount>, from: Long, to: Long): List<Int> {
 @Composable
 private fun Tile(value: Int?, label: String, modifier: Modifier, suffix: String = "") {
     Column(modifier) {
-        if (value == null) Text("—", style = AlbionType.number, color = Ink.Faint)
-        else AnimatedNumber(value, AlbionType.number, color = if (value == 0) Ink.Faint else Ink.Fg, suffix = suffix)
+        if (value == null) Text("—", style = AlbionType.numberSmall, color = Ink.Faint)
+        else AnimatedNumber(value, AlbionType.numberSmall, color = if (value == 0) Ink.Faint else Ink.Fg, suffix = suffix)
         Spacer(Modifier.height(2.dp))
-        Eyebrow(label)
+        Text(label.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+            modifier = Modifier.padding(end = 12.dp))
     }
 }
 
-/** Столбики вырастают каскадом слева направо. */
+/** Один график — одна область касания: узкие столбики не перекрывают соседние touch targets. */
 @Composable
-private fun BarChart(values: List<Int>, labels: Pair<String, String>, hollow: Boolean = false) {
-    val max = (values.maxOrNull() ?: 0).coerceAtLeast(1)
+private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = false) {
+    if (values.none { it > 0 }) {
+        Panel(contentPadding = PaddingValues(16.dp)) {
+            Text(if (forecast) "Пока нет запланированных повторений" else "История появится после первого занятия",
+                style = MaterialTheme.typography.titleSmall, color = Ink.Text)
+            Spacer(Modifier.height(6.dp))
+            Text(if (forecast) "Начните изучать карточки — здесь появится расписание."
+                else "Здесь будут видны ответы по дням за последние 30 дней.",
+                style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        }
+        return
+    }
+    val max = values.maxOrNull()!!.coerceAtLeast(1)
+    var selectedIndex by rememberSaveable(startDay) { mutableIntStateOf(if (forecast) 0 else values.lastIndex) }
+    val selected = selectedIndex.coerceIn(values.indices)
+    val formatter = remember { DateTimeFormatter.ofPattern("d MMMM", Locale.forLanguageTag("ru")) }
+    val date = LocalDate.ofEpochDay(startDay + selected).format(formatter)
+    val selectionLabel = "$date · ${values[selected]} ${if (forecast) "к повторению" else pluralRu(values[selected], "ответ", "ответа", "ответов") }"
     val grow = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        delay(150)
-        grow.animateTo(1f, tween(1100, easing = Easing.Emphasized))
+        grow.animateTo(1f, tween(300, easing = Easing.Emphasized))
     }
+    Text(selectionLabel, style = MaterialTheme.typography.titleSmall, color = Ink.Fg)
+    Spacer(Modifier.height(8.dp))
     Row(
-        Modifier.fillMaxWidth().height(132.dp),
+        Modifier.fillMaxWidth().height(104.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = if (forecast) "График предстоящих повторений" else "График активности"
+                stateDescription = selectionLabel
+                customActions = listOf(
+                    CustomAccessibilityAction("Предыдущий день") { selectedIndex = (selected - 1).coerceAtLeast(0); true },
+                    CustomAccessibilityAction("Следующий день") { selectedIndex = (selected + 1).coerceAtMost(values.lastIndex); true },
+                )
+            }
+            .pointerInput(values) {
+                detectTapGestures { offset ->
+                    selectedIndex = (offset.x / size.width * values.size).toInt().coerceIn(values.indices)
+                }
+            },
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         values.forEachIndexed { i, v ->
-            val local = ((grow.value * (values.size + 6) - i) / 6f).coerceIn(0f, 1f)
-            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.BottomCenter) {
+            Box(Modifier.weight(1f).fillMaxHeight().background(if (i == selected) Ink.Elevated else Color.Transparent), contentAlignment = Alignment.BottomCenter) {
                 val h = if (v == 0) 0.015f else (v.toFloat() / max).coerceAtLeast(0.04f)
                 val color = when {
                     v == 0 -> Ink.Line
-                    hollow -> Ink.Muted
-                    i == values.lastIndex -> Ink.Fg
+                    i == selected -> Ink.Fg
+                    forecast -> Ink.Muted
                     else -> Ink.Soft
                 }
-                Box(Modifier.fillMaxWidth().fillMaxHeight(h * local).background(color))
+                Box(Modifier.fillMaxWidth().fillMaxHeight(h * grow.value).background(color))
             }
         }
     }
     Spacer(Modifier.height(8.dp))
     Row {
-        Text(labels.first, style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
-        Text("max $max", style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
-        Text(labels.second, style = MaterialTheme.typography.labelSmall, color = Ink.Faint)
+        Text(if (forecast) "сегодня" else "29 дней назад", style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
+        Text("макс. $max", style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
+        Text(if (forecast) "+13 дней" else "сегодня", style = MaterialTheme.typography.labelSmall, color = Ink.Faint)
     }
+    Text("Коснитесь столбика, чтобы выбрать день", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+        modifier = Modifier.padding(top = 6.dp))
 }
 
 @Composable
 private fun DeckBreakdown(s: Stats) {
     val byId = s.counts.associateBy { it.deck }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Legend(Ink.Muted, "учу")
-        Legend(Ink.Soft, "повтор")
-        Legend(Ink.Fg, "выучено")
-        Legend(Ink.Line, "новые")
-    }
-    Spacer(Modifier.height(18.dp))
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Deck.entries.forEach { deck ->
             val c = byId[deck.id] ?: return@forEach
@@ -205,13 +245,20 @@ private fun DeckBreakdown(s: Stats) {
                     Text("${c.started} / ${c.total}", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
                 }
                 Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth().height(4.dp).background(Ink.Line)) {
+                Row(Modifier.fillMaxWidth().height(8.dp).background(Ink.Line)) {
                     val total = c.total.coerceAtLeast(1).toFloat()
                     if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Muted))
                     if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(Ink.Soft))
                     if (c.mature > 0) Box(Modifier.weight(c.mature / total).fillMaxHeight().background(Ink.Fg))
                     val rest = (c.total - c.started) / total
                     if (rest > 0f) Spacer(Modifier.weight(rest))
+                }
+                Spacer(Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Legend(Ink.Muted, "Учу ${c.learning}")
+                    Legend(Ink.Soft, "Повтор $young")
+                    Legend(Ink.Fg, "Выучено ${c.mature}")
+                    Legend(Ink.Line, "Новые ${(c.total - c.started).coerceAtLeast(0)}")
                 }
             }
         }

@@ -245,9 +245,11 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
     ) {
         // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+        val fontScale = androidx.compose.ui.platform.LocalDensity.current.fontScale
         val widthPx = constraints.maxWidth
+        val heightPx = constraints.maxHeight
         val longest = remember(title) { title.split(' ').maxByOrNull { it.length }.orEmpty() }
-        val fontSize = remember(title, widthPx) {
+        val fontSize = remember(title, widthPx, fontScale) {
             (10 downTo 7).firstOrNull { size ->
                 measurer.measure(longest, TextStyle(fontFamily = Serif, fontSize = size.sp)).size.width <= widthPx
             }
@@ -258,12 +260,19 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
             if (small) {
                 val monogram = title.split(' ')
                     .filter { it.isNotBlank() && it.lowercase() !in setOf("the", "a", "an", "of", "and") }
-                    .take(2).joinToString("") { it.first().uppercase() }
-                Text(monogram, style = TextStyle(fontFamily = Serif, fontSize = 18.sp), color = Ink.Bg)
+                    .firstOrNull()?.firstOrNull()?.uppercase().orEmpty()
+                val monogramSize = remember(monogram, widthPx, heightPx, fontScale) {
+                    (18 downTo 6).firstOrNull { size ->
+                        val measured = measurer.measure(monogram, TextStyle(fontFamily = Serif, fontSize = size.sp))
+                        measured.size.width <= widthPx && measured.size.height <= heightPx
+                    } ?: 6
+                }
+                Text(monogram, style = TextStyle(fontFamily = Serif, fontSize = monogramSize.sp), color = Ink.Bg,
+                    maxLines = 1, softWrap = false)
             } else {
                 Text(
                     title,
-                    style = TextStyle(fontFamily = Serif, fontSize = (fontSize ?: 10).sp, lineHeight = ((fontSize ?: 10) * 1.2f).sp),
+                    style = TextStyle(fontFamily = Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.2f).sp),
                     color = Ink.Bg,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,

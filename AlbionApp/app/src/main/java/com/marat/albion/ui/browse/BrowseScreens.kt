@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
@@ -46,6 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -102,7 +109,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val audio = rememberCardAudio(c.audio)
     val showRussian by remember { c.settings.settings.map { it.showRussian } }.collectAsStateWithLifecycle(true)
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().background(Ink.Bg).imePadding()) {
         TopBar(onBack = navigator::back, title = deck.title)
         SearchField(query, { query = it }, "Поиск по-английски", Modifier.padding(horizontal = 24.dp))
         Row(
@@ -138,8 +145,10 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
 @Composable
 fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, modifier: Modifier = Modifier) {
     val active by animateFloatAsState(if (value.isNotEmpty()) 1f else 0f, label = "search")
+    val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().height(52.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.Search, null, tint = lerpColor(Ink.Faint, Ink.Fg, active), modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
             Box(Modifier.weight(1f)) {
@@ -148,13 +157,15 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
                     value = value,
                     onValueChange = onChange,
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { keyboard?.hide(); focus.clearFocus() }),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Ink.Fg),
                     cursorBrush = SolidColor(Ink.Fg),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             if (value.isNotEmpty()) {
-                IconButton(onClick = { onChange("") }, modifier = Modifier.size(36.dp)) {
+                IconButton(onClick = { onChange("") }, modifier = Modifier.size(48.dp)) {
                     Icon(Icons.Rounded.Clear, "Очистить", tint = Ink.Muted, modifier = Modifier.size(18.dp))
                 }
             }

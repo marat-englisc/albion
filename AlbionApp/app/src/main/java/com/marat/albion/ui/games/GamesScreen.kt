@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.Icon
@@ -28,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.marat.albion.ui.theme.Serif
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.ScreenHeader
@@ -35,7 +35,6 @@ import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.nav.GameRoute
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.theme.rememberReveal
@@ -60,26 +59,24 @@ fun GamesScreen(navigator: Navigator) {
         }
         item { SectionHeader("Упражнения", Modifier.padding(top = 8.dp).reveal(reveal, 1), trailing = "%02d".format(Game.entries.size)) }
         itemsIndexed(Game.entries) { i, game ->
-            GameRow(i + 1, game, Modifier.reveal(reveal, 2 + i)) { navigator.open(GameRoute(game)) }
+            GameRow(game, Modifier.reveal(reveal, 2 + i)) { navigator.open(GameRoute(game)) }
         }
     }
 }
 
 @Composable
-private fun GameRow(index: Int, game: Game, modifier: Modifier, onClick: () -> Unit) {
+private fun GameRow(game: Game, modifier: Modifier, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Column(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clickable(interaction, indication = null, onClick = onClick)) {
-        Row(Modifier.padding(vertical = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("%02d".format(index), style = AlbionType.index, modifier = Modifier.width(36.dp))
+        Row(Modifier.padding(vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(game.icon, null, tint = Ink.Soft, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(game.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Serif, fontSize = 20.sp, lineHeight = 26.sp), color = Ink.Fg)
                 Spacer(Modifier.height(4.dp))
                 Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             }
-            Box(Modifier.size(44.dp).border(1.dp, Ink.LineStrong, CircleShape), contentAlignment = Alignment.Center) {
-                Icon(game.icon, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
-            }
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(12.dp))
             Icon(Icons.Rounded.ChevronRight, null, tint = Ink.Faint)
         }
         Hairline()

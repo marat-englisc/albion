@@ -1,6 +1,7 @@
 package com.marat.albion.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -40,6 +43,7 @@ import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.data.settings.ThemeMode
+import com.marat.albion.data.settings.ThemeStyle
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
@@ -48,6 +52,7 @@ import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.paletteFor
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
@@ -81,6 +86,35 @@ fun SettingsScreen(onBack: () -> Unit) {
                             RadioSettingOption(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
                         }
                     }
+                    Spacer(Modifier.height(12.dp))
+                    Text("Палитра", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                    Spacer(Modifier.height(8.dp))
+                    Column(Modifier.fillMaxWidth().selectableGroup()) {
+                        ThemeStyle.entries.forEach { style ->
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 56.dp)
+                                    .selectable(selected = s.themeStyle == style, role = Role.RadioButton,
+                                        onClick = { scope.launch { repo.setThemeStyle(style) } })
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(selected = s.themeStyle == style, onClick = null,
+                                    colors = RadioButtonDefaults.colors(selectedColor = Ink.Fg, unselectedColor = Ink.Muted))
+                                Spacer(Modifier.width(12.dp))
+                                Text(style.title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium,
+                                    color = if (s.themeStyle == style) Ink.Fg else Ink.Soft)
+                                Spacer(Modifier.width(12.dp))
+                                listOf(false, true).forEach { dark ->
+                                    val preview = paletteFor(dark, style == ThemeStyle.SOFT)
+                                    Box(Modifier.padding(start = 6.dp).size(22.dp)
+                                        .background(preview.bg, CircleShape).border(1.dp, Ink.LineStrong, CircleShape))
+                                }
+                            }
+                        }
+                    }
+                    Text("«Бумага» в светлой теме, «Графит» — в тёмной.",
+                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                        modifier = Modifier.padding(top = 8.dp))
                 }
                 Hairline()
             }

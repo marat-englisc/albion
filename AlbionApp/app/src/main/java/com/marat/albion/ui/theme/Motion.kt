@@ -48,11 +48,11 @@ class RevealController internal constructor() {
 @Composable
 fun rememberReveal(): RevealController = remember { RevealController() }
 
-fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 55, duration: Int = 620): Modifier = composed {
-    val delayMs = index * step
+fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 25, duration: Int = 260): Modifier = composed {
+    val delayMs = (index * step).coerceAtMost(160)
     val skip = remember { controller.elapsed() > delayMs + 150 }
     val progress = remember { Animatable(if (skip) 1f else 0f) }
-    val distance = with(LocalDensity.current) { 28.dp.toPx() }
+    val distance = with(LocalDensity.current) { 12.dp.toPx() }
     LaunchedEffect(Unit) {
         if (!skip) {
             delay((delayMs - controller.elapsed()).coerceAtLeast(0))
@@ -82,7 +82,7 @@ fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 
 fun AnimatedNumber(value: Int, style: TextStyle, color: Color = Color.Unspecified, suffix: String = "") {
     var target by remember { mutableStateOf(0) }
     LaunchedEffect(value) { target = value }
-    val shown by animateIntAsState(target, tween(900, easing = Easing.Emphasized), label = "number")
+    val shown by animateIntAsState(target, tween(360, easing = Easing.Emphasized), label = "number")
     Text("$shown$suffix", style = style, color = color)
 }
 
