@@ -1,0 +1,47 @@
+{
+  "changed_cells": 291,
+  "changed_tasks": 234,
+  "value_errors": [],
+  "style_diffs": {},
+  "style_examples": {},
+  "properties": {
+    "original_freeze": "A2",
+    "final_freeze": "A2",
+    "original_filter": null,
+    "final_filter": null,
+    "original_tables": [],
+    "final_tables": [],
+    "original_merges": [],
+    "final_merges": [],
+    "original_widths": {
+      "A": 6.0,
+      "B": 9.0,
+      "C": 8.0,
+      "D": 38.0,
+      "E": 8.0,
+      "F": 60.0,
+      "G": 22.0,
+      "H": 22.0,
+      "I": 22.0,
+      "J": 22.0,
+      "K": 26.0,
+      "L": 60.0
+    },
+    "final_widths": {
+      "A": 6.0,
+      "B": 9.0,
+      "C": 8.0,
+      "D": 38.0,
+      "E": 8.0,
+      "F": 60.0,
+      "G": 22.0,
+      "H": 22.0,
+      "I": 22.0,
+      "J": 22.0,
+      "K": 26.0,
+      "L": 60.0
+    },
+    "original_gridlines": null,
+    "final_gridlines": null
+  }
+}

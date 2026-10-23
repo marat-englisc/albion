@@ -30,9 +30,9 @@ tags:
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
 1. Выбери обычную форму сообщения о расписании: The concert (starts / is starting) at 7 p.m. according to the programme.
-2. Выбери: I (see / am seeing) the doctor tomorrow at ten.
-3. Выбери: What time (does / is) your plane land?
-4. Выбери: What (do you do / are you doing) this weekend?
+2. Выбери Present Continuous для назначенной встречи: I (see / am seeing) the doctor tomorrow at ten.
+3. Построй вопрос в Present Simple о расписании: What time (does / is) your plane land?
+4. Выбери Present Continuous для вопроса о планах: What (do you do / are you doing) this weekend?
 5. Переведи: «Мы ужинаем у бабушки в воскресенье».
 6. Исправь ошибку: *I think it is snowing tomorrow.*
 

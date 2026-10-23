@@ -1,0 +1,1984 @@
+{
+  "files": 151,
+  "lessons": 144,
+  "level_counts": {
+    "A1": 24,
+    "A2": 32,
+    "B1": 35,
+    "B2": 34,
+    "C1": 19
+  },
+  "tasks": 1658,
+  "kind_counts": {
+    "выбор": 538,
+    "ввод": 1120
+  },
+  "task_count_distribution": {
+    "11": 51,
+    "12": 77,
+    "13": 3,
+    "10": 12,
+    "14": 1
+  },
+  "min_tasks": 10,
+  "max_tasks": 14,
+  "uncovered": [],
+  "broken_wikilinks": [],
+  "invalid_tasks": [
+    [
+      477,
+      "level mismatch"
+    ],
+    [
+      478,
+      "level mismatch"
+    ],
+    [
+      479,
+      "level mismatch"
+    ],
+    [
+      480,
+      "level mismatch"
+    ],
+    [
+      481,
+      "level mismatch"
+    ],
+    [
+      482,
+      "level mismatch"
+    ],
+    [
+      483,
+      "level mismatch"
+    ],
+    [
+      484,
+      "level mismatch"
+    ],
+    [
+      485,
+      "level mismatch"
+    ],
+    [
+      486,
+      "level mismatch"
+    ],
+    [
+      497,
+      "level mismatch"
+    ],
+    [
+      498,
+      "level mismatch"
+    ],
+    [
+      499,
+      "level mismatch"
+    ],
+    [
+      500,
+      "level mismatch"
+    ],
+    [
+      501,
+      "level mismatch"
+    ],
+    [
+      502,
+      "level mismatch"
+    ],
+    [
+      503,
+      "level mismatch"
+    ],
+    [
+      504,
+      "level mismatch"
+    ],
+    [
+      505,
+      "level mismatch"
+    ],
+    [
+      506,
+      "level mismatch"
+    ],
+    [
+      519,
+      "level mismatch"
+    ],
+    [
+      520,
+      "level mismatch"
+    ],
+    [
+      521,
+      "level mismatch"
+    ],
+    [
+      522,
+      "level mismatch"
+    ],
+    [
+      523,
+      "level mismatch"
+    ],
+    [
+      524,
+      "level mismatch"
+    ],
+    [
+      525,
+      "level mismatch"
+    ],
+    [
+      526,
+      "level mismatch"
+    ],
+    [
+      527,
+      "level mismatch"
+    ],
+    [
+      528,
+      "level mismatch"
+    ],
+    [
+      529,
+      "level mismatch"
+    ],
+    [
+      530,
+      "level mismatch"
+    ],
+    [
+      531,
+      "level mismatch"
+    ],
+    [
+      532,
+      "level mismatch"
+    ],
+    [
+      533,
+      "level mismatch"
+    ],
+    [
+      534,
+      "level mismatch"
+    ],
+    [
+      535,
+      "level mismatch"
+    ],
+    [
+      536,
+      "level mismatch"
+    ],
+    [
+      537,
+      "level mismatch"
+    ],
+    [
+      538,
+      "level mismatch"
+    ],
+    [
+      539,
+      "level mismatch"
+    ],
+    [
+      545,
+      "level mismatch"
+    ],
+    [
+      546,
+      "level mismatch"
+    ],
+    [
+      547,
+      "level mismatch"
+    ],
+    [
+      548,
+      "level mismatch"
+    ],
+    [
+      549,
+      "level mismatch"
+    ],
+    [
+      550,
+      "level mismatch"
+    ],
+    [
+      551,
+      "level mismatch"
+    ],
+    [
+      552,
+      "level mismatch"
+    ],
+    [
+      553,
+      "level mismatch"
+    ],
+    [
+      554,
+      "level mismatch"
+    ],
+    [
+      555,
+      "level mismatch"
+    ],
+    [
+      556,
+      "level mismatch"
+    ],
+    [
+      557,
+      "level mismatch"
+    ],
+    [
+      599,
+      "level mismatch"
+    ],
+    [
+      600,
+      "level mismatch"
+    ],
+    [
+      601,
+      "level mismatch"
+    ],
+    [
+      602,
+      "level mismatch"
+    ],
+    [
+      603,
+      "level mismatch"
+    ]
+  ],
+  "duplicate_ids": [],
+  "duplicate_prompt_answer_rows": [],
+  "cycles": [],
+  "missing_prereq": [],
+  "empty_keywords": [
+    14,
+    15,
+    16,
+    21,
+    23,
+    24,
+    26,
+    27,
+    29,
+    31,
+    32,
+    34,
+    35,
+    36,
+    39,
+    40,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    64,
+    66,
+    68,
+    69,
+    70,
+    71,
+    74,
+    75,
+    77,
+    78,
+    80,
+    81,
+    82,
+    83,
+    86,
+    87,
+    88,
+    89,
+    90,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    102,
+    103,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    113,
+    115,
+    116,
+    117,
+    118,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    127,
+    128,
+    132,
+    133,
+    136,
+    137,
+    139,
+    140,
+    141
+  ],
+  "theory_words_min": 83,
+  "theory_words_max": 205,
+  "theory_words_median": 126,
+  "md_stats": [
+    {
+      "n": 1,
+      "theory_words": 190,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 2,
+      "theory_words": 176,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 3,
+      "theory_words": 95,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 4,
+      "theory_words": 150,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 5,
+      "theory_words": 97,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 6,
+      "theory_words": 107,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 7,
+      "theory_words": 101,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 8,
+      "theory_words": 92,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 9,
+      "theory_words": 100,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 10,
+      "theory_words": 109,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 11,
+      "theory_words": 137,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 12,
+      "theory_words": 124,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 13,
+      "theory_words": 121,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 14,
+      "theory_words": 161,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 15,
+      "theory_words": 111,
+      "keywords": false,
+      "tasks": 13,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 16,
+      "theory_words": 167,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 17,
+      "theory_words": 205,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 18,
+      "theory_words": 114,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 19,
+      "theory_words": 125,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 20,
+      "theory_words": 92,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 21,
+      "theory_words": 118,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 22,
+      "theory_words": 104,
+      "keywords": true,
+      "tasks": 13,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 9
+      }
+    },
+    {
+      "n": 23,
+      "theory_words": 106,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 24,
+      "theory_words": 138,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 25,
+      "theory_words": 108,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 26,
+      "theory_words": 129,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 27,
+      "theory_words": 111,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 28,
+      "theory_words": 112,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 29,
+      "theory_words": 83,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 30,
+      "theory_words": 126,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 31,
+      "theory_words": 109,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 32,
+      "theory_words": 118,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 33,
+      "theory_words": 156,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 34,
+      "theory_words": 130,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 35,
+      "theory_words": 126,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 36,
+      "theory_words": 116,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 37,
+      "theory_words": 123,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 38,
+      "theory_words": 125,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 39,
+      "theory_words": 124,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 40,
+      "theory_words": 125,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 41,
+      "theory_words": 118,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 42,
+      "theory_words": 141,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 43,
+      "theory_words": 104,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 44,
+      "theory_words": 99,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 45,
+      "theory_words": 105,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 46,
+      "theory_words": 131,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 47,
+      "theory_words": 117,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 2,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 48,
+      "theory_words": 128,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 49,
+      "theory_words": 150,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 50,
+      "theory_words": 126,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 51,
+      "theory_words": 169,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 52,
+      "theory_words": 135,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 53,
+      "theory_words": 98,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 54,
+      "theory_words": 99,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 55,
+      "theory_words": 129,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 56,
+      "theory_words": 110,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 57,
+      "theory_words": 134,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 58,
+      "theory_words": 118,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 59,
+      "theory_words": 128,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 60,
+      "theory_words": 142,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 61,
+      "theory_words": 140,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 62,
+      "theory_words": 130,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 63,
+      "theory_words": 119,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 64,
+      "theory_words": 133,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 65,
+      "theory_words": 159,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 66,
+      "theory_words": 114,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 67,
+      "theory_words": 128,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 68,
+      "theory_words": 115,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 69,
+      "theory_words": 169,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 70,
+      "theory_words": 148,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 71,
+      "theory_words": 128,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 72,
+      "theory_words": 172,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 73,
+      "theory_words": 120,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 74,
+      "theory_words": 111,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 75,
+      "theory_words": 107,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 76,
+      "theory_words": 148,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 77,
+      "theory_words": 114,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 78,
+      "theory_words": 113,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 79,
+      "theory_words": 130,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 80,
+      "theory_words": 110,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 81,
+      "theory_words": 129,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 82,
+      "theory_words": 201,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 83,
+      "theory_words": 178,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 84,
+      "theory_words": 167,
+      "keywords": true,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 85,
+      "theory_words": 143,
+      "keywords": true,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 86,
+      "theory_words": 136,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 87,
+      "theory_words": 125,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 88,
+      "theory_words": 111,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 89,
+      "theory_words": 98,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 90,
+      "theory_words": 102,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 91,
+      "theory_words": 114,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 92,
+      "theory_words": 141,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 93,
+      "theory_words": 136,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 94,
+      "theory_words": 125,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 95,
+      "theory_words": 105,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 96,
+      "theory_words": 98,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 97,
+      "theory_words": 118,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 98,
+      "theory_words": 158,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 99,
+      "theory_words": 116,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 100,
+      "theory_words": 122,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 101,
+      "theory_words": 107,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 102,
+      "theory_words": 132,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 103,
+      "theory_words": 128,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 104,
+      "theory_words": 152,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 105,
+      "theory_words": 112,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 106,
+      "theory_words": 140,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 6
+      }
+    },
+    {
+      "n": 107,
+      "theory_words": 121,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 108,
+      "theory_words": 111,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 109,
+      "theory_words": 128,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 110,
+      "theory_words": 100,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 111,
+      "theory_words": 101,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 2,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 112,
+      "theory_words": 144,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 113,
+      "theory_words": 109,
+      "keywords": false,
+      "tasks": 13,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 114,
+      "theory_words": 105,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 115,
+      "theory_words": 96,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 116,
+      "theory_words": 124,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 117,
+      "theory_words": 141,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 118,
+      "theory_words": 153,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 119,
+      "theory_words": 122,
+      "keywords": true,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 120,
+      "theory_words": 158,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 121,
+      "theory_words": 125,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 122,
+      "theory_words": 134,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 123,
+      "theory_words": 147,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 124,
+      "theory_words": 103,
+      "keywords": false,
+      "tasks": 11,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 125,
+      "theory_words": 121,
+      "keywords": false,
+      "tasks": 10,
+      "kind_counts": {
+        "выбор": 6,
+        "ввод": 4
+      }
+    },
+    {
+      "n": 126,
+      "theory_words": 179,
+      "keywords": true,
+      "tasks": 14,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 9
+      }
+    },
+    {
+      "n": 127,
+      "theory_words": 162,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 128,
+      "theory_words": 149,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 9
+      }
+    },
+    {
+      "n": 129,
+      "theory_words": 193,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 130,
+      "theory_words": 188,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 131,
+      "theory_words": 130,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 132,
+      "theory_words": 166,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 133,
+      "theory_words": 126,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 134,
+      "theory_words": 155,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 135,
+      "theory_words": 159,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 136,
+      "theory_words": 172,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 137,
+      "theory_words": 135,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 3,
+        "ввод": 9
+      }
+    },
+    {
+      "n": 138,
+      "theory_words": 146,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 7,
+        "ввод": 5
+      }
+    },
+    {
+      "n": 139,
+      "theory_words": 171,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 140,
+      "theory_words": 160,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 141,
+      "theory_words": 183,
+      "keywords": false,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 4,
+        "ввод": 8
+      }
+    },
+    {
+      "n": 142,
+      "theory_words": 152,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "ввод": 9,
+        "выбор": 3
+      }
+    },
+    {
+      "n": 143,
+      "theory_words": 150,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    },
+    {
+      "n": 144,
+      "theory_words": 204,
+      "keywords": true,
+      "tasks": 12,
+      "kind_counts": {
+        "выбор": 5,
+        "ввод": 7
+      }
+    }
+  ],
+  "learning_route": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    22,
+    25,
+    28,
+    29,
+    50,
+    17,
+    18,
+    19,
+    20,
+    21,
+    33,
+    23,
+    24,
+    26,
+    27,
+    30,
+    31,
+    32,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    78,
+    71,
+    72,
+    73,
+    76,
+    77,
+    74,
+    75,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144
+  ],
+  "suspicious_negative_variants": [
+    {
+      "row": 1445,
+      "id": 1444,
+      "topic": 113,
+      "answer": "isn't it / is not it"
+    },
+    {
+      "row": 1447,
+      "id": 1446,
+      "topic": 113,
+      "answer": "didn't she / did not she"
+    },
+    {
+      "row": 1448,
+      "id": 1447,
+      "topic": 113,
+      "answer": "haven't they / have not they"
+    },
+    {
+      "row": 1449,
+      "id": 1448,
+      "topic": 113,
+      "answer": "aren't I / are not I"
+    },
+    {
+      "row": 1457,
+      "id": 1456,
+      "topic": 115,
+      "answer": "Aren't you tired? / Are not you tired?"
+    },
+    {
+      "row": 1458,
+      "id": 1457,
+      "topic": 115,
+      "answer": "Haven't you seen this film? / Didn't you see this film? / Did not you see this film? / Have not you seen this film?"
+    },
+    {
+      "row": 1559,
+      "id": 1558,
+      "topic": 133,
+      "answer": "Wouldn't it be better to wait? / Would not it be better to wait?"
+    }
+  ],
+  "unspecified_input_prompts": 108,
+  "mermaid_blocks": 0
+}

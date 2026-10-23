@@ -1,0 +1,2039 @@
+[
+  {
+    "cell": "F803",
+    "id": 802,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: This present is for ___.",
+    "value": "Вставь объектную форму местоимения she: This present is for ___."
+  },
+  {
+    "cell": "F823",
+    "id": 822,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ a good café on this street.",
+    "value": "Сообщи о наличии кафе с there is или there are: ___ a good café on this street."
+  },
+  {
+    "cell": "F831",
+    "id": 830,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Can you give me ___?",
+    "value": "Дополни словами some и advice: Can you give me ___?"
+  },
+  {
+    "cell": "F840",
+    "id": 839,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___",
+    "value": "Вырази принадлежность с of: the windows; the house. Напиши словосочетание целиком."
+  },
+  {
+    "cell": "F842",
+    "id": 841,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Is this ___ umbrella?",
+    "value": "Вставь притяжательный определитель для you: Is this ___ umbrella?"
+  },
+  {
+    "cell": "F843",
+    "id": 842,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: No, it isn't ___.",
+    "value": "Вставь самостоятельную притяжательную форму для I: No, it isn't ___."
+  },
+  {
+    "cell": "F848",
+    "id": 847,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ shoes are new.",
+    "value": "Вставь this или these о предметах рядом: ___ shoes are new."
+  },
+  {
+    "cell": "F849",
+    "id": 848,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Look at ___ bird on the roof!",
+    "value": "Вставь that или those о предмете вдали: Look at ___ bird on the roof!"
+  },
+  {
+    "cell": "F856",
+    "id": 855,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ of fans came to the stadium.",
+    "value": "Поставь thousand в нужную форму: ___ of fans came to the stadium."
+  },
+  {
+    "cell": "F872",
+    "id": 871,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Mum went to ___ to talk to the teacher.",
+    "value": "Вставь school с артиклем, если он нужен. Мама пришла как посетитель в конкретную школу: Mum went to ___ to talk to the teacher."
+  },
+  {
+    "cell": "F874",
+    "id": 873,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The keys to the car ___ on the table.",
+    "value": "Вставь be в Present Simple: The keys to the car ___ on the table."
+  },
+  {
+    "cell": "F875",
+    "id": 874,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Everyone ___ this song.",
+    "value": "Вставь like в Present Simple: Everyone ___ this song."
+  },
+  {
+    "cell": "F876",
+    "id": 875,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Maths ___ my favourite subject.",
+    "value": "Вставь be в Present Simple: Maths ___ my favourite subject."
+  },
+  {
+    "cell": "F877",
+    "id": 876,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: My mum and dad ___ from home.",
+    "value": "Вставь work в Present Simple: My mum and dad ___ from home."
+  },
+  {
+    "cell": "F878",
+    "id": 877,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The quality of these products ___ excellent.",
+    "value": "Вставь be в Present Simple: The quality of these products ___ excellent."
+  },
+  {
+    "cell": "F890",
+    "id": 889,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ colour do you prefer — red or blue?",
+    "value": "Вставь what или which для вопроса о выборе: ___ colour do you prefer — red or blue?"
+  },
+  {
+    "cell": "F925",
+    "id": 924,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ a glass of water, please.",
+    "value": "Составь вежливую просьбу с I would like; сокращение допустимо: ___ a glass of water, please."
+  },
+  {
+    "cell": "F926",
+    "id": 925,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ reading detective stories. Это моё хобби.",
+    "value": "Скажи «Я люблю», используя I и like: ___ reading detective stories. Это моё хобби."
+  },
+  {
+    "cell": "F936",
+    "id": 935,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Look! It ___.",
+    "value": "Вставь snow в Present Continuous: Look! It ___."
+  },
+  {
+    "cell": "F937",
+    "id": 936,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ this rule.",
+    "value": "Вставь подходящую форму not / understand: I ___ this rule."
+  },
+  {
+    "cell": "F938",
+    "id": 937,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: This bag ___ to Anna.",
+    "value": "Вставь подходящую форму belong: This bag ___ to Anna."
+  },
+  {
+    "cell": "F939",
+    "id": 938,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: We ___ dinner at the moment.",
+    "value": "Вставь have в Present Continuous: We ___ dinner at the moment."
+  },
+  {
+    "cell": "F940",
+    "id": 939,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ she's right.",
+    "value": "Вставь think в значении «считать, полагать»: I ___ she's right."
+  },
+  {
+    "cell": "F941",
+    "id": 940,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Be quiet! I ___.",
+    "value": "Вставь think в Present Continuous: Be quiet! I ___."
+  },
+  {
+    "cell": "F943",
+    "id": 942,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Shh! The baby ___.",
+    "value": "Вставь подходящую форму sleep: Shh! The baby ___."
+  },
+  {
+    "cell": "F944",
+    "id": 943,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: My grandparents ___ in a village. Это их постоянное место жительства.",
+    "value": "Вставь live в Present Simple: My grandparents ___ in a village. Это их постоянное место жительства."
+  },
+  {
+    "cell": "F945",
+    "id": 944,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ at a hotel until my flat is ready.",
+    "value": "Вставь stay в Present Continuous для временной ситуации: I ___ at a hotel until my flat is ready."
+  },
+  {
+    "cell": "F946",
+    "id": 945,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: How often ___ to the gym?",
+    "value": "Построй вопрос о привычке с you и go: How often ___ to the gym?"
+  },
+  {
+    "cell": "F947",
+    "id": 946,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ you're right.",
+    "value": "Вставь think в значении «считать, полагать»: I ___ you're right."
+  },
+  {
+    "cell": "F970",
+    "id": 969,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: When I was a child, I ___ have long hair.",
+    "value": "Вставь used to или would о прошлом состоянии: When I was a child, I ___ have long hair."
+  },
+  {
+    "cell": "F971",
+    "id": 970,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Every summer, Grandad ___ take us fishing.",
+    "value": "Вставь used to или would о повторявшемся действии: Every summer, Grandad ___ take us fishing."
+  },
+  {
+    "cell": "F974",
+    "id": 973,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: It took me months to ___ used to the climate.",
+    "value": "Вставь подходящую форму get: It took me months to ___ used to the climate."
+  },
+  {
+    "cell": "F975",
+    "id": 974,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Don't worry, she ___ working at night.",
+    "value": "Используй be used to в настоящем: Don't worry, she ___ working at night. Она уже привыкла к ночной работе."
+  },
+  {
+    "cell": "F976",
+    "id": 975,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ drink milk, but now I don't.",
+    "value": "Вставь used to о прежней привычке: I ___ drink milk, but now I don't."
+  },
+  {
+    "cell": "F982",
+    "id": 981,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Tom isn't here. He's ___ to the bank.",
+    "value": "Вставь been или gone: Tom isn't here. He's ___ to the bank. Он ещё не вернулся."
+  },
+  {
+    "cell": "F985",
+    "id": 984,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ the report an hour ago.",
+    "value": "Вставь подходящую форму finish: I ___ the report an hour ago."
+  },
+  {
+    "cell": "F987",
+    "id": 986,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ in Paris from 2010 to 2015.",
+    "value": "Вставь подходящую форму live: She ___ in Paris from 2010 to 2015."
+  },
+  {
+    "cell": "F989",
+    "id": 988,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: We ___ any rain so far this month.",
+    "value": "Вставь not / have в Present Perfect: We ___ any rain so far this month."
+  },
+  {
+    "cell": "F1000",
+    "id": 999,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: — Do you want to see this film? — No, I've ___ seen it.",
+    "value": "Вставь наречие «уже»: — Do you want to see this film? — No, I've ___ seen it."
+  },
+  {
+    "cell": "F1001",
+    "id": 1000,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Have you ___ been to Japan?",
+    "value": "Вставь наречие «когда-либо»: Have you ___ been to Japan?"
+  },
+  {
+    "cell": "F1005",
+    "id": 1004,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ three books this month.",
+    "value": "Вставь read в Present Perfect: I ___ three books this month."
+  },
+  {
+    "cell": "F1006",
+    "id": 1005,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ him for years.",
+    "value": "Вставь know в Present Perfect: She ___ him for years."
+  },
+  {
+    "cell": "F1012",
+    "id": 1011,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: When I arrived, she ___. Мы так и не увиделись.",
+    "value": "Вставь leave в Past Perfect: When I arrived, she ___. Она ушла до моего прихода, и мы так и не увиделись."
+  },
+  {
+    "cell": "F1013",
+    "id": 1012,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: When the phone rang, I ___ it.",
+    "value": "Вставь answer в Past Simple для следующего события: When the phone rang, I ___ it."
+  },
+  {
+    "cell": "F1017",
+    "id": 1016,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: By 2010, he ___ her for ten years.",
+    "value": "Вставь know в Past Perfect: By 2010, he ___ her for ten years."
+  },
+  {
+    "cell": "F1018",
+    "id": 1017,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: When I met him, he ___ there for a year.",
+    "value": "Вставь work в Past Perfect Continuous: When I met him, he ___ there for a year."
+  },
+  {
+    "cell": "F1019",
+    "id": 1018,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ five letters by noon.",
+    "value": "Вставь write в Past Perfect: She ___ five letters by noon."
+  },
+  {
+    "cell": "F1032",
+    "id": 1031,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: — We've run out of bread. — Oh, I ___ buy some.",
+    "value": "Используй will для решения прямо сейчас: — We've run out of bread. — Oh, I ___ buy some."
+  },
+  {
+    "cell": "F1033",
+    "id": 1032,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I've decided — I ___ change jobs.",
+    "value": "Используй be going to для принятого намерения: I've decided — I ___ change jobs."
+  },
+  {
+    "cell": "F1034",
+    "id": 1033,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Look out! You ___ fall!",
+    "value": "Используй be going to для прогноза по видимым признакам: Look out! You ___ fall!"
+  },
+  {
+    "cell": "F1038",
+    "id": 1037,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The concert ___ at 7 p.m. according to the programme.",
+    "value": "Вставь start в Present Simple для расписания: The concert ___ at 7 p.m. according to the programme."
+  },
+  {
+    "cell": "F1039",
+    "id": 1038,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ the doctor tomorrow at ten.",
+    "value": "Вставь see в Present Continuous для договорённости: I ___ the doctor tomorrow at ten."
+  },
+  {
+    "cell": "F1040",
+    "id": 1039,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: What time ___ your plane land?",
+    "value": "Построй вопрос в Present Simple о расписании: What time ___ your plane land?"
+  },
+  {
+    "cell": "F1041",
+    "id": 1040,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: What ___ this weekend?",
+    "value": "Построй вопрос с you и do в Present Continuous о планах: What ___ this weekend?"
+  },
+  {
+    "cell": "F1051",
+    "id": 1050,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ you at eight, I promise.",
+    "value": "Используй will с call для обещания: I ___ you at eight, I promise."
+  },
+  {
+    "cell": "F1057",
+    "id": 1056,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: By next June, she ___.",
+    "value": "Вставь graduate в Future Perfect: By next June, she ___."
+  },
+  {
+    "cell": "F1063",
+    "id": 1062,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: By then, I ___ her for ten years.",
+    "value": "Вставь know в Future Perfect: By then, I ___ her for ten years."
+  },
+  {
+    "cell": "F1064",
+    "id": 1063,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: By Friday, I ___ the essay. К пятнице эссе будет готово.",
+    "value": "Вставь write в Future Perfect: By Friday, I ___ the essay. К пятнице эссе будет готово."
+  },
+  {
+    "cell": "F1070",
+    "id": 1069,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ leave when the phone rang.",
+    "value": "Используй be about to в прошлом: She ___ leave when the phone rang. Она уже собиралась уйти в следующую секунду."
+  },
+  {
+    "cell": "F1078",
+    "id": 1077,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Do you know when the meeting ___?",
+    "value": "Вставь start, говоря о будущем времени начала встречи: Do you know when the meeting ___?"
+  },
+  {
+    "cell": "F1080",
+    "id": 1079,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The fire spread quickly, but everyone ___ escape.",
+    "value": "Используй be able to в Past Simple для конкретного успеха: The fire spread quickly, but everyone ___ escape."
+  },
+  {
+    "cell": "F1085",
+    "id": 1084,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ use your phone? (я хочу позвонить)",
+    "value": "Начни просьбу о разрешении с Can, Could или May и I: ___ use your phone?"
+  },
+  {
+    "cell": "F1086",
+    "id": 1085,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ help me with this box? (помоги мне)",
+    "value": "Начни просьбу о помощи с Can, Could или Would и you: ___ help me with this box?"
+  },
+  {
+    "cell": "F1094",
+    "id": 1093,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I really ___ stop eating sweets — I decided it myself.",
+    "value": "Вставь must или have to о необходимости: I really ___ stop eating sweets — I decided it myself."
+  },
+  {
+    "cell": "F1097",
+    "id": 1096,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: You ___ smoke in the hospital.",
+    "value": "Вырази запрет с must: You ___ smoke in the hospital."
+  },
+  {
+    "cell": "F1098",
+    "id": 1097,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Tomorrow is Sunday, so I ___ get up early.",
+    "value": "Вырази отсутствие необходимости с have to в настоящем: Tomorrow is Sunday, so I ___ get up early."
+  },
+  {
+    "cell": "F1099",
+    "id": 1098,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: You ___ bring anything — we have everything.",
+    "value": "Используй модальное need в отрицании: You ___ bring anything — we have everything."
+  },
+  {
+    "cell": "F1109",
+    "id": 1108,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She's been working for 12 hours. She ___ be exhausted.",
+    "value": "Выбери must или can't для уверенного вывода: She's been working for 12 hours. She ___ be exhausted."
+  },
+  {
+    "cell": "F1110",
+    "id": 1109,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: That ___ be true — I saw him yesterday!",
+    "value": "Выбери must или can't: They say he has been abroad all week. That ___ be true — I saw him here yesterday!"
+  },
+  {
+    "cell": "F1111",
+    "id": 1110,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I'm not sure where he is. He ___ be in the garden.",
+    "value": "Вставь may, might или could для неуверенной догадки: I'm not sure where he is. He ___ be in the garden."
+  },
+  {
+    "cell": "F1116",
+    "id": 1115,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ seen us — she was in Spain.",
+    "value": "Вырази уверенный отрицательный вывод о прошлом с can't или couldn't: She ___ seen us — she was in Spain."
+  },
+  {
+    "cell": "F1122",
+    "id": 1121,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: We ___ — the train was late, and we waited for 20 minutes.",
+    "value": "Используй needn't have с hurry: We ___ — the train was late, and we waited for 20 minutes. Мы действительно спешили, но зря."
+  },
+  {
+    "cell": "F1135",
+    "id": 1134,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: If you press this button, the machine ___. (так работает всегда)",
+    "value": "Вставь stop в Present Simple для закономерности: If you press this button, the machine ___."
+  },
+  {
+    "cell": "F1140",
+    "id": 1139,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ I get home, I'll make dinner. (я точно приду домой)",
+    "value": "Вставь союз «когда» об ожидаемом событии: ___ I get home, I'll make dinner."
+  },
+  {
+    "cell": "F1146",
+    "id": 1145,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: If I ___ more money, I'd buy a house.",
+    "value": "Вставь have в Second Conditional: If I ___ more money, I'd buy a house."
+  },
+  {
+    "cell": "F1147",
+    "id": 1146,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: If it ___ tomorrow, we'll stay home. (это вполне возможно)",
+    "value": "Вставь rain в First Conditional: If it ___ tomorrow, we'll stay home. Это вполне возможно."
+  },
+  {
+    "cell": "F1159",
+    "id": 1158,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: If we hadn't missed the flight, we ___ in Rome now.",
+    "value": "Вставь be с would в результате Mixed Conditional: If we hadn't missed the flight, we ___ in Rome now."
+  },
+  {
+    "cell": "F1171",
+    "id": 1170,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I ___ you pass your exam tomorrow.",
+    "value": "Вставь hope или wish: I ___ you pass your exam tomorrow. Это реальная надежда на будущее."
+  },
+  {
+    "cell": "F1194",
+    "id": 1193,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The painting is thought ___ stolen in 1990.",
+    "value": "Допиши перфектный пассивный инфинитив с be: The painting is thought ___ stolen in 1990."
+  },
+  {
+    "cell": "F1213",
+    "id": 1212,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She ___ me the truth.",
+    "value": "Вставь tell в Past Simple: She ___ me the truth."
+  },
+  {
+    "cell": "F1250",
+    "id": 1249,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I'll never forget ___ the ocean for the first time.",
+    "value": "Вставь подходящую форму see: I'll never forget ___ the ocean for the first time."
+  },
+  {
+    "cell": "F1251",
+    "id": 1250,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Did you remember ___ the door? (выполнил ли задачу)",
+    "value": "Вставь подходящую форму lock: Did you remember ___ the door? Спрашиваем, не забыл ли человек выполнить задачу."
+  },
+  {
+    "cell": "F1252",
+    "id": 1251,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: He stopped ___ coffee because of his heart.",
+    "value": "Вставь подходящую форму drink: He stopped ___ coffee because of his heart. Он прекратил пить кофе."
+  },
+  {
+    "cell": "F1253",
+    "id": 1252,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: We stopped ___ petrol on the way.",
+    "value": "Вставь подходящую форму buy: We stopped ___ petrol on the way. Остановились, чтобы купить бензин."
+  },
+  {
+    "cell": "F1254",
+    "id": 1253,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: If you can't sleep, try ___ warm milk.",
+    "value": "Вставь подходящую форму drink: If you can't sleep, try ___ warm milk. Предлагаем проверить этот способ."
+  },
+  {
+    "cell": "F1255",
+    "id": 1254,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I regret ___ him my secret.",
+    "value": "Вставь подходящую форму tell: I regret ___ him my secret. Жалею о том, что уже рассказал."
+  },
+  {
+    "cell": "F1261",
+    "id": 1260,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I heard someone ___ my name.",
+    "value": "Вставь call в начальной форме или с -ing по смыслу восприятия: I heard someone ___ my name."
+  },
+  {
+    "cell": "F1271",
+    "id": 1270,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I don't like ___ what to do.",
+    "value": "Вставь пассивную форму tell после like: I don't like ___ what to do."
+  },
+  {
+    "cell": "F1296",
+    "id": 1295,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The film ___ last night was great.",
+    "value": "Вставь причастную форму show с пассивным смыслом: The film ___ last night was great."
+  },
+  {
+    "cell": "F1307",
+    "id": 1306,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: This soup tastes ___.",
+    "value": "Вставь good или well, описывая вкус: This soup tastes ___."
+  },
+  {
+    "cell": "F1310",
+    "id": 1309,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The lecture was so ___ that I fell asleep.",
+    "value": "Образуй прилагательное от bore: The lecture was so ___ that I fell asleep."
+  },
+  {
+    "cell": "F1311",
+    "id": 1310,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I'm ___ about the trip.",
+    "value": "Образуй прилагательное от excite о чувстве человека: I'm ___ about the trip."
+  },
+  {
+    "cell": "F1312",
+    "id": 1311,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: These instructions are very ___.",
+    "value": "Образуй прилагательное от confuse о причине растерянности: These instructions are very ___."
+  },
+  {
+    "cell": "F1313",
+    "id": 1312,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She felt ___ when she fell.",
+    "value": "Образуй прилагательное от embarrass о чувстве человека: She felt ___ when she fell."
+  },
+  {
+    "cell": "F1314",
+    "id": 1313,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: It was a ___ journey.",
+    "value": "Образуй прилагательное от tire о причине усталости: It was a ___ journey."
+  },
+  {
+    "cell": "F1340",
+    "id": 1339,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The film was ___ fantastic.",
+    "value": "Вставь absolutely или really в сочетание с сильным прилагательным: The film was ___ fantastic."
+  },
+  {
+    "cell": "F1341",
+    "id": 1340,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I'm ___ tired.",
+    "value": "Вставь very, really или extremely перед градуируемым прилагательным: I'm ___ tired."
+  },
+  {
+    "cell": "F1342",
+    "id": 1341,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The hotel room was ___ tiny.",
+    "value": "Вставь absolutely или really в сочетание с сильным прилагательным: The hotel room was ___ tiny."
+  },
+  {
+    "cell": "F1343",
+    "id": 1342,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: It's ___ cold outside.",
+    "value": "Вставь very, really или extremely для усиления: It's ___ cold outside."
+  },
+  {
+    "cell": "F1358",
+    "id": 1357,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She speaks English very ___.",
+    "value": "Вставь good или well, описывая действие: She speaks English very ___."
+  },
+  {
+    "cell": "F1359",
+    "id": 1358,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: He's a ___ learner.",
+    "value": "Вставь quick или quickly: He's a ___ learner."
+  },
+  {
+    "cell": "F1360",
+    "id": 1359,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: You've worked ___ today. Have a rest.",
+    "value": "Вставь hard или hardly в значении «усердно»: You've worked ___ today. Have a rest."
+  },
+  {
+    "cell": "F1361",
+    "id": 1360,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: I can ___ see anything.",
+    "value": "Вставь hard или hardly в значении «едва»: I can ___ see anything."
+  },
+  {
+    "cell": "F1410",
+    "id": 1409,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: She had a ring on ___ hand.",
+    "value": "Вставь each или every о каждой из двух рук: She had a ring on ___ hand."
+  },
+  {
+    "cell": "F1411",
+    "id": 1410,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: ___ of the players got a medal.",
+    "value": "Вставь each или every: ___ of the players got a medal."
+  },
+  {
+    "cell": "F1589",
+    "id": 1588,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: A number of questions ___ raised.",
+    "value": "Вставь be в Past Simple: A number of questions ___ raised."
+  },
+  {
+    "cell": "F1590",
+    "id": 1589,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: The number of accidents ___ fallen.",
+    "value": "Вставь have в Present Perfect: The number of accidents ___ fallen."
+  },
+  {
+    "cell": "F1591",
+    "id": 1590,
+    "field": "Задание",
+    "old": "Впиши подходящую форму: Ten dollars ___ not enough.",
+    "value": "Вставь be в Present Simple: Ten dollars ___ not enough."
+  },
+  {
+    "cell": "K812",
+    "id": 811,
+    "field": "Правильный ответ",
+    "old": "Yes, I am. / Yes, I'm.",
+    "value": "Yes, I am."
+  },
+  {
+    "cell": "K814",
+    "id": 813,
+    "field": "Правильный ответ",
+    "old": "Do they have a car? / Do they've a car?",
+    "value": "Do they have a car?"
+  },
+  {
+    "cell": "K816",
+    "id": 815,
+    "field": "Правильный ответ",
+    "old": "Do you have a pen? / Have you got a pen? / Do you've a pen?",
+    "value": "Do you have a pen? / Have you got a pen?"
+  },
+  {
+    "cell": "K817",
+    "id": 816,
+    "field": "Правильный ответ",
+    "old": "I have breakfast at seven. / I've breakfast at seven.",
+    "value": "I have breakfast at seven."
+  },
+  {
+    "cell": "K890",
+    "id": 889,
+    "field": "Правильный ответ",
+    "old": "Which",
+    "value": "Which / What"
+  },
+  {
+    "cell": "K911",
+    "id": 910,
+    "field": "Правильный ответ",
+    "old": "I won't tell anyone. / I will not tell anyone.",
+    "value": "I won't tell anyone."
+  },
+  {
+    "cell": "K912",
+    "id": 911,
+    "field": "Правильный ответ",
+    "old": "Yes, I am. / Yes, I'm.",
+    "value": "Yes, I am."
+  },
+  {
+    "cell": "K925",
+    "id": 924,
+    "field": "Правильный ответ",
+    "old": "I'd like",
+    "value": "I'd like / I would like"
+  },
+  {
+    "cell": "K932",
+    "id": 931,
+    "field": "Правильный ответ",
+    "old": "am not working / I'm not working / I am not working",
+    "value": "am not working / 'm not working"
+  },
+  {
+    "cell": "K948",
+    "id": 947,
+    "field": "Правильный ответ",
+    "old": "Look! It's raining.",
+    "value": "Look! It's raining. / Look! It is raining."
+  },
+  {
+    "cell": "K979",
+    "id": 978,
+    "field": "Правильный ответ",
+    "old": "have lost / I've lost my keys / I have lost my keys",
+    "value": "have lost / 've lost"
+  },
+  {
+    "cell": "K1003",
+    "id": 1002,
+    "field": "Правильный ответ",
+    "old": "have been learning / I've been learning English for three years / I have been learning English for three years",
+    "value": "have been learning / 've been learning"
+  },
+  {
+    "cell": "K1004",
+    "id": 1003,
+    "field": "Правильный ответ",
+    "old": "have been repairing / I've been repairing the bike / I have been repairing the bike",
+    "value": "have been repairing / 've been repairing"
+  },
+  {
+    "cell": "K971",
+    "id": 970,
+    "field": "Правильный ответ",
+    "old": "would",
+    "value": "would / used to"
+  },
+  {
+    "cell": "K1037",
+    "id": 1036,
+    "field": "Правильный ответ",
+    "old": "She is going to study medicine.",
+    "value": "She is going to study medicine. / She's going to study medicine."
+  },
+  {
+    "cell": "K1078",
+    "id": 1077,
+    "field": "Правильный ответ",
+    "old": "starts / will start",
+    "value": "starts / will start / is starting"
+  },
+  {
+    "cell": "K1085",
+    "id": 1084,
+    "field": "Правильный ответ",
+    "old": "Could I",
+    "value": "Could I / Can I / May I"
+  },
+  {
+    "cell": "K1086",
+    "id": 1085,
+    "field": "Правильный ответ",
+    "old": "Could you",
+    "value": "Could you / Can you / Would you"
+  },
+  {
+    "cell": "K1096",
+    "id": 1095,
+    "field": "Правильный ответ",
+    "old": "Did you have to wait long? / Did you've to wait long?",
+    "value": "Did you have to wait long?"
+  },
+  {
+    "cell": "K1097",
+    "id": 1096,
+    "field": "Правильный ответ",
+    "old": "mustn't",
+    "value": "mustn't / must not"
+  },
+  {
+    "cell": "K1111",
+    "id": 1110,
+    "field": "Правильный ответ",
+    "old": "might",
+    "value": "might / may / could"
+  },
+  {
+    "cell": "K1116",
+    "id": 1115,
+    "field": "Правильный ответ",
+    "old": "can't have / cannot have",
+    "value": "can't have / cannot have / couldn't have / could not have"
+  },
+  {
+    "cell": "K1122",
+    "id": 1121,
+    "field": "Правильный ответ",
+    "old": "needn't have hurried / didn't need to hurry / did not need to hurry / need not have hurried",
+    "value": "needn't have hurried / need not have hurried"
+  },
+  {
+    "cell": "K1191",
+    "id": 1190,
+    "field": "Правильный ответ",
+    "old": "He is said to be very rich.",
+    "value": "He is said to be very rich. / It is said that he is very rich. / He's said to be very rich. / It's said that he is very rich. / It is said that he's very rich. / It's said that he's very rich."
+  },
+  {
+    "cell": "K1192",
+    "id": 1191,
+    "field": "Правильный ответ",
+    "old": "The thief is believed to have escaped through the window.",
+    "value": "The thief is believed to have escaped through the window. / It is believed that the thief escaped through the window. / It's believed that the thief escaped through the window."
+  },
+  {
+    "cell": "K1193",
+    "id": 1192,
+    "field": "Правильный ответ",
+    "old": "It is reported that the president is ill.",
+    "value": "It is reported that the president is ill. / The president is reported to be ill. / It's reported that the president is ill."
+  },
+  {
+    "cell": "K1199",
+    "id": 1198,
+    "field": "Правильный ответ",
+    "old": "Where do you have your hair cut? / Where do you've your hair cut?",
+    "value": "Where do you have your hair cut?"
+  },
+  {
+    "cell": "K1261",
+    "id": 1260,
+    "field": "Правильный ответ",
+    "old": "call",
+    "value": "call / calling"
+  },
+  {
+    "cell": "K1271",
+    "id": 1270,
+    "field": "Правильный ответ",
+    "old": "being told",
+    "value": "being told / to be told"
+  },
+  {
+    "cell": "K1340",
+    "id": 1339,
+    "field": "Правильный ответ",
+    "old": "absolutely",
+    "value": "absolutely / really"
+  },
+  {
+    "cell": "K1341",
+    "id": 1340,
+    "field": "Правильный ответ",
+    "old": "very",
+    "value": "very / really / extremely"
+  },
+  {
+    "cell": "K1342",
+    "id": 1341,
+    "field": "Правильный ответ",
+    "old": "absolutely",
+    "value": "absolutely / really"
+  },
+  {
+    "cell": "K1343",
+    "id": 1342,
+    "field": "Правильный ответ",
+    "old": "extremely",
+    "value": "extremely / very / really"
+  },
+  {
+    "cell": "K1445",
+    "id": 1444,
+    "field": "Правильный ответ",
+    "old": "isn't it / is not it",
+    "value": "isn't it / is it not"
+  },
+  {
+    "cell": "K1447",
+    "id": 1446,
+    "field": "Правильный ответ",
+    "old": "didn't she / did not she",
+    "value": "didn't she / did she not"
+  },
+  {
+    "cell": "K1448",
+    "id": 1447,
+    "field": "Правильный ответ",
+    "old": "haven't they / have not they",
+    "value": "haven't they / have they not"
+  },
+  {
+    "cell": "K1449",
+    "id": 1448,
+    "field": "Правильный ответ",
+    "old": "aren't I / are not I",
+    "value": "aren't I / am I not"
+  },
+  {
+    "cell": "K1457",
+    "id": 1456,
+    "field": "Правильный ответ",
+    "old": "Aren't you tired? / Are not you tired?",
+    "value": "Aren't you tired? / Are you not tired?"
+  },
+  {
+    "cell": "K1458",
+    "id": 1457,
+    "field": "Правильный ответ",
+    "old": "Haven't you seen this film? / Didn't you see this film? / Did not you see this film? / Have not you seen this film?",
+    "value": "Haven't you seen this film? / Didn't you see this film? / Have you not seen this film? / Did you not see this film?"
+  },
+  {
+    "cell": "K1559",
+    "id": 1558,
+    "field": "Правильный ответ",
+    "old": "Wouldn't it be better to wait? / Would not it be better to wait?",
+    "value": "Wouldn't it be better to wait? / Would it not be better to wait?"
+  },
+  {
+    "cell": "K1579",
+    "id": 1578,
+    "field": "Правильный ответ",
+    "old": "Wherever you are, call me. / Wherever you're, call me.",
+    "value": "Wherever you are, call me."
+  },
+  {
+    "cell": "F911",
+    "id": 910,
+    "field": "Задание",
+    "old": "Сократи: I will not tell anyone. Напиши ответ целиком.",
+    "value": "Сократи will not: I will not tell anyone. Напиши предложение целиком."
+  },
+  {
+    "cell": "F887",
+    "id": 886,
+    "field": "Задание",
+    "old": "Задай вопрос к выделенному: She works in a bank. Напиши ответ целиком.",
+    "value": "Задай вопрос к месту in a bank: She works in a bank. Напиши вопрос целиком."
+  },
+  {
+    "cell": "F888",
+    "id": 887,
+    "field": "Задание",
+    "old": "Задай вопрос к выделенному: They arrived yesterday. Напиши ответ целиком.",
+    "value": "Задай вопрос ко времени yesterday: They arrived yesterday. Напиши вопрос целиком."
+  },
+  {
+    "cell": "F891",
+    "id": 890,
+    "field": "Задание",
+    "old": "Задай вопрос к выделенному: Mike broke the window. Напиши ответ целиком.",
+    "value": "Задай вопрос к подлежащему Mike: Mike broke the window. Напиши вопрос целиком."
+  },
+  {
+    "cell": "F892",
+    "id": 891,
+    "field": "Задание",
+    "old": "Задай вопрос к выделенному: Mike broke the window. Напиши ответ целиком.",
+    "value": "Задай вопрос к дополнению the window: Mike broke the window. Напиши вопрос целиком."
+  },
+  {
+    "cell": "F894",
+    "id": 893,
+    "field": "Задание",
+    "old": "Задай вопрос к выделенному: Ten people live in this house. Напиши ответ целиком.",
+    "value": "Задай вопрос к количеству Ten people: Ten people live in this house. Напиши вопрос целиком."
+  },
+  {
+    "cell": "F1273",
+    "id": 1272,
+    "field": "Задание",
+    "old": "Замени выделенное местоимением: Please turn off the TV. Напиши ответ целиком.",
+    "value": "Замени the TV местоимением it: Please turn off the TV. Напиши предложение целиком."
+  },
+  {
+    "cell": "F1556",
+    "id": 1555,
+    "field": "Задание",
+    "old": "Сделай вежливее с wondering: Can you help me with my CV? Напиши ответ целиком.",
+    "value": "Сделай просьбу вежливее с I was wondering if или I was wondering whether и could: Can you help me with my CV? Напиши ответ целиком."
+  },
+  {
+    "cell": "F1557",
+    "id": 1556,
+    "field": "Задание",
+    "old": "Сделай вежливее с hoping: I want to talk to you about my salary. Напиши ответ целиком.",
+    "value": "Сделай вежливее, начав с I was hoping: I want to talk to you about my salary. Напиши ответ целиком."
+  },
+  {
+    "cell": "F1571",
+    "id": 1570,
+    "field": "Задание",
+    "old": "Ответь на приглашение «С удовольствием»: Would you like to join us? Напиши ответ целиком.",
+    "value": "Ответь на приглашение с I would love, оставив to без повтора глагола: Would you like to join us? Напиши краткий ответ, начав с I; сокращение допустимо."
+  },
+  {
+    "cell": "K1556",
+    "id": 1555,
+    "field": "Правильный ответ",
+    "old": "I was wondering if you could help me with my CV.",
+    "value": "I was wondering if you could help me with my CV. / I was wondering whether you could help me with my CV."
+  },
+  {
+    "cell": "K1557",
+    "id": 1556,
+    "field": "Правильный ответ",
+    "old": "I was hoping to talk to you about my salary.",
+    "value": "I was hoping to talk to you about my salary. / I was hoping I could talk to you about my salary. / I was hoping that I could talk to you about my salary."
+  },
+  {
+    "cell": "F238",
+    "id": 237,
+    "field": "Задание",
+    "old": "The phone is ringing. — I ___ it.",
+    "value": "Передай решение прямо сейчас с will: The phone is ringing. — I ___ it."
+  },
+  {
+    "cell": "F244",
+    "id": 243,
+    "field": "Задание",
+    "old": "Look at those clouds! It ___ rain.",
+    "value": "Используй be going to для прогноза по видимым признакам: Look at those clouds! It ___ rain."
+  },
+  {
+    "cell": "F245",
+    "id": 244,
+    "field": "Задание",
+    "old": "I ___ visit my grandma this weekend. I decided yesterday.",
+    "value": "Используй be going to для принятого намерения: I ___ visit my grandma this weekend. I decided yesterday."
+  },
+  {
+    "cell": "F249",
+    "id": 248,
+    "field": "Задание",
+    "old": "I ___ my dentist at 4 p.m. tomorrow. It's in my diary.",
+    "value": "Используй Present Continuous для назначенной встречи: I ___ my dentist at 4 p.m. tomorrow. It's in my diary."
+  },
+  {
+    "cell": "F250",
+    "id": 249,
+    "field": "Задание",
+    "old": "The concert ___ at 8 p.m.",
+    "value": "Используй Present Simple для расписания: The concert ___ at 8 p.m."
+  },
+  {
+    "cell": "F369",
+    "id": 368,
+    "field": "Задание",
+    "old": "I wish you ___ making that noise!",
+    "value": "Вырази пожелание изменить поведение с would: I wish you ___ making that noise!"
+  },
+  {
+    "cell": "F446",
+    "id": 445,
+    "field": "Задание",
+    "old": "I regret ___ you that you have failed the exam.",
+    "value": "С сожалением сообщаем новость сейчас; используй модель regret to do: I regret ___ you that you have failed the exam."
+  },
+  {
+    "cell": "F159",
+    "id": 158,
+    "field": "Задание",
+    "old": "She ___ French and German.",
+    "value": "О постоянном владении языками, в Present Simple: She ___ French and German."
+  },
+  {
+    "cell": "F689",
+    "id": 688,
+    "field": "Задание",
+    "old": "Choose the correct sentence.",
+    "value": "Выбери правильное предложение о машине одного брата (не нескольких)."
+  },
+  {
+    "cell": "L689",
+    "id": 688,
+    "field": "Пояснение",
+    "old": "It's = it is; brother's — принадлежность одному брату.",
+    "value": "It's = it is; brother's — принадлежность одному брату. Brothers' обозначало бы нескольких братьев и не соответствует условию."
+  },
+  {
+    "cell": "L890",
+    "id": 889,
+    "field": "Пояснение",
+    "old": "Which — выбор из ограниченного набора вариантов.",
+    "value": "Which обычно выделяет выбор из ограниченного набора; what тоже грамматически возможно в таком вопросе."
+  },
+  {
+    "cell": "L971",
+    "id": 970,
+    "field": "Пояснение",
+    "old": "would — повторяющееся действие в воспоминаниях.",
+    "value": "Would и used to подходят для повторявшихся действий в прошлом; would особенно характерно для воспоминаний с уже заданным периодом."
+  },
+  {
+    "cell": "L1122",
+    "id": 1121,
+    "field": "Пояснение",
+    "old": "needn't have hurried / didn't need to hurry — needn't have hurried прямо указывает, что спешили зря; didn't need to hurry лишь сообщает отсутствие необходимости и тоже подходит к этому контексту.",
+    "value": "Needn't have hurried / need not have hurried — спешили, хотя необходимости не было. В условии прямо сказано, что действие произошло."
+  },
+  {
+    "cell": "L1191",
+    "id": 1190,
+    "field": "Пояснение",
+    "old": "He is said to be very rich. — одновременность → to be.",
+    "value": "Допустимы обе пассивные модели: He is said to be… и It is said that…; сообщение относится к настоящему."
+  },
+  {
+    "cell": "L1192",
+    "id": 1191,
+    "field": "Пояснение",
+    "old": "The thief is believed to have escaped through the window. — побег был раньше → to have escaped.",
+    "value": "Побег был раньше нынешнего мнения: to have escaped. Допустима и модель It is believed that the thief escaped… ."
+  },
+  {
+    "cell": "L1193",
+    "id": 1192,
+    "field": "Пояснение",
+    "old": "It is reported that the president is ill. — модель с it + that.",
+    "value": "Допустимы обе модели: It is reported that… и The president is reported to be… ."
+  },
+  {
+    "cell": "L1261",
+    "id": 1260,
+    "field": "Пояснение",
+    "old": "call — после hear + кого — инфинитив без to.",
+    "value": "Call представляет услышанное действие целиком; calling — его процесс. Контекст допускает оба варианта."
+  },
+  {
+    "cell": "L1271",
+    "id": 1270,
+    "field": "Пояснение",
+    "old": "being told — мне говорят → пассив.",
+    "value": "После like возможны -ing и to-инфинитив. Обе пассивные формы being told и to be told здесь допустимы."
+  },
+  {
+    "cell": "L1449",
+    "id": 1448,
+    "field": "Пояснение",
+    "old": "aren't I — особый случай с I am.",
+    "value": "После I'm в обычном отрицательном хвостике — aren't I; полный формальный вариант — am I not, не are not I."
+  },
+  {
+    "cell": "L1457",
+    "id": 1456,
+    "field": "Пояснение",
+    "old": "Aren't you tired? — удивлённый отрицательный вопрос.",
+    "value": "Aren't you tired? / Are you not tired? — в полной отрицательной форме not стоит после подлежащего you."
+  },
+  {
+    "cell": "L1458",
+    "id": 1457,
+    "field": "Пояснение",
+    "old": "Haven't you seen this film? / Didn't you see this film? — отрицание в помощнике.",
+    "value": "В зависимости от прошлого контекста допустимы Present Perfect и Past Simple. В полных отрицательных вопросах not следует после you."
+  },
+  {
+    "cell": "L1559",
+    "id": 1558,
+    "field": "Пояснение",
+    "old": "Wouldn't it be better to wait? — отрицательный вопрос звучит как мягкое предложение.",
+    "value": "Wouldn't it be better to wait? / Would it not be better to wait? — полное not стоит после подлежащего it."
+  },
+  {
+    "cell": "L1340",
+    "id": 1339,
+    "field": "Пояснение",
+    "old": "absolutely — fantastic — крайнее прилагательное.",
+    "value": "Absolutely и really сочетаются с сильным прилагательным fantastic."
+  },
+  {
+    "cell": "L1341",
+    "id": 1340,
+    "field": "Пояснение",
+    "old": "very — tired — обычное, градуируемое.",
+    "value": "Very, really и extremely могут усиливать градуируемое прилагательное tired."
+  },
+  {
+    "cell": "L1342",
+    "id": 1341,
+    "field": "Пояснение",
+    "old": "absolutely — tiny уже значит «очень маленький».",
+    "value": "Absolutely и really употребляются с сильным прилагательным tiny; выбираем из слов, заданных в условии."
+  },
+  {
+    "cell": "L1343",
+    "id": 1342,
+    "field": "Пояснение",
+    "old": "extremely — cold — градуируемое.",
+    "value": "Very, really и extremely могут усиливать cold; выбираем из слов, заданных в условии."
+  },
+  {
+    "cell": "K859",
+    "id": 858,
+    "field": "Правильный ответ",
+    "old": "It's a three-hour flight.",
+    "value": "It's a three-hour flight. / It is a three-hour flight."
+  },
+  {
+    "cell": "K1129",
+    "id": 1128,
+    "field": "Правильный ответ",
+    "old": "I'd rather walk.",
+    "value": "I'd rather walk. / I would rather walk."
+  },
+  {
+    "cell": "K1130",
+    "id": 1129,
+    "field": "Правильный ответ",
+    "old": "I'd rather go by train than fly.",
+    "value": "I'd rather go by train than fly. / I would rather go by train than fly."
+  },
+  {
+    "cell": "K1176",
+    "id": 1175,
+    "field": "Правильный ответ",
+    "old": "It's time for us to start.",
+    "value": "It's time for us to start. / It is time for us to start."
+  },
+  {
+    "cell": "K1177",
+    "id": 1176,
+    "field": "Правильный ответ",
+    "old": "It's time we went home.",
+    "value": "It's time we went home. / It is time we went home."
+  },
+  {
+    "cell": "K1178",
+    "id": 1177,
+    "field": "Правильный ответ",
+    "old": "It's high time you found a job.",
+    "value": "It's high time you found a job. / It is high time you found a job."
+  },
+  {
+    "cell": "K1331",
+    "id": 1330,
+    "field": "Правильный ответ",
+    "old": "It's getting darker and darker.",
+    "value": "It's getting darker and darker. / It is getting darker and darker."
+  },
+  {
+    "cell": "K1481",
+    "id": 1480,
+    "field": "Правильный ответ",
+    "old": "It's windy today.",
+    "value": "It's windy today. / It is windy today."
+  },
+  {
+    "cell": "K1483",
+    "id": 1482,
+    "field": "Правильный ответ",
+    "old": "It's difficult for me to understand his accent.",
+    "value": "It's difficult for me to understand his accent. / It is difficult for me to understand his accent."
+  },
+  {
+    "cell": "K1485",
+    "id": 1484,
+    "field": "Правильный ответ",
+    "old": "It's raining again.",
+    "value": "It's raining again. / It is raining again."
+  },
+  {
+    "cell": "K1496",
+    "id": 1495,
+    "field": "Правильный ответ",
+    "old": "He is six years old. He's a six-year-old boy.",
+    "value": "He is six years old. He's a six-year-old boy. / He is six years old. He is a six-year-old boy. / He's six years old. He's a six-year-old boy. / He's six years old. He is a six-year-old boy."
+  },
+  {
+    "cell": "K1498",
+    "id": 1497,
+    "field": "Правильный ответ",
+    "old": "It's a three-day trip.",
+    "value": "It's a three-day trip. / It is a three-day trip."
+  },
+  {
+    "cell": "K1519",
+    "id": 1518,
+    "field": "Правильный ответ",
+    "old": "She's in hospital.",
+    "value": "She's in hospital. / She is in hospital."
+  },
+  {
+    "cell": "K1526",
+    "id": 1525,
+    "field": "Правильный ответ",
+    "old": "Incredible as it may seem, it's true.",
+    "value": "Incredible as it may seem, it's true. / Incredible as it may seem, it is true."
+  },
+  {
+    "cell": "K1558",
+    "id": 1557,
+    "field": "Правильный ответ",
+    "old": "I'd appreciate it if you could send me the file today.",
+    "value": "I'd appreciate it if you could send me the file today. / I would appreciate it if you could send me the file today."
+  },
+  {
+    "cell": "K1560",
+    "id": 1559,
+    "field": "Правильный ответ",
+    "old": "I'd appreciate it if you could call me back.",
+    "value": "I'd appreciate it if you could call me back. / I would appreciate it if you could call me back."
+  },
+  {
+    "cell": "K1571",
+    "id": 1570,
+    "field": "Правильный ответ",
+    "old": "I'd love to.",
+    "value": "I'd love to. / I would love to."
+  },
+  {
+    "cell": "K1603",
+    "id": 1602,
+    "field": "Правильный ответ",
+    "old": "It's no use arguing with him.",
+    "value": "It's no use arguing with him. / It is no use arguing with him."
+  },
+  {
+    "cell": "K873",
+    "id": 872,
+    "field": "Правильный ответ",
+    "old": "The / —",
+    "value": "The / —\nThe / -"
+  },
+  {
+    "cell": "F873",
+    "id": 872,
+    "field": "Задание",
+    "old": "Вставь the или ничего: ___ Alps are in Europe, and ___ Everest is in Asia.",
+    "value": "Вставь the или ничего: ___ Alps are in Europe, and ___ Everest is in Asia. Если слово не нужно, введи - (дефис)."
+  },
+  {
+    "cell": "K243",
+    "id": 242,
+    "field": "Правильный ответ",
+    "old": "won't be / will not be",
+    "value": "won't be / will not be / 'll not be"
+  },
+  {
+    "cell": "K257",
+    "id": 256,
+    "field": "Правильный ответ",
+    "old": "probably won't come / will probably not come",
+    "value": "probably won't come / will probably not come / 'll probably not come"
+  },
+  {
+    "cell": "K263",
+    "id": 262,
+    "field": "Правильный ответ",
+    "old": "will be travelling / 'll be travelling / will be traveling",
+    "value": "will be travelling / 'll be travelling / will be traveling / 'll be traveling"
+  },
+  {
+    "cell": "K268",
+    "id": 267,
+    "field": "Правильный ответ",
+    "old": "won't have finished / will not have finished",
+    "value": "won't have finished / will not have finished / 'll not have finished"
+  },
+  {
+    "cell": "K304",
+    "id": 303,
+    "field": "Правильный ответ",
+    "old": "don't have to / do not have to / needn't / don't need to",
+    "value": "don't have to / do not have to / needn't / don't need to / need not / do not need to"
+  },
+  {
+    "cell": "K322",
+    "id": 321,
+    "field": "Правильный ответ",
+    "old": "can't / couldn't / cannot",
+    "value": "can't / couldn't / cannot / could not"
+  },
+  {
+    "cell": "K355",
+    "id": 354,
+    "field": "Правильный ответ",
+    "old": "wouldn't have failed / would not have failed",
+    "value": "wouldn't have failed / would not have failed / 'd not have failed"
+  },
+  {
+    "cell": "K360",
+    "id": 359,
+    "field": "Правильный ответ",
+    "old": "wouldn't have crashed / would not have crashed",
+    "value": "wouldn't have crashed / would not have crashed / 'd not have crashed"
+  },
+  {
+    "cell": "K393",
+    "id": 392,
+    "field": "Правильный ответ",
+    "old": "is believed",
+    "value": "is believed / 's believed"
+  },
+  {
+    "cell": "K736",
+    "id": 735,
+    "field": "Правильный ответ",
+    "old": "are to",
+    "value": "are to / 're to"
+  },
+  {
+    "cell": "K798",
+    "id": 797,
+    "field": "Правильный ответ",
+    "old": "It is very cold today.",
+    "value": "It is very cold today. / It's very cold today."
+  },
+  {
+    "cell": "K899",
+    "id": 898,
+    "field": "Правильный ответ",
+    "old": "They aren't ready. / They are not ready.",
+    "value": "They aren't ready. / They are not ready. / They're not ready."
+  },
+  {
+    "cell": "K920",
+    "id": 919,
+    "field": "Правильный ответ",
+    "old": "He is usually tired after work.",
+    "value": "He is usually tired after work. / He's usually tired after work."
+  },
+  {
+    "cell": "K934",
+    "id": 933,
+    "field": "Правильный ответ",
+    "old": "She is reading a book now.",
+    "value": "She is reading a book now. / She's reading a book now."
+  },
+  {
+    "cell": "K936",
+    "id": 935,
+    "field": "Правильный ответ",
+    "old": "is snowing",
+    "value": "is snowing / 's snowing"
+  },
+  {
+    "cell": "K939",
+    "id": 938,
+    "field": "Правильный ответ",
+    "old": "are having",
+    "value": "are having / 're having"
+  },
+  {
+    "cell": "K941",
+    "id": 940,
+    "field": "Правильный ответ",
+    "old": "am thinking",
+    "value": "am thinking / 'm thinking"
+  },
+  {
+    "cell": "K945",
+    "id": 944,
+    "field": "Правильный ответ",
+    "old": "am staying",
+    "value": "am staying / 'm staying"
+  },
+  {
+    "cell": "K975",
+    "id": 974,
+    "field": "Правильный ответ",
+    "old": "is used to",
+    "value": "is used to / 's used to"
+  },
+  {
+    "cell": "K977",
+    "id": 976,
+    "field": "Правильный ответ",
+    "old": "He isn't used to speaking English. / He is not used to speaking English.",
+    "value": "He isn't used to speaking English. / He is not used to speaking English. / He's not used to speaking English."
+  },
+  {
+    "cell": "K986",
+    "id": 985,
+    "field": "Правильный ответ",
+    "old": "have finished",
+    "value": "have finished / 've finished"
+  },
+  {
+    "cell": "K1005",
+    "id": 1004,
+    "field": "Правильный ответ",
+    "old": "have read",
+    "value": "have read / 've read"
+  },
+  {
+    "cell": "K1006",
+    "id": 1005,
+    "field": "Правильный ответ",
+    "old": "has known",
+    "value": "has known / 's known"
+  },
+  {
+    "cell": "K1008",
+    "id": 1007,
+    "field": "Правильный ответ",
+    "old": "It has been raining all day.",
+    "value": "It has been raining all day. / It's been raining all day."
+  },
+  {
+    "cell": "K1010",
+    "id": 1009,
+    "field": "Правильный ответ",
+    "old": "had lost",
+    "value": "had lost / 'd lost"
+  },
+  {
+    "cell": "K1012",
+    "id": 1011,
+    "field": "Правильный ответ",
+    "old": "had left",
+    "value": "had left / 'd left"
+  },
+  {
+    "cell": "K1014",
+    "id": 1013,
+    "field": "Правильный ответ",
+    "old": "After he had finished work, he went home. / After he finished work, he went home.",
+    "value": "After he had finished work, he went home. / After he finished work, he went home. / After he'd finished work, he went home."
+  },
+  {
+    "cell": "K1015",
+    "id": 1014,
+    "field": "Правильный ответ",
+    "old": "had been walking",
+    "value": "had been walking / 'd been walking"
+  },
+  {
+    "cell": "K1016",
+    "id": 1015,
+    "field": "Правильный ответ",
+    "old": "had been crying",
+    "value": "had been crying / 'd been crying"
+  },
+  {
+    "cell": "K1017",
+    "id": 1016,
+    "field": "Правильный ответ",
+    "old": "had known",
+    "value": "had known / 'd known"
+  },
+  {
+    "cell": "K1018",
+    "id": 1017,
+    "field": "Правильный ответ",
+    "old": "had been working",
+    "value": "had been working / 'd been working"
+  },
+  {
+    "cell": "K1019",
+    "id": 1018,
+    "field": "Правильный ответ",
+    "old": "had written",
+    "value": "had written / 'd written"
+  },
+  {
+    "cell": "K1020",
+    "id": 1019,
+    "field": "Правильный ответ",
+    "old": "I had been waiting for two hours.",
+    "value": "I had been waiting for two hours. / I'd been waiting for two hours."
+  },
+  {
+    "cell": "K1027",
+    "id": 1026,
+    "field": "Правильный ответ",
+    "old": "won't tell / will not tell",
+    "value": "won't tell / will not tell / 'll not tell"
+  },
+  {
+    "cell": "K1028",
+    "id": 1027,
+    "field": "Правильный ответ",
+    "old": "will be",
+    "value": "will be / 'll be"
+  },
+  {
+    "cell": "K1033",
+    "id": 1032,
+    "field": "Правильный ответ",
+    "old": "am going to",
+    "value": "am going to / 'm going to"
+  },
+  {
+    "cell": "K1034",
+    "id": 1033,
+    "field": "Правильный ответ",
+    "old": "are going to",
+    "value": "are going to / 're going to"
+  },
+  {
+    "cell": "K1039",
+    "id": 1038,
+    "field": "Правильный ответ",
+    "old": "am seeing",
+    "value": "am seeing / 'm seeing"
+  },
+  {
+    "cell": "K1043",
+    "id": 1042,
+    "field": "Правильный ответ",
+    "old": "I think it will snow tomorrow.",
+    "value": "I think it will snow tomorrow. / I think it'll snow tomorrow."
+  },
+  {
+    "cell": "K1051",
+    "id": 1050,
+    "field": "Правильный ответ",
+    "old": "will call",
+    "value": "will call / 'll call"
+  },
+  {
+    "cell": "K1053",
+    "id": 1052,
+    "field": "Правильный ответ",
+    "old": "She won't be using the laptop. / She will not be using the laptop.",
+    "value": "She won't be using the laptop. / She will not be using the laptop. / She'll not be using the laptop."
+  },
+  {
+    "cell": "K1055",
+    "id": 1054,
+    "field": "Правильный ответ",
+    "old": "will have read",
+    "value": "will have read / 'll have read"
+  },
+  {
+    "cell": "K1057",
+    "id": 1056,
+    "field": "Правильный ответ",
+    "old": "will have graduated",
+    "value": "will have graduated / 'll have graduated"
+  },
+  {
+    "cell": "K1061",
+    "id": 1060,
+    "field": "Правильный ответ",
+    "old": "will have been living",
+    "value": "will have been living / 'll have been living"
+  },
+  {
+    "cell": "K1062",
+    "id": 1061,
+    "field": "Правильный ответ",
+    "old": "will have been driving",
+    "value": "will have been driving / 'll have been driving"
+  },
+  {
+    "cell": "K1063",
+    "id": 1062,
+    "field": "Правильный ответ",
+    "old": "will have known",
+    "value": "will have known / 'll have known"
+  },
+  {
+    "cell": "K1064",
+    "id": 1063,
+    "field": "Правильный ответ",
+    "old": "will have written",
+    "value": "will have written / 'll have written"
+  },
+  {
+    "cell": "K1069",
+    "id": 1068,
+    "field": "Правильный ответ",
+    "old": "would like",
+    "value": "would like / 'd like"
+  },
+  {
+    "cell": "K1071",
+    "id": 1070,
+    "field": "Правильный ответ",
+    "old": "He promised he would come.",
+    "value": "He promised he would come. / He promised he'd come."
+  },
+  {
+    "cell": "K1072",
+    "id": 1071,
+    "field": "Правильный ответ",
+    "old": "I thought it would rain.",
+    "value": "I thought it would rain. / I thought it'd rain."
+  },
+  {
+    "cell": "K1076",
+    "id": 1075,
+    "field": "Правильный ответ",
+    "old": "will be",
+    "value": "will be / 'll be"
+  },
+  {
+    "cell": "K1093",
+    "id": 1092,
+    "field": "Правильный ответ",
+    "old": "will have to",
+    "value": "will have to / 'll have to"
+  },
+  {
+    "cell": "K1141",
+    "id": 1140,
+    "field": "Правильный ответ",
+    "old": "If it is sunny, we'll go to the beach. / If it is sunny, we will go to the beach.",
+    "value": "If it is sunny, we'll go to the beach. / If it is sunny, we will go to the beach. / If it's sunny, we'll go to the beach. / If it's sunny, we will go to the beach."
+  },
+  {
+    "cell": "K1142",
+    "id": 1141,
+    "field": "Правильный ответ",
+    "old": "If you're late, I won't wait. / If you are late, I won't wait. / If you're late, I will not wait. / If you are late, I will not wait.",
+    "value": "If you're late, I won't wait. / If you are late, I won't wait. / If you're late, I will not wait. / If you are late, I will not wait. / If you're late, I'll not wait. / If you are late, I'll not wait."
+  },
+  {
+    "cell": "K1148",
+    "id": 1147,
+    "field": "Правильный ответ",
+    "old": "If I had time, I would help you.",
+    "value": "If I had time, I would help you. / If I had time, I'd help you."
+  },
+  {
+    "cell": "K1152",
+    "id": 1151,
+    "field": "Правильный ответ",
+    "old": "If I had had an umbrella, I wouldn't have got wet. / If I had had an umbrella, I would not have got wet.",
+    "value": "If I had had an umbrella, I wouldn't have got wet. / If I had had an umbrella, I would not have got wet. / If I'd had an umbrella, I wouldn't have got wet. / If I had had an umbrella, I'd not have got wet. / If I'd had an umbrella, I would not have got wet. / If I'd had an umbrella, I'd not have got wet."
+  },
+  {
+    "cell": "K1153",
+    "id": 1152,
+    "field": "Правильный ответ",
+    "old": "If we had booked, we would have got a table.",
+    "value": "If we had booked, we would have got a table. / If we had booked, we'd have got a table. / If we'd booked, we would have got a table. / If we'd booked, we'd have got a table."
+  },
+  {
+    "cell": "K1154",
+    "id": 1153,
+    "field": "Правильный ответ",
+    "old": "If I had seen him, I would have said hello.",
+    "value": "If I had seen him, I would have said hello. / If I had seen him, I'd have said hello. / If I'd seen him, I would have said hello. / If I'd seen him, I'd have said hello."
+  },
+  {
+    "cell": "K1157",
+    "id": 1156,
+    "field": "Правильный ответ",
+    "old": "If I had eaten breakfast, I wouldn't be hungry now. / If I had eaten breakfast, I would not be hungry now.",
+    "value": "If I had eaten breakfast, I wouldn't be hungry now. / If I had eaten breakfast, I would not be hungry now. / If I'd eaten breakfast, I wouldn't be hungry now. / If I had eaten breakfast, I'd not be hungry now. / If I'd eaten breakfast, I would not be hungry now. / If I'd eaten breakfast, I'd not be hungry now."
+  },
+  {
+    "cell": "K1158",
+    "id": 1157,
+    "field": "Правильный ответ",
+    "old": "If he were braver, he would have jumped.",
+    "value": "If he were braver, he would have jumped. / If he were braver, he'd have jumped."
+  },
+  {
+    "cell": "K1159",
+    "id": 1158,
+    "field": "Правильный ответ",
+    "old": "would be",
+    "value": "would be / 'd be"
+  },
+  {
+    "cell": "K1160",
+    "id": 1159,
+    "field": "Правильный ответ",
+    "old": "If I had studied medicine, I would be a doctor now.",
+    "value": "If I had studied medicine, I would be a doctor now. / If I had studied medicine, I'd be a doctor now. / If I'd studied medicine, I would be a doctor now. / If I'd studied medicine, I'd be a doctor now."
+  },
+  {
+    "cell": "K1161",
+    "id": 1160,
+    "field": "Правильный ответ",
+    "old": "Unless you practise, you won't improve. / Unless you practise, you will not improve.",
+    "value": "Unless you practise, you won't improve. / Unless you practise, you will not improve. / Unless you practise, you'll not improve."
+  },
+  {
+    "cell": "K1166",
+    "id": 1165,
+    "field": "Правильный ответ",
+    "old": "I won't go unless you come with me. / I will not go unless you come with me.",
+    "value": "I won't go unless you come with me. / I will not go unless you come with me. / I'll not go unless you come with me."
+  },
+  {
+    "cell": "K1172",
+    "id": 1171,
+    "field": "Правильный ответ",
+    "old": "I wish I had known about the party yesterday.",
+    "value": "I wish I had known about the party yesterday. / I wish I'd known about the party yesterday."
+  },
+  {
+    "cell": "K1195",
+    "id": 1194,
+    "field": "Правильный ответ",
+    "old": "She is said to live in Paris. / It is said that she lives in Paris.",
+    "value": "She is said to live in Paris. / It is said that she lives in Paris. / She's said to live in Paris. / It's said that she lives in Paris."
+  },
+  {
+    "cell": "K1196",
+    "id": 1195,
+    "field": "Правильный ответ",
+    "old": "The castle is believed to have been built in the 12th century. / It is believed that the castle was built in the 12th century.",
+    "value": "The castle is believed to have been built in the 12th century. / It is believed that the castle was built in the 12th century. / It's believed that the castle was built in the 12th century."
+  },
+  {
+    "cell": "K1210",
+    "id": 1209,
+    "field": "Правильный ответ",
+    "old": "He told me he would call me. / He told me that he would call me.",
+    "value": "He told me he would call me. / He told me that he would call me. / He told me he'd call me. / He told me that he'd call me."
+  },
+  {
+    "cell": "K1211",
+    "id": 1210,
+    "field": "Правильный ответ",
+    "old": "They said they had finished. / They said that they had finished.",
+    "value": "They said they had finished. / They said that they had finished. / They said they'd finished. / They said that they'd finished."
+  },
+  {
+    "cell": "K1212",
+    "id": 1211,
+    "field": "Правильный ответ",
+    "old": "Tom said he had seen the film the day before. / Tom said that he had seen the film the day before.",
+    "value": "Tom said he had seen the film the day before. / Tom said that he had seen the film the day before. / Tom said he'd seen the film the day before. / Tom said that he'd seen the film the day before."
+  },
+  {
+    "cell": "K1218",
+    "id": 1217,
+    "field": "Правильный ответ",
+    "old": "They asked if I had liked the film. / They asked whether I had liked the film.",
+    "value": "They asked if I had liked the film. / They asked whether I had liked the film. / They asked if I'd liked the film. / They asked whether I'd liked the film."
+  },
+  {
+    "cell": "K1285",
+    "id": 1284,
+    "field": "Правильный ответ",
+    "old": "My father, who is a pilot, travels a lot.",
+    "value": "My father, who is a pilot, travels a lot. / My father, who's a pilot, travels a lot."
+  },
+  {
+    "cell": "K1326",
+    "id": 1325,
+    "field": "Правильный ответ",
+    "old": "He is one of the best players in the team.",
+    "value": "He is one of the best players in the team. / He's one of the best players in the team."
+  },
+  {
+    "cell": "K1333",
+    "id": 1332,
+    "field": "Правильный ответ",
+    "old": "He is as clever as his father.",
+    "value": "He is as clever as his father. / He's as clever as his father."
+  },
+  {
+    "cell": "K1350",
+    "id": 1349,
+    "field": "Правильный ответ",
+    "old": "He isn't tall enough to play basketball. / He is not tall enough to play basketball.",
+    "value": "He isn't tall enough to play basketball. / He is not tall enough to play basketball. / He's not tall enough to play basketball."
+  },
+  {
+    "cell": "K1404",
+    "id": 1403,
+    "field": "Правильный ответ",
+    "old": "There isn't much traffic today. / There is not much traffic today.",
+    "value": "There isn't much traffic today. / There is not much traffic today. / There's not much traffic today."
+  },
+  {
+    "cell": "K1474",
+    "id": 1473,
+    "field": "Правильный ответ",
+    "old": "Although he is rich, he isn't happy. / Although he is rich, he is not happy.",
+    "value": "Although he is rich, he isn't happy. / Although he is rich, he is not happy. / Although he's rich, he isn't happy. / Although he's rich, he is not happy. / Although he is rich, he's not happy. / Although he's rich, he's not happy."
+  },
+  {
+    "cell": "K1476",
+    "id": 1475,
+    "field": "Правильный ответ",
+    "old": "He is also a musician.",
+    "value": "He is also a musician. / He's also a musician."
+  },
+  {
+    "cell": "K1537",
+    "id": 1536,
+    "field": "Правильный ответ",
+    "old": "Had I known about the problem, I would have helped.",
+    "value": "Had I known about the problem, I would have helped. / Had I known about the problem, I'd have helped."
+  },
+  {
+    "cell": "K1539",
+    "id": 1538,
+    "field": "Правильный ответ",
+    "old": "Were I the manager, I would change everything.",
+    "value": "Were I the manager, I would change everything. / Were I the manager, I'd change everything."
+  },
+  {
+    "cell": "K1541",
+    "id": 1540,
+    "field": "Правильный ответ",
+    "old": "Had she not warned us, we would have been in trouble.",
+    "value": "Had she not warned us, we would have been in trouble. / Had she not warned us, we'd have been in trouble."
+  },
+  {
+    "cell": "K1595",
+    "id": 1594,
+    "field": "Правильный ответ",
+    "old": "She is by far the best player in the team.",
+    "value": "She is by far the best player in the team. / She's by far the best player in the team."
+  },
+  {
+    "cell": "K1610",
+    "id": 1609,
+    "field": "Правильный ответ",
+    "old": "It is widely believed that the climate is changing.",
+    "value": "It is widely believed that the climate is changing. / It's widely believed that the climate is changing."
+  },
+  {
+    "cell": "K1613",
+    "id": 1612,
+    "field": "Правильный ответ",
+    "old": "It would appear that the project has failed.",
+    "value": "It would appear that the project has failed. / It'd appear that the project has failed."
+  }
+]

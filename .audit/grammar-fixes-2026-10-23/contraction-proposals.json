@@ -1,0 +1,859 @@
+[
+  {
+    "id": 242,
+    "original": [
+      "won't be",
+      "will not be"
+    ],
+    "added": [
+      "'ll not be"
+    ]
+  },
+  {
+    "id": 256,
+    "original": [
+      "probably won't come",
+      "will probably not come"
+    ],
+    "added": [
+      "'ll probably not come"
+    ]
+  },
+  {
+    "id": 262,
+    "original": [
+      "will be travelling",
+      "'ll be travelling",
+      "will be traveling"
+    ],
+    "added": [
+      "'ll be traveling"
+    ]
+  },
+  {
+    "id": 267,
+    "original": [
+      "won't have finished",
+      "will not have finished"
+    ],
+    "added": [
+      "'ll not have finished"
+    ]
+  },
+  {
+    "id": 303,
+    "original": [
+      "don't have to",
+      "do not have to",
+      "needn't",
+      "don't need to"
+    ],
+    "added": [
+      "need not",
+      "do not need to"
+    ]
+  },
+  {
+    "id": 321,
+    "original": [
+      "can't",
+      "couldn't",
+      "cannot"
+    ],
+    "added": [
+      "could not"
+    ]
+  },
+  {
+    "id": 354,
+    "original": [
+      "wouldn't have failed",
+      "would not have failed"
+    ],
+    "added": [
+      "'d not have failed"
+    ]
+  },
+  {
+    "id": 359,
+    "original": [
+      "wouldn't have crashed",
+      "would not have crashed"
+    ],
+    "added": [
+      "'d not have crashed"
+    ]
+  },
+  {
+    "id": 392,
+    "original": [
+      "is believed"
+    ],
+    "added": [
+      "'s believed"
+    ]
+  },
+  {
+    "id": 735,
+    "original": [
+      "are to"
+    ],
+    "added": [
+      "'re to"
+    ]
+  },
+  {
+    "id": 797,
+    "original": [
+      "It is very cold today."
+    ],
+    "added": [
+      "It's very cold today."
+    ]
+  },
+  {
+    "id": 898,
+    "original": [
+      "They aren't ready.",
+      "They are not ready."
+    ],
+    "added": [
+      "They're not ready."
+    ]
+  },
+  {
+    "id": 919,
+    "original": [
+      "He is usually tired after work."
+    ],
+    "added": [
+      "He's usually tired after work."
+    ]
+  },
+  {
+    "id": 933,
+    "original": [
+      "She is reading a book now."
+    ],
+    "added": [
+      "She's reading a book now."
+    ]
+  },
+  {
+    "id": 935,
+    "original": [
+      "is snowing"
+    ],
+    "added": [
+      "'s snowing"
+    ]
+  },
+  {
+    "id": 938,
+    "original": [
+      "are having"
+    ],
+    "added": [
+      "'re having"
+    ]
+  },
+  {
+    "id": 940,
+    "original": [
+      "am thinking"
+    ],
+    "added": [
+      "'m thinking"
+    ]
+  },
+  {
+    "id": 944,
+    "original": [
+      "am staying"
+    ],
+    "added": [
+      "'m staying"
+    ]
+  },
+  {
+    "id": 974,
+    "original": [
+      "is used to"
+    ],
+    "added": [
+      "'s used to"
+    ]
+  },
+  {
+    "id": 976,
+    "original": [
+      "He isn't used to speaking English.",
+      "He is not used to speaking English."
+    ],
+    "added": [
+      "He's not used to speaking English."
+    ]
+  },
+  {
+    "id": 985,
+    "original": [
+      "have finished"
+    ],
+    "added": [
+      "'ve finished"
+    ]
+  },
+  {
+    "id": 1004,
+    "original": [
+      "have read"
+    ],
+    "added": [
+      "'ve read"
+    ]
+  },
+  {
+    "id": 1005,
+    "original": [
+      "has known"
+    ],
+    "added": [
+      "'s known"
+    ]
+  },
+  {
+    "id": 1007,
+    "original": [
+      "It has been raining all day."
+    ],
+    "added": [
+      "It's been raining all day."
+    ]
+  },
+  {
+    "id": 1009,
+    "original": [
+      "had lost"
+    ],
+    "added": [
+      "'d lost"
+    ]
+  },
+  {
+    "id": 1011,
+    "original": [
+      "had left"
+    ],
+    "added": [
+      "'d left"
+    ]
+  },
+  {
+    "id": 1013,
+    "original": [
+      "After he had finished work, he went home.",
+      "After he finished work, he went home."
+    ],
+    "added": [
+      "After he'd finished work, he went home."
+    ]
+  },
+  {
+    "id": 1014,
+    "original": [
+      "had been walking"
+    ],
+    "added": [
+      "'d been walking"
+    ]
+  },
+  {
+    "id": 1015,
+    "original": [
+      "had been crying"
+    ],
+    "added": [
+      "'d been crying"
+    ]
+  },
+  {
+    "id": 1016,
+    "original": [
+      "had known"
+    ],
+    "added": [
+      "'d known"
+    ]
+  },
+  {
+    "id": 1017,
+    "original": [
+      "had been working"
+    ],
+    "added": [
+      "'d been working"
+    ]
+  },
+  {
+    "id": 1018,
+    "original": [
+      "had written"
+    ],
+    "added": [
+      "'d written"
+    ]
+  },
+  {
+    "id": 1019,
+    "original": [
+      "I had been waiting for two hours."
+    ],
+    "added": [
+      "I'd been waiting for two hours."
+    ]
+  },
+  {
+    "id": 1026,
+    "original": [
+      "won't tell",
+      "will not tell"
+    ],
+    "added": [
+      "'ll not tell"
+    ]
+  },
+  {
+    "id": 1027,
+    "original": [
+      "will be"
+    ],
+    "added": [
+      "'ll be"
+    ]
+  },
+  {
+    "id": 1032,
+    "original": [
+      "am going to"
+    ],
+    "added": [
+      "'m going to"
+    ]
+  },
+  {
+    "id": 1033,
+    "original": [
+      "are going to"
+    ],
+    "added": [
+      "'re going to"
+    ]
+  },
+  {
+    "id": 1038,
+    "original": [
+      "am seeing"
+    ],
+    "added": [
+      "'m seeing"
+    ]
+  },
+  {
+    "id": 1042,
+    "original": [
+      "I think it will snow tomorrow."
+    ],
+    "added": [
+      "I think it'll snow tomorrow."
+    ]
+  },
+  {
+    "id": 1050,
+    "original": [
+      "will call"
+    ],
+    "added": [
+      "'ll call"
+    ]
+  },
+  {
+    "id": 1052,
+    "original": [
+      "She won't be using the laptop.",
+      "She will not be using the laptop."
+    ],
+    "added": [
+      "She'll not be using the laptop."
+    ]
+  },
+  {
+    "id": 1054,
+    "original": [
+      "will have read"
+    ],
+    "added": [
+      "'ll have read"
+    ]
+  },
+  {
+    "id": 1056,
+    "original": [
+      "will have graduated"
+    ],
+    "added": [
+      "'ll have graduated"
+    ]
+  },
+  {
+    "id": 1060,
+    "original": [
+      "will have been living"
+    ],
+    "added": [
+      "'ll have been living"
+    ]
+  },
+  {
+    "id": 1061,
+    "original": [
+      "will have been driving"
+    ],
+    "added": [
+      "'ll have been driving"
+    ]
+  },
+  {
+    "id": 1062,
+    "original": [
+      "will have known"
+    ],
+    "added": [
+      "'ll have known"
+    ]
+  },
+  {
+    "id": 1063,
+    "original": [
+      "will have written"
+    ],
+    "added": [
+      "'ll have written"
+    ]
+  },
+  {
+    "id": 1068,
+    "original": [
+      "would like"
+    ],
+    "added": [
+      "'d like"
+    ]
+  },
+  {
+    "id": 1070,
+    "original": [
+      "He promised he would come."
+    ],
+    "added": [
+      "He promised he'd come."
+    ]
+  },
+  {
+    "id": 1071,
+    "original": [
+      "I thought it would rain."
+    ],
+    "added": [
+      "I thought it'd rain."
+    ]
+  },
+  {
+    "id": 1075,
+    "original": [
+      "will be"
+    ],
+    "added": [
+      "'ll be"
+    ]
+  },
+  {
+    "id": 1092,
+    "original": [
+      "will have to"
+    ],
+    "added": [
+      "'ll have to"
+    ]
+  },
+  {
+    "id": 1140,
+    "original": [
+      "If it is sunny, we'll go to the beach.",
+      "If it is sunny, we will go to the beach."
+    ],
+    "added": [
+      "If it's sunny, we'll go to the beach.",
+      "If it's sunny, we will go to the beach."
+    ]
+  },
+  {
+    "id": 1141,
+    "original": [
+      "If you're late, I won't wait.",
+      "If you are late, I won't wait.",
+      "If you're late, I will not wait.",
+      "If you are late, I will not wait."
+    ],
+    "added": [
+      "If you're late, I'll not wait.",
+      "If you are late, I'll not wait."
+    ]
+  },
+  {
+    "id": 1147,
+    "original": [
+      "If I had time, I would help you."
+    ],
+    "added": [
+      "If I had time, I'd help you."
+    ]
+  },
+  {
+    "id": 1151,
+    "original": [
+      "If I had had an umbrella, I wouldn't have got wet.",
+      "If I had had an umbrella, I would not have got wet."
+    ],
+    "added": [
+      "If I'd had an umbrella, I wouldn't have got wet.",
+      "If I had had an umbrella, I'd not have got wet.",
+      "If I'd had an umbrella, I would not have got wet.",
+      "If I'd had an umbrella, I'd not have got wet."
+    ]
+  },
+  {
+    "id": 1152,
+    "original": [
+      "If we had booked, we would have got a table."
+    ],
+    "added": [
+      "If we had booked, we'd have got a table.",
+      "If we'd booked, we would have got a table.",
+      "If we'd booked, we'd have got a table."
+    ]
+  },
+  {
+    "id": 1153,
+    "original": [
+      "If I had seen him, I would have said hello."
+    ],
+    "added": [
+      "If I had seen him, I'd have said hello.",
+      "If I'd seen him, I would have said hello.",
+      "If I'd seen him, I'd have said hello."
+    ]
+  },
+  {
+    "id": 1156,
+    "original": [
+      "If I had eaten breakfast, I wouldn't be hungry now.",
+      "If I had eaten breakfast, I would not be hungry now."
+    ],
+    "added": [
+      "If I'd eaten breakfast, I wouldn't be hungry now.",
+      "If I had eaten breakfast, I'd not be hungry now.",
+      "If I'd eaten breakfast, I would not be hungry now.",
+      "If I'd eaten breakfast, I'd not be hungry now."
+    ]
+  },
+  {
+    "id": 1157,
+    "original": [
+      "If he were braver, he would have jumped."
+    ],
+    "added": [
+      "If he were braver, he'd have jumped."
+    ]
+  },
+  {
+    "id": 1158,
+    "original": [
+      "would be"
+    ],
+    "added": [
+      "'d be"
+    ]
+  },
+  {
+    "id": 1159,
+    "original": [
+      "If I had studied medicine, I would be a doctor now."
+    ],
+    "added": [
+      "If I had studied medicine, I'd be a doctor now.",
+      "If I'd studied medicine, I would be a doctor now.",
+      "If I'd studied medicine, I'd be a doctor now."
+    ]
+  },
+  {
+    "id": 1160,
+    "original": [
+      "Unless you practise, you won't improve.",
+      "Unless you practise, you will not improve."
+    ],
+    "added": [
+      "Unless you practise, you'll not improve."
+    ]
+  },
+  {
+    "id": 1165,
+    "original": [
+      "I won't go unless you come with me.",
+      "I will not go unless you come with me."
+    ],
+    "added": [
+      "I'll not go unless you come with me."
+    ]
+  },
+  {
+    "id": 1171,
+    "original": [
+      "I wish I had known about the party yesterday."
+    ],
+    "added": [
+      "I wish I'd known about the party yesterday."
+    ]
+  },
+  {
+    "id": 1190,
+    "original": [
+      "He is said to be very rich.",
+      "It is said that he is very rich."
+    ],
+    "added": [
+      "He's said to be very rich.",
+      "It's said that he is very rich.",
+      "It is said that he's very rich.",
+      "It's said that he's very rich."
+    ]
+  },
+  {
+    "id": 1191,
+    "original": [
+      "The thief is believed to have escaped through the window.",
+      "It is believed that the thief escaped through the window."
+    ],
+    "added": [
+      "It's believed that the thief escaped through the window."
+    ]
+  },
+  {
+    "id": 1192,
+    "original": [
+      "It is reported that the president is ill.",
+      "The president is reported to be ill."
+    ],
+    "added": [
+      "It's reported that the president is ill."
+    ]
+  },
+  {
+    "id": 1194,
+    "original": [
+      "She is said to live in Paris.",
+      "It is said that she lives in Paris."
+    ],
+    "added": [
+      "She's said to live in Paris.",
+      "It's said that she lives in Paris."
+    ]
+  },
+  {
+    "id": 1195,
+    "original": [
+      "The castle is believed to have been built in the 12th century.",
+      "It is believed that the castle was built in the 12th century."
+    ],
+    "added": [
+      "It's believed that the castle was built in the 12th century."
+    ]
+  },
+  {
+    "id": 1209,
+    "original": [
+      "He told me he would call me.",
+      "He told me that he would call me."
+    ],
+    "added": [
+      "He told me he'd call me.",
+      "He told me that he'd call me."
+    ]
+  },
+  {
+    "id": 1210,
+    "original": [
+      "They said they had finished.",
+      "They said that they had finished."
+    ],
+    "added": [
+      "They said they'd finished.",
+      "They said that they'd finished."
+    ]
+  },
+  {
+    "id": 1211,
+    "original": [
+      "Tom said he had seen the film the day before.",
+      "Tom said that he had seen the film the day before."
+    ],
+    "added": [
+      "Tom said he'd seen the film the day before.",
+      "Tom said that he'd seen the film the day before."
+    ]
+  },
+  {
+    "id": 1217,
+    "original": [
+      "They asked if I had liked the film.",
+      "They asked whether I had liked the film."
+    ],
+    "added": [
+      "They asked if I'd liked the film.",
+      "They asked whether I'd liked the film."
+    ]
+  },
+  {
+    "id": 1284,
+    "original": [
+      "My father, who is a pilot, travels a lot."
+    ],
+    "added": [
+      "My father, who's a pilot, travels a lot."
+    ]
+  },
+  {
+    "id": 1325,
+    "original": [
+      "He is one of the best players in the team."
+    ],
+    "added": [
+      "He's one of the best players in the team."
+    ]
+  },
+  {
+    "id": 1332,
+    "original": [
+      "He is as clever as his father."
+    ],
+    "added": [
+      "He's as clever as his father."
+    ]
+  },
+  {
+    "id": 1349,
+    "original": [
+      "He isn't tall enough to play basketball.",
+      "He is not tall enough to play basketball."
+    ],
+    "added": [
+      "He's not tall enough to play basketball."
+    ]
+  },
+  {
+    "id": 1403,
+    "original": [
+      "There isn't much traffic today.",
+      "There is not much traffic today."
+    ],
+    "added": [
+      "There's not much traffic today."
+    ]
+  },
+  {
+    "id": 1473,
+    "original": [
+      "Although he is rich, he isn't happy.",
+      "Although he is rich, he is not happy."
+    ],
+    "added": [
+      "Although he's rich, he isn't happy.",
+      "Although he's rich, he is not happy.",
+      "Although he is rich, he's not happy.",
+      "Although he's rich, he's not happy."
+    ]
+  },
+  {
+    "id": 1475,
+    "original": [
+      "He is also a musician."
+    ],
+    "added": [
+      "He's also a musician."
+    ]
+  },
+  {
+    "id": 1495,
+    "original": [
+      "He is six years old. He's a six-year-old boy.",
+      "He is six years old. He is a six-year-old boy."
+    ],
+    "added": [
+      "He's six years old. He's a six-year-old boy.",
+      "He's six years old. He is a six-year-old boy."
+    ]
+  },
+  {
+    "id": 1536,
+    "original": [
+      "Had I known about the problem, I would have helped."
+    ],
+    "added": [
+      "Had I known about the problem, I'd have helped."
+    ]
+  },
+  {
+    "id": 1538,
+    "original": [
+      "Were I the manager, I would change everything."
+    ],
+    "added": [
+      "Were I the manager, I'd change everything."
+    ]
+  },
+  {
+    "id": 1540,
+    "original": [
+      "Had she not warned us, we would have been in trouble."
+    ],
+    "added": [
+      "Had she not warned us, we'd have been in trouble."
+    ]
+  },
+  {
+    "id": 1594,
+    "original": [
+      "She is by far the best player in the team."
+    ],
+    "added": [
+      "She's by far the best player in the team."
+    ]
+  },
+  {
+    "id": 1609,
+    "original": [
+      "It is widely believed that the climate is changing."
+    ],
+    "added": [
+      "It's widely believed that the climate is changing."
+    ]
+  },
+  {
+    "id": 1612,
+    "original": [
+      "It would appear that the project has failed."
+    ],
+    "added": [
+      "It'd appear that the project has failed."
+    ]
+  }
+]

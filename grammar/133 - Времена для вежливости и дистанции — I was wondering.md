@@ -40,7 +40,7 @@ tags:
 > 1. **I was wondering if you could help me with my CV.** — Past Continuous + `could`.
 > 2. **I was hoping to talk to you about my salary.** — смягчённое желание.
 > 3. **I'd appreciate it if you could send me the file today.** — вежливая просьба в письме.
-> 4. **Wouldn't it be better to wait?** — в подходящем контексте отрицательный вопрос может звучать как мягкое предложение.
+> 4. **Wouldn't it be better to wait? / Would it not be better to wait?** — в подходящем контексте отрицательный вопрос может звучать как мягкое предложение. В полной форме `not` стоит после подлежащего `it`.
 > 5. **В текущей вежливой просьбе — о сегодняшнем вечере, то есть настоящем или будущем по ситуации. В рассказе из прошлого фраза может относиться к вечеру того дня.** — значение прошедшей формы определяется контекстом.
 > 6. **I'd appreciate it if you could call me back.** — обычная нейтральная модель: `appreciate it if…`.
 
