@@ -76,7 +76,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
     val options = remember(card.id) { vm.tenseOptions(card, task) }
     var picked by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
     var input by rememberSaveable(card.id) { mutableStateOf("") }
-    var verdict by remember(card.id) { mutableStateOf<Verdict?>(null) }
+    var verdict by rememberSaveable(card.id) { mutableStateOf<Verdict?>(null) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
     val focus = remember(card.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current

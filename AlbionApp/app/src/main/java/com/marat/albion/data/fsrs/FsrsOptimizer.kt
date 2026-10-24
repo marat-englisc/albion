@@ -5,8 +5,11 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-/** Один ответ из журнала. */
-data class ReviewEvent(val cardId: String, val rating: Int, val time: Long)
+/**
+ * Один ответ из журнала. [stateBefore] — состояние карточки до ответа; NEW посреди истории
+ * означает, что карточку сбросили («Сделать новой», сброс колоды) и её память начинается заново.
+ */
+data class ReviewEvent(val cardId: String, val rating: Int, val time: Long, val stateBefore: Int = -1)
 
 sealed interface OptimizeOutcome {
     /** Недостаточно повторений с интервалом от суток. */
@@ -55,14 +58,24 @@ class FsrsOptimizer(events: List<ReviewEvent>, private val initial: DoubleArray 
     private val sequences: List<List<Step>> = events
         .groupBy { it.cardId }
         .values
-        .map { list ->
-            val sorted = list.sortedBy { it.time }
+        .flatMap { list -> splitAtResets(list.sortedBy { it.time }) }
+        .map { sorted ->
             sorted.mapIndexed { i, e ->
                 val elapsed = if (i == 0) 0.0 else (e.time - sorted[i - 1].time).toDouble() / Fsrs.DAY
                 Step(elapsed, Rating.of(e.rating.coerceIn(1, 4)), e.time)
             }
         }
         .filter { it.size >= 2 }
+
+    /** История карточки после сброса — отдельная последовательность: прежняя память к ней не относится. */
+    private fun splitAtResets(sorted: List<ReviewEvent>): List<List<ReviewEvent>> {
+        val result = mutableListOf<MutableList<ReviewEvent>>()
+        for (e in sorted) {
+            if (result.isEmpty() || (e.stateBefore == CardState.NEW && result.last().isNotEmpty())) result += mutableListOf<ReviewEvent>()
+            result.last() += e
+        }
+        return result
+    }
 
     private val reviewTimes = sequences.flatMap { seq -> seq.drop(1).filter { it.elapsed >= 1.0 }.map { it.time } }.sorted()
     /** Граница по времени: ответы после неё не используются даже для выбора итерации. */

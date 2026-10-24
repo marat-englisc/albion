@@ -44,6 +44,7 @@ import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -190,10 +191,10 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
     val state by checker.state.collectAsStateWithLifecycle()
     val playing by c.audio.playing.collectAsStateWithLifecycle()
     val deck = Deck.byId(card.deck) ?: Deck.WORDS
-    var best by remember(card.id) { mutableFloatStateOf(-1f) }
-    var attempts by remember(card.id) { mutableIntStateOf(0) }
-    var lastScore by remember(card.id) { mutableFloatStateOf(-1f) }
-    var lastHeard by remember(card.id) { mutableStateOf("") }
+    var best by rememberSaveable(card.id) { mutableFloatStateOf(-1f) }
+    var attempts by rememberSaveable(card.id) { mutableIntStateOf(0) }
+    var lastScore by rememberSaveable(card.id) { mutableFloatStateOf(-1f) }
+    var lastHeard by rememberSaveable(card.id) { mutableStateOf("") }
     var micDenied by remember { mutableStateOf(false) }
     val micAccess = rememberMicAccess(onDenied = { micDenied = true })
 

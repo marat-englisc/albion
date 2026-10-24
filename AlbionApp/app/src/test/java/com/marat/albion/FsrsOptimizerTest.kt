@@ -1,5 +1,6 @@
 package com.marat.albion
 
+import com.marat.albion.data.fsrs.CardState
 import com.marat.albion.data.fsrs.Fsrs
 import com.marat.albion.data.fsrs.FsrsOptimizer
 import com.marat.albion.data.fsrs.Memory
@@ -120,6 +121,20 @@ class FsrsOptimizerTest {
         }
         val outcome = FsrsOptimizer(events).optimize(iterations = 1)
         assertTrue(outcome is OptimizeOutcome.InsufficientSplit)
+    }
+
+    @Test
+    fun resetCardStartsNewHistory() {
+        val events = listOf(
+            ReviewEvent("card", 3, 0, CardState.NEW),
+            ReviewEvent("card", 3, 5 * Fsrs.DAY, CardState.REVIEW),
+            // «Сделать новой»: следующий ответ — снова на новую карточку.
+            ReviewEvent("card", 1, 10 * Fsrs.DAY, CardState.NEW),
+            ReviewEvent("card", 3, 12 * Fsrs.DAY, CardState.LEARNING),
+        )
+        val optimizer = FsrsOptimizer(events)
+        assertEquals("История до и после сброса — разные последовательности", 2, optimizer.cards)
+        assertEquals("Первый ответ после сброса не считается повторением", 2, optimizer.trainingItems + optimizer.validationItems)
     }
 
     @Test

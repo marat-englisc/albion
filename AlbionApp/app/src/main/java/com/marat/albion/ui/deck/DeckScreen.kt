@@ -155,7 +155,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             onDismissRequest = { confirmReset = false },
             containerColor = Ink.Elevated,
             title = { Text("Сбросить прогресс?", style = MaterialTheme.typography.headlineSmall) },
-            text = { Text("Все карточки колоды «${deck.title}» снова станут новыми, история ответов будет удалена.") },
+            text = { Text("Все карточки колоды «${deck.title}» снова станут новыми, статистика занятий сохранится.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmReset = false

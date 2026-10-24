@@ -11,6 +11,7 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.CoroutineScope
+import java.util.Collections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,9 +45,10 @@ class Translator(private val context: Context, private val scope: CoroutineScope
     private val russian by lazy { TranslateRemoteModel.Builder(TranslateLanguage.RUSSIAN).build() }
     private val models by lazy { RemoteModelManager.getInstance() }
     private val mutex = Mutex()
-    private val cache = object : LinkedHashMap<String, String>(256, 0.75f, true) {
+    // LinkedHashMap в порядке доступа меняется даже при чтении, а перевод вызывают из разных корутин.
+    private val cache: MutableMap<String, String> = Collections.synchronizedMap(object : LinkedHashMap<String, String>(256, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?) = size > 500
-    }
+    })
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
     private val _model = MutableStateFlow(ModelState.Unknown)

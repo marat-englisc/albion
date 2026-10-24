@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -97,12 +98,12 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
 
     var original by remember(card.id) { mutableStateOf<Prosody?>(null) }
     var originalReady by remember(card.id) { mutableStateOf(false) }
-    var hasTake by remember(card.id) { mutableStateOf(false) }
+    var hasTake by rememberSaveable(card.id) { mutableStateOf(false) }
     var analyzing by remember(card.id) { mutableStateOf(false) }
     var report by remember(card.id) { mutableStateOf<ShadowReport?>(null) }
     var unclear by remember(card.id) { mutableStateOf(false) }
-    var best by remember(card.id) { mutableStateOf<Int?>(null) }
-    var takes by remember(card.id) { mutableStateOf(0) }
+    var best by rememberSaveable(card.id) { mutableStateOf<Int?>(null) }
+    var takes by rememberSaveable(card.id) { mutableStateOf(0) }
     // Скользящее окно уровней для «волны» во время записи.
     val wave = remember(card.id) { mutableStateListOf<Float>().apply { repeat(32) { add(0f) } } }
 

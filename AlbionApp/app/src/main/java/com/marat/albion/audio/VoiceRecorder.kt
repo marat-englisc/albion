@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.os.SystemClock
 import com.marat.albion.data.audio.ProsodyAnalyzer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.RandomAccessFile
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.sqrt
 
 /**
@@ -29,7 +31,8 @@ class VoiceRecorder(private val context: Context) {
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private var job: Job? = null
-    @Volatile private var stopRequested = false
+    /** Флаг остановки текущей записи; у каждой записи свой, чтобы новая не «оживляла» прежнюю. */
+    private var stopFlag = AtomicBoolean(true)
 
     private val _recording = MutableStateFlow(false)
     val recording: StateFlow<Boolean> = _recording.asStateFlow()
@@ -61,34 +64,49 @@ class VoiceRecorder(private val context: Context) {
         }.getOrNull() ?: return false
         if (record.state != AudioRecord.STATE_INITIALIZED) { record.release(); return false }
 
-        stopRequested = false
+        val stopped = AtomicBoolean(false)
+        stopFlag = stopped
         samples = null
         _recording.value = true
         job = scope.launch {
-            val pcm = withContext(Dispatchers.IO) { capture(record, rate, maxMs) }
-            record.release()
-            samples = FloatArray(pcm.size) { pcm[it] / 32768f }
-            withContext(Dispatchers.IO) { writeWav(file, pcm, rate) }
-            _recording.value = false
-            _level.value = 0f
-            onStopped()
+            try {
+                val pcm = try {
+                    withContext(Dispatchers.IO) { capture(record, rate, maxMs, stopped) }
+                } finally {
+                    // Микрофон освобождаем всегда — и при отмене (уход с экрана посреди записи).
+                    record.release()
+                }
+                samples = FloatArray(pcm.size) { pcm[it] / 32768f }
+                withContext(Dispatchers.IO) { writeWav(file, pcm, rate) }
+                onStopped()
+            } finally {
+                // Поздно завершившаяся прежняя запись не гасит индикатор новой.
+                if (stopFlag === stopped) {
+                    _recording.value = false
+                    _level.value = 0f
+                }
+            }
         }
         return true
     }
 
     /** Чтение с микрофона до тишины после речи, лимита или [stop]. */
-    private fun capture(record: AudioRecord, rate: Int, maxMs: Long): ShortArray {
+    private fun capture(record: AudioRecord, rate: Int, maxMs: Long, stopped: AtomicBoolean): ShortArray {
         val out = ShortArrayBuilder(rate * 4)
         val chunk = ShortArray(rate / 50) // 20 мс
         val maxSamples = rate * maxMs / 1000
+        // Запасной лимит по часам: если микрофон перестал отдавать звук, запись всё равно закончится.
+        val deadline = SystemClock.elapsedRealtime() + maxMs + 1_000
         var noise = -1f
         var speechMs = 0
         var silenceMs = 0
         runCatching { record.startRecording() }.onFailure { return ShortArray(0) }
         try {
-            while (!stopRequested && out.size < maxSamples) {
+            while (!stopped.get() && out.size < maxSamples && SystemClock.elapsedRealtime() < deadline) {
                 val read = record.read(chunk, 0, chunk.size)
-                if (read <= 0) continue
+                // Отрицательное значение — ошибка (микрофон занят, устройство отключено): дальше читать бессмысленно.
+                if (read < 0) break
+                if (read == 0) continue
                 out.append(chunk, read)
                 var s = 0.0
                 for (k in 0 until read) s += chunk[k] * chunk[k].toDouble()
@@ -108,7 +126,7 @@ class VoiceRecorder(private val context: Context) {
     }
 
     fun stop() {
-        stopRequested = true
+        stopFlag.set(true)
     }
 
     fun clear() {

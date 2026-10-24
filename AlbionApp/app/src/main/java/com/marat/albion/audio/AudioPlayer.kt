@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.widget.Toast
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -62,6 +63,8 @@ class AudioPlayer internal constructor(
     private data class SpeechRequest(val id: String, val text: String)
     private var speech: SpeechRequest? = null
     private var ttsQueued: SpeechRequest? = null
+    /** Подсказку об отсутствии английского голоса показываем один раз за запуск. */
+    private var noVoiceShown = false
 
     fun setSpeed(value: Float) {
         speed = value
@@ -173,7 +176,21 @@ class AudioPlayer internal constructor(
             tts = null
             return
         }
-        engine.language = Locale.UK
+        // Британский голос, затем любой английский. Без английского голоса не читаем
+        // слова голосом по умолчанию (на русском телефоне это русский голос).
+        val english = ENGLISH_LOCALES.firstOrNull { locale ->
+            runCatching { engine.setLanguage(locale) }.getOrDefault(TextToSpeech.LANG_NOT_SUPPORTED) >= TextToSpeech.LANG_AVAILABLE
+        }
+        if (english == null) {
+            ttsReady = false
+            speech = null
+            ttsQueued = null
+            if (mediaRequestId == null) _playing.value = null
+            engine.shutdown()
+            tts = null
+            notifyNoEnglishVoice()
+            return
+        }
         engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
             override fun onDone(utteranceId: String?) = speechFinished(utteranceId)
@@ -185,6 +202,16 @@ class AudioPlayer internal constructor(
         val queued = ttsQueued
         ttsQueued = null
         if (queued != null && speech == queued) speakNow(queued)
+    }
+
+    private fun notifyNoEnglishVoice() {
+        if (noVoiceShown) return
+        noVoiceShown = true
+        Toast.makeText(
+            context.applicationContext,
+            "Нет английского голоса для озвучки. Установите его: Настройки → Язык и ввод → Синтез речи",
+            Toast.LENGTH_LONG,
+        ).show()
     }
 
     private fun speechFinished(id: String?) {
@@ -230,5 +257,9 @@ class AudioPlayer internal constructor(
         tts?.shutdown()
         tts = null
         ttsReady = false
+    }
+
+    private companion object {
+        val ENGLISH_LOCALES = listOf(Locale.UK, Locale.US, Locale.ENGLISH)
     }
 }

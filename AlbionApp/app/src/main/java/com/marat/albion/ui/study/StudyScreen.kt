@@ -3,9 +3,7 @@ package com.marat.albion.ui.study
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,7 +18,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +56,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,14 +66,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marat.albion.LocalAppContainer
@@ -97,9 +91,7 @@ import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.pressScale
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.sin
 
 @Composable
@@ -181,10 +173,8 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
                     ) { sc ->
                         val isCurrent = sc.card.id == current.card.id
                         FlipCard(
-                            cardKey = sc.card.id + sc.isNew,
                             revealed = if (isCurrent) state.revealed else true,
                             onReveal = vm::reveal,
-                            onSwipe = rate,
                             front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
                             back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
                         )
@@ -225,8 +215,11 @@ private fun TopRow(deck: Deck, state: StudyState, onClose: () -> Unit, onUndo: (
         }
         Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
-            QueueCount(state.learningCount, "учу", Modifier.weight(1f))
-            QueueCount(state.reviewCount + if (state.current?.isNew == false) 1 else 0, "повтор", Modifier.weight(1f))
+            QueueCount(state.learningCount + if (state.current?.fromLearning == true) 1 else 0, "учу", Modifier.weight(1f))
+            QueueCount(
+                state.reviewCount + if (state.current?.let { !it.isNew && !it.fromLearning } == true) 1 else 0,
+                "повтор", Modifier.weight(1f),
+            )
         }
     }
 }
@@ -255,16 +248,11 @@ private fun CardStackShadow(remaining: Int) {
     }
 }
 
-/**
- * Карточка: 3D-переворот по оси Y с лёгким «проседанием» в середине поворота.
- * После переворота её можно смахнуть: влево — «Снова», вправо — «Хорошо».
- */
+/** Карточка: 3D-переворот по оси Y с лёгким «проседанием» в середине поворота. */
 @Composable
 private fun FlipCard(
-    cardKey: String,
     revealed: Boolean,
     onReveal: () -> Unit,
-    onSwipe: (Rating) -> Unit,
     front: @Composable () -> Unit,
     back: @Composable () -> Unit,
 ) {
@@ -274,87 +262,31 @@ private fun FlipCard(
         label = "flip",
     )
     val dip = 1f - 0.03f * sin((rotation / 180f) * PI).toFloat()
-    val drag = remember(cardKey) { Animatable(0f) }
-    val scope = rememberCoroutineScope()
     val shape = RoundedCornerShape(10.dp)
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val width = with(LocalDensity.current) { maxWidth.toPx() }
-        val threshold = width * 0.28f
-        // Handle swipes on a stationary container so the card's transforms cannot mirror the drag.
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(cardKey, revealed) {
-                    if (!revealed) return@pointerInput
-                    detectHorizontalDragGestures(
-                        onDragEnd = {
-                            scope.launch {
-                                val v = drag.value
-                                if (abs(v) > threshold) {
-                                    drag.animateTo(if (v > 0) width * 1.4f else -width * 1.4f, tween(220))
-                                    onSwipe(if (v > 0) Rating.Good else Rating.Again)
-                                } else {
-                                    drag.animateTo(0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
-                                }
-                            }
-                        },
-                        onDragCancel = { scope.launch { drag.animateTo(0f, spring()) } },
-                        onHorizontalDrag = { change, amount ->
-                            change.consume()
-                            scope.launch { drag.snapTo(drag.value + amount) }
-                        },
-                    )
-                },
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationX = drag.value
-                        rotationZ = drag.value / width * 12f
-                    }
-                    .graphicsLayer {
-                        rotationY = rotation
-                        scaleX = dip; scaleY = dip
-                        cameraDistance = 16f * density
-                    }
-                    .clip(shape)
-                    .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
-                shape = shape,
-                color = Ink.Surface,
-                border = BorderStroke(1.dp, Ink.LineStrong),
-            ) {
-                Box(Modifier.fillMaxSize()) {
-                    if (rotation <= 90f) {
-                        Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
-                            Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
-                        }
-                        Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
-                            style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
-                    } else {
-                        Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }) {
-                            Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { back() }
-                            // Подсказка при смахивании.
-                            val p = (abs(drag.value) / threshold).coerceIn(0f, 1f)
-                            if (p > 0f) {
-                                val label = if (drag.value > 0) "ХОРОШО" else "СНОВА"
-                                Text(
-                                    label,
-                                    style = AlbionType.eyebrow.copy(letterSpacing = 3.sp),
-                                    color = if (drag.value > 0) Ink.Bg else Ink.Fg,
-                                    modifier = Modifier
-                                        .align(if (drag.value > 0) Alignment.TopStart else Alignment.TopEnd)
-                                        .padding(18.dp)
-                                        .graphicsLayer { alpha = p; rotationZ = if (drag.value > 0) -8f else 8f }
-                                        .background(if (drag.value > 0) Ink.Fg else Ink.Bg, RoundedCornerShape(2.dp))
-                                        .border(1.dp, Ink.Fg, RoundedCornerShape(2.dp))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                                )
-                            }
-                        }
-                    }
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                rotationY = rotation
+                scaleX = dip; scaleY = dip
+                cameraDistance = 16f * density
+            }
+            .clip(shape)
+            .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
+        shape = shape,
+        color = Ink.Surface,
+        border = BorderStroke(1.dp, Ink.LineStrong),
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            if (rotation <= 90f) {
+                Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
                 }
+                Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
+                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
+            } else {
+                Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }.verticalScroll(rememberScrollState())) { back() }
             }
         }
     }

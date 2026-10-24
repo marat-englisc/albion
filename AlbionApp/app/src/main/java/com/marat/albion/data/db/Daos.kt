@@ -213,7 +213,7 @@ interface ReviewDao {
     fun observeTotalReviews(): Flow<Int>
 
     /** Весь журнал — для подстройки параметров FSRS. */
-    @Query("SELECT card_id AS cardId, rating, reviewed_at AS time FROM review_log ORDER BY card_id, reviewed_at")
+    @Query("SELECT card_id AS cardId, rating, reviewed_at AS time, state_before AS stateBefore FROM review_log ORDER BY card_id, reviewed_at")
     suspend fun allEvents(): List<com.marat.albion.data.fsrs.ReviewEvent>
 
     @Query("SELECT COUNT(*) FROM review_log WHERE reviewed_at >= :since")
@@ -222,17 +222,12 @@ interface ReviewDao {
     @Query("SELECT COALESCE(SUM(duration_ms), 0) FROM review_log WHERE reviewed_at >= :since")
     fun observeTimeSince(since: Long): Flow<Long>
 
-    @Transaction
-    suspend fun resetDeck(deck: String) {
-        deleteStates(deck)
-        deleteLogs(deck)
-    }
-
+    /**
+     * Сброс колоды: карточки снова новые. Журнал ответов остаётся — на нём держатся серия дней,
+     * активность и удержание; оптимизатор FSRS начинает историю заново с ответа на новую карточку.
+     */
     @Query("DELETE FROM review_state WHERE deck = :deck")
-    suspend fun deleteStates(deck: String)
-
-    @Query("DELETE FROM review_log WHERE deck = :deck")
-    suspend fun deleteLogs(deck: String)
+    suspend fun resetDeck(deck: String)
 
     @Query("DELETE FROM review_log WHERE card_id = :cardId")
     suspend fun deleteCardLogs(cardId: String)

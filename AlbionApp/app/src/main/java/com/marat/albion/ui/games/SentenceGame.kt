@@ -33,6 +33,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -73,9 +76,11 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     val audio = rememberCardAudio(c.audio)
     val order = remember(card.id) { vm.shuffledOrder(card, puzzle.tokens.size) }
     // Индексы плашек (в puzzle.tokens) в том порядке, как их поставил пользователь.
-    val placed = remember(card.id) { mutableStateListOf<Int>() }
-    var verdict by remember(card.id) { mutableStateOf<Verdict?>(null) }
-    var hinted by remember(card.id) { mutableStateOf(false) }
+    val placed = rememberSaveable(card.id, saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() })) {
+        mutableStateListOf<Int>()
+    }
+    var verdict by rememberSaveable(card.id) { mutableStateOf<Verdict?>(null) }
+    var hinted by rememberSaveable(card.id) { mutableStateOf(false) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
     val answer = placed.map { puzzle.tokens[it] }
     val wrong = if (verdict == Verdict.Wrong) puzzle.wrongPositions(answer) else emptySet()

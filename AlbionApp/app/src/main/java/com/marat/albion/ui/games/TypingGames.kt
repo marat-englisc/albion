@@ -231,9 +231,9 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
     val audio = rememberCardAudio(c.audio)
     val deck = Deck.byId(card.deck) ?: Deck.WORDS
     var input by rememberSaveable(card.id) { mutableStateOf("") }
-    var verdict by remember(card.id) { mutableStateOf<Verdict?>(null) }
-    var hints by remember(card.id) { mutableIntStateOf(0) }
-    var showEn by remember(card.id) { mutableStateOf(false) }
+    var verdict by rememberSaveable(card.id) { mutableStateOf<Verdict?>(null) }
+    var hints by rememberSaveable(card.id) { mutableIntStateOf(0) }
+    var showEn by rememberSaveable(card.id) { mutableStateOf(false) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
     val focus = remember(card.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -389,7 +389,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
     val data = remember(card.id) { vm.irregular(card) }
     var v2 by rememberSaveable(card.id) { mutableStateOf("") }
     var v3 by rememberSaveable(card.id) { mutableStateOf("") }
-    var result by remember(card.id) { mutableStateOf<Pair<Verdict, Verdict>?>(null) }
+    var result by rememberSaveable(card.id) { mutableStateOf<Pair<Verdict, Verdict>?>(null) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
     val focus2 = remember(card.id) { FocusRequester() }
     val focus3 = remember(card.id) { FocusRequester() }
