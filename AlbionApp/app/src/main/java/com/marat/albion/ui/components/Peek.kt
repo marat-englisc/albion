@@ -77,6 +77,20 @@ private const val HOLD_EDGE = 0.8834f
 /** Где на рисунке [FinnPeek.SIDE] проходит боковой край: левее — Финн, правее — крыло на кромке. */
 private const val SIDE_EDGE = 0.9474f
 
+/** «Дыхание» рисунков со срезом: на сколько они растягиваются от кромки на пике покачивания (на единицу sway). */
+private const val BREATH = 0.006f
+
+/**
+ * Тело на рисунке HOLD чуть продлено за линию края (scripts/convert_mascots.py), чтобы срез был
+ * непрозрачным при любом округлении. Под кромкой рисуются только крылья — вне этой полосы по ширине.
+ */
+private const val HOLD_BODY_FROM = 0.4417f
+private const val HOLD_BODY_TO = 0.7669f
+
+/** На рисунке SIDE за край заходит только крыло — в этой полосе по высоте; тело продлено за край вне её. */
+private const val SIDE_WING_FROM = 0.6089f
+private const val SIDE_WING_TO = 0.8101f
+
 /** Голова из обычной позы срезана с запасом — эта доля остаётся спрятанной за краем. */
 private const val HEAD_SINK = 0.16f
 
@@ -88,8 +102,8 @@ private const val HEAD_SINK = 0.16f
  * [at] — положение вдоль края (0 — начало, 1 — конец), [height] — высота рисунка,
  * [mirror] — смотреть в другую сторону, [outset] — насколько край лежит за границей элемента
  * (элемент в отступе 24dp и outset = 24.dp — Финн выглядывает из-за края экрана).
- * Появляется с задержкой [delayMs]: сначала выезжает из-за края, затем показывает крылья,
- * потом едва заметно покачивается.
+ * Появляется с задержкой [delayMs]: сначала выезжает из-за края, затем перекидывает крылья
+ * через кромку, потом едва заметно покачивается.
  */
 fun Modifier.peekingFinn(
     peek: FinnPeek = FinnPeek.HOLD,
@@ -163,17 +177,27 @@ private fun DrawScope.drawOverEdge(
         if (corner) 0f else -big, if (corner) 0f else -big,
         if (corner) size.width else big, if (corner) size.height else big,
     ) {
+        // Рисунок со срезом (HOLD) нельзя наклонять и поднимать выше места: срез оторвётся
+        // от кромки и под ним мелькнёт фон. Он поднимается без перелёта и «дышит», растягиваясь
+        // от кромки; голове из позы, у которой за краем есть запас, можно и покачиваться.
+        val rise = if (hold) p.coerceAtMost(1f) else p
+        val tilt = if (hold) 0f else sway * p
+        val breath = if (hold) 1f + sway * BREATH * rise else 1f
         translate(pivot.x, pivot.y) {
-            rotate(angle + sway * p, pivot = Offset.Zero) {
-                scale(if (mirror) -1f else 1f, 1f, pivot = Offset.Zero) {
+            rotate(angle + tilt, pivot = Offset.Zero) {
+                scale(if (mirror) -1f else 1f, breath, pivot = Offset.Zero) {
                     // Выезжает из-за края: видимая часть растёт, всё ниже кромки срезано.
                     clipRect(-w, -h * 2, w, if (corner) h * 2 else 0f) {
-                        drawArt(image, -w / 2, -above * p, w, h)
+                        drawArt(image, -w / 2, -above * rise, w, h)
                     }
-                    // Крылья поверх кромки проявляются, когда Финн уже выглянул.
+                    // Крылья перекидываются через кромку из-за края, когда Финн почти выглянул.
                     if (hold) {
-                        clipRect(-w, 0f, w, h) {
-                            drawArt(image, -w / 2, -above, w, h, alpha = (p * p).coerceIn(0f, 1f))
+                        val t = wingsProgress(p)
+                        if (t > 0f) {
+                            val y = -above - (1f - t) * h * (1f - HOLD_EDGE)
+                            // Слева и справа от тела: продлённый срез тела под кромкой не рисуем.
+                            clipRect(-w, 0f, -w / 2 + w * HOLD_BODY_FROM, h) { drawArt(image, -w / 2, y, w, h, alpha = t) }
+                            clipRect(-w / 2 + w * HOLD_BODY_TO, 0f, w, h) { drawArt(image, -w / 2, y, w, h, alpha = t) }
                         }
                     }
                 }
@@ -202,21 +226,27 @@ private fun DrawScope.drawSide(
     val centerY = size.height * at
     val flip = (if (edgeOnRight) 1f else -1f) * (if (mirror) -1f else 1f)
     val left = w * SIDE_EDGE
+    // Как у HOLD: без перелёта и наклона, иначе срез отходит от края и за Финном видна пустота.
+    val slide = p.coerceAtMost(1f)
+    val breath = 1f + sway * BREATH * slide
     translate(edgeX, centerY) {
-        rotate(sway * p, pivot = Offset.Zero) {
-            scale(flip, 1f, pivot = Offset.Zero) {
-                // Финн слева от края; выезжает из-за него, лишнее справа срезано.
-                clipRect(-w * 2, -h, 0f, h) {
-                    drawArt(image, -left * p, -h / 2, w, h)
-                }
-                // Крыло, вцепившееся в край, проявляется следом.
-                clipRect(0f, -h, w, h) {
-                    drawArt(image, -left, -h / 2, w, h, alpha = (p * p).coerceIn(0f, 1f))
-                }
+        scale(flip * breath, 1f, pivot = Offset.Zero) {
+            // Финн слева от края; выезжает из-за него, лишнее справа срезано.
+            clipRect(-w * 2, -h, 0f, h) {
+                drawArt(image, -left * slide, -h / 2, w, h)
+            }
+            // Крыло перекидывается через край следом, когда Финн почти выглянул.
+            val t = wingsProgress(p)
+            // За краем — только полоса крыла; продлённый срез тела остаётся спрятанным.
+            if (t > 0f) clipRect(0f, -h / 2 + h * SIDE_WING_FROM, w, -h / 2 + h * SIDE_WING_TO) {
+                drawArt(image, -left - (1f - t) * w * (1f - SIDE_EDGE), -h / 2, w, h, alpha = t)
             }
         }
     }
 }
+
+/** Крылья появляются в последней трети подъёма — после того, как Финн выглянул из-за края. */
+private fun wingsProgress(p: Float): Float = ((p - 0.7f) / 0.3f).coerceIn(0f, 1f)
 
 private fun DrawScope.drawArt(image: ImageBitmap, x: Float, y: Float, w: Float, h: Float, alpha: Float = 1f) {
     drawImage(

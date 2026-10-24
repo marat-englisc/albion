@@ -55,6 +55,44 @@ def peek(src: Path, dst: Path) -> None:
     head.save(dst, "WEBP", quality=88, method=6)
 
 
+CUT_EXTENSION = 14  # пикселей исходника (~5 px в APK)
+
+
+def extend_cut(image: Image.Image, edge: int, horizontal: bool, bounds: tuple) -> tuple:
+    """
+    Продлевает тело за линию края, там где нет крыльев: срез становится непрозрачным,
+    и при округлении позиции под кромкой не мелькает полупрозрачный ряд пикселей.
+    Продление всё равно срезается краем. Возвращает доли, между которыми продлено:
+    для HOLD — полосу тела по ширине, для SIDE — полосу крыла по высоте (вне её продлено).
+    """
+    left, top, right, bottom = bounds
+    px = image.load()
+    alpha = lambda x, y: px[x, y][3]
+    if horizontal:
+        # Тело — непрерывная полоса вокруг середины, по бокам от неё за край свисают крылья.
+        body = lambda x: alpha(x, edge - 3) >= 240 and alpha(x, edge + CUT_EXTENSION + 4) <= 30
+        middle = (left + right) // 2 + (right - left) // 10
+        start = end = middle
+        while start > left and body(start - 1):
+            start -= 1
+        while end < right - 1 and body(end + 1):
+            end += 1
+        for x in range(start, end + 1):
+            for y in range(edge - 2, edge + CUT_EXTENSION):
+                px[x, y] = px[x, edge - 3]
+        return (start - left) / (right - left), (end - left) / (right - left)
+    wing = []
+    for y in range(top, bottom):
+        if alpha(edge - 3, y) < 240:
+            continue
+        if alpha(edge + CUT_EXTENSION + 4, y) <= 30:
+            for x in range(edge - 2, edge + CUT_EXTENSION):
+                px[x, y] = px[edge - 3, y]
+        else:
+            wing.append(y)
+    return (min(wing) - top) / (bottom - top), (max(wing) - top) / (bottom - top)
+
+
 def peek_art(src: Path, dst: Path) -> str:
     """Обрезает рисунок по содержимому и сообщает, где на нём проходит край, за который держится Финн."""
     image = Image.open(src).convert("RGBA")
@@ -71,6 +109,8 @@ def peek_art(src: Path, dst: Path) -> str:
         rows = range(top + (bottom - top) // 5, top + (bottom - top) // 2)
         edge = max(max(x for x in range(left, right) if pixels[x, y]) for y in rows)
         cut = f"edge at width {(edge - left) / (right - left):.4f}"
+    span = extend_cut(image, edge, horizontal="hold" in src.stem, bounds=(left, top, right, bottom))
+    cut += f", body/wing span {span[0]:.4f}..{span[1]:.4f}"
     art = image.crop((left, top, right, bottom))
     width = round(art.width * PEEK_ART_HEIGHT / art.height)
     art = art.resize((width, PEEK_ART_HEIGHT), Image.LANCZOS)
