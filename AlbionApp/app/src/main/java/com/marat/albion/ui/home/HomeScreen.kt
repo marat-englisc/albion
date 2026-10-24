@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -127,10 +129,8 @@ fun HomeScreen(navigator: Navigator) {
     val reveal = rememberReveal()
     val date = remember { SimpleDateFormat("EEEE · d MMMM", Locale.forLanguageTag("ru")).format(Date()) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().background(Ink.Bg),
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
-    ) {
+    // Занятие на сегодня и продолжение — одна колонка; колоды — вторая, если на экране есть место.
+    val overview: LazyListScope.() -> Unit = {
         item {
             Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp).reveal(reveal, 0)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -192,12 +192,39 @@ fun HomeScreen(navigator: Navigator) {
             )
         }
 
+    }
+    val decks: LazyListScope.() -> Unit = {
         item { SectionHeader("Колоды", Modifier.padding(top = 8.dp).reveal(reveal, 5), trailing = "0${Deck.entries.size}") }
         itemsIndexed(state.decks, key = { _, it -> it.deck.id }) { i, summary ->
             DeckRow(i + 1, summary, Modifier.reveal(reveal, 6 + i)) { navigator.open(DeckRoute(summary.deck)) }
         }
     }
+
+    BoxWithConstraints(Modifier.fillMaxSize().background(Ink.Bg)) {
+        val padding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp)
+        if (maxWidth >= TWO_COLUMNS_MIN_WIDTH) {
+            Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) { overview() }
+                LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) {
+                    // Колоды начинаются вровень с блоком «Сегодня» слева.
+                    item { Spacer(Modifier.windowInsetsPadding(WindowInsets.statusBars).height(HEADER_HEIGHT)) }
+                    decks()
+                }
+            }
+        } else {
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = padding) {
+                overview()
+                decks()
+            }
+        }
+    }
 }
+
+/** С какой ширины главная делится на две колонки. */
+private val TWO_COLUMNS_MIN_WIDTH = 900.dp
+
+/** Примерная высота шапки с приветствием — чтобы колоды справа начинались на её уровне. */
+private val HEADER_HEIGHT = 114.dp
 
 @Composable
 private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) -> Unit) {

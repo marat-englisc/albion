@@ -21,6 +21,9 @@ fun widthClassOf(width: Dp): WidthClass = when {
 /** Самая широкая колонка, в которой удобно читать списки и текст. */
 val ReadableWidth = 760.dp
 
+/** Главная на планшете: две колонки по ширине почти как у [ReadableWidth]. */
+val DashboardWidth = 1200.dp
+
 /** Колонка для одного задания: карточка, мини-игра, тест. */
 val FocusWidth = 680.dp
 

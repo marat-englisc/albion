@@ -1,5 +1,6 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -122,6 +123,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
         if (cards.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.") }
         } else {
+            val shownCard = (navigator.shownDetail as? CardRoute)?.cardId
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
                 item {
                     Eyebrow("${cards.size} карточ.", Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
@@ -131,8 +133,9 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
                         card = card,
                         showRussian = showRussian,
                         playing = audio.playingKey == "term:${card.id}",
+                        selected = card.id == shownCard,
                         onPlay = { audio.play(deck, card.audio, card.term, "term:${card.id}") },
-                        onClick = { navigator.open(CardRoute(card.id)) },
+                        onClick = { navigator.openDetail(CardRoute(card.id)) },
                         modifier = Modifier.animateItem(),
                     )
                 }
@@ -189,8 +192,8 @@ fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun CardRow(card: CardEntity, showRussian: Boolean, playing: Boolean, onPlay: () -> Unit, onClick: () -> Unit, modifier: Modifier) {
-    Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
+private fun CardRow(card: CardEntity, showRussian: Boolean, playing: Boolean, selected: Boolean, onPlay: () -> Unit, onClick: () -> Unit, modifier: Modifier) {
+    Column(modifier.fillMaxWidth().selectedRow(selected).clickable(onClick = onClick)) {
         Row(Modifier.padding(horizontal = 24.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

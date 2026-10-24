@@ -49,6 +49,19 @@ class Navigator internal constructor(
         } else backStack.add(route)
     }
 
+    /** Страница, открытая из списка, — на планшете она видна рядом, и в списке её строка подсвечена. */
+    val shownDetail: NavKey? get() = backStack.lastOrNull()?.takeIf { paneOf(it) == Pane.Detail }
+
+    /**
+     * Открывает страницу из списка (тему из оглавления, карточку из списка колоды).
+     * На планшете страница стоит рядом со списком, поэтому новая заменяет прежнюю, а не копится в истории.
+     * На телефоне над списком страниц нет, и это обычный переход.
+     */
+    fun openDetail(route: NavKey) {
+        while (backStack.size > 1 && backStack.last().let { paneOf(it) == Pane.Detail }) backStack.removeAt(backStack.lastIndex)
+        open(route)
+    }
+
     fun back() {
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
         else if (selectedTab != HomeRoute) switchTab(HomeRoute)

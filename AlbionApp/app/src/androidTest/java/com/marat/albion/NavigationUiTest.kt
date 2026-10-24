@@ -134,7 +134,9 @@ class NavigationUiTest {
                 activate(awaitNode { it.text?.toString()?.startsWith("К ПОВТОРЕНИЮ (") == true })
                 awaitNode { it.text?.toString()?.startsWith("НАЙДЕНО:") == true }
                 setSearch("142")
-                click(scrollToNode { it.text?.toString() == "Повторить тему 142" })
+                // После ввода запроса под темой появляется фрагмент правила и кнопка сдвигается вниз:
+                // нажимаем через специальные возможности, а не по координатам, которые могли устареть.
+                activate(scrollToNode { it.text?.toString() == "Повторить тему 142" })
                 clickText("He")
                 click(scrollToNode { it.text?.toString() == "Правило · тема 142  →" })
                 awaitNode { it.contentDescription?.toString() == "Размер текста" }

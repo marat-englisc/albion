@@ -24,6 +24,20 @@ class NavigatorTest {
         assertEquals(listOf(GrammarRoute, TopicRoute("articles")), nav.backStack.toList())
     }
 
+    @Test fun openingFromListReplacesShownDetailButLinksStack() {
+        val nav = navigator()
+        nav.selectTab(GrammarRoute)
+        nav.openDetail(TopicRoute("articles"))
+        // Ссылка внутри темы — обычный переход: «Назад» вернёт к прежней теме.
+        nav.open(TopicRoute("plurals"))
+        assertEquals(listOf(GrammarRoute, TopicRoute("articles"), TopicRoute("plurals")), nav.backStack.toList())
+        // Выбор в оглавлении заменяет открытые темы: на планшете они стоят рядом со списком.
+        nav.openDetail(TopicRoute("tenses"))
+        assertEquals(listOf(GrammarRoute, TopicRoute("tenses")), nav.backStack.toList())
+        nav.back()
+        assertEquals(listOf(GrammarRoute), nav.backStack.toList())
+    }
+
     @Test fun selectingCurrentTabReturnsToItsRootOnly() {
         val nav = navigator()
         nav.open(DeckRoute(Deck.IDIOMS))

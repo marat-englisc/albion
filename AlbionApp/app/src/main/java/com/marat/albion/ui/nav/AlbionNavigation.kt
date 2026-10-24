@@ -83,6 +83,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.marat.albion.ui.browse.BrowseScreen
 import com.marat.albion.ui.browse.CardDetailScreen
 import com.marat.albion.ui.components.CenteredColumn
+import com.marat.albion.ui.components.DashboardWidth
 import com.marat.albion.ui.components.FocusWidth
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ReadableWidth
@@ -166,7 +167,7 @@ fun AlbionNavigation() {
                 ),
                 entryProvider = { route ->
                     val original = provider(route)
-                    NavEntry(route, contentKey = "$tab:$route", metadata = original.metadata) {
+                    NavEntry(route, contentKey = "$tab:$route", metadata = original.metadata + paneMetadata(route)) {
                         CenteredColumn(maxWidthFor(route)) { original.Content() }
                     }
                 },
@@ -177,6 +178,8 @@ fun AlbionNavigation() {
     BoxWithConstraints(Modifier.fillMaxSize().background(Ink.Bg)) {
     // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
     val wide = widthClassOf(maxWidth) != WidthClass.Compact
+    // Ещё шире — список и открытая из него страница рядом (учебник, все карточки колоды).
+    val listDetail = maxWidth >= ListDetailMinWidth
     Scaffold(
         containerColor = Ink.Bg,
         contentWindowInsets = WindowInsets(0),
@@ -204,6 +207,7 @@ fun AlbionNavigation() {
                 NavDisplay(
                     entries = entries.getValue(navigator.selectedTab),
                     onBack = { navigator.back() },
+                    sceneStrategies = remember(listDetail) { listOf(ListDetailSceneStrategy(listDetail)) },
                     modifier = Modifier.padding(bottom).consumeWindowInsets(bottom)
                         // Без нижней панели вкладок разделы сами отступают от системной навигации.
                         .then(if (rail) Modifier.windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)) else Modifier),
@@ -222,6 +226,8 @@ fun AlbionNavigation() {
 /** Ширина колонки экрана: книга — на всю ширину, задания — уже, списки и текст — колонкой для чтения. */
 private fun maxWidthFor(route: NavKey): Dp = when (route) {
     is ReaderRoute -> Dp.Infinity
+    // Главная на планшете делится на две колонки: сегодня и колоды.
+    HomeRoute -> DashboardWidth
     is StudyRoute, is GameRoute, is TopicQuizRoute -> FocusWidth
     else -> ReadableWidth
 }

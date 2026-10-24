@@ -1,5 +1,10 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.nav.LocalBesideDetail
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
+import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -45,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -146,7 +152,58 @@ fun GrammarScreen(navigator: Navigator) {
     val due = state.reviews.takeWhile { it.dueAt <= now }
     val dueIds = due.map { it.topic.id }.toSet()
     val filtering = query.isNotBlank() || level != null || bookmarksOnly || reviewsOnly
-    val open: (Topic) -> Unit = { navigator.open(TopicRoute(it.id)) }
+    val open: (Topic) -> Unit = { navigator.openDetail(TopicRoute(it.id)) }
+    val shownTopic = (navigator.shownDetail as? TopicRoute)?.topicId
+    val q = query.trim().lowercase()
+    val found = if (!filtering) emptyList() else (if (reviewsOnly) due.map { it.topic } else book.topics).filter { t ->
+        (t.kind == TopicKind.Lesson || t.kind == TopicKind.Reference) &&
+            GrammarSearch.matches(t, q) &&
+            (level == null || t.level == level) &&
+            (!bookmarksOnly || state.progress[t.id]?.bookmarked == true) &&
+            (!reviewsOnly || t.id in dueIds)
+    }
+
+    /** Номер строки темы в списке ниже; порядок элементов — тот же, что в LazyColumn. */
+    fun topicItemIndex(id: String): Int? {
+        var i = 1 // шапка
+        if (filtering) {
+            i += 2 // поиск, «Найдено»
+            return found.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { i + it }
+        }
+        i += 2 // обзор, поиск
+        if (!state.loading && state.reviews.isNotEmpty()) i++ // повторение грамматики
+        if (book.topics.any { it.kind == TopicKind.Contents }) i++ // «Как заниматься»
+        i++ // «Главы»
+        for (chapter in book.chapters) {
+            i++
+            if (chapter.title !in openChapters) continue
+            val pos = chapter.topics.indexOfFirst { it.id == id }
+            if (pos >= 0) return i + pos
+            i += chapter.topics.size
+        }
+        return null
+    }
+
+    // На планшете тема открыта справа: оглавление держит её строку на виду —
+    // раскрывает главу и прокручивает, если тему открыли кнопкой или ссылкой из другой темы.
+    val besideDetail = LocalBesideDetail.current
+    LaunchedEffect(shownTopic, besideDetail, book, filtering) {
+        val id = shownTopic ?: return@LaunchedEffect
+        if (!besideDetail) return@LaunchedEffect
+        val chapter = book.chapters.firstOrNull { ch -> ch.topics.any { it.id == id } }
+        if (!filtering && chapter != null && chapter.title !in openChapters) {
+            val before = listState.layoutInfo.totalItemsCount
+            openChapters = openChapters + chapter.title
+            // Ждём, пока список покажет строки раскрытой главы.
+            withTimeoutOrNull(1_000) { snapshotFlow { listState.layoutInfo.totalItemsCount }.first { it != before } }
+        }
+        val key: Any = if (filtering) "f-$id" else "t-${chapter?.title}-$id"
+        val visible = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == key }
+        val viewport = listState.layoutInfo.viewportEndOffset
+        if (visible != null && visible.offset >= 0 && visible.offset + visible.size <= viewport) return@LaunchedEffect
+        val index = topicItemIndex(id) ?: return@LaunchedEffect
+        listState.animateScrollToItem(index, scrollOffset = -viewport / 3)
+    }
     val quiz: (Topic) -> Unit = { t -> t.number?.let { navigator.open(TopicQuizRoute(it, t.id, t.title)) } }
 
     LazyColumn(
@@ -298,7 +355,7 @@ fun GrammarScreen(navigator: Navigator) {
                 }
                 if (isOpen) {
                     items(chapter.topics, key = { "t-${chapter.title}-${it.id}" }) { t ->
-                        TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, onClick = { open(t) })
+                        TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, selected = t.id == shownTopic, onClick = { open(t) })
                     }
                 }
             }
@@ -312,19 +369,10 @@ fun GrammarScreen(navigator: Navigator) {
                 }
             }
         } else {
-            val q = query.trim().lowercase()
-            val candidates = if (reviewsOnly) due.map { it.topic } else book.topics
-            val found = candidates.filter { t ->
-                (t.kind == TopicKind.Lesson || t.kind == TopicKind.Reference) &&
-                    GrammarSearch.matches(t, q) &&
-                    (level == null || t.level == level) &&
-                    (!bookmarksOnly || state.progress[t.id]?.bookmarked == true) &&
-                    (!reviewsOnly || t.id in dueIds)
-            }
             item { Eyebrow("Найдено: ${found.size}", Modifier.padding(vertical = 8.dp)) }
             items(found, key = { "f-${it.id}" }) { t ->
                 Column {
-                    TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, onClick = { open(t) })
+                    TopicRow(t, state.progress[t.id], Modifier.animateItem(), now, selected = t.id == shownTopic, onClick = { open(t) })
                     if (q.isNotBlank()) Text(GrammarSearch.snippet(t, q),
                         style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
                         modifier = Modifier.padding(start = 36.dp, bottom = 12.dp))
@@ -379,10 +427,10 @@ private fun ChapterRow(index: Int, title: String, done: Int, total: Int, open: B
 }
 
 @Composable
-private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modifier, now: Long, onClick: () -> Unit) {
+private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modifier, now: Long, selected: Boolean, onClick: () -> Unit) {
     val read = progress?.readAt != null
     val mastered = progress?.masteredAt != null
-    Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    Column(modifier.fillMaxWidth().selectedRow(selected).clickable(onClick = onClick)) {
         Row(Modifier.padding(start = 7.dp, top = 14.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 t.number?.takeIf { t.kind == TopicKind.Lesson }?.toString() ?: "§",
@@ -411,7 +459,7 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
             Spacer(Modifier.width(10.dp))
             Box(
                 Modifier.size(18.dp)
-                    .background(if (mastered) Ink.Fg else Ink.Bg, CircleShape)
+                    .background(if (mastered) Ink.Fg else Color.Transparent, CircleShape)
                     .border(1.dp, if (mastered) Ink.Fg else Ink.LineStrong, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
