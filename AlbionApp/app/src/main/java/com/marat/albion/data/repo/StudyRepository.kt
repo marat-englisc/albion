@@ -140,6 +140,37 @@ class StudyRepository(
         }
     }
 
+    /**
+     * Общее занятие по всем колодам. Лимиты и сиблинги — по каждой колоде, как в отдельных
+     * занятиях, поэтому числа совпадают со сводкой на главном экране. Повторения перемешаны,
+     * новые чередуются между колодами.
+     */
+    suspend fun buildQueueAll(now: Long = System.currentTimeMillis()): SessionQueue {
+        val s = settings.current()
+        return db.withTransaction {
+            val plans = Deck.entries.map { planQueue(it, s, now) }
+            val selected = plans.flatMap { it.reviews + it.news }.map { it.id }
+                .chunked(500).flatMap { cards.getMany(it) }.associateBy { it.id }
+            SessionQueue(
+                learning = plans.flatMap { it.learning },
+                reviews = plans.flatMap { p -> p.reviews.map { selected.getValue(it.id) } }.shuffled(),
+                news = roundRobin(plans.map { p -> p.news.map { selected.getValue(it.id) } }),
+            )
+        }
+    }
+
+    /** Берёт по одной карточке из каждой колоды по очереди. */
+    private fun <T> roundRobin(lists: List<List<T>>): List<T> {
+        val total = lists.sumOf { it.size }
+        val result = ArrayList<T>(total)
+        var i = 0
+        while (result.size < total) {
+            lists.forEach { list -> list.getOrNull(i)?.let(result::add) }
+            i++
+        }
+        return result
+    }
+
     /** Единый отбор для занятия, счётчиков колод и напоминаний. */
     private suspend fun planQueue(deck: Deck, s: Settings, now: Long): QueuePlan {
         val since = dayStart(now, s.dayStartHour)
@@ -195,13 +226,13 @@ class StudyRepository(
 
     suspend fun resetParams() = settings.setFsrsParams(null, 0, 0f)
 
-    /** Для напоминаний: сколько ответов сегодня и сколько карточек ждут повторения. */
+    /** Для напоминаний: сколько ответов сегодня (карточки и практика) и сколько карточек ждут повторения. */
     suspend fun todayStatus(now: Long = System.currentTimeMillis()): Pair<Int, Int> {
         val s = settings.current()
         val since = dayStart(now, s.dayStartHour)
         // «Ждут повторения» — с учётом дневных лимитов, как на главном экране.
         val due = buildSummaries(cards.observeCounts(now).first(), s, now).sumOf { it.due }
-        return reviews.countAllSince(since) to due
+        return (reviews.countAllSince(since) + games.countAnswersSince(since)) to due
     }
 
     /** Сохраняет ответ. Возвращает id записи журнала (для отмены) и новую память. */

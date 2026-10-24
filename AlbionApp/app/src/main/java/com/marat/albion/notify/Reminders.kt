@@ -1,6 +1,7 @@
 package com.marat.albion.notify
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -81,6 +82,8 @@ object Reminders {
         }
     }
 
+    // Разрешение проверяет canNotify() на первой строке; lint не видит проверку через вспомогательную функцию.
+    @SuppressLint("MissingPermission")
     fun show(context: Context, title: String, text: String) {
         if (!canNotify(context)) return
         val open = PendingIntent.getActivity(
@@ -114,8 +117,17 @@ object Reminders {
     private fun answers(n: Int) = "$n ${plural(n, "ответ", "ответа", "ответов")}"
 }
 
-/** Срабатывание будильника и восстановление после перезагрузки/обновления. */
+/** Срабатывание будильника и восстановление после перезагрузки, обновления, смены пояса или часов. */
 class ReminderReceiver : BroadcastReceiver() {
+    private companion object {
+        val RESCHEDULE_ACTIONS = setOf(
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_TIME_CHANGED, // "android.intent.action.TIME_SET"
+        )
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         val app = context.applicationContext as AlbionApp
         val pending = goAsync()
@@ -124,7 +136,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 val c = app.container
                 val s = c.settings.current()
                 if (!s.reminderEnabled) return@launch
-                if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+                if (intent.action in RESCHEDULE_ACTIONS) {
                     Reminders.schedule(context, s.reminderHour, s.reminderMinute)
                     return@launch
                 }

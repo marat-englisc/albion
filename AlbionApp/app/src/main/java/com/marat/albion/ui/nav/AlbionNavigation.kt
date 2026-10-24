@@ -40,6 +40,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,6 +68,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -78,7 +82,12 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.marat.albion.ui.browse.BrowseScreen
 import com.marat.albion.ui.browse.CardDetailScreen
+import com.marat.albion.ui.components.CenteredColumn
+import com.marat.albion.ui.components.FocusWidth
 import com.marat.albion.ui.components.Hairline
+import com.marat.albion.ui.components.ReadableWidth
+import com.marat.albion.ui.components.WidthClass
+import com.marat.albion.ui.components.widthClassOf
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.deck.DeckScreen
 import com.marat.albion.ui.games.GameHost
@@ -157,18 +166,23 @@ fun AlbionNavigation() {
                 ),
                 entryProvider = { route ->
                     val original = provider(route)
-                    NavEntry(route, contentKey = "$tab:$route", metadata = original.metadata) { original.Content() }
+                    NavEntry(route, contentKey = "$tab:$route", metadata = original.metadata) {
+                        CenteredColumn(maxWidthFor(route)) { original.Content() }
+                    }
                 },
             )
         }
     }
 
+    BoxWithConstraints(Modifier.fillMaxSize().background(Ink.Bg)) {
+    // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
+    val wide = widthClassOf(maxWidth) != WidthClass.Compact
     Scaffold(
         containerColor = Ink.Bg,
         contentWindowInsets = WindowInsets(0),
         bottomBar = {
             AnimatedVisibility(
-                visible = showBar,
+                visible = showBar && !wide,
                 enter = fadeIn(tween(180)) + slideInVertically(tween(220, easing = Easing.Emphasized)) { it },
                 exit = fadeOut(tween(120)) + slideOutVertically(tween(180)) { it },
             ) {
@@ -177,18 +191,81 @@ fun AlbionNavigation() {
         },
     ) { padding ->
         val bottom = PaddingValues(bottom = padding.calculateBottomPadding())
-        Box(Modifier.fillMaxSize()) {
-            NavDisplay(
-                entries = entries.getValue(navigator.selectedTab),
-                onBack = { navigator.back() },
-                modifier = Modifier.padding(bottom).consumeWindowInsets(bottom),
-                transitionSpec = { forward() },
-                popTransitionSpec = { backward() },
-                predictivePopTransitionSpec = { backward() },
-            )
-            // Прокручиваемый контент не должен просвечивать под статус-баром.
-            Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(Ink.Bg.copy(alpha = 0.94f)))
+        val rail = showBar && wide
+        Row(Modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = rail,
+                enter = fadeIn(tween(180)) + slideInHorizontally(tween(220, easing = Easing.Emphasized)) { -it },
+                exit = fadeOut(tween(120)) + slideOutHorizontally(tween(180)) { -it },
+            ) {
+                SideRail(navigator.selectedTab, navigator::selectTab)
+            }
+            Box(Modifier.weight(1f).fillMaxHeight()) {
+                NavDisplay(
+                    entries = entries.getValue(navigator.selectedTab),
+                    onBack = { navigator.back() },
+                    modifier = Modifier.padding(bottom).consumeWindowInsets(bottom)
+                        // Без нижней панели вкладок разделы сами отступают от системной навигации.
+                        .then(if (rail) Modifier.windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)) else Modifier),
+                    transitionSpec = { forward() },
+                    popTransitionSpec = { backward() },
+                    predictivePopTransitionSpec = { backward() },
+                )
+                // Прокручиваемый контент не должен просвечивать под статус-баром.
+                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(Ink.Bg.copy(alpha = 0.94f)))
+            }
         }
+    }
+    }
+}
+
+/** Ширина колонки экрана: книга — на всю ширину, задания — уже, списки и текст — колонкой для чтения. */
+private fun maxWidthFor(route: NavKey): Dp = when (route) {
+    is ReaderRoute -> Dp.Infinity
+    is StudyRoute, is GameRoute, is TopicQuizRoute -> FocusWidth
+    else -> ReadableWidth
+}
+
+/** Боковая панель вкладок для планшета: та же тонкая черта, но вертикальная и слева от вкладки. */
+@Composable
+private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
+    val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
+    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp)
+    val itemHeight = 84.dp
+    val indicatorY by animateDpAsState(
+        itemHeight * index + (itemHeight - 28.dp) / 2,
+        spring(dampingRatio = 0.72f, stiffness = 380f),
+        label = "railIndicator",
+    )
+    Row(
+        Modifier.fillMaxHeight().background(Ink.Bg)
+            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom)),
+    ) {
+        Box(Modifier.width(96.dp).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars).padding(top = 24.dp)) {
+            Box(Modifier.offset { IntOffset(0, indicatorY.roundToPx()) }.width(2.dp).height(28.dp).background(Ink.Fg))
+            Column(Modifier.fillMaxWidth().selectableGroup()) {
+                tabs.forEachIndexed { i, tab ->
+                    val isSelected = i == index
+                    val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "railTab")
+                    val tint = lerpColor(Ink.Muted, Ink.Fg, emphasis)
+                    Column(
+                        Modifier.fillMaxWidth().height(itemHeight)
+                            .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
+                            .padding(horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Box(Modifier.width(48.dp).height(28.dp).background(if (isSelected) Ink.High else Ink.Bg, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                            Icon(tab.icon, null, tint = tint, modifier = Modifier.size(24.dp))
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(tab.label, style = labelStyle.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium),
+                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = tint)
+                    }
+                }
+            }
+        }
+        Box(Modifier.width(1.dp).fillMaxHeight().background(Ink.Line))
     }
 }
 
@@ -215,7 +292,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 spring(dampingRatio = 0.72f, stiffness = 380f),
                 label = "indicator",
             )
-            Box(Modifier.offset(x = indicatorX).width(28.dp).height(2.dp).background(Ink.Fg))
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(28.dp).height(2.dp).background(Ink.Fg))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val isSelected = i == index

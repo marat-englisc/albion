@@ -1,5 +1,6 @@
 package com.marat.albion
 
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,6 +38,11 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Телефон — только вертикально; планшет и раскрытая раскладушка — в любой ориентации.
+        // Размер пересчитывается при каждом пересоздании, в том числе после складывания.
+        requestedOrientation = if (resources.configuration.smallestScreenWidthDp < 600) {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        } else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         val container = (application as AlbionApp).container
         // Тему читаем до первого кадра, чтобы светлая тема не «моргала» тёмной.
         val initial = runBlocking { container.settings.current() }

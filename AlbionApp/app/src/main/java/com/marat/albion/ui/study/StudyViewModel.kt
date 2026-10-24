@@ -48,10 +48,10 @@ data class StudyState(
 }
 
 /**
- * Сессия повторения одной колоды. Очередь как в Anki: учебные шаги (1 и 10 минут),
+ * Сессия повторения одной колоды или, при [deck] = null, всех колод сразу. Очередь как в Anki: учебные шаги (1 и 10 минут),
  * подошедшие по времени, идут первыми; новые карточки равномерно вкраплены в повторения.
  */
-class StudyViewModel(private val repo: StudyRepository, private val deck: Deck) : ViewModel() {
+class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?) : ViewModel() {
 
     private val _state = MutableStateFlow(StudyState())
     val state: StateFlow<StudyState> = _state.asStateFlow()
@@ -69,7 +69,7 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck) 
 
     init {
         viewModelScope.launch {
-            val q = repo.buildQueue(deck)
+            val q = if (deck == null) repo.buildQueueAll() else repo.buildQueue(deck)
             q.learning.forEach { card -> learning += card to repo.memory(card.id).due }
             reviews.addAll(q.reviews)
             news.addAll(q.news.filter { n -> learning.none { it.first.id == n.id } })
@@ -112,10 +112,11 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck) 
             if (memory.state == CardState.LEARNING || memory.state == CardState.RELEARNING) {
                 learning += current.card to memory.due
             }
-            // Другие значения этого слова сегодня больше не показываем (сиблинги).
+            // Другие значения этого слова в той же колоде сегодня больше не показываем (сиблинги).
             val term = Siblings.key(current.card)
-            news.removeAll { Siblings.key(it) == term && it.id != current.card.id }
-            reviews.removeAll { Siblings.key(it) == term && it.id != current.card.id }
+            fun isSibling(c: CardEntity) = c.deck == current.card.deck && Siblings.key(c) == term && c.id != current.card.id
+            news.removeAll(::isSibling)
+            reviews.removeAll(::isSibling)
             _state.update {
                 it.copy(
                     answered = it.answered + 1,

@@ -54,6 +54,9 @@ interface GameActivityDao {
     @Query("SELECT COUNT(*) FROM game_answer_log WHERE answered_at >= :since")
     fun observeAnswersSince(since: Long): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM game_answer_log WHERE answered_at >= :since")
+    suspend fun countAnswersSince(since: Long): Int
+
     @Query("SELECT COALESCE(SUM(duration_ms), 0) FROM game_answer_log WHERE answered_at >= :since")
     fun observeTimeSince(since: Long): Flow<Long>
 }

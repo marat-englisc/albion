@@ -266,14 +266,17 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             val padH = 26.dp
             val padV = 20.dp
-            val widthPx = with(density) { (maxWidth - padH * 2).roundToPx() }
+            // Широкий горизонтальный экран — разворот из двух страниц, как в бумажной книге.
+            val columns = if (maxWidth >= 840.dp && maxWidth > maxHeight) 2 else 1
+            val columnGap = 56.dp
+            val widthPx = with(density) { ((maxWidth - padH * 2 - columnGap * (columns - 1)) / columns).roundToPx() }
             // Нижняя строка (глава, номер страницы, закладка) живёт в той же области — вычитаем её высоту.
             val navInset = WindowInsets.navigationBars.getBottom(density)
             val footerPx = with(density) { FOOTER_HEIGHT.roundToPx() } + navInset
             val heightPx = with(density) { (maxHeight - padV * 2).roundToPx() } - footerPx
             val gapPx = with(density) { (12 * scale).dp.roundToPx() }
             val headingGapPx = with(density) { (28 * scale).dp.roundToPx() }
-            val key = "$widthPx:$heightPx:$scale"
+            val key = "$widthPx:$heightPx:$scale:$columns"
 
             LaunchedEffect(key, book) {
                 if (vm.pagesKey == key && vm.pages.isNotEmpty()) return@LaunchedEffect
@@ -293,30 +296,33 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                 return@BoxWithConstraints
             }
 
-            val initial = remember(key) { Paginator.pageOf(pages, vm.startPosition ?: BookPosition(0, 0, 0)) }
+            // Пейджер листает развороты: при columns = 1 разворот — это одна страница.
+            val spreads = (pages.size + columns - 1) / columns
+            val initial = remember(key) { Paginator.pageOf(pages, vm.startPosition ?: BookPosition(0, 0, 0)) / columns }
             // Новое разбиение (другой шрифт или размер окна) — новый пейджер, открытый на том же месте.
-            val pager = remember(key) { PagerState(currentPage = initial) { pages.size } }
+            val pager = remember(key) { PagerState(currentPage = initial) { spreads } }
 
             // Сохраняем место чтения при перелистывании.
             LaunchedEffect(pager, pages) {
                 snapshotFlow { pager.settledPage }.distinctUntilChanged().collect { i ->
-                    val page = pages.getOrNull(i) ?: return@collect
-                    vm.savePosition(page.start, Paginator.progressOf(book, page.start, isLastPage = i == pages.lastIndex))
-                    if (selectionPage != i) selection = null
+                    val page = pages.getOrNull(i * columns) ?: return@collect
+                    vm.savePosition(page.start, Paginator.progressOf(book, page.start, isLastPage = i == spreads - 1))
+                    if (selectionPage / columns != i) selection = null
                 }
             }
 
             // Переход по оглавлению/закладке.
             var jumpTo by remember { mutableStateOf<BookPosition?>(null) }
             LaunchedEffect(jumpTo) {
-                jumpTo?.let { pager.animateScrollToPage(Paginator.pageOf(pages, it)); jumpTo = null }
+                jumpTo?.let { pager.animateScrollToPage(Paginator.pageOf(pages, it) / columns); jumpTo = null }
             }
 
             Column(Modifier.fillMaxSize()) {
                 HorizontalPager(state = pager, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { index ->
-                    val offset = pager.currentPageOffsetFraction + (pager.currentPage - index)
                     Box(
                         Modifier.fillMaxSize().graphicsLayer {
+                            // Смещение читаем на этапе отрисовки: при листании страницы не перекомпоновываются каждый кадр.
+                            val offset = pager.currentPageOffsetFraction + (pager.currentPage - index)
                             // Уходящая страница слегка уменьшается и тускнеет — ощущение глубины.
                             val f = abs(offset).coerceIn(0f, 1f)
                             val s = 1f - 0.06f * f
@@ -324,24 +330,34 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             alpha = 1f - 0.5f * f
                         }.padding(horizontal = padH, vertical = padV),
                     ) {
-                        PageView(
-                            book = book,
-                            page = pages[index],
-                            body = body,
-                            heading = heading,
-                            gap = (12 * scale).dp,
-                            headingGap = (28 * scale).dp,
-                            selection = if (selectionPage == index) selection else null,
-                            onSelect = { sel -> selectionPage = index; selection = sel },
-                            highlights = highlights,
-                            marks = if (settings.readerMarkWords && vm.marker != null) vm::marks else null,
-                        )
+                        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(columnGap)) {
+                            for (column in 0 until columns) {
+                                val pageIndex = index * columns + column
+                                Box(Modifier.weight(1f).fillMaxHeight()) {
+                                    val page = pages.getOrNull(pageIndex) ?: return@Box
+                                    PageView(
+                                        book = book,
+                                        page = page,
+                                        body = body,
+                                        heading = heading,
+                                        gap = (12 * scale).dp,
+                                        headingGap = (28 * scale).dp,
+                                        selection = if (selectionPage == pageIndex) selection else null,
+                                        onSelect = { sel -> selectionPage = pageIndex; selection = sel },
+                                        highlights = highlights,
+                                        marks = if (settings.readerMarkWords && vm.marker != null) vm::marks else null,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
-                // Нижняя строка: глава, номер страницы, закладка.
-                val current = pages.getOrNull(pager.currentPage)
-                val next = pages.getOrNull(pager.currentPage + 1)
+                // Нижняя строка: глава, номер страницы, закладка (на развороте — для обеих страниц).
+                val firstPage = pager.currentPage * columns
+                val lastPage = minOf(firstPage + columns, pages.size) - 1
+                val current = pages.getOrNull(firstPage)
+                val next = pages.getOrNull(lastPage + 1)
                 val marked = current != null && bookmarks.any { b ->
                     val p = BookPosition(b.chapter, b.paragraph, b.offset)
                     p >= current.start && (next == null || p < next.start)
@@ -360,10 +376,11 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             overflow = TextOverflow.Ellipsis,
                         )
                         Spacer(Modifier.height(6.dp))
-                        ThinProgress((pager.currentPage + 1f) / pages.size, track = Ink.Line)
+                        ThinProgress((lastPage + 1f) / pages.size, track = Ink.Line)
                     }
                     Spacer(Modifier.width(14.dp))
-                    Text("${pager.currentPage + 1} / ${pages.size}", style = AlbionType.index.copy(color = Ink.Soft))
+                    val pageLabel = if (lastPage > firstPage) "${firstPage + 1}–${lastPage + 1}" else "${firstPage + 1}"
+                    Text("$pageLabel / ${pages.size}", style = AlbionType.index.copy(color = Ink.Soft))
                     IconButton(onClick = {
                         current?.let { page ->
                             val snippet = page.blocks.firstOrNull { !it.isHeading }?.let { b ->

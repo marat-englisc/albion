@@ -239,6 +239,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val letters = hintLetters(card.term)
+    val hinted = hints > 0 || showEn
 
     LaunchedEffect(card.id) { runCatching { focus.requestFocus() } }
 
@@ -248,7 +249,9 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
         if (!giveUp && input.isBlank()) { shake++; return }
         verdict = v
         if (v == Verdict.Wrong) shake++
-        vm.record(v != Verdict.Wrong, Mistake(card.meaningRu, input, card.term))
+        // Как в «Собери предложение»: ответ с подсказкой не снимает слово из ошибок.
+        val clean = v != Verdict.Wrong && !hinted
+        vm.record(clean, if (clean) null else Mistake(card.meaningRu, if (v == Verdict.Wrong) input else "с подсказкой", card.term))
         focusManager.clearFocus(force = true)
         keyboard?.hide()
         audio.play(deck, card.audio, card.term, "term:${card.id}")
@@ -300,6 +303,11 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         WrongAnswerFeedback(input, card.term)
                     } else {
                         VerdictLine(v)
+                        if (hinted) {
+                            Spacer(Modifier.height(6.dp))
+                            Text("С подсказкой — слово останется в ошибках", style = MaterialTheme.typography.bodySmall,
+                                color = Ink.Muted, textAlign = TextAlign.Center)
+                        }
                         if (input.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
                             Text("Ваш ответ: $input", style = MaterialTheme.typography.bodyMedium,

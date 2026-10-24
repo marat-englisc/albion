@@ -68,7 +68,7 @@ fun GoalReminderSection(s: Settings) {
     SectionHeader("Цель и напоминания")
     SliderSetting(
         "Дневная цель", "${s.dailyGoal} ${plural(s.dailyGoal)}",
-        "Ответы во всех колодах за учебный день. Прогресс виден на главном экране.",
+        "Ответы в карточках и практике за учебный день. Прогресс виден на главном экране.",
         s.dailyGoal.toFloat(), 10f..200f, 18,
     ) { scope.launch { c.settings.setDailyGoal(((it / 10).roundToInt() * 10).coerceIn(10, 200)) } }
 

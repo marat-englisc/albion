@@ -84,6 +84,21 @@ class StudyQueueTest {
     }
 
     @Test
+    fun allDecksQueueMatchesPerDeckQueuesAndKeepsSiblingsPerDeck() = runBlocking {
+        // Одинаковый термин в разных колодах — не сиблинги: оба значения доступны сегодня.
+        scheduled(card("w1", "run"))
+        scheduled(card("v1", "run").copy(deck = Deck.IRREGULAR.id))
+        db.cards().upsert(listOf(card("w2", "cat", position = 1), card("p1", "give up").copy(deck = Deck.PHRASAL.id)))
+
+        val all = repo.buildQueueAll(now)
+        val perDeck = Deck.entries.map { repo.buildQueue(it, now) }
+        assertEquals(perDeck.sumOf { it.reviews.size }, all.reviews.size)
+        assertEquals(perDeck.sumOf { it.news.size }, all.news.size)
+        assertEquals(setOf("w1", "v1"), all.reviews.map { it.id }.toSet())
+        assertEquals(setOf("w2", "p1"), all.news.map { it.id }.toSet())
+    }
+
+    @Test
     fun answeringOneMeaningHidesItsDueSiblingsUntilTomorrowAndUndoRestoresThem() = runBlocking {
         val first = card("first", "take off")
         val second = card("second", " TAKE OFF ")

@@ -86,7 +86,8 @@ import java.util.Locale
 data class HomeState(
     val decks: List<DeckSummary> = Deck.entries.map { DeckSummary(it) },
     val streak: Int = 0,
-    val reviewsToday: Int = 0,
+    /** Ответы за учебный день: карточки и практика — по ним считается цель. */
+    val answersToday: Int = 0,
     val grammar: GrammarBook = GrammarBook.EMPTY,
     val grammarRead: Int = 0,
     val continueTopic: Topic? = null,
@@ -98,7 +99,7 @@ class HomeViewModel(c: AppContainer) : ViewModel() {
 
     val state: StateFlow<HomeState> = combine(
         c.study.observeSummaries(),
-        c.study.observeStats().map { it.streak to it.reviewsToday },
+        c.study.observeStats().map { it.streak to it.answersToday },
         flow { emit(c.grammar.book()) },
         c.grammar.observeProgress(),
         c.settings.settings.map { it.lastGrammarTopic to it.dailyGoal },
@@ -199,10 +200,11 @@ fun HomeScreen(navigator: Navigator) {
 }
 
 @Composable
-private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> Unit) {
+private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) -> Unit) {
     val due = state.decks.sumOf { it.due }
     val new = state.decks.sumOf { it.newAvailable }
-    val next = state.decks.firstOrNull { it.due > 0 } ?: state.decks.firstOrNull { it.newAvailable > 0 }
+    // Есть что учить в нескольких колодах — общее занятие; в одной — сразу её.
+    val withWork = state.decks.filter { it.toStudy > 0 }
     val measurer = rememberTextMeasurer()
     val labelWidth = with(LocalDensity.current) {
         measurer.measure("ПОВТОРИТЬ", AlbionType.eyebrow).size.width.toDp() + 12.dp
@@ -215,11 +217,11 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
                 Row {
                     Metric(due, "повторить", Modifier.weight(1f))
                     Metric(new, "доступно\nновых", Modifier.weight(1f))
-                    Metric(state.reviewsToday, "ответов", Modifier.weight(1f))
+                    Metric(state.answersToday, "ответов", Modifier.weight(1f))
                 }
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf("Повторить" to due, "Доступно новых" to new, "Ответов" to state.reviewsToday).forEach { (label, value) ->
+                    listOf("Повторить" to due, "Доступно новых" to new, "Ответов" to state.answersToday).forEach { (label, value) ->
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text(label, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(16.dp))
@@ -230,9 +232,16 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck) -> 
             }
         }
         Spacer(Modifier.height(14.dp))
-        GoalBar(state.reviewsToday, state.dailyGoal)
+        GoalBar(state.answersToday, state.dailyGoal)
         Spacer(Modifier.height(14.dp))
-        if (next != null) {
+        if (withWork.size > 1) {
+            PrimaryButton(
+                text = "Занятие · все колоды",
+                onClick = { onStart(null) },
+                trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+            )
+        } else if (withWork.size == 1) {
+            val next = withWork.single()
             PrimaryButton(
                 text = (if (next.started == 0) "Начать · " else "Продолжить · ") + next.deck.title,
                 onClick = { onStart(next.deck) },

@@ -106,9 +106,9 @@ fun rememberCardAudio(player: AudioPlayer): CardAudio {
 }
 
 @Composable
-fun StudyScreen(deck: Deck, navigator: Navigator) {
+fun StudyScreen(deck: Deck?, navigator: Navigator) {
     val c = LocalAppContainer.current
-    val vm = viewModel(key = "study-${deck.id}") { StudyViewModel(c.study, deck) }
+    val vm = viewModel(key = "study-${deck?.id ?: "all"}") { StudyViewModel(c.study, deck) }
     val state by vm.state.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val audio = rememberCardAudio(c.audio)
@@ -117,7 +117,7 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
     val current = state.current
     LaunchedEffect(current?.card?.id, state.revealed) {
         val card = current?.card ?: return@LaunchedEffect
-        val d = Deck.byId(card.deck) ?: deck
+        val d = Deck.byId(card.deck) ?: deck ?: Deck.WORDS
         if ((!state.revealed && settings.autoplayFront) || (state.revealed && settings.autoplayBack)) {
             c.audio.playDelayed(d, card.audio, card.term, "term:${card.id}", delayMs = 180)
         }
@@ -202,12 +202,14 @@ fun StudyScreen(deck: Deck, navigator: Navigator) {
 }
 
 @Composable
-private fun TopRow(deck: Deck, state: StudyState, onClose: () -> Unit, onUndo: () -> Unit) {
+private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: () -> Unit) {
+    // В общем занятии подписываем колоду текущей карточки: от неё зависит, что вспоминать.
+    val title = deck?.title ?: listOfNotNull("Все колоды", state.current?.let { Deck.byId(it.card.deck)?.title }).joinToString(" · ")
     Column {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, "Закрыть", tint = Ink.Fg) }
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(deck.title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center)
+                Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center)
             }
             IconButton(onClick = onUndo, enabled = state.canUndo) {
                 Icon(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", tint = if (state.canUndo) Ink.Fg else Ink.Faint)
