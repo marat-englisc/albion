@@ -1,5 +1,10 @@
 package com.marat.albion.ui.home
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -90,26 +95,48 @@ data class HomeState(
     val streak: Int = 0,
     /** Ответы за учебный день: карточки и практика — по ним считается цель. */
     val answersToday: Int = 0,
+    /** Сколько учебных дней прошло с последнего занятия; null — занятий ещё не было. */
+    val daysAway: Long? = null,
     val grammar: GrammarBook = GrammarBook.EMPTY,
     val grammarRead: Int = 0,
     val continueTopic: Topic? = null,
     val dailyGoal: Int = 30,
-)
+    /** Данные загружены — до этого Финн не показывается, чтобы не мелькнула случайная поза. */
+    val loaded: Boolean = false,
+) {
+    /** Финн на главной отражает день: знакомство, возвращение, цель, «всё повторено». */
+    val finn: Finn get() = when {
+        daysAway == null && answersToday == 0 -> Finn.WELCOME
+        answersToday >= dailyGoal -> Finn.DAILY_GOAL
+        daysAway != null && daysAway >= 3 && answersToday == 0 -> Finn.WELCOME_BACK
+        decks.sumOf { it.toStudy } == 0 && decks.any { it.total > 0 } -> Finn.ALL_DONE
+        else -> Finn.TODAY
+    }
+
+    /** Короткая подпись под приветствием; в обычный день её нет. */
+    val finnCaption: String? get() = when (finn) {
+        Finn.WELCOME -> "Первое занятие займёт пару минут"
+        Finn.WELCOME_BACK -> "С возвращением — карточки ждали вас"
+        Finn.DAILY_GOAL -> "Цель дня выполнена"
+        Finn.ALL_DONE -> "На сегодня всё повторено"
+        else -> null
+    }
+}
 
 class HomeViewModel(c: AppContainer) : ViewModel() {
     val importStatus: StateFlow<ImportStatus> = c.importer.status
 
     val state: StateFlow<HomeState> = combine(
         c.study.observeSummaries(),
-        c.study.observeStats().map { it.streak to it.answersToday },
+        c.study.observeStats().map { Triple(it.streak, it.answersToday, it.lastActiveDay?.let { day -> it.today - day }) },
         flow { emit(c.grammar.book()) },
         c.grammar.observeProgress(),
         c.settings.settings.map { it.lastGrammarTopic to it.dailyGoal },
-    ) { decks, (streak, today), book, progress, (lastTopic, goal) ->
+    ) { decks, (streak, today, away), book, progress, (lastTopic, goal) ->
         val read = progress.count { it.readAt != null && book.topic(it.topicId) != null }
         val last = lastTopic?.let(book::topic)
             ?: book.lessons.firstOrNull { l -> progress.none { it.topicId == l.id && it.readAt != null } }
-        HomeState(decks, streak, today, book, read, last, goal)
+        HomeState(decks, streak, today, away, book, read, last, goal, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeState())
 }
 
@@ -129,10 +156,13 @@ fun HomeScreen(navigator: Navigator) {
     val reveal = rememberReveal()
     val date = remember { SimpleDateFormat("EEEE · d MMMM", Locale.forLanguageTag("ru")).format(Date()) }
 
+    // Высота шапки (приветствие, Финн, серия) — чтобы колоды справа начинались вровень с «Сегодня».
+    var headerPx by remember { mutableIntStateOf(0) }
+    val headerHeight = with(LocalDensity.current) { headerPx.toDp() }
     // Занятие на сегодня и продолжение — одна колонка; колоды — вторая, если на экране есть место.
     val overview: LazyListScope.() -> Unit = {
         item {
-            Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp).reveal(reveal, 0)) {
+            Column(Modifier.onSizeChanged { headerPx = it.height }.windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp).reveal(reveal, 0)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AlbionLogo(size = 22.dp)
                     Spacer(Modifier.width(10.dp))
@@ -149,9 +179,19 @@ fun HomeScreen(navigator: Navigator) {
                     Text("${state.streak} $days подряд", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
                 }
                 Spacer(Modifier.height(12.dp))
-                Eyebrow(date)
-                Spacer(Modifier.height(4.dp))
-                Text(greeting(), style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Column(Modifier.weight(1f).padding(bottom = 10.dp)) {
+                        Eyebrow(date)
+                        Spacer(Modifier.height(4.dp))
+                        Text(greeting(), style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                        state.finnCaption?.let {
+                            Spacer(Modifier.height(4.dp))
+                            Text(it, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                        }
+                    }
+                    if (state.loaded) Mascot(state.finn, 104.dp, delayMs = 180)
+                    else Spacer(Modifier.size(104.dp))
+                }
             }
         }
 
@@ -167,8 +207,9 @@ fun HomeScreen(navigator: Navigator) {
                         is ImportStatus.Failed -> Text("Не удалось загрузить материалы: ${s.message}", color = Ink.Soft, style = MaterialTheme.typography.bodyMedium)
                         ImportStatus.Empty -> Panel {
                             EmptyState(
-                                "Материалы не добавлены",
-                                "Сборка собрана без таблиц и озвучки. Включите albion.bundleContent=true и пересоберите приложение.",
+                                mascot = Finn.EMPTY_LIBRARY,
+                                title = "Материалы не добавлены",
+                                message = "Сборка собрана без таблиц и озвучки. Включите albion.bundleContent=true и пересоберите приложение.",
                             )
                         }
                         else -> {}
@@ -207,7 +248,7 @@ fun HomeScreen(navigator: Navigator) {
                 LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) { overview() }
                 LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) {
                     // Колоды начинаются вровень с блоком «Сегодня» слева.
-                    item { Spacer(Modifier.windowInsetsPadding(WindowInsets.statusBars).height(HEADER_HEIGHT)) }
+                    item { Spacer(Modifier.height((headerHeight - DECKS_ALIGN_OFFSET).coerceAtLeast(0.dp))) }
                     decks()
                 }
             }
@@ -223,8 +264,8 @@ fun HomeScreen(navigator: Navigator) {
 /** С какой ширины главная делится на две колонки. */
 private val TWO_COLUMNS_MIN_WIDTH = 900.dp
 
-/** Примерная высота шапки с приветствием — чтобы колоды справа начинались на её уровне. */
-private val HEADER_HEIGHT = 114.dp
+/** Насколько заголовок «Колоды» выше своего блока, чем «Сегодня» — выравниваем их по тексту. */
+private val DECKS_ALIGN_OFFSET = 14.dp
 
 @Composable
 private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) -> Unit) {

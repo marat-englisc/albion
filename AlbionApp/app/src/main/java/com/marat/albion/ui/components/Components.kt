@@ -306,13 +306,14 @@ fun Dot(color: Color, modifier: Modifier = Modifier, size: Dp = 8.dp) {
 
 /** Пустое состояние: например, материалы не вшиты в сборку. */
 @Composable
-fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
+fun EmptyState(title: String, message: String, modifier: Modifier = Modifier, mascot: Finn? = null) {
     Column(
         modifier.fillMaxWidth().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Icon(Icons.Rounded.Inventory2, null, tint = Ink.Faint, modifier = Modifier.size(40.dp))
+        if (mascot != null) Mascot(mascot, 132.dp)
+        else Icon(Icons.Rounded.Inventory2, null, tint = Ink.Faint, modifier = Modifier.size(40.dp))
         Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, color = Ink.Fg)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
     }

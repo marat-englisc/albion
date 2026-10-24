@@ -1,5 +1,9 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.EmptyState
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -107,7 +111,7 @@ fun LibraryScreen(navigator: Navigator) {
                         "Библиотека", eyebrow = "Чтение с переводом",
                         trailing = {
                             Row {
-                                FeatureHelp("library", "Как читать",
+                                FeatureHelp("library", "Как читать", mascot = Finn.READING, text =
                                     "Коснитесь слова, чтобы увидеть перевод и справку из карточек.\n\nУдерживайте палец на тексте для перевода предложения. Протяните палец, чтобы выбрать любой фрагмент.\n\nВ окне перевода можно выделить текст и добавить заметку. Закладки, заметки и размер текста доступны в панели читалки.\n\nСловарь работает сразу без интернета. Для перевода предложений приложение один раз скачает языковую модель, затем перевод тоже работает офлайн.")
                                 SettingsShortcut(navigator::openSettings)
                             }
@@ -125,12 +129,18 @@ fun LibraryScreen(navigator: Navigator) {
                             text = "Продолжить · ${continueBook.book.title}",
                             onClick = { navigator.open(ReaderRoute(continueBook.book.id)) },
                             trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                            // Финн выглядывает из-за кнопки: книга ждёт на том же месте.
+                            modifier = Modifier.peekingFinn(at = 0.86f, height = 56.dp),
                         )
                     }
                 }
             }
 
             item { SectionHeader("Книги", Modifier.padding(top = 12.dp).reveal(reveal, 2), trailing = "%02d".format(list.size)) }
+            if (books != null && list.isEmpty()) item {
+                EmptyState("Полка пока пустая", "Добавьте книгу в TXT, EPUB или PDF — слова из неё можно сразу переводить и сохранять.",
+                    Modifier.reveal(reveal, 3), mascot = Finn.EMPTY_LIBRARY)
+            }
             itemsIndexed(list, key = { _, b -> b.book.id }) { i, b ->
                 BookRow(
                     item = b,
@@ -142,6 +152,19 @@ fun LibraryScreen(navigator: Navigator) {
 
             item {
                 Column(Modifier.padding(top = 20.dp).reveal(reveal, 4 + list.size)) {
+                    // Пока своих книг нет, Финн с книгами в руках подсказывает, что сюда можно принести свою.
+                    if (list.isNotEmpty() && list.none { it.book.source == "user" }) {
+                        Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Mascot(Finn.IMPORT_BOOK, 88.dp, delayMs = 200)
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text("Читайте то, что нравится", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                                Spacer(Modifier.height(4.dp))
+                                Text("Добавьте свою книгу — перевод слов и «Мои слова» работают в ней так же.",
+                                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                            }
+                        }
+                    }
                     GhostButton(if (importing) "Открываю…" else "Добавить книгу · TXT, EPUB, PDF", onClick = {
                         if (!importing) picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream"))
                     }, icon = Icons.Rounded.Add)
@@ -155,16 +178,24 @@ fun LibraryScreen(navigator: Navigator) {
             item {
                 Column(Modifier.padding(top = 8.dp).reveal(reveal, 5 + list.size)) {
                     SectionHeader("Офлайн-перевод")
-                    Text(
-                        when (model) {
-                            ModelState.Ready -> "Слова и предложения готовы к переводу."
-                            ModelState.Downloading -> "Словарь готов · загружается перевод предложений…"
-                            ModelState.Failed -> "Словарь готов · перевод предложений пока недоступен."
-                            else -> "Словарь готов · для загрузки перевода предложений нужен интернет."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Ink.Muted,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Перевод фраз недоступен — Финн «без подключения»; во время загрузки и после неё он не нужен.
+                        if (model == ModelState.Missing || model == ModelState.Failed) {
+                            Mascot(Finn.OFFLINE, 72.dp)
+                            Spacer(Modifier.width(12.dp))
+                        }
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = when (model) {
+                                ModelState.Ready -> "Слова и предложения готовы к переводу."
+                                ModelState.Downloading -> "Словарь готов · загружается перевод предложений…"
+                                ModelState.Failed -> "Словарь готов · перевод предложений пока недоступен."
+                                else -> "Словарь готов · для загрузки перевода предложений нужен интернет."
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Ink.Muted,
+                        )
+                    }
                     if (model == ModelState.Failed) {
                         Text(
                             "Повторить загрузку  →",

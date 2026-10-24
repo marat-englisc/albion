@@ -394,6 +394,7 @@ class StudyRepository(
                 forecast = forecast.map { if (it.day < today) DayCount(today, it.count) else it }
                     .groupBy { it.day }.map { (d, l) -> DayCount(d, l.sumOf { it.count }) },
                 streak = streak(activeDays, today),
+                lastActiveDay = activeDays.firstOrNull(),
                 retention = if (retention.first == 0) null else retention.second.toFloat() / retention.first,
                 retentionSample = retention.first,
                 totalReviews = misc.total,
@@ -434,6 +435,8 @@ data class Stats(
     val daily: List<DayCount>,
     val forecast: List<DayCount>,
     val streak: Int,
+    /** Последний учебный день с ответами (в тех же единицах, что [today]); null — ещё не занимались. */
+    val lastActiveDay: Long?,
     val retention: Float?,
     val retentionSample: Int,
     val totalReviews: Int,

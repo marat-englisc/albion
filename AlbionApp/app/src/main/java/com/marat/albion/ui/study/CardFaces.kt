@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -120,7 +121,15 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
 
 /** Оборот. Секции проявляются каскадом сразу после переворота. */
 @Composable
-fun CardBack(card: CardEntity, irregular: IrregularData?, audio: CardAudio, modifier: Modifier = Modifier, showRussian: Boolean = true) {
+fun CardBack(
+    card: CardEntity,
+    irregular: IrregularData?,
+    audio: CardAudio,
+    modifier: Modifier = Modifier,
+    showRussian: Boolean = true,
+    /** Финн держится за линию между транскрипцией и значением (в занятии). */
+    peek: Boolean = false,
+) {
     val reveal = rememberReveal()
     var i = 0
     Column(modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 22.dp)) {
@@ -132,7 +141,11 @@ fun CardBack(card: CardEntity, irregular: IrregularData?, audio: CardAudio, modi
         }
 
         Spacer(Modifier.height(18.dp))
-        Hairline(Modifier.reveal(reveal, ++i, step = 70))
+        // У неправильных глаголов над линией таблица форм — там Финну места нет.
+        Hairline(
+            Modifier.reveal(reveal, ++i, step = 70)
+                .then(if (peek && irregular == null) Modifier.peekingFinn(at = 0.86f, height = 44.dp, delayMs = 450) else Modifier)
+        )
         Spacer(Modifier.height(16.dp))
 
         if (card.meaningEn.isNotBlank()) {

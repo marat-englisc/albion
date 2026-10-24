@@ -1,5 +1,9 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.PeekFrom
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.FinnPeek
+import com.marat.albion.ui.components.Finn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,10 +52,12 @@ fun GamesScreen(navigator: Navigator) {
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
     ) {
         item {
-            Box(Modifier.reveal(reveal, 0)) {
+            // Финн заглядывает в «Практику» из-за правого края экрана, на уровне заголовка.
+            Box(Modifier.fillMaxWidth().reveal(reveal, 0)
+                .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.86f, height = 88.dp, outset = 24.dp)) {
                 ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
                     Row {
-                        FeatureHelp("practice", "Как заниматься", "Выберите упражнение, колоду или уровень и длину занятия.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в статистике, расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
+                        FeatureHelp("practice", "Как заниматься", "Выберите упражнение, колоду или уровень и длину занятия.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в статистике, расписание повторения карточек остаётся прежним.", showOnFirstUse = false, mascot = Finn.HINT)
                         SettingsShortcut(navigator::openSettings)
                     }
                 })

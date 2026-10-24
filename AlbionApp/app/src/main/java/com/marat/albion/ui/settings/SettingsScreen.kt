@@ -1,5 +1,8 @@
 package com.marat.albion.ui.settings
 
+import com.marat.albion.ui.components.PeekFrom
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.FinnPeek
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,7 +77,10 @@ fun SettingsScreen(onBack: () -> Unit) {
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).padding(bottom = 32.dp),
         ) {
-            Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Настройки", includeStatusBarInsets = false) }
+            // Финн свисает вниз головой рядом с заголовком — настройки «вверх дном».
+            Box(Modifier.fillMaxWidth().reveal(reveal, 0).peekingFinn(FinnPeek.HELLO, from = PeekFrom.Ceiling, at = 0.86f, height = 50.dp)) {
+                ScreenHeader("Настройки", includeStatusBarInsets = false)
+            }
 
             Column(Modifier.reveal(reveal, 1)) {
                 SectionHeader("Оформление", Modifier.padding(top = 16.dp))

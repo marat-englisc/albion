@@ -1,5 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -190,21 +193,14 @@ fun GameSetup(
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
-                "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
+                "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.",
+                mascot = game.mascot)
         }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
-            Column(Modifier.reveal(reveal, 0)) {
-                Icon(game.icon, null, tint = Ink.Fg, modifier = Modifier.size(28.dp))
-                Spacer(Modifier.height(12.dp))
-                Eyebrow("Упражнение · %02d".format(game.ordinal + 1))
-                Spacer(Modifier.height(8.dp))
-                Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
-                Spacer(Modifier.height(6.dp))
-                Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-            }
+            GameSetupHeader(game, Modifier.reveal(reveal, 0))
             if (game.decks.size > 1) {
                 Column(Modifier.reveal(reveal, 1)) {
                     SectionHeader("Колода", Modifier.padding(top = 8.dp))
@@ -235,7 +231,8 @@ fun GameSetup(
                 }
             }
             Spacer(Modifier.height(28.dp))
-            PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.reveal(reveal, 3))
+            PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                modifier = Modifier.reveal(reveal, 3).peekingFinn(at = 0.86f, height = 56.dp))
         }
     }
 }
@@ -299,6 +296,34 @@ internal fun GameAnswerActions(
 
 data class Mistake(val prompt: String, val answer: String, val correct: String)
 
+/** Поза Финна для упражнения: пишет, слушает, говорит в микрофон, раскладывает слова. */
+val Game.mascot: Finn get() = when (this) {
+    Game.TYPE_ANSWER -> Finn.WRITING
+    Game.IRREGULAR -> Finn.FLASHCARDS
+    Game.SHADOWING -> Finn.LISTENING
+    Game.PRONUNCIATION -> Finn.SPEAKING
+    Game.GRAMMAR_CHOICE -> Finn.GRAMMAR
+    Game.GRAMMAR_GAP -> Finn.WRITING
+    Game.SENTENCE -> Finn.SENTENCE_BUILDER
+    Game.TENSES -> Finn.THINKING
+}
+
+/** Шапка настройки упражнения: номер, название и подзаголовок слева, Финн справа. */
+@Composable
+internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Eyebrow("Упражнение · %02d".format(game.ordinal + 1))
+            Spacer(Modifier.height(8.dp))
+            Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+            Spacer(Modifier.height(6.dp))
+            Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+        }
+        Spacer(Modifier.width(12.dp))
+        Mascot(game.mascot, 112.dp, delayMs = 120)
+    }
+}
+
 /** Итог: кольцо результата прорисовывается, проценты набегают. */
 @Composable
 fun GameSummary(
@@ -324,20 +349,32 @@ fun GameSummary(
             .windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp, top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(Modifier.size(ringSize).reveal(reveal, 0), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.fillMaxSize()) {
-                val w = 2.dp.toPx()
-                drawCircle(Ink.Line, style = Stroke(w))
-                drawArc(Ink.Fg, -90f, 360f * ring.value, false, style = Stroke(w * 1.5f, cap = StrokeCap.Round))
-            }
-            Column(Modifier.padding(horizontal = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                AnimatedNumber((ratio * 100).toInt(), AlbionType.number, color = Ink.Fg, suffix = "%")
-                Text(
-                    "$correct ИЗ $total\n${scoreLabel.uppercase()}",
-                    style = AlbionType.eyebrow,
-                    color = Ink.Muted,
-                    textAlign = TextAlign.Center,
-                )
+        // Финн стоит рядом с результатом и реагирует на него.
+        val pose = when {
+            total == 0 -> Finn.THINKING
+            ratio >= 1f -> Finn.MILESTONE
+            ratio >= 0.8f -> Finn.CORRECT
+            ratio >= 0.5f -> Finn.SESSION_COMPLETE
+            else -> Finn.TRY_AGAIN
+        }
+        Row(verticalAlignment = Alignment.Bottom) {
+            Mascot(pose, 128.dp, Modifier.reveal(reveal, 0), delayMs = 260)
+            Spacer(Modifier.width(8.dp))
+            Box(Modifier.size(ringSize).reveal(reveal, 0), contentAlignment = Alignment.Center) {
+                Canvas(Modifier.fillMaxSize()) {
+                    val w = 2.dp.toPx()
+                    drawCircle(Ink.Line, style = Stroke(w))
+                    drawArc(Ink.Fg, -90f, 360f * ring.value, false, style = Stroke(w * 1.5f, cap = StrokeCap.Round))
+                }
+                Column(Modifier.padding(horizontal = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    AnimatedNumber((ratio * 100).toInt(), AlbionType.number, color = Ink.Fg, suffix = "%")
+                    Text(
+                        "$correct ИЗ $total\n${scoreLabel.uppercase()}",
+                        style = AlbionType.eyebrow,
+                        color = Ink.Muted,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
         Spacer(Modifier.height(28.dp))

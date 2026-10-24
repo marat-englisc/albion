@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.peekingFinn
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
@@ -311,21 +312,13 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
     val reveal = rememberReveal()
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = onBack) {
-            FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
+            FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description, mascot = vm.game.mascot)
         }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
-            Column(Modifier.reveal(reveal, 0)) {
-                Icon(vm.game!!.icon, null, tint = Ink.Fg, modifier = Modifier.size(28.dp))
-                Spacer(Modifier.height(12.dp))
-                Eyebrow("Упражнение · %02d".format(vm.game.ordinal + 1))
-                Spacer(Modifier.height(8.dp))
-                Text(vm.game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
-                Spacer(Modifier.height(6.dp))
-                Text(vm.game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-            }
+            GameSetupHeader(vm.game!!, Modifier.reveal(reveal, 0))
             if (total == 0) {
                 EmptyState(
                     "Заданий пока нет",
@@ -347,7 +340,8 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
                 }
             }
             Spacer(Modifier.height(28.dp))
-            PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.reveal(reveal, 3))
+            PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                modifier = Modifier.reveal(reveal, 3).peekingFinn(at = 0.86f, height = 56.dp))
         }
     }
 }

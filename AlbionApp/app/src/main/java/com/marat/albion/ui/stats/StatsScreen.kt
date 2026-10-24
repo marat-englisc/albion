@@ -1,5 +1,10 @@
 package com.marat.albion.ui.stats
 
+import com.marat.albion.ui.components.PeekFrom
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.FinnPeek
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -75,10 +80,24 @@ fun StatsScreen(navigator: Navigator) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
-        Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)) {
+        // Финн подмигивает из-за правого края экрана рядом с первыми цифрами.
+        Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)
+            .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.22f, height = 84.dp, outset = 24.dp, delayMs = 500)) {
             Row {
                 Tile(s.streak, "дней подряд", Modifier.weight(1f))
                 Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
+            }
+            // Длинная серия — повод для Финна со стопкой прочитанных книг.
+            streakMilestone(s.streak)?.let { (title, text) ->
+                Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Mascot(Finn.MILESTONE, 88.dp, delayMs = 200)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(title, style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                        Spacer(Modifier.height(4.dp))
+                        Text(text, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    }
+                }
             }
             Spacer(Modifier.height(20.dp))
             Hairline()
@@ -273,4 +292,12 @@ private fun Legend(color: Color, label: String) {
         Spacer(Modifier.width(6.dp))
         Text(label, style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
     }
+}
+
+/** Подпись к серии дней: с недели без пропусков. */
+private fun streakMilestone(streak: Int): Pair<String, String>? = when {
+    streak >= 100 -> "Сто дней подряд" to "Английский стал привычкой. Это лучшее, что можно для него сделать."
+    streak >= 30 -> "Месяц без пропусков" to "Интервалы FSRS растут, а повторения занимают всё меньше времени."
+    streak >= 7 -> "Неделя без пропусков" to "Короткие ежедневные занятия запоминаются лучше редких длинных."
+    else -> null
 }

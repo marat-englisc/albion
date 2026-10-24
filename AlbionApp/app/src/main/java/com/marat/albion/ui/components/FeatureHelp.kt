@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 /** Инструкция один раз при знакомстве с разделом, затем — по кнопке справки. */
 @Composable
-fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = true) {
+fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = true, mascot: Finn? = null) {
     val c = LocalAppContainer.current
     val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
     var expanded by rememberSaveable(key) { mutableStateOf(false) }
@@ -53,6 +53,8 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         AlertDialog(
             onDismissRequest = ::dismiss,
             containerColor = Ink.Elevated,
+            // Финн показывает, чем здесь занимаются: слушает, пишет, читает.
+            icon = mascot?.let { { Mascot(it, 104.dp) } },
             title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
             text = {
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,

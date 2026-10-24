@@ -1,5 +1,6 @@
 package com.marat.albion.ui.deck
 
+import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,13 +105,17 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 Metric(summary.due, "к повторению", Modifier.weight(1f))
                 Metric(summary.newAvailable, "новых сегодня", Modifier.weight(1f))
             }
-            Spacer(Modifier.height(28.dp))
+            // Над кнопкой выглядывает Финн — оставляем ему место, чтобы не заслонить подписи.
+            Spacer(Modifier.height(if (summary.toStudy > 0) 52.dp else 28.dp))
             PrimaryButton(
                 text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
                 onClick = { navigator.open(StudyRoute(deck)) },
                 enabled = summary.toStudy > 0,
                 trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                modifier = Modifier.reveal(reveal, 2),
+                // Финн машет из-за кнопки — занятие ждёт.
+                modifier = Modifier.reveal(reveal, 2).then(
+                    if (summary.toStudy > 0) Modifier.peekingFinn(at = 0.86f, height = 54.dp) else Modifier
+                ),
             )
             Spacer(Modifier.height(12.dp))
             GhostButton(

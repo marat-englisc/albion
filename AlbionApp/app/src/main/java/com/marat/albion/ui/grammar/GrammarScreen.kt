@@ -1,5 +1,9 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.peekingFinn
+import androidx.compose.ui.text.style.TextAlign
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.nav.LocalBesideDetail
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
@@ -220,7 +224,7 @@ fun GrammarScreen(navigator: Navigator) {
         if (!state.loading && lessons.isEmpty()) {
             item {
                 Panel(Modifier.padding(top = 24.dp)) {
-                    EmptyState("Учебник ещё не добавлен", "Темы берутся из папки grammar. Включите albion.bundleContent=true и пересоберите приложение.")
+                    EmptyState("Учебник ещё не добавлен", "Темы берутся из папки grammar. Включите albion.bundleContent=true и пересоберите приложение.", mascot = Finn.EMPTY_LIBRARY)
                 }
             }
             return@LazyColumn
@@ -260,6 +264,7 @@ fun GrammarScreen(navigator: Navigator) {
                         text = "${continueTopic.number}. ${continueTopic.title}",
                         onClick = { open(continueTopic) },
                         trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                        modifier = Modifier.peekingFinn(at = 0.88f, height = 50.dp),
                     )
                 }
             }
@@ -380,8 +385,13 @@ fun GrammarScreen(navigator: Navigator) {
                 }
             }
             if (found.isEmpty()) item {
-                Text(if (reviewsOnly) "Нет тем к повторению с выбранными фильтрами." else "Темы не найдены.",
-                    style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, modifier = Modifier.padding(vertical = 20.dp))
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Всё повторено — Финн отдыхает с чаем; ничего не нашлось — ищет с лупой.
+                    Mascot(if (reviewsOnly) Finn.ALL_DONE else Finn.NO_RESULTS, 120.dp, Modifier.padding(top = 12.dp))
+                    Text(if (reviewsOnly) "Нет тем к повторению с выбранными фильтрами." else "Темы не найдены.",
+                        style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp))
+                }
             }
         }
     }

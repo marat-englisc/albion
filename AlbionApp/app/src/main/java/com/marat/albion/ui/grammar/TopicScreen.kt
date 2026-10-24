@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.data.grammar.MdRule
@@ -288,7 +289,12 @@ private fun TopicFooter(
         val review = GrammarReview.plan(progress)
         val now = grammarReviewTime()
         if (hasQuiz) {
-            Column(Modifier.fillMaxWidth().border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).padding(20.dp)) {
+            Column(
+                Modifier.fillMaxWidth()
+                    // Финн задумчиво выглядывает из-за блока с тестом.
+                    .peekingFinn(at = 0.86f, height = 56.dp)
+                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).padding(20.dp),
+            ) {
                 Eyebrow("Проверь себя", color = Ink.Soft)
                 Spacer(Modifier.height(10.dp))
                 Text(

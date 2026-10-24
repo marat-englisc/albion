@@ -1,5 +1,7 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -121,7 +123,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
         }
         Hairline()
         if (cards.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.") }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.", mascot = Finn.NO_RESULTS) }
         } else {
             val shownCard = (navigator.shownDetail as? CardRoute)?.cardId
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
@@ -243,7 +245,10 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
-            Panel(contentPadding = PaddingValues(0.dp), color = Ink.Surface, borderColor = Ink.LineStrong) {
+            Panel(
+                Modifier.padding(top = 46.dp).peekingFinn(at = 0.86f, height = 52.dp, delayMs = 450),
+                contentPadding = PaddingValues(0.dp), color = Ink.Surface, borderColor = Ink.LineStrong,
+            ) {
                 CardBack(current, c.study.irregular(current), audio, showRussian = settings.showRussian)
             }
             SectionHeader("Память · FSRS", Modifier.padding(horizontal = 4.dp))

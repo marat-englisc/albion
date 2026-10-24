@@ -1,5 +1,8 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.PeekFrom
+import com.marat.albion.ui.components.peekingFinn
+import com.marat.albion.ui.components.FinnPeek
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -318,7 +321,16 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
 
             Column(Modifier.fillMaxSize()) {
-                HorizontalPager(state = pager, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { index ->
+                // Дочитали — Финн выглядывает из угла страницы над нижней строкой.
+                val atEnd = pager.currentPage == spreads - 1 && spreads > 1
+                HorizontalPager(
+                    state = pager,
+                    modifier = Modifier.weight(1f).then(
+                        if (atEnd) Modifier.peekingFinn(FinnPeek.CHEER, from = PeekFrom.CornerBottomEnd, height = 64.dp, delayMs = 500)
+                        else Modifier
+                    ),
+                    beyondViewportPageCount = 1,
+                ) { index ->
                     Box(
                         Modifier.fillMaxSize().graphicsLayer {
                             // Смещение читаем на этапе отрисовки: при листании страницы не перекомпоновываются каждый кадр.

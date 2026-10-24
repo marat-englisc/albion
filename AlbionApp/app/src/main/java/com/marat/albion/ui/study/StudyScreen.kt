@@ -14,7 +14,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,10 +59,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathMeasure
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
@@ -80,6 +75,8 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.AlbionLogo
+import com.marat.albion.ui.components.Finn
+import com.marat.albion.ui.components.Mascot
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
@@ -176,7 +173,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator) {
                             revealed = if (isCurrent) state.revealed else true,
                             onReveal = vm::reveal,
                             front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
-                            back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
+                            back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian, peek = true) },
                         )
                     }
                 }
@@ -349,35 +346,17 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     }
 }
 
-/** Итог занятия: галочка «прорисовывается», цифры набегают. */
+/** Итог занятия: Финн радуется сделанному (или отдыхает, если повторять было нечего), цифры набегают. */
 @Composable
 private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) {
-    val circle = remember { Animatable(0f) }
-    val tick = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        circle.animateTo(1f, tween(320, easing = Easing.Emphasized))
-        tick.animateTo(1f, tween(200, easing = Easing.EmphasizedDecelerate))
-    }
     Column(
         Modifier.fillMaxSize().padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Canvas(Modifier.size(84.dp)) {
-            val stroke = 2.dp.toPx()
-            drawArc(Ink.Fg, -90f, 360f * circle.value, false, style = Stroke(stroke, cap = StrokeCap.Round))
-            val path = Path().apply {
-                moveTo(size.width * 0.3f, size.height * 0.52f)
-                lineTo(size.width * 0.45f, size.height * 0.66f)
-                lineTo(size.width * 0.71f, size.height * 0.38f)
-            }
-            val measure = PathMeasure().apply { setPath(path, false) }
-            val part = Path()
-            measure.getSegment(0f, measure.length * tick.value, part, true)
-            drawPath(part, Ink.Fg, style = Stroke(stroke * 1.4f, cap = StrokeCap.Round))
-        }
-        Spacer(Modifier.height(28.dp))
-        Text("Well done.", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
+        Mascot(if (state.answered == 0) Finn.REST else Finn.SESSION_COMPLETE, 176.dp)
+        Spacer(Modifier.height(20.dp))
+        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
         Spacer(Modifier.height(10.dp))
         Text(
             if (state.answered == 0) "Сейчас в этой колоде нечего повторять." else "Занятие завершено. Следующие карточки FSRS покажет точно в срок.",

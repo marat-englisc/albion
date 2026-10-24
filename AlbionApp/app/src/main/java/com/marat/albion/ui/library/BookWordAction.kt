@@ -1,5 +1,11 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.Finn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -72,8 +78,15 @@ internal fun BookWordAction(
             onClick = { editing = true }, icon = Icons.Rounded.Add,
         )
         saved?.let { result ->
-            Text(if (result.added) "Добавлено: ${result.card.term}" else "Это слово с таким переводом уже есть в колоде.",
-                style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                // Финн убирает новое слово в свою тетрадь.
+                if (result.added) {
+                    Mascot(Finn.WORD_SAVED, 64.dp)
+                    Spacer(Modifier.width(10.dp))
+                }
+                Text(if (result.added) "Добавлено: ${result.card.term}" else "Это слово с таким переводом уже есть в колоде.",
+                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            }
         }
         if (existing.isNotEmpty() || saved != null) {
             TextButton(onClick = onOpenDeck) { Text("Открыть «Слова из книг»", color = Ink.Fg) }
