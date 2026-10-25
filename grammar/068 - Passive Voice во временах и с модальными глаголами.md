@@ -2,7 +2,7 @@
 level: B2
 order: 68
 prerequisites: 67, 33, 25
-keywords:
+keywords: пассив во временах, is being done, has been done, must be done
 tags:
   - english/grammar
   - english/B2
@@ -11,25 +11,48 @@ tags:
 # Passive Voice во временах и с модальными глаголами
 
 > [!abstract] Коротко
-> В пассиве **третья форма не меняется**, а цепочка перед ней показывает время, процесс или результат.
+> В пассиве основной глагол **всегда** в третьей форме: **cleaned**. А время показывает только **be** перед ним: **is** cleaned, **is being** cleaned, **has been** cleaned, **will be** cleaned.
 
-| Значение | Форма |
-| --- | --- |
-| Present / Past Simple | is cleaned / was cleaned |
-| Present / Past Continuous | is being cleaned / was being cleaned |
-| Present / Past Perfect | has been cleaned / had been cleaned |
-| будущее | will be cleaned |
-| Future Perfect | will have been cleaned |
-| модальный глагол | must / can / should be cleaned |
-| модальная оценка прошлого | should have been cleaned |
+## Суть
+
+Представь пассив как поезд: последний вагон — **третья форма** — никогда не меняется. Меняются вагоны перед ним. И это **те же самые** времена, что ты уже знаешь, только с **be**:
+
+| Время | Пассив | Значит |
+| --- | --- | --- |
+| Present Simple | The room **is cleaned**. | Комнату убирают (обычно). |
+| Present Continuous | The room **is being cleaned**. | Комнату убирают (сейчас). |
+| Past Simple | The room **was cleaned**. | Комнату убрали. |
+| Present Perfect | The room **has been cleaned**. | Комнату уже убрали. |
+| Future | The room **will be cleaned**. | Комнату уберут. |
+| с must, can, should | The room **must be cleaned**. | Комнату нужно убрать. |
+
+> [!example] Формула
+> **Continuous:** be + **being** + V3
+>
+> **Perfect:** have + **been** + V3
+>
+> **Модальные:** must / can / will + **be** + V3
+
+## Вопрос и отрицание
+
+Работает обычное правило: вперёд выходит **первый** помощник, **not** — после него:
+
+- **==Has== the room been cleaned?** — Комнату убрали?
+- **The room ==hasn't== been cleaned.** — Комнату не убрали.
 
 ## Примеры
 
-- **The room is being cleaned.** — Её убирают сейчас.
-- **The room has been cleaned.** — Её уже убрали.
-- **Has the room been cleaned?** — Комнату убрали?
+- **A new bridge is being built.** — Строится новый мост.
+- **The results will be announced tomorrow.** — Результаты объявят завтра.
+- **This form must be signed.** — Эту форму нужно подписать.
+- **The parcel has been delivered.** — Посылку доставили.
 
-Отрицание ставится после первого помощника: **hasn't been cleaned**. В вопросе вперёд выходит только первый: **Has…?**
+> [!tip] Being или been?
+> **Being** — для процесса (**is being** built — строится сейчас). **Been** — для Perfect (**has been** built — уже построен).
+
+> [!warning] Частые ошибки
+> - ~~The house is been painted.~~ → **The house is being painted.** — процесс сейчас → `being`.
+> - ~~It must cleaned.~~ → **It must be cleaned.** — после `must` нужно `be`.
 
 ## Проверь себя
 
@@ -43,10 +66,10 @@ tags:
 6. Исправь ошибку: *The house is been painted at the moment.*
 
 > [!success]- Ответы и пояснения
-> 1. **A new bridge is being built.** — Present Continuous → `is being + третья форма`.
-> 2. **The room has been cleaned.** — Present Perfect → `has been + третья форма`.
-> 3. **The results will be announced tomorrow.** — будущее → `will be + третья форма`.
-> 4. **This form must be signed.** — модальный → `must be + третья форма`.
+> 1. **A new bridge is being built.** — процесс сейчас → `is being` + V3.
+> 2. **The room has been cleaned.** — Present Perfect → `has been` + V3.
+> 3. **The results will be announced tomorrow.** — будущее → `will be` + V3.
+> 4. **This form must be signed.** — `must be` + V3.
 > 5. **Has the parcel been delivered?** — вперёд выходит первый помощник `has`.
 > 6. **The house is being painted at the moment.** — процесс сейчас → `being`.
 

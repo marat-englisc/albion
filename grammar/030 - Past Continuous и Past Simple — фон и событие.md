@@ -2,7 +2,7 @@
 level: A2
 order: 30
 prerequisites: 25, 28, 29
-keywords: прошедшее длительное past continuous
+keywords: прошедшее длительное past continuous, when while, фон
 tags:
   - english/grammar
   - english/A2
@@ -11,19 +11,46 @@ tags:
 # Past Continuous и Past Simple — фон и событие
 
 > [!abstract] Коротко
-> **Past Continuous — процесс в момент прошлого. Past Simple — событие целиком.**
+> **Past Continuous** — что **происходило** в какой-то момент прошлого (фон). **Past Simple** — что **случилось** (событие). **I was cooking when she called.** — Я готовил, когда она позвонила.
 
-Схема Past Continuous: **подлежащее + was/were + глагол с окончанием -ing**. С `I/he/she/it` используется `was`, с `you/we/they` — `were`. Отрицание: **wasn't working**. Вопрос: **Were you working?**
+## Суть
+
+Представь кино. Сначала камера показывает **фон**: идёт дождь, герой готовит ужин. И вдруг — **событие**: звонок в дверь!
+
+- **Фон** — процесс, который тянулся: **Past Continuous** — «готовил, шёл, спал».
+- **Событие** — короткое, «бац!»: **Past Simple** — «позвонил, вошёл, упал».
+
+**I ==was cooking== when she ==called==.** — Готовка уже шла, и тут — звонок.
+
+> [!example] Формула
+> **Кто** + **was / were** + **глагол-ing**
+>
+> I / he / she / it **was** working. You / we / they **were** working.
+
+Это тот же Present Continuous, только **am / is / are** превратились в **was / were**.
+
+## Три типичные ситуации
+
+| Ситуация | Пример |
+| --- | --- |
+| процесс в точный момент | **At eight, I was cooking.** — В восемь я (как раз) готовил. |
+| фон + событие | **I was cooking when she called.** |
+| два процесса одновременно | **I was cooking while he was reading.** — Я готовил, а он читал. |
+
+А если события идут **друг за другом** — это всё Past Simple: **He opened the door, came in and sat down.**
 
 ## Примеры
 
-- **At eight, I was cooking.** — В восемь я готовил: процесс в тот момент.
-- **I was cooking when she called.** — Я готовил, когда она позвонила: событие на фоне процесса.
-- **I was cooking while he was reading.** — Я готовил, а он читал: два процесса.
-- **He opened the door and came in.** — Он открыл дверь и вошёл: последовательные события.
+- **What were you doing at midnight?** — Что ты делал в полночь?
+- **It was raining when we left.** — Когда мы выходили, шёл дождь.
+- **While she was driving, she was listening to music.** — Пока она ехала, она слушала музыку.
 
-> [!warning] Не выбирай время только по союзу
-> `When` и `while` помогают связать события, но форму определяет смысл: процесс или событие.
+> [!tip] Как запомнить
+> **Was / were + -ing** = «**-л** в процессе»: готовил, читал, шёл. **Past Simple** = результат: «приготовил, прочитал, пришёл».
+
+> [!warning] Частые ошибки
+> - ~~they were have dinner~~ → **they were having dinner** — после `were` нужна форма `-ing`.
+> - ~~I cooked when she called.~~ (если готовка уже шла) → **I was cooking when she called.**
 
 ## Проверь себя
 
@@ -31,18 +58,18 @@ tags:
 
 1. Вставь глаголы: I ___ (have) a shower when the doorbell ___ (ring).
 2. Вставь глагол: At 8 o'clock yesterday we ___ (watch) TV.
-3. Вставь глаголы, показав два процесса, которые шли одновременно: While she ___ (drive), she ___ (listen) to music.
+3. Вставь глаголы (два процесса одновременно): While she ___ (drive), she ___ (listen) to music.
 4. Вставь глаголы: He ___ (open) the door, ___ (come) in and ___ (sit) down.
 5. Сделай вопрос: *You were sleeping at midnight.*
 6. Исправь ошибку: *When I arrived, they were have dinner.*
 
 > [!success]- Ответы и пояснения
-> 1. **was having, rang** — душ — процесс-фон, звонок — событие.
-> 2. **were watching** — процесс в конкретный момент прошлого.
-> 3. **was driving, was listening** — два одновременных процесса.
-> 4. **opened, came, sat** — последовательные события — Past Simple.
-> 5. **Were you sleeping at midnight?** — `were` переходит вперёд.
-> 6. **When I arrived, they were having dinner.** — после `were` нужна форма `-ing`.
+> 1. **was having, rang** — душ — фон, звонок — событие.
+> 2. **were watching** — процесс в точный момент прошлого.
+> 3. **was driving, was listening** — два процесса шли одновременно.
+> 4. **opened, came, sat** — события друг за другом → Past Simple.
+> 5. **Were you sleeping at midnight?** — `were` выходит вперёд.
+> 6. **When I arrived, they were having dinner.** — после `were` — форма `-ing`.
 
 > [!info]- Источники
 > - [British Council — Past continuous and past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/past-continuous-past-simple)

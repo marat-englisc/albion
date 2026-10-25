@@ -2,7 +2,7 @@
 level: A2
 order: 81
 prerequisites: 76
-keywords:
+keywords: цель, чтобы, to, in order to, so that, зачем
 tags:
   - english/grammar
   - english/A2
@@ -11,23 +11,52 @@ tags:
 # Цель — to, in order to, so that
 
 > [!abstract] Коротко
-> Чтобы сказать **зачем**, обычно достаточно **to + глагол**: **I called to ask**.
+> «**Чтобы**» по-английски чаще всего просто **to**: **I went out ==to buy== milk.** — Я вышел, **чтобы** купить молока. Никакого **for**!
 
-| Модель | Когда нужна |
-| --- | --- |
-| to do | нейтральная цель |
-| in order to / so as to do | явная или более формальная цель |
-| in order not to / so as not to do | отрицательная цель |
-| so that + подлежащее + сказуемое | цель в виде отдельного предложения; часто с can/could, will/would |
+## Суть
+
+Русское «чтобы» — длинное слово. В английском его роль обычно играет коротенькое **to**:
+
+- **I came ==to help==.** — Я пришёл, чтобы помочь.
+- **I called ==to ask== about the job.** — Я позвонил, чтобы спросить о работе.
+
+Если нужно звучать официальнее или подчеркнуть цель — **in order to**. Значит то же самое.
+
+## Три варианта
+
+| Когда | Как | Пример |
+| --- | --- | --- |
+| обычная цель | **to** + глагол | I went out **to buy** milk. |
+| «чтобы не» | **so as not to / in order not to** + глагол | She whispered **so as not to wake** the baby. |
+| у цели **другой** человек | **so that** + кто + can / will | I spoke slowly **so that everyone could** understand. |
+
+> [!example] Когда нужно so that
+> Если действует **один** человек — **to**: I write it down **to remember**.
+>
+> Если **разные** — **so that**: I'll write it down **so that you don't forget**.
+
+## For — только для вещей
+
+**For** используют, чтобы сказать, **для чего предмет**:
+
+- **This app is ==for== learning words.** — Это приложение для изучения слов.
+- **a bag ==for== books** — сумка для книг
+
+Но цель **человека** — всегда **to**: ~~I went for buying bread~~ → **I went to buy bread.**
 
 ## Примеры
 
-- **I went out to buy milk.** — Вышел купить молока: делаю оба действия сам.
-- **I spoke slowly so that everyone could understand.** — Говорил медленно, чтобы все могли понять.
-- **A tool for cutting glass.** — Инструмент для резки стекла: функция предмета.
+- **I came to help.** — Я пришёл помочь.
+- **He works hard to earn money.** — Он много работает, чтобы зарабатывать.
+- **She whispered so as not to wake the baby.** — Она шептала, чтобы не разбудить ребёнка.
 
-> [!warning] Цель человека и функция вещи
-> **I went to buy bread**, а не *I went for buying bread*. **For + существительное** подходит: **a bag for books**.
+> [!tip] Как проверить
+> Можно задать вопрос «**зачем?**» к действию человека → **to**. Вопрос «**для чего** эта вещь?» → **for + -ing**.
+
+> [!warning] Частые ошибки
+> - ~~I went to the shop for buy bread.~~ → **I went to the shop to buy bread.**
+> - ~~for to earn~~ → **to earn**
+> - ~~to not wake~~ → **so as not to wake / in order not to wake** (в простом стиле можно и **not to wake**)
 
 ## Проверь себя
 
@@ -41,12 +70,12 @@ tags:
 6. Исправь ошибку: *He works hard for to earn money.*
 
 > [!success]- Ответы и пояснения
-> 1. **I came to help.** — цель — `to + начальная форма`.
-> 2. **She whispered so as not to wake the baby. / She whispered in order not to wake the baby.** — отрицательная цель → `so as not to`.
-> 3. **I'll write it down so that you won't forget. / …so that you don't forget.** — разные исполнители → `so that`.
-> 4. **for** — функция предмета → `for + глагол с -ing`.
-> 5. **I went to the shop to buy bread.** — цель действия — `to + начальная форма`.
-> 6. **He works hard to earn money.** — `for to` не используется.
+> 1. **I came to help.** — цель → `to` + глагол.
+> 2. **She whispered so as not to wake the baby. / …in order not to wake the baby.** — «чтобы не» → `so as not to`.
+> 3. **I'll write it down so that you won't forget. / …so that you don't forget.** — разные люди → `so that`.
+> 4. **for** — для чего предмет → `for` + `-ing`.
+> 5. **I went to the shop to buy bread.** — цель человека → `to`.
+> 6. **He works hard to earn money.** — `for to` не бывает.
 
 > [!info]- Источники
 > - [British Council — Infinitive of purpose](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/infinitive-purpose)

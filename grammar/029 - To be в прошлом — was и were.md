@@ -2,7 +2,7 @@
 level: A1
 order: 29
 prerequisites: 3
-keywords:
+keywords: was were, был была были, to be в прошлом
 tags:
   - english/grammar
   - english/A1
@@ -11,21 +11,43 @@ tags:
 # To be в прошлом — was и were
 
 > [!abstract] Коротко
-> **Was/were** — формы `be` в прошлом: кем был, каким был, где находился.
+> **Am / is / are** в прошлом превращаются в **was / were**: «был, была, были». **I was at home.** — Я был дома.
 
-| С кем | Форма |
+## Суть
+
+Помнишь, что **be** — это знак «=»: **She is a doctor**? В прошлом всё то же самое, просто форма другая:
+
+- **She ==is== tired.** → **She ==was== tired.** — Она была уставшей.
+- **They ==are== at home.** → **They ==were== at home.** — Они были дома.
+
+| Сейчас | В прошлом |
 | --- | --- |
-| I / he / she / it | was |
-| you / we / they | were |
+| I **am** | I **was** |
+| he, she, it **is** | he, she, it **was** |
+| you, we, they **are** | you, we, they **were** |
 
-Отрицание: **wasn't / weren't**. Вопрос: **Was / Were + подлежащее…?** Помощник `did` не нужен.
+## Отрицание и вопрос
+
+Как и в настоящем, **be** справляется сам — **did не нужен**:
+
+- **Не:** I **wasn't** hungry. They **weren't** there.
+- **Вопрос:** меняем местами: **Were you** at home?
 
 ## Примеры
 
 - **The film was boring.** — Фильм был скучным.
-- **Were you at home?** — Ты был дома? С `you` всегда `were`.
+- **Were you at home yesterday?** — Ты был вчера дома?
 - **I wasn't hungry.** — Я не был голоден.
-- **I was eighteen in 2015.** — В 2015 году мне было восемнадцать: возраст выражаем через `be`.
+- **I was eighteen in 2015.** — В 2015 году мне было восемнадцать. *Возраст — через be.*
+- **Where were you?** — Где ты был?
+
+> [!tip] Как запомнить
+> **Was** — как **is**: для одного (и для **I**). **Were** — как **are**: для **you** и многих. Даже если «you» — один человек: **You were right.**
+
+> [!warning] Частые ошибки
+> - ~~Where did you be?~~ → **Where were you?** — с be не нужен `did`.
+> - ~~You was right.~~ → **You were right.**
+> - ~~I didn't was there.~~ → **I wasn't there.**
 
 ## Проверь себя
 
@@ -39,12 +61,12 @@ tags:
 6. Переведи: «Мне было восемнадцать в 2015 году».
 
 > [!success]- Ответы и пояснения
-> 1. **was** — один фильм → `was`.
+> 1. **was** — фильм один → `was`.
 > 2. **were** — с `you` всегда `were`, даже про одного человека.
-> 3. **Were they at the party?** — переставляем `were` вперёд.
+> 3. **Were they at the party?** — `were` выходит вперёд.
 > 4. **I wasn't hungry.** — добавляем `not` к `was`.
 > 5. **Where were you yesterday?** — с `be` помощник `did` не нужен.
-> 6. **I was eighteen in 2015.** — возраст выражаем через `be`.
+> 6. **I was eighteen in 2015.** — возраст выражаем через `be`: «я был восемнадцать».
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Be](https://dictionary.cambridge.org/it/grammatica/grammatica-britannico/be-expressions-with-be)

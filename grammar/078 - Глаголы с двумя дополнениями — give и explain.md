@@ -2,7 +2,7 @@
 level: B1
 order: 78
 prerequisites: 2, 22
-keywords:
+keywords: give me, explain to me, два дополнения, кому что
 tags:
   - english/grammar
   - english/B1
@@ -11,21 +11,46 @@ tags:
 # Глаголы с двумя дополнениями — give и explain
 
 > [!abstract] Коротко
-> **Give me the key / give the key to me** — два порядка для «что» и «кому». Но не каждый глагол допускает оба.
+> «Дай мне ключ» можно сказать двумя способами: **Give ==me== the key** или **Give the key ==to me==**. Правило простое: если человек стоит **после** вещи — нужен предлог **to** или **for**.
 
-| Глаголы | Две модели |
+## Суть
+
+У глаголов вроде **give** (дать), **send** (отправить), **show** (показать) два «участника»: **кому** и **что**. По-русски «кому» понятно по окончанию (мне, маме). В английском окончаний нет — поэтому помогает **порядок слов**:
+
+| Порядок | Пример |
 | --- | --- |
-| give, send, show, offer, lend, teach | give her a book / give a book to her |
-| buy, make, cook | buy her a gift / buy a gift for her |
+| **кому** + **что** (без предлога) | Give **me** **the key**. |
+| **что** + **to / for** + **кому** | Give **the key** **to me**. |
+
+## To или for?
+
+- **to** — когда вещь **передаётся** человеку: give, send, show, lend, offer, teach.
+  **Lend your bike ==to== me.** — Одолжи мне велосипед.
+- **for** — когда делаешь что-то **для** человека: buy, make, cook, get.
+  **I bought flowers ==for== my mum.** — Я купил цветы маме.
+
+## Explain — особый глагол
+
+С **explain** (объяснить), **describe** (описать), **suggest** (предложить) — **только** один порядок:
+
+> [!example] Формула
+> **explain** + **что** + **to** + **кому**
+>
+> Please **explain the rule to me**. (не ~~explain me the rule~~)
 
 ## Примеры
 
 - **Could you send me the file?** — Пришлёшь мне файл?
-- **I cooked dinner for them.** — Я приготовил для них ужин.
-- **Please explain the rule to me.** — Объясни мне правило.
+- **She showed me her photos.** — Она показала мне свои фото.
+- **He cooked us dinner. / He cooked dinner for us.** — Он приготовил нам ужин.
+- **Can you explain this word to me?** — Объясни мне это слово.
 
-> [!warning] Explain — особая модель
-> **Explain something to someone**, а не *explain someone something*. Так же обычно **describe something to someone / suggest something to someone**.
+> [!tip] Как запомнить
+> Русское «**объясни мне**» соблазняет сказать ~~explain me~~. Помни: **explain** всегда «объясняет **что-то кому-то**» — **explain it to me**.
+
+> [!warning] Частые ошибки
+> - ~~Can you explain me this word?~~ → **Can you explain this word to me?**
+> - ~~Give to me the book.~~ → **Give me the book.** — если человек перед вещью, предлог не нужен.
 
 ## Проверь себя
 
@@ -36,15 +61,15 @@ tags:
 3. Вставь to или for: Can you lend your bike ___ me?
 4. Вставь to или for: I bought flowers ___ my mum.
 5. Исправь ошибку: *Can you explain me this word?*
-6. Переставь слова в обычном нейтральном порядке: *Give to me the book.*
+6. Исправь порядок слов: *Give to me the book.*
 
 > [!success]- Ответы и пояснения
-> 1. **She showed me her photos.** — получатель перед вещью — без предлога.
-> 2. **He cooked us dinner.** — получатель пользы перед вещью — без `for`.
-> 3. **to** — передача вещи адресату.
-> 4. **for** — мама получает пользу от покупки.
-> 5. **Can you explain this word to me?** — у `explain` адресат только через `to`.
-> 6. **Give me the book. / Give the book to me.** — предлог нужен только когда получатель стоит после вещи.
+> 1. **She showed me her photos.** — человек перед вещью → без предлога.
+> 2. **He cooked us dinner.** — человек перед вещью → без `for`.
+> 3. **to** — велосипед передаётся мне.
+> 4. **for** — покупка делается для мамы.
+> 5. **Can you explain this word to me?** — у `explain` только порядок «что + to + кому».
+> 6. **Give me the book. / Give the book to me.** — предлог нужен, только когда человек после вещи.
 
 > [!info]- Источники
 > - [British Council — Clause structure and verb patterns](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/clause-structure-verb-patterns)

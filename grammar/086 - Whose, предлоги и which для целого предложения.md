@@ -2,7 +2,7 @@
 level: B2
 order: 86
 prerequisites: 85
-keywords:
+keywords: whose, to whom, in which, which что, чей
 tags:
   - english/grammar
   - english/B2
@@ -11,19 +11,47 @@ tags:
 # Whose, предлоги и which для целого предложения
 
 > [!abstract] Коротко
-> **Whose** — чей; **where/when** — где/когда; **which после запятой** может относиться ко всей ситуации.
+> Три «продвинутых» способа сказать «который»: **whose** — «чей» (**a writer ==whose== books I love**), предлог в начале (**the man ==to whom== I spoke**) и **which** про целую ситуацию (**He was late, ==which== annoyed me** — что меня разозлило).
 
-**Whose** — притяжательное слово «чей», а **who's** — сокращение **who is** или **who has**: **Who's there?** — «Кто там?»
+## Whose — «чей»
+
+**Whose** ставится **сразу перед вещью**, которая кому-то принадлежит:
+
+- **A writer ==whose books== I love.** — Писатель, **чьи** книги я люблю.
+- **That's the girl ==whose brother== plays football.** — Это девочка, **чей** брат играет в футбол.
+
+Не путай с **who's** — это **who is / who has**: **Who's there?** — Кто там?
+
+## Предлог: в конце или в начале
+
+Русское «человек, **с которым** я говорил» можно сказать двумя способами:
+
+| Обычно, в разговоре | Официально, в тексте |
+| --- | --- |
+| the person (who) I spoke **to** | the person **to whom** I spoke |
+| the hotel (that) we stayed **in** | the hotel **in which** we stayed |
+
+Если предлог стоит **впереди**, после него только **whom** (о людях) или **which** (о вещах) — **that** нельзя.
+
+## Which — про всю ситуацию
+
+После запятой **which** может относиться не к слову, а ко **всему событию**. По-русски это «**что**»:
+
+- **He missed the train, ==which== made him late.** — Он пропустил поезд, **из-за чего** опоздал.
+- **He didn't call me, ==which== made me angry.** — Он мне не позвонил, **что** меня разозлило.
 
 ## Примеры
 
-- **A writer whose books I love.** — Писатель, чьи книги я люблю. `Whose` сразу перед существительным.
-- **The town where I grew up.** — Город, где я вырос: `where = in which` здесь.
-- **The person who I spoke to. / The person to whom I spoke.** — Человек, с которым говорил: предлог в конце нейтрален, впереди — формальнее.
-- **He missed the train, which made him late.** — Он пропустил поезд, из-за чего опоздал. `Which` относится к событию.
+- **The town where I grew up.** — Город, где я вырос.
+- **This is the town (which) I visited last year.** — Это город, который я посетил в прошлом году.
+- **the man to whom I gave the money** — человек, которому я отдал деньги
 
-> [!warning] После вынесенного предлога
-> **To whom / in which**, а не *to that / in that* в этой относительной модели. `Whose` может относиться и к организациям или предметам.
+> [!tip] Where или which?
+> **Where** = «где, в котором»: the town **where** I was born. Если глагол требует «что?» (visit — посетить **что?**), нужно **which / that**: the town **which** I visited.
+
+> [!warning] Частые ошибки
+> - ~~the hotel in that we stayed~~ → **the hotel in which we stayed**
+> - ~~the girl who's brother~~ → **the girl whose brother**
 
 ## Проверь себя
 
@@ -37,12 +65,12 @@ tags:
 6. Исправь ошибку: *the hotel in that we stayed*
 
 > [!success]- Ответы и пояснения
-> 1. **whose** — «чей брат» — принадлежность.
-> 2. **where** — место рождения.
-> 3. **which (that)** — `visit` требует дополнение «что посетил».
+> 1. **whose** — «чей брат».
+> 2. **where** — «где я родился».
+> 3. **which (that)** — посетил **что?** — нужно `which`.
 > 4. **the man to whom I gave the money** — предлог впереди → `whom`.
 > 5. **He didn't call me, which made me angry.** — `which` относится ко всему событию.
-> 6. **the hotel in which we stayed / the hotel (that) we stayed in** — после предлога `that` не используется.
+> 6. **the hotel in which we stayed / the hotel (that) we stayed in** — после предлога `that` нельзя.
 
 > [!info]- Источники
 > - [British Council — Relative clauses: defining relative clauses](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/relative-clauses-defining-relative-clauses)

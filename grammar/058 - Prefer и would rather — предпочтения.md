@@ -2,7 +2,7 @@
 level: B2
 order: 58
 prerequisites: 24, 28
-keywords: предпочитать лучше rather prefer
+keywords: предпочитать лучше rather prefer, я бы лучше
 tags:
   - english/grammar
   - english/B2
@@ -11,23 +11,49 @@ tags:
 # Prefer и would rather — предпочтения
 
 > [!abstract] Коротко
-> **Prefer** — предпочитаю вообще. **Would prefer / would rather** — часто конкретный выбор.
+> **I prefer tea** — я предпочитаю чай (вообще). **I'd rather stay** — я бы лучше остался (сейчас). У каждого из них свои «маленькие слова»: **prefer… to…**, **rather… than…**.
 
-| Модель | Пример |
+## Суть
+
+Есть два способа сказать «предпочитаю»:
+
+| Вообще, всегда | В этот раз, сейчас |
 | --- | --- |
-| prefer + существительное + to + существительное | I prefer tea to coffee. |
-| prefer + глагол с -ing + to + глагол с -ing | I prefer walking to driving. |
-| would prefer to + глагол | I'd prefer to stay. |
-| would rather + глагол | I'd rather walk than wait. |
-| would rather + подлежащее другой части + глагол в Past Simple | I'd rather you stayed. |
+| **I prefer** tea **to** coffee. — Я предпочитаю чай кофе. | **I'd prefer to** stay. — Я бы предпочёл остаться. |
+| **I prefer** walking **to** driving. | **I'd rather** walk **than** wait. — Я бы лучше прошёлся, чем ждал. |
+
+Главная путаница — где нужно **to**, а где нет:
+
+> [!example] Формула
+> **prefer** A **to** B — I prefer swimming **to** running.
+>
+> **would prefer to** + глагол — I'd prefer **to stay**.
+>
+> **would rather** + глагол (без to) **than** + глагол — I'd rather **stay than go**.
+
+## Если речь о другом человеке
+
+Когда хочешь, чтобы что-то сделал **другой**, после **would rather** идёт прошедшая форма:
+
+- **I'd rather you ==stayed==.** — Я бы предпочёл, чтобы ты остался.
+- **I'd rather you ==didn't tell== her.** — Я бы предпочёл, чтобы ты ей не говорил.
+
+Прошедшая форма тут не про прошлое — так в английском звучит «чтобы ты…».
 
 ## Примеры
 
-- **I'd rather not go.** — Я бы предпочёл не идти.
-- **I'd rather you didn't go.** — Я бы предпочёл, чтобы ты не ходил.
+- **I prefer tea to coffee.** — Я предпочитаю чай кофе.
+- **I'd rather not go.** — Я бы лучше не ходил.
+- **I'd rather go by train than fly.** — Я бы лучше поехал поездом, чем полетел.
+- **I'd prefer to stay at home tonight.** — Сегодня я бы предпочёл остаться дома.
 
-> [!warning] Чей выбор действия?
-> **I'd rather stay** — остаюсь я, без `to`. **I'd rather you stayed** — остаёшься ты; прошедшая форма относится к желаемому сейчас или в будущем.
+> [!tip] Как запомнить
+> **Rather** — гордое слово, как **can**: после него глагол **без to**. А **prefer** — обычный глагол и любит **to**.
+
+> [!warning] Частые ошибки
+> - ~~I'd rather to walk.~~ → **I'd rather walk.**
+> - ~~I prefer tea than coffee.~~ → **I prefer tea to coffee.**
+> - ~~I'd rather you don't tell her.~~ → **I'd rather you didn't tell her.**
 
 ## Проверь себя
 
@@ -41,12 +67,12 @@ tags:
 6. Переведи: «Я бы лучше поехал на поезде, чем полетел».
 
 > [!success]- Ответы и пояснения
-> 1. **to** — после `prefer` сравнение через `to`.
-> 2. **— (без to)** — после `would rather` начальная форма.
+> 1. **to** — после `prefer` сравниваем через `to`.
+> 2. **— (без to)** — после `would rather` глагол без `to`.
 > 3. **to** — после `would prefer` нужно `to`.
-> 4. **didn't tell** — про другого человека — Past Simple.
+> 4. **didn't tell** — речь о другом человеке → прошедшая форма.
 > 5. **I'd rather walk.** — после `rather` без `to`.
-> 6. **I'd rather go by train than fly.** — `would rather A than B`, обе формы без `to`.
+> 6. **I'd rather go by train than fly.** — `would rather` A `than` B, оба глагола без `to`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Prefer](https://dictionary.cambridge.org/grammar/british-grammar/prefer-would-prefer)

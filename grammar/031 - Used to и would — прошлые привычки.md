@@ -2,7 +2,7 @@
 level: B1
 order: 31
 prerequisites: 28
-keywords:
+keywords: used to, would, раньше, бывало, прошлые привычки
 tags:
   - english/grammar
   - english/B1
@@ -11,23 +11,49 @@ tags:
 # Used to и would — прошлые привычки
 
 > [!abstract] Коротко
-> **Used to** — раньше делал или был таким, теперь иначе. **Would** — повторявшееся действие в воспоминании.
+> **Used to** = «**раньше** (а теперь нет)». **I used to live in Samara.** — Раньше я жил в Самаре (сейчас — нет).
 
-| Что описываем | Форма |
-| --- | --- |
-| прошлую привычку или состояние | used to + начальная форма |
-| отрицание | didn't use to + глагол |
-| вопрос | Did you use to + глагол? |
-| повторявшееся действие, период уже понятен | would + глагол |
+## Суть
+
+В русском есть слово «раньше»: «Раньше я курил». Оно сразу намекает: **сейчас всё иначе**. В английском для этого есть готовая конструкция — **used to**:
+
+- **I ==used to== smoke.** — Раньше я курил (а теперь бросил).
+- **She ==used to== have long hair.** — Раньше у неё были длинные волосы.
+
+> [!example] Формула
+> **Кто** + **used to** + **глагол**
+>
+> **Не:** didn't **use** to + глагол. **Вопрос:** Did you **use** to + глагол?
+
+Обрати внимание: после **did** буква **d** пропадает — **use to** (ведь прошлое уже показал `did`).
+
+## А что такое would?
+
+**Would** тоже рассказывает о прошлых привычках, но звучит как **тёплое воспоминание** — как русское «бывало»:
+
+- **Every summer, Grandad ==would== take us fishing.** — Каждое лето дедушка, бывало, брал нас на рыбалку.
+
+Но у **would** есть ограничение: только для **повторяющихся действий**, не для состояний.
+
+| Что | used to | would |
+| --- | --- | --- |
+| повторялось (ездили, брал) | ✓ | ✓ |
+| состояние (жил, был, имел) | ✓ | — |
 
 ## Примеры
 
 - **I used to live in Samara.** — Раньше я жил в Самаре.
-- **Every summer, Grandad would take us fishing.** — Каждое лето дедушка брал нас на рыбалку.
 - **She didn't use to like fish.** — Раньше она не любила рыбу.
+- **Did you use to play football?** — Ты раньше играл в футбол?
+- **We would sit by the fire and tell stories.** — Мы, бывало, сидели у огня и рассказывали истории.
 
-> [!warning] Состояния и один случай
-> **I used to have long hair**, обычно без `would`. Для одного законченного события нужен Past Simple.
+> [!tip] Для одного случая — Past Simple
+> **Used to** — только для того, что повторялось или длилось. Одно событие — просто Past Simple: **I went to Paris in 2019.**
+
+> [!warning] Частые ошибки
+> - ~~I use to get up early.~~ → **I used to get up early.** — в утверждении с `d`.
+> - ~~Did you used to…?~~ → **Did you use to…?** — после `did` без `d`.
+> - ~~I would have long hair.~~ → **I used to have long hair.** — состояние.
 
 ## Проверь себя
 
@@ -41,12 +67,12 @@ tags:
 6. Исправь ошибку: *I use to get up early when I was at school.*
 
 > [!success]- Ответы и пояснения
-> 1. **used to live** — прежнее состояние, которое изменилось.
-> 2. **She didn't use to like fish.** — после `didn't` — `use to`.
+> 1. **used to live** — раньше жил, теперь нет.
+> 2. **She didn't use to like fish.** — после `didn't` — `use to`, без `d`.
 > 3. **Did he use to play football?** — после `did` — `use to`.
-> 4. **used to** — длинные волосы — состояние, `would` не подходит.
-> 5. **would** — повторяющееся действие в воспоминаниях.
-> 6. **I used to get up early when I was at school.** — в утверждении — `used to`.
+> 4. **used to** — длинные волосы — это состояние, `would` не подходит.
+> 5. **would** — повторявшееся действие в тёплом воспоминании.
+> 6. **I used to get up early when I was at school.** — в утверждении нужно `used`.
 
 > [!info]- Источники
 > - [British Council — Past habits: 'used to', 'would' and the past simple](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2-grammar/past-habits-used-to-would-past-simple)

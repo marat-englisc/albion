@@ -2,7 +2,7 @@
 level: C1
 order: 126
 prerequisites: 17, 38
-keywords: обратный порядок слов negative inversion
+keywords: обратный порядок слов negative inversion, never have I, hardly no sooner
 tags:
   - english/grammar
   - english/C1
@@ -11,24 +11,55 @@ tags:
 # Инверсия после отрицательных слов — Never have I
 
 > [!abstract] Коротко
-> После вынесенного в начало отрицательного или ограничительного выражения часто нужна **инверсия: помощник → подлежащее → глагол**.
+> Если поставить в начало «сильное» слово вроде **never** (никогда), **rarely** (редко), **not only** (не только), дальше идёт порядок **как в вопросе**: **==Never have I== seen this.** — Никогда я такого не видел! Звучит драматично и книжно.
 
-| Начало | Пример |
-| --- | --- |
-| never / rarely / little | Never have I seen this. Little did I know. |
-| not only | Not only did she win, but she also broke the record. |
-| hardly / scarcely…when | Hardly had I sat down when the phone rang. |
-| no sooner…than | No sooner had we arrived than it started to rain. |
-| under no circumstances | Under no circumstances should you open it. |
+## Суть
 
-## Где делать инверсию
+Сравни:
 
-**Only when I got home did I realise.** — Только дома я понял. После **only when/after, not until** переставляй слова **в главной части**; внутри части с `only when/after` или `not until` порядок слов остаётся обычным.
+- **I have never seen this.** — Я никогда такого не видел. *Обычно.*
+- **Never have I seen this!** — Никогда в жизни я такого не видел! *Эффектно, как в книге или речи.*
 
-Такая инверсия характерна для формальной речи и выразительного повествования. Если в исходном предложении нет вспомогательного глагола, в Present Simple и Past Simple добавляют **do/does/did**, а основной глагол ставят в начальную форму.
+Когда отрицательное слово выходит вперёд, предложение «переворачивается» — **помощник встаёт перед «кто»**, как в вопросе:
 
-> [!warning] Не после любого only
-> **Only Anna knew** — `only` выделяет подлежащее, инверсии нет. С `be` не добавляй `do`: **Rarely is he late**.
+> [!example] Формула
+> **Never / Rarely / Little** + **помощник** + **кто** + глагол
+>
+> **Rarely do we** go out. — Мы редко куда-то выходим.
+
+Нет помощника? Зови **do / does / did** — как в вопросах (тема 17).
+
+## Слова, которые запускают инверсию
+
+| Начало | Пример | Перевод |
+| --- | --- | --- |
+| **never** | Never have I seen this. | Никогда я этого не видел. |
+| **rarely / seldom** | Rarely is he late. | Он редко опаздывает. |
+| **little** | Little did I know… | Я и не подозревал… |
+| **not only** | Not only did she win, but… | Она не только победила, но… |
+| **hardly… when** | Hardly had I sat down when the phone rang. | Едва я сел, как зазвонил телефон. |
+| **no sooner… than** | No sooner had we arrived than it rained. | Не успели мы приехать, как пошёл дождь. |
+| **under no circumstances** | Under no circumstances should you open it. | Ни в коем случае не открывай. |
+
+## Only when, not until
+
+Здесь инверсия — **во второй части**:
+
+- **Only when I got home ==did I realise==.** — Только дома я понял.
+
+## Примеры
+
+- **Never have I been so insulted.** — Никогда меня так не оскорбляли.
+- **Little did I know that he was lying.** — Я и не подозревал, что он лжёт.
+- **Not only does she sing, but she also plays the violin.** — Она не только поёт, но и играет на скрипке.
+
+> [!tip] Не после любого only
+> **Only Anna knew.** — Знала только Анна. Здесь **only** относится к «кто», и инверсии нет.
+
+> [!warning] Частые ошибки
+> - ~~Little I knew…~~ → **Little did I know…**
+> - ~~Never I have seen…~~ → **Never have I seen…**
+> - ~~Rarely does he is late.~~ → **Rarely is he late.** — с `be` не нужен `do`.
 
 ## Проверь себя
 
@@ -42,12 +73,12 @@ tags:
 6. Исправь ошибку: *Little I knew that he was lying.*
 
 > [!success]- Ответы и пояснения
-> 1. **Never have I been so insulted.** — помощник `have` перед `I`.
-> 2. **Rarely do we go out these days.** — Present Simple → `do` + `go`.
-> 3. **Hardly had I closed my eyes when the alarm went off.** — `hardly had + подлежащее + третья форма … when + Past Simple`.
+> 1. **Never have I been so insulted.** — `have` встаёт перед `I`.
+> 2. **Rarely do we go out these days.** — помощника нет → `do`.
+> 3. **Hardly had I closed my eyes when the alarm went off.** — `hardly had` + кто + V3 … `when`.
 > 4. **Not only does she sing, but she also plays the violin.** — инверсия только в первой части.
-> 5. **Only when I read the email again did I realise my mistake.** — инверсия в главной части после придаточного с `only when`.
-> 6. **Little did I know that he was lying.** — после `little` в начале нужна инверсия с `did`.
+> 5. **Only when I read the email again did I realise my mistake.** — инверсия во второй части.
+> 6. **Little did I know that he was lying.** — после `little` нужно `did I`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Inversion](https://dictionary.cambridge.org/grammar/british-grammar/inversion)

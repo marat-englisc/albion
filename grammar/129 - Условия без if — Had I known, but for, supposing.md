@@ -2,7 +2,7 @@
 level: C1
 order: 129
 prerequisites: 62
-keywords: условие без если had were should but for
+keywords: условие без если had were should but for, supposing, otherwise
 tags:
   - english/grammar
   - english/C1
@@ -11,26 +11,53 @@ tags:
 # Условия без if — Had I known, but for, supposing
 
 > [!abstract] Коротко
-> Формальное условие можно выразить без `if`: **Had I known = If I had known**.
+> «Если бы» можно сказать **без if** — просто переставив слова: **==Had I known==** = **If I had known** — Если бы я знал. Звучит официально и элегантно.
+
+## Суть
+
+Убираем **if** и ставим помощника **в начало** — как в вопросе. Работает только с тремя словами — **had, were, should**:
 
 | С if | Без if |
 | --- | --- |
-| If I had known… | Had I known… |
-| If I were you… | Were I you… |
-| If he were to ask… | Were he to ask… |
-| If you should need help… | Should you need help… |
+| **If I had** known… | **Had I** known… — Если бы я знал… |
+| **If I were** you… | **Were I** you… — Будь я на твоём месте… |
+| **If you should** need help… | **Should you** need help… — Если вам понадобится помощь… |
 
-## Другие способы
+> [!example] Формула
+> **Had / Were / Should** + **кто** + …, + результат
+>
+> **Should you need** more information, please call.
 
-- **But for your help, I would have failed.** — Если бы не твоя помощь, я бы провалился.
-- **Supposing/Suppose we miss the bus, what will we do?** — Если мы пропустим автобус, что будем делать?
-- **Assuming the train is on time, we'll arrive by six.** — Если поезд придёт вовремя, мы приедем к шести.
-- **Hurry; otherwise we'll be late.** — Поторопись, иначе опоздаем.
+**Should you…** — очень частое вежливое начало в официальных письмах: «Если у вас возникнут вопросы…».
 
-**On condition that / provided that** — при условии. **In the event of / in case of + существительное** — в случае.
+## «Не» в такой фразе
 
-> [!warning] Отрицательная инверсия
-> **Had I not known…**, а не *Hadn't I known…* для условного значения. **Were it not for…** — «если бы не…» о настоящем: **Were it not for your help, I would be lost**. **Had it not been for…** — «если бы не…» о прошлом: **Had it not been for your help, I would have failed**.
+Отрицание — **полным словом not**, без сокращения:
+
+- **==Had she not== warned us, …** — Если бы она нас не предупредила… (не ~~Hadn't she~~)
+
+## Другие способы сказать «если»
+
+| Фраза | Значит | Пример |
+| --- | --- | --- |
+| **But for** + слово | если бы не | **But for** your help, I would have failed. |
+| **Supposing / Suppose** | предположим, что | **Suppose** we miss the bus — what then? |
+| **Assuming** | если исходить из того, что | **Assuming** the train is on time, we'll arrive by six. |
+| **Otherwise** | иначе, а то | Hurry, **otherwise** we'll be late. |
+
+## Примеры
+
+- **Had I known about the problem, I would have helped.** — Знай я о проблеме, я бы помог.
+- **Were I the manager, I would change everything.** — Будь я менеджером, я бы всё поменял.
+- **Were it not for your help, I would be lost.** — Если бы не твоя помощь, я бы пропал.
+
+> [!tip] Как превратить
+> Найди **had / were / should** после **if**. Убери **if** и поставь этот глагол **перед** «кто». Готово!
+
+> [!warning] Частые ошибки
+> - ~~Hadn't she warned us…~~ → **Had she not warned us…**
+> - ~~Had I know~~ → **Had I known** — нужна третья форма.
+> - ~~But for the doctor helped~~ → **But for the doctor('s help)** — после `but for` — слово, не предложение.
 
 ## Проверь себя
 
@@ -44,12 +71,12 @@ tags:
 6. Исправь ошибку: *Hadn't she warned us, we would have been in trouble.*
 
 > [!success]- Ответы и пояснения
-> 1. **Had I known about the problem, I would have helped.** — инверсия с `had`.
-> 2. **Should you need more information, please call.** — инверсия с `should`.
-> 3. **Were I the manager, I would change everything.** — инверсия с `were`.
-> 4. **But for the doctor('s help), she would have died.** — после `but for` — существительное.
-> 5. **otherwise** — «иначе, а то»: условие выводится из совета.
-> 6. **Had she not warned us, we would have been in trouble.** — при инверсии отрицание без сокращения.
+> 1. **Had I known about the problem, I would have helped.** — `had` вперёд.
+> 2. **Should you need more information, please call.** — `should` вперёд.
+> 3. **Were I the manager, I would change everything.** — `were` вперёд.
+> 4. **But for the doctor('s help), she would have died.** — после `but for` — слово.
+> 5. **otherwise** — «а то, иначе».
+> 6. **Had she not warned us, we would have been in trouble.** — отрицание без сокращения.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Conditionals: other expressions](https://dictionary.cambridge.org/grammar/british-grammar/conditionals-other-expressions-unless-should-as-long-as)

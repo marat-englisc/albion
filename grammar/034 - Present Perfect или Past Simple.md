@@ -2,7 +2,7 @@
 level: B1
 order: 34
 prerequisites: 33
-keywords:
+keywords: present perfect или past simple, разница, ago yesterday
 tags:
   - english/grammar
   - english/B1
@@ -11,21 +11,50 @@ tags:
 # Present Perfect или Past Simple
 
 > [!abstract] Коротко
-> **Past Simple — что произошло тогда. Present Perfect — что есть к настоящему моменту.**
+> **Past Simple** — рассказ о прошлом: **когда** это было. **Present Perfect** — итог **на сейчас**: что есть, что успел, какой опыт. Есть точное прошлое время (вчера, в 2010) — почти всегда Past Simple.
 
-| Past Simple | Present Perfect |
+## Суть
+
+Представь два вопроса:
+
+- «**Когда** это было?» → **Past Simple**. Событие привязано к моменту в прошлом.
+- «**Что в итоге сейчас?**» → **Present Perfect**. Момент не важен, важен результат.
+
+| Past Simple — «тогда» | Present Perfect — «итог сейчас» |
 | --- | --- |
-| I lost my keys yesterday. | I've lost my keys. I can't get in. |
-| She lived here from 2010 to 2015. | She's lived here since 2010. |
-| Did you see him last week? | Have you seen him so far this week? |
+| I **lost** my keys yesterday. | I'**ve lost** my keys. I can't get in. |
+| She **lived** here from 2010 to 2015. (больше не живёт) | She'**s lived** here since 2010. (и сейчас живёт) |
+| **Did** you **see** him last week? | **Have** you **seen** him this week? (неделя ещё идёт) |
 
-Законченное время (`ago, last year, in 2010`) обычно требует Past Simple. `Today/this week` не выбирают время сами: важна точка зрения на период.
+## Как выбрать
 
-## Пример разговора
+```mermaid
+flowchart TD
+  A{"Есть законченное прошлое время? (yesterday, ago, last year, in 2010)"} -->|Да| P["Past Simple"]
+  A -->|Нет| B{"Важен результат, опыт или период до сих пор?"}
+  B -->|Да| R["Present Perfect"]
+  B -->|Нет, рассказываю историю| P
+```
 
-**Have you met Leo? — Yes, I met him last year.** — Ты знаком с Лео? — Да, познакомился в прошлом году. Сначала опыт, затем детали.
+## Как это звучит в разговоре
 
-В американском английском (AmE) Past Simple чаще встречается с **just/already/yet**. Даже без даты Past Simple возможен, если прошлый эпизод понятен из контекста.
+Часто разговор **начинается** с Present Perfect (общий вопрос), а потом переходит в Past Simple (подробности):
+
+- **Have you met Leo?** — Ты знаком с Лео? *(опыт)*
+- **Yes, I met him last year.** — Да, познакомились в прошлом году. *(когда)*
+
+## Примеры
+
+- **I finished the report an hour ago.** — Я закончил отчёт час назад.
+- **I've finished the report. Here it is.** — Я закончил отчёт. Вот он.
+- **We haven't had any rain this month.** — В этом месяце не было дождей. *(месяц ещё идёт)*
+
+> [!tip] Слова-сигналы
+> **ago, yesterday, last…, in 2010, when?** → Past Simple. **ever, never, already, yet, just, so far** → обычно Present Perfect.
+
+> [!warning] Частые ошибки
+> - ~~When have you arrived?~~ → **When did you arrive?** — вопрос «когда?» — всегда про момент в прошлом.
+> - ~~I have seen him yesterday.~~ → **I saw him yesterday.**
 
 ## Проверь себя
 
@@ -39,12 +68,12 @@ tags:
 6. Исправь ошибку: *When have you arrived?*
 
 > [!success]- Ответы и пояснения
-> 1. **finished** — `an hour ago` — законченный момент.
-> 2. **have finished** — естественный выбор для нынешнего результата в BrE. **Finished** тоже грамматически возможно, если говорящий представляет завершённый эпизод; отсутствие даты не запрещает Past Simple.
-> 3. **lived** — период в прошлом закончился.
-> 4. **Have you seen; saw** — нейтральный вопрос об опыте и затем конкретный день. **Did you see** также возможно при понятном прошлом эпизоде.
-> 5. **haven't had** — месяц ещё не закончился.
-> 6. **When did you arrive?** — здесь спрашиваем, когда произошло завершённое событие — приезд; нужен Past Simple.
+> 1. **finished** — «час назад» — точный момент в прошлом.
+> 2. **have finished** — важен результат: отчёт готов, вот он.
+> 3. **lived** — период закончился в 2015 году.
+> 4. **Have you seen; saw** — сначала общий вопрос об опыте, потом конкретный день — пятница.
+> 5. **haven't had** — «пока что в этом месяце»: месяц ещё не закончился.
+> 6. **When did you arrive?** — вопрос «когда?» требует Past Simple.
 
 > [!info]- Источники
 > - [British Council — Present perfect](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/present-perfect)

@@ -2,7 +2,7 @@
 level: A1
 order: 22
 prerequisites: 15, 16
-keywords: настоящее простое present simple
+keywords: настоящее простое present simple, привычки, факты
 tags:
   - english/grammar
   - english/A1
@@ -11,24 +11,47 @@ tags:
 # Present Simple — привычки и факты
 
 > [!abstract] Коротко
-> Present Simple — **привычки, факты и устойчивые ситуации**. Действие не обязано происходить сейчас.
+> Present Simple — время для того, что происходит **обычно, регулярно или всегда**: привычки, факты, расписания. **I drink coffee every morning.** — Я пью кофе каждое утро.
 
-| Что сказать | Форма |
+## Суть
+
+Сравни два русских предложения:
+
+- «Я **пью** кофе каждое утро» — это привычка.
+- «Не мешай, я **пью** кофе» — это прямо сейчас.
+
+По-русски глагол один. В английском — **два разных времени**. Present Simple — только для первого случая: «вообще, обычно, всегда». (Для «прямо сейчас» есть Present Continuous — тема 25.)
+
+## Как построить
+
+Глагол берём в начальной форме. Единственная хитрость — с **he, she, it** добавляем **-s**:
+
+| Кто | Форма |
 | --- | --- |
-| I / you / we / they | work |
-| he / she / it | works |
-| отрицание | don't / doesn't + work |
-| вопрос | Do / Does + подлежащее + work? |
+| I, you, we, they | **work** |
+| he, she, it | **work==s==** |
+
+> [!example] Формула
+> **Отрицание:** кто + **don't / doesn't** + глагол
+>
+> **Вопрос:** **Do / Does** + кто + глагол?
 
 ## Примеры
 
-- **I read before bed.** — Я читаю перед сном: привычка.
-- **Mia reads every day.** — Миа читает каждый день: с `she` добавляем `-s`.
-- **Mia doesn't read newspapers.** — Миа не читает газеты.
-- **Does this bus stop here?** — Этот автобус здесь останавливается?
+- **I read before bed.** — Я читаю перед сном. *Привычка.*
+- **Mia read==s== every day.** — Миа читает каждый день. *Миа = she → -s.*
+- **Water boils at 100 degrees.** — Вода кипит при 100 градусах. *Факт.*
+- **The shop opens at nine.** — Магазин открывается в девять. *Расписание.*
+- **Mia ==doesn't== read newspapers.** — Миа не читает газеты.
+- **==Does== this bus stop here?** — Этот автобус здесь останавливается?
 
-> [!warning] Одно окончание
-> **Does she work?**, а не *Does she works?* В `does` уже показано согласование. С `be` — собственные формы **am/is/are**, без `do`.
+> [!tip] Как запомнить «-s»
+> **He, she, it — в конце S стоит.** Буква «s» появляется только один раз: либо в глаголе (**she works**), либо в помощнике (**does she work?**). Никогда в обоих местах.
+
+> [!warning] Частые ошибки
+> - ~~He work here.~~ → **He works here.**
+> - ~~He don't like coffee.~~ → **He doesn't like coffee.**
+> - ~~Does she works?~~ → **Does she work?** — `-s` уже забрал `does`.
 
 ## Проверь себя
 
@@ -42,12 +65,12 @@ tags:
 6. Исправь ошибку: *Does your dad works here?*
 
 > [!success]- Ответы и пояснения
-> 1. **lives** — `my brother` = `he` → `-s`.
-> 2. **don't eat** — отрицание с `we` → `don't`.
-> 3. **Does she speak French?** — `does` забирает `-s`, глагол — `speak`.
-> 4. **opens** — расписание; `the shop` = `it`.
-> 5. **He doesn't like coffee.** — с `he` помощник `does`.
-> 6. **Does your dad work here?** — после `does` начальная форма.
+> 1. **lives** — брат = «он» → добавляем `-s`.
+> 2. **don't eat** — с `we` отрицание через `don't`.
+> 3. **Does she speak French?** — `does` забирает `-s`, остаётся `speak`.
+> 4. **opens** — расписание, магазин = «оно» → `-s`.
+> 5. **He doesn't like coffee.** — с `he` нужен `does`, а не `do`.
+> 6. **Does your dad work here?** — после `does` глагол без `-s`.
 
 > [!info]- Источники
 > - [British Council — Present simple](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/present-simple)

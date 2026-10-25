@@ -2,7 +2,7 @@
 level: A2
 order: 59
 prerequisites: 22
-keywords: условие нулевое zero conditional
+keywords: условие нулевое zero conditional, если то всегда
 tags:
   - english/grammar
   - english/A2
@@ -11,18 +11,39 @@ tags:
 # Zero Conditional — общие закономерности
 
 > [!abstract] Коротко
-> Zero Conditional — **каждый раз при таком условии получается такой результат**: правило или привычка.
+> Zero Conditional — для того, что **всегда** происходит при каком-то условии: законы природы, правила, привычки. **If you heat ice, it melts.** — Если нагреть лёд, он тает. В обеих частях — **Present Simple**.
 
-Основная схема: **if/when + подлежащее + глагол в Present Simple, подлежащее + глагол в Present Simple**. `If` — «если», `when` — «когда». Часть с условием и часть с результатом имеют собственные подлежащие и сказуемые.
+## Суть
+
+Есть вещи, которые работают **как закон**: нажал выключатель — свет загорелся. Каждый раз, без исключений. Для таких «если — то» английский использует самое простое время в обеих частях:
+
+> [!example] Формула
+> **If** + Present Simple, + Present Simple
+>
+> **If** you **heat** ice, it **melts**.
+
+Вместо **if** («если») часто говорят **when** («когда») — смысл почти тот же: «каждый раз, когда».
+
+## Части можно менять местами
+
+- **If you heat ice, it melts.** — с запятой.
+- **Ice melts if you heat it.** — без запятой.
+
+Запятая нужна, только когда часть с **if** стоит **первой**.
 
 ## Примеры
 
-- **If you heat ice, it melts.** — Если нагреть лёд, он тает: закономерность.
-- **When I'm tired, I go to bed early.** — Когда устаю, рано ложусь: привычка.
-- **If I drink coffee late, I can't sleep.** — Если поздно пью кофе, не могу уснуть. В результате возможен модальный глагол.
+- **If you mix red and white, you get pink.** — Если смешать красный и белый, получится розовый.
+- **Plants die if they don't get water.** — Растения погибают, если не получают воды.
+- **When I'm tired, I go to bed early.** — Когда я устаю, я рано ложусь. *Привычка.*
+- **If I drink coffee late, I can't sleep.** — Если пью кофе поздно, не могу уснуть.
 
-> [!warning] Общее или один будущий случай?
-> **If it rains, I stay home** — обычно. **If it rains tomorrow, I'll stay home** — конкретное будущее. Если часть с `if` идёт первой, после неё обычно ставят запятую.
+> [!tip] Zero или First?
+> **If it rains, I stay home.** — Если идёт дождь, я (всегда) сижу дома. *Общее правило.* **If it rains tomorrow, I'll stay home.** — Если завтра пойдёт дождь, останусь дома. *Один конкретный случай — это уже First Conditional (следующая тема).*
+
+> [!warning] Частые ошибки
+> - ~~If water will reach 100°C, it boils.~~ → **If water reaches 100°C, it boils.**
+> - ~~If you press it, it will stop~~ (о том, как работает всегда) → **If you press it, it stops.**
 
 ## Проверь себя
 
@@ -32,16 +53,16 @@ tags:
 2. Вставь глаголы: Plants ___ (die) if they ___ (not / get) water.
 3. Вставь глагол: When I drink coffee late, I ___ (not / sleep) well.
 4. Поставь запятую, если нужно: *If it rains the streets get wet.*
-5. Выбери: If you press this button, the machine (stops / will stop). (так работает всегда)
-6. Исправь ошибку: *If water will reach 100°C, it boils.* (о закономерности при нормальном атмосферном давлении)
+5. Выбери (так работает всегда): If you press this button, the machine (stops / will stop).
+6. Исправь ошибку: *If water will reach 100°C, it boils.*
 
 > [!success]- Ответы и пояснения
-> 1. **mix, get** — общее правило — Present Simple в обеих частях.
-> 2. **die, don't get** — закономерность; условие во второй части.
-> 3. **don't sleep** — повторяющаяся связь.
-> 4. **If it rains, the streets get wet.** — условие стоит первым → запятая.
-> 5. **stops** — общее устройство механизма.
-> 6. **If water reaches 100°C, it boils.** — в условии Present Simple.
+> 1. **mix, get** — общее правило → Present Simple в обеих частях.
+> 2. **die, don't get** — закон природы; часть с `if` здесь вторая.
+> 3. **don't sleep** — повторяющаяся связь, привычка.
+> 4. **If it rains, the streets get wet.** — часть с `if` первая → запятая.
+> 5. **stops** — машина всегда так работает.
+> 6. **If water reaches 100°C, it boils.** — закон природы → Present Simple, без `will`.
 
 > [!info]- Источники
 > - [British Council — Conditionals: zero, first and second](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-zero-first-second)

@@ -2,7 +2,7 @@
 level: C1
 order: 144
 prerequisites: 117, 118
-keywords: связки вводные слова discourse markers
+keywords: связки вводные слова discourse markers, that said, after all, as for, admittedly
 tags:
   - english/grammar
   - english/C1
@@ -11,48 +11,66 @@ tags:
 # Дискурсивные маркеры — that said, mind you, admittedly
 
 > [!abstract] Коротко
-> Дискурсивный маркер показывает **отношение между мыслями**: уступку, оговорку, уточнение или вывод.
+> Дискурсивные маркеры — это «вводные слова», которые связывают мысли: **admittedly** — надо признать, **that said** — при этом, **after all** — ведь, **as for** — что касается. Они делают речь естественной и «взрослой».
 
-| Задача | Подходящие слова |
-| --- | --- |
-| признать аргумент | admittedly, granted |
-| добавить оговорку | that said, even so; разговорное mind you |
-| перейти к теме | as for, with regard to; by the way |
-| уточнить | in other words, that is; разговорное I mean |
-| добавить довод | moreover, furthermore; разговорное besides |
-| подвести итог | all in all, overall, to sum up |
+## Суть
+
+Вводные слова — как дорожные указатели в разговоре. Они говорят слушателю: «сейчас будет оговорка», «сейчас подведу итог», «сейчас уступлю».
+
+| Что делаю | Маркеры | Перевод |
+| --- | --- | --- |
+| **признаю** довод собеседника | **admittedly, granted** | надо признать |
+| **делаю оговорку** | **that said, even so**; разг. **mind you** | при этом, и всё же |
+| **объясняю** | **after all** | ведь, в конце концов |
+| **перехожу** к теме | **as for, with regard to**; **by the way** | что касается; кстати |
+| **уточняю** | **in other words**; разг. **I mean** | другими словами; то есть |
+| **возражаю** | **on the contrary** | напротив |
+| **подвожу итог** | **all in all, overall, to sum up** | в целом |
+
+## Две ловушки
+
+### After all — это не «наконец»
+
+- **After all** = «**ведь**» (объяснение): **Don't be hard on him. ==After all==, he's only a child.** — Не будь с ним строг, он ведь всего лишь ребёнок.
+- «**Наконец**» = **eventually / in the end / finally**: **We waited for hours, and ==eventually== the bus came.**
+
+### On the contrary — это не «с другой стороны»
+
+- **On the contrary** = «**напротив**» (опровергаю): **— You must be tired. — ==On the contrary==, I feel great.**
+- **On the other hand** = «**с другой стороны**» (сравниваю две стороны).
 
 ## Примеры
 
 - **Admittedly, it is expensive, but it is very useful.** — Надо признать, это дорого, но очень полезно.
-- **It's a long walk. Mind you, the weather is lovely.** — Идти далеко. Хотя, надо сказать, погода чудесная. `Mind you` — разговорная оговорка.
-- **The flat is small. That said, it's in a great location.** — Маленькая, зато расположена отлично.
-- **Don't be hard on him. After all, he's only a child.** — Не будь строг: ведь он ребёнок.
-- **It was late; however, we continued.** — Было поздно, однако мы продолжили: нужна точка или точка с запятой перед `however`.
+- **The flat is small. That said, it's in a great location.** — Квартира маленькая. При этом расположение отличное.
+- **It's a long walk. Mind you, the weather is lovely.** — Идти далеко. Хотя погода чудесная.
+- **As for the kids, they can stay with Grandma.** — Что касается детей, они могут побыть у бабушки.
 
-> [!warning] Разные связи
-> **On the contrary** опровергает; **on the other hand** сопоставляет стороны. **After all** — «ведь», а **finally/in the end** — итог или «наконец». Не начинай маркером каждую фразу.
+> [!tip] Не в каждой фразе
+> Маркеры — как специи: немного делает речь вкуснее, а много — портит. Не начинай ими каждое предложение.
 
-**Actually / in fact / as a matter of fact** — на самом деле; **as for** — что касается.
+> [!warning] Частые ошибки
+> - ~~and after all the bus came~~ (наконец) → **and eventually the bus came**
+> - ~~On the contrary~~ (в смысле «с другой стороны») → **On the other hand**
 
 ## Проверь себя
 
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
-1. Вставь: The film was too long. ___, the acting was superb. (при этом)
-2. Вставь: Don't worry about the mistake. ___, everyone makes them. (в конце концов, ведь)
-3. Вставь: ___ the kids, they can stay with Grandma. (что касается)
-4. Вставь: — You must be tired. — ___, I feel great. (напротив)
-5. Вставь: ___, there are some advantages, but the disadvantages outweigh them. (надо признать)
-6. Исправь ошибку: *We waited for hours and after all the bus came.* (нужен смысл «наконец», а не «всё-таки»)
+1. Вставь (при этом): The film was too long. ___, the acting was superb.
+2. Вставь (ведь): Don't worry about the mistake. ___, everyone makes them.
+3. Вставь (что касается): ___ the kids, they can stay with Grandma.
+4. Вставь (напротив): — You must be tired. — ___, I feel great.
+5. Вставь (надо признать): ___, there are some advantages, but the disadvantages outweigh them.
+6. Исправь ошибку (нужен смысл «наконец»): *We waited for hours and after all the bus came.*
 
 > [!success]- Ответы и пояснения
-> 1. **That said / Having said that / Even so** — оговорка к предыдущему.
-> 2. **After all** — объяснение «ведь».
+> 1. **That said / Having said that / Even so** — оговорка.
+> 2. **After all** — «ведь», объяснение.
 > 3. **As for** — переход к теме.
-> 4. **On the contrary** — возражение на утверждение.
-> 5. **Admittedly / Granted** — уступка.
-> 6. **We waited for hours, and eventually the bus came. / We waited for hours, and in the end the bus came.** — здесь нужно передать «наконец»; `after all` придало бы фразе другой смысл: «всё-таки, вопреки ожиданиям».
+> 4. **On the contrary** — опровержение.
+> 5. **Admittedly / Granted** — признаю довод.
+> 6. **We waited for hours, and eventually the bus came. / …and in the end the bus came.** — «наконец» = `eventually / in the end`, а `after all` значит «ведь» или «всё-таки».
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Discourse markers (so, right, okay)](https://dictionary.cambridge.org/grammar/british-grammar/discourse-markers-so-right-okay)

@@ -2,7 +2,7 @@
 level: A2
 order: 92
 prerequisites: 91
-keywords: самый лучший superlative
+keywords: самый лучший superlative, the best, the most
 tags:
   - english/grammar
   - english/A2
@@ -11,24 +11,51 @@ tags:
 # Превосходная степень — the best
 
 > [!abstract] Коротко
-> Превосходная степень выделяет того, у кого признак выражен **сильнее или слабее всего в группе**: **the tallest** — «самый высокий», **the least expensive** — «наименее дорогой».
+> «**Самый**» по-английски: короткое слово + **-est** (**the tallest**), длинное — **the most** + слово (**the most useful**). И почти всегда впереди **the**.
 
-| Обычная форма | Превосходная |
-| --- | --- |
-| small / nice / big | the smallest / nicest / biggest |
-| happy | the happiest |
-| useful | the most useful |
-| expensive — наименьшая степень | the least expensive |
-| good / bad / far | the best / worst / farthest или furthest |
+## Суть
 
-У односложных прилагательных обычно добавляется **-est**: **small → smallest**, **big → biggest**. У многих двусложных на согласную + `y` меняем `y` на **-iest**: **happy → happiest**. С большинством остальных прилагательных используется **most** или **least**: **most useful**, **least expensive**.
+Это продолжение сравнений. Строится так же, только вместо **-er** — **-est**, вместо **more** — **most**:
+
+| Слово | Сравнение | Самый |
+| --- | --- | --- |
+| short: small | small**er** | **the** small**est** |
+| big | bi**gg**er | **the** bi**gg**est |
+| happy | happ**ier** | **the** happ**iest** |
+| useful | **more** useful | **the most** useful |
+| good | better | **the best** |
+| bad | worse | **the worst** |
+
+> [!example] Формула
+> **the** + **-est / most…** + (**in** группе / **of** всех)
+>
+> She's **the tallest in** the class.
+
+Почему **the**? «Самый» бывает только один — поэтому «тот самый», **the**.
+
+## In или of?
+
+- **in** + место или коллектив: **the tallest ==in== the class**, **the best ==in== the world**.
+- **of** + количество: **the best ==of== the three**, **the youngest ==of== all**.
+
+## Наименее
+
+«Наименее» — **the least**: **the least expensive** — самый недорогой.
 
 ## Примеры
 
 - **She's the tallest in the class.** — Она самая высокая в классе.
-- **This is the best of the three.** — Лучший из трёх.
-- **He's my best friend.** — Мой лучший друг: `my` заменяет `the`.
-- **One of the best films.** — Один из лучших фильмов: после `one of` — множественное число.
+- **It's the best day of my life.** — Это лучший день в моей жизни.
+- **He's my best friend.** — Он мой лучший друг. *`my` заменяет `the`.*
+- **It's one of the best films.** — Это один из лучших фильмов.
+
+> [!tip] One of the…
+> После **one of the** — всегда **множественное число**: one of the best **films**, one of the tallest **buildings**.
+
+> [!warning] Частые ошибки
+> - ~~most expensive hotel~~ → **the most expensive hotel** — не забудь `the`.
+> - ~~one of the best player~~ → **one of the best players**
+> - ~~the most tallest~~ → **the tallest**
 
 ## Проверь себя
 
@@ -42,12 +69,12 @@ tags:
 6. Исправь ошибку: *This is most expensive hotel in the city.*
 
 > [!success]- Ответы и пояснения
-> 1. **biggest** — удвоение `g` и `-est`.
+> 1. **biggest** — удваиваем `g` и добавляем `-est`.
 > 2. **most interesting** — длинное слово → `the most`.
-> 3. **best** — неправильная форма от `good`.
-> 4. **in** — группа как место/коллектив → `in`.
+> 3. **best** — исключение: `good → better → the best`.
+> 4. **in** — семья — это коллектив → `in`.
 > 5. **He is one of the best players in the team.** — после `one of the` — множественное число.
-> 6. **This is the most expensive hotel in the city.** — в этом сочетании перед превосходной степенью и существительным нужен `the`: `the most expensive hotel`.
+> 6. **This is the most expensive hotel in the city.** — нужен `the`.
 
 > [!info]- Источники
 > - [British Council — Comparative and superlative adjectives](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/comparative-superlative-adjectives)

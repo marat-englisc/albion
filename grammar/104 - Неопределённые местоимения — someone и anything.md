@@ -2,7 +2,7 @@
 level: A2
 order: 104
 prerequisites: 103, 15
-keywords: кто-то никто всё everyone someone
+keywords: кто-то никто всё everyone someone, something anything nothing
 tags:
   - english/grammar
   - english/A2
@@ -11,44 +11,67 @@ tags:
 # Неопределённые местоимения — someone и anything
 
 > [!abstract] Коротко
-> **-one/-body — люди; -thing — вещи; -where — места.** Первая часть показывает, говорим ли мы о ком-то неопределённом, обо всех или об отсутствии.
+> Эти слова собираются как конструктор: начало (**some / any / no / every**) + конец (**-one** — люди, **-thing** — вещи, **-where** — места). **some + one = someone** — кто-то.
 
-| Значение | Примеры |
-| --- | --- |
-| кто-то / что-то / где-то | someone / something / somewhere |
-| кто-либо / что-либо / где-либо | anyone / anything / anywhere |
-| никто / ничто / нигде | no one / nothing / nowhere |
-| все / всё / везде | everyone / everything / everywhere |
+## Суть
 
-`Somebody/anybody/nobody/everybody` — варианты слов о людях. Местоимения на **-one/-body/-thing** в роли подлежащего требуют **глагола в единственном числе**: **Someone is here. Everything is ready.** Слова на **-where** обозначают место и обычно выполняют роль обстоятельства: **I can't find it anywhere**. `No one` пишется раздельно, `nobody` — слитно.
+Выучи 4 начала и 3 окончания — и получишь 12 слов:
+
+| | **-one / -body** (кто) | **-thing** (что) | **-where** (где) |
+| --- | --- | --- | --- |
+| **some-** | someone — кто-то | something — что-то | somewhere — где-то |
+| **any-** | anyone — кто-нибудь | anything — что-нибудь | anywhere — где-нибудь |
+| **no-** | no one — никто | nothing — ничто | nowhere — нигде |
+| **every-** | everyone — все | everything — всё | everywhere — везде |
+
+**some-** и **any-** работают как в прошлом уроке: **some-** в утверждениях, **any-** в вопросах и с «не».
+
+**-one** и **-body** значат одно и то же: **someone = somebody**.
+
+## Глагол — как с одним
+
+**Everyone** звучит как «все», но глагол — как с **одним** человеком:
+
+- **Everyone ==is== here.** — Все здесь. (не ~~are~~)
+- **Everything ==is== ready.** — Всё готово.
+
+## Что-то интересное
+
+Прилагательное ставим **после** такого слова: **something ==interesting==** — что-то интересное (не ~~interesting something~~).
 
 ## Примеры
 
-- **Everybody is here.** — Все здесь.
-- **I need something interesting.** — Нужно что-то интересное: признак после местоимения.
-- **Someone left their bag.** — Кто-то оставил сумку: далее допустимо `their` об одном человеке.
+- **Is there anyone in the room?** — В комнате кто-нибудь есть?
+- **I can't find my keys anywhere.** — Я нигде не могу найти ключи.
+- **Nobody knows the answer.** — Никто не знает ответа.
+- **Someone left their bag.** — Кто-то оставил сумку.
 
-> [!warning] Nothing уже отрицает
-> **I know nothing / I don't know anything**.
+> [!tip] Одно «не»
+> **Nobody, nothing, nowhere** — уже с «не» внутри. По-русски «**Никто не** пришёл», а по-английски **Nobody came.** — без второго «не».
+
+> [!warning] Частые ошибки
+> - ~~Nobody didn't come.~~ → **Nobody came.**
+> - ~~interesting something~~ → **something interesting**
+> - ~~Everyone are ready.~~ → **Everyone is ready.**
 
 ## Проверь себя
 
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
-1. Вставь: Is there ___ in the room? (кто-нибудь)
-2. Вставь: I've lost my keys. I can't find them ___. (нигде)
-3. Вставь: ___ knows the answer. (никто)
+1. Вставь (кто-нибудь): Is there ___ in the room?
+2. Вставь (нигде): I've lost my keys. I can't find them ___.
+3. Вставь (никто): ___ knows the answer.
 4. Вставь is или are: Everyone ___ ready.
 5. Исправь ошибку: *I want to eat interesting something.*
-6. Исправь фразу так, чтобы получилось «Никто не пришёл»: *Nobody didn't come.*
+6. Исправь так, чтобы получилось «Никто не пришёл»: *Nobody didn't come.*
 
 > [!success]- Ответы и пояснения
-> 1. **anyone/anybody** — вопрос → `any-`.
-> 2. **anywhere** — отрицание с `can't` → `anywhere`.
-> 3. **Nobody / No one** — отрицательное слово само даёт «не».
-> 4. **is** — `everyone` — единственное число.
+> 1. **anyone / anybody** — вопрос → `any-`.
+> 2. **anywhere** — уже есть «не» (`can't`) → `anywhere`.
+> 3. **Nobody / No one** — «не» уже внутри слова.
+> 4. **is** — `everyone` — глагол как с одним.
 > 5. **I want to eat something interesting.** — прилагательное после `something`.
-> 6. **Nobody came.** — `nobody` уже отрицательное.
+> 6. **Nobody came.** — второе «не» не нужно.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Pronouns](https://dictionary.cambridge.org/grammar/british-grammar/pronouns-)

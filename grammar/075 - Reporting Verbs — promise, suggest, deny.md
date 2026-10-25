@@ -2,7 +2,7 @@
 level: B2
 order: 75
 prerequisites: 72, 76, 77
-keywords:
+keywords: reporting verbs, promise suggest deny admit refuse, глаголы передачи речи
 tags:
   - english/grammar
   - english/B2
@@ -11,24 +11,44 @@ tags:
 # Reporting Verbs — promise, suggest, deny
 
 > [!abstract] Коротко
-> Глагол передачи речи показывает **обещание, отказ, совет или признание**. Учи его вместе с моделью.
+> Вместо скучного **said** можно точно назвать, **что** человек сделал словами: пообещал (**promised**), отказался (**refused**), признался (**admitted**), предложил (**suggested**). У каждого глагола своя формула — учи их вместе.
 
-| Модель | Частые глаголы |
-| --- | --- |
-| + to do | agree, offer, promise, refuse, threaten |
-| + кого + to do | advise, invite, remind, encourage, warn |
-| + doing | admit, deny, suggest, recommend |
-| + предлог + doing | apologise for, insist on |
-| + that + предложение | explain, admit, suggest, claim |
+## Суть
+
+Сравни: **He said he would help** и **He ==promised== to help**. Второе короче и точнее — сразу ясно, что это обещание.
+
+Таких глаголов много, но формул всего несколько:
+
+| Формула | Глаголы | Пример |
+| --- | --- | --- |
+| + **to** + глагол | **agree, offer, promise, refuse** | He **promised to help**. |
+| + **кого** + **to** + глагол | **advise, invite, remind, warn** | She **reminded me to buy** milk. |
+| + **-ing** | **admit, deny, suggest, recommend** | She **denied taking** the money. |
+| + предлог + **-ing** | **apologise for, insist on** | He **apologised for being** late. |
+
+## Suggest — главная ловушка
+
+По-русски «Он **предложил мне** пойти». Но в английском **suggest** не берёт «кого + to»:
+
+> [!example] Формула
+> **suggest** + **-ing**: He suggested **going** to the beach.
+>
+> **suggest** + **that** + кто + глагол: He suggested **that we go** to the beach.
 
 ## Примеры
 
-- **He promised to help.** — Он обещал помочь.
-- **She denied taking the money.** — Она отрицала, что взяла деньги.
-- **I suggest going / that we go / that we should go.** — Предлагаю пойти.
+- **"I'll help you." → He offered to help me.** — Он предложил помочь.
+- **"I didn't take it." → She denied taking it.** — Она отрицала, что взяла.
+- **"Let's go to the beach." → Tom suggested going to the beach.** — Том предложил пойти на пляж.
+- **"Sorry I'm late." → He apologised for being late.** — Он извинился за опоздание.
 
-> [!warning] Не переноси модель другого глагола
-> **Suggest going**, без *suggest me to go*. **Explain it to me**, без *explain me it*.
+> [!tip] Offer или suggest?
+> **offer** — предложить **сделать что-то самому** («Давай я помогу»). **suggest** — предложить **идею** («Давай пойдём»).
+
+> [!warning] Частые ошибки
+> - ~~She suggested me to see a doctor.~~ → **She suggested (that) I see a doctor.**
+> - ~~He denied to take it.~~ → **He denied taking it.**
+> - ~~explain me it~~ → **explain it to me**
 
 ## Проверь себя
 
@@ -42,12 +62,12 @@ tags:
 6. Исправь ошибку: *She suggested me to see a doctor.*
 
 > [!success]- Ответы и пояснения
-> 1. **He offered to help me.** — `offer + to + начальная форма`.
-> 2. **She denied taking the money.** — `deny + глагол с -ing`.
-> 3. **Tom suggested going to the beach.** — `suggest + глагол с -ing`.
-> 4. **Mum reminded me to buy milk.** — `remind + кого + to + начальная форма`.
-> 5. **He apologised for being late.** — `apologise for + глагол с -ing`.
-> 6. **She suggested (that) I (should) see a doctor.** — у `suggest` нет модели «кого + to + начальная форма». Если из контекста понятно, кому нужен врач, возможна и модель **She suggested seeing a doctor**.
+> 1. **He offered to help me.** — `offer` + `to` + глагол.
+> 2. **She denied taking the money.** — `deny` + `-ing`.
+> 3. **Tom suggested going to the beach.** — `suggest` + `-ing`.
+> 4. **Mum reminded me to buy milk.** — `remind` + кого + `to` + глагол.
+> 5. **He apologised for being late.** — `apologise for` + `-ing`.
+> 6. **She suggested (that) I (should) see a doctor.** — у `suggest` нет формулы «кого + to».
 
 > [!info]- Источники
 > - [British Council — Reported speech: reporting verbs](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/reported-speech-reporting-verbs)

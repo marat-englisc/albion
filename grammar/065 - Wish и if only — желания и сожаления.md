@@ -2,7 +2,7 @@
 level: B2
 order: 65
 prerequisites: 38, 61
-keywords: жаль если бы regret wish
+keywords: жаль если бы regret wish, if only, хотел бы чтобы
 tags:
   - english/grammar
   - english/B2
@@ -11,25 +11,46 @@ tags:
 # Wish и if only — желания и сожаления
 
 > [!abstract] Коротко
-> **Wish / if only** — хочется, чтобы реальность была другой. `If only` эмоциональнее.
+> **I wish** — это русское «**жаль, что не…**» или «**хотел бы, чтобы…**». **I wish I had more time.** — Жаль, что у меня мало времени (хотел бы больше). **If only** — то же самое, но эмоциональнее: «Ах, если бы!»
 
-| О чём жалеем или мечтаем | Форма |
-| --- | --- |
-| изменить ситуацию сейчас | wish + подлежащее + глагол в Past Simple |
-| иметь возможность | wish + подлежащее + could + начальная форма |
-| изменить прошлое | wish + подлежащее + had + третья форма |
-| изменить поведение или ситуацию | wish + подлежащее + would/wouldn't + начальная форма |
+## Суть
 
-Перед `wish` тоже нужно подлежащее: **I wish…**, **She wishes…**. После **if only** используют те же формы: **If only I had more time!** — «Если бы у меня было больше времени!» С `be` о нереальном настоящем возможны **was** и **were**: **I wish I was/were taller**.
+После **wish** мы говорим о том, чего **нет** в реальности. Поэтому, как и в «если бы», время «сдвигается назад» на один шаг:
+
+| Жалею о… | Форма | Пример |
+| --- | --- | --- |
+| **настоящем** | wish + **Past Simple** | I wish I **lived** by the sea. — Жаль, что я не живу у моря. |
+| **прошлом** | wish + **had + V3** | I wish I **hadn't eaten** so much. — Зря я столько съел. |
+| **умении** | wish + **could** | I wish I **could** drive. — Жаль, что я не умею водить. |
+| **чужом поведении** | wish + **would** | I wish you **would stop** talking! — Да перестань ты болтать! |
+
+> [!example] Как перевести
+> Переделай «Жаль, что я **не** живу у моря» в «Я хотел бы, чтобы я **жил** у моря» — и получишь **I wish I lived by the sea**. «Не» исчезает!
+
+## If only
+
+**If only** — тот же **wish**, только со вздохом:
+
+- **If only I had more time!** — Ах, если бы у меня было больше времени!
+- **If only I'd listened!** — Если бы я тогда послушал!
+
+## Wish или hope?
+
+- **I hope you pass.** — Надеюсь, ты сдашь. *Реально возможно.*
+- **I wish you were here.** — Жаль, что тебя здесь нет. *Нереально сейчас.*
 
 ## Примеры
 
-- **I wish I had more time.** — Жаль, что сейчас мало времени.
-- **If only I'd listened!** — Если бы я тогда послушал!
-- **I wish you wouldn't interrupt.** — Хотелось бы, чтобы ты не перебивал.
+- **I wish I had more time.** — Жаль, что у меня мало времени.
+- **I wish I had known about the party.** — Жаль, что я не знал о вечеринке.
+- **I wish the neighbours would stop making noise!** — Хоть бы соседи перестали шуметь!
 
-> [!warning] Желание или надежда?
-> Реальная надежда на будущее — **I hope you can come**. Для собственного контролируемого действия обычно не подходит *I wish I would…*.
+> [!tip] С be — were или was
+> **I wish I ==were== taller** и **I wish I ==was== taller** — оба верны. **Were** звучит чуть аккуратнее.
+
+> [!warning] Частые ошибки
+> - ~~I wish I knew about the party yesterday.~~ → **I wish I had known…** — о прошлом нужно `had` + V3.
+> - ~~I wish you pass your exam.~~ → **I hope you pass your exam.** — реальная надежда.
 
 ## Проверь себя
 
@@ -43,12 +64,12 @@ tags:
 6. Исправь ошибку: *I wish I knew about the party yesterday.*
 
 > [!success]- Ответы и пояснения
-> 1. **lived** — желание изменить настоящее → Past Simple.
-> 2. **hadn't eaten** — сожаление о прошлом → `had + третья форма`.
-> 3. **could** — желаемая способность сейчас.
-> 4. **would stop** — раздражение чужим поведением.
-> 5. **hope** — реальная надежда на будущее.
-> 6. **I wish I had known about the party yesterday.** — сожаление о прошлом → `had known`.
+> 1. **lived** — жалею о настоящем → Past Simple.
+> 2. **hadn't eaten** — жалею о прошлом → `had` + V3.
+> 3. **could** — хочу уметь сейчас.
+> 4. **would stop** — раздражает чужое поведение.
+> 5. **hope** — сдать экзамен реально, это надежда.
+> 6. **I wish I had known about the party yesterday.** — «вчера» → прошлое → `had known`.
 
 > [!info]- Источники
 > - [British Council — Wishes: 'wish' and 'if only'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/wishes-wish-if-only)

@@ -2,7 +2,7 @@
 level: B2
 order: 66
 prerequisites: 28
-keywords:
+keywords: пора, it's time, high time, давно пора
 tags:
   - english/grammar
   - english/B2
@@ -11,22 +11,44 @@ tags:
 # It's time — пора сделать
 
 > [!abstract] Коротко
-> **It's time** — пора. Прошедшая форма после него может относиться **к настоящему**.
+> «Пора» — **It's time**. Дальше два варианта: **It's time ==to go==.** — Пора идти. Или с человеком: **It's time ==we went==.** — Нам пора идти (и здесь глагол в прошедшей форме, хотя речь о «сейчас»!).
 
-| Модель | Пример |
-| --- | --- |
-| It's time to + глагол | It's time to leave. |
-| It's time + for + существительное или me/you/us и т. п. + to + начальная форма | It's time for us to leave. |
-| It's time + подлежащее + глагол в Past Simple | It's time we left. |
+## Суть
+
+У этой фразы два способа продолжения:
+
+| Вариант | Формула | Пример |
+| --- | --- | --- |
+| **без человека** | It's time **to** + глагол | It's time **to go**. — Пора идти. |
+| **с человеком** (через for) | It's time **for** + кто + **to** + глагол | It's time **for us to go**. — Нам пора идти. |
+| **с человеком** (через прошедшую форму) | It's time + кто + **Past Simple** | It's time **we went**. — Нам пора идти. |
+
+## Почему прошедшая форма?
+
+Третий вариант звучит как лёгкий **упрёк**: «уже пора бы, а мы всё ещё не…». Действие **ещё не случилось**, хотя должно было. Поэтому английский берёт прошедшую форму — как в «если бы» (это нереальность, а не прошлое):
+
+- **It's time you ==went== to bed.** — Тебе пора спать. *А ты всё ещё не спишь!*
+
+## Давно пора
+
+Чтобы усилить, добавь **high** или **about**:
+
+- **It's high time we did something.** — Давно пора что-то сделать.
+- **It's about time he apologised.** — Ему уже давно пора извиниться.
 
 ## Примеры
 
-- **It's time you went to bed.** — Тебе пора спать: речь о настоящем.
-- **It's high time we did something.** — Давно пора что-то сделать.
-- **It's about time he apologised.** — Ему уже пора извиниться.
+- **It's time to go to bed.** — Пора спать.
+- **It's time for us to start.** — Нам пора начинать.
+- **It's high time they fixed the lift.** — Давно пора починить лифт.
+- **It's high time you found a job.** — Тебе давно пора найти работу.
 
-> [!warning] Это особая конструкция
-> **It's time we left**, а не *it's time we leave* для этого значения. Не переноси правило на любые придаточные.
+> [!tip] Как запомнить
+> Есть **человек** после **time** — глагол в **прошедшей форме**. Человека нет — **to** + глагол.
+
+> [!warning] Частые ошибки
+> - ~~It's time we go home.~~ → **It's time we went home.**
+> - ~~It's time going.~~ → **It's time to go.**
 
 ## Проверь себя
 
@@ -40,15 +62,15 @@ tags:
 6. Переведи: «Тебе давно пора найти работу».
 
 > [!success]- Ответы и пояснения
-> 1. **to go** — исполнитель не назван → `to + начальная форма`.
-> 2. **went** — назван исполнитель → Past Simple.
-> 3. **fixed** — «давно пора» + Past Simple.
-> 4. **It's time for us to start.** — с `for` сохраняется `to + начальная форма`.
-> 5. **It's time we went home.** — после `It's time` с отдельным подлежащим `we` используем Past Simple.
-> 6. **It's high time you found a job.** — `high time` + Past Simple.
+> 1. **to go** — человек не назван → `to` + глагол.
+> 2. **went** — назван человек (`you`) → прошедшая форма.
+> 3. **fixed** — «давно пора» + прошедшая форма.
+> 4. **It's time for us to start.** — с `for` нужен `to` + глагол.
+> 5. **It's time we went home.** — после `It's time we` — прошедшая форма.
+> 6. **It's high time you found a job.** — `high time` + прошедшая форма.
 
 > [!info]- Источники
-> - [Cambridge Dictionary — It’s time](https://dictionary.cambridge.org/grammar/british-grammar/it-s-time)
+> - [Cambridge Dictionary — It's time](https://dictionary.cambridge.org/grammar/british-grammar/it-s-time)
 
 ---
 [[065 - Wish и if only — желания и сожаления|← Предыдущая тема]] · [[000 - Оглавление|Оглавление]] · [[067 - Passive Voice — основа пассивного залога|Следующая тема →]]

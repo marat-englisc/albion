@@ -2,7 +2,7 @@
 level: B2
 order: 69
 prerequisites: 68
-keywords:
+keywords: говорят считается, it is said, is believed to, reported
 tags:
   - english/grammar
   - english/B2
@@ -11,24 +11,45 @@ tags:
 # Пассивные сообщения — it is said и is believed to
 
 > [!abstract] Коротко
-> **It is said / He is said to…** передаёт сообщение или мнение без точного указания источника.
+> «**Говорят**, что…», «**Считается**, что…» по-английски: **It is said that he lives abroad.** Или короче: **He is said to live abroad.** Так часто пишут в новостях, когда источник не называют.
 
-| Модель | Пример |
+## Суть
+
+Русское «говорят / считается / сообщают» можно сказать двумя способами:
+
+| Способ | Пример |
 | --- | --- |
-| It is said that + предложение | It is said that he lives abroad. |
-| подлежащее + am/is/are said + to + начальная форма | He is said to live abroad. |
-| более раннее действие: to + have + третья форма | He is said to have left. |
+| **It is said that** + обычное предложение | **It is said that** he is rich. |
+| **Кто** + **is said to** + глагол | **He is said to be** rich. |
 
-Если более раннее действие направлено на подлежащее, нужна пассивная форма **to have been + третья форма глагола**: **The castle is believed to have been built in the 12th century** — «Считается, что этот замок построили в XII веке».
+Оба значат «Говорят, что он богат». Второй — короче и чаще в новостях.
+
+Вместо **said** можно поставить: **believed** (считается), **thought** (думают), **reported** (сообщается), **known** (известно).
+
+## Если действие было раньше
+
+Что, если говорят **сейчас**, а случилось **раньше**? Тогда после **to** нужно **have + V3**:
+
+> [!example] Формула
+> Одновременно: He is said **to be** rich. — Говорят, он богат.
+>
+> Раньше: He is said **to have left**. — Говорят, он уехал.
+
+А если с подлежащим что-то **сделали** раньше: **to have been + V3**: **The castle is believed ==to have been built== in the 12th century.** — Считается, что замок построили в XII веке.
 
 ## Примеры
 
-- **She is believed to be rich.** — Считается, что она богата сейчас.
-- **She is believed to have left yesterday.** — Считается, что она уехала вчера: отъезд раньше нынешнего мнения.
-- **It was reported that the road was closed.** — Сообщалось, что дорога закрыта.
+- **She is believed to be very rich.** — Считается, что она очень богата.
+- **The thief is believed to have escaped through the window.** — Считается, что вор сбежал через окно.
+- **It is reported that the president is ill.** — Сообщается, что президент болен.
+- **The painting is thought to have been stolen in 1990.** — Считается, что картину украли в 1990 году.
 
-> [!warning] Два времени
-> **Is/was** показывает время сообщения; **to have done** — действие раньше него. Не каждый глагол передачи сообщения допускает обе модели: проверяй сочетание в словаре.
+> [!tip] Не смешивай два способа
+> Либо **It is said that she…**, либо **She is said to…**. Нельзя: ~~She is said that she…~~
+
+> [!warning] Частые ошибки
+> - ~~She is said that she lives in Paris.~~ → **She is said to live in Paris.**
+> - ~~He is said to leave yesterday.~~ → **He is said to have left yesterday.** — действие было раньше.
 
 ## Проверь себя
 
@@ -42,12 +63,12 @@ tags:
 6. Переведи: «Считается, что этот замок построили в XII веке».
 
 > [!success]- Ответы и пояснения
-> 1. **He is said to be very rich.** — одновременность → `to be`.
-> 2. **The thief is believed to have escaped through the window.** — побег был раньше → `to have escaped`.
-> 3. **It is reported that the president is ill.** — модель с `it` + `that`.
-> 4. **to have been** — кража произошла раньше нынешнего мнения.
-> 5. **She is said to live in Paris. / It is said that she lives in Paris.** — не смешивай две модели.
-> 6. **The castle is believed to have been built in the 12th century. / It is believed that the castle was built in the 12th century.** — постройка раньше мнения → перфектный пассивный инфинитив.
+> 1. **He is said to be very rich.** — «говорят сейчас — богат сейчас» → `to be`.
+> 2. **The thief is believed to have escaped through the window.** — сбежал раньше → `to have escaped`.
+> 3. **It is reported that the president is ill.** — вариант с `it` + `that`.
+> 4. **to have been** — украли в 1990 году, раньше, чем думают сейчас.
+> 5. **She is said to live in Paris. / It is said that she lives in Paris.** — не смешивай два способа.
+> 6. **The castle is believed to have been built in the 12th century. / It is believed that the castle was built in the 12th century.**
 
 > [!info]- Источники
 > - [British Council — Active and passive voice](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/active-passive-voice)

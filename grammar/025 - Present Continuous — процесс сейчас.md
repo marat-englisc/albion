@@ -2,7 +2,7 @@
 level: A1
 order: 25
 prerequisites: 3, 16
-keywords: настоящее длительное present continuous progressive
+keywords: настоящее длительное present continuous progressive, сейчас
 tags:
   - english/grammar
   - english/A1
@@ -11,20 +11,49 @@ tags:
 # Present Continuous — процесс сейчас
 
 > [!abstract] Коротко
-> Present Continuous показывает **процесс сейчас или временную ситуацию**: **I'm reading**.
+> Present Continuous — это «**прямо сейчас, в процессе**». **I'm reading.** — Я (сейчас) читаю. Строится из **am / is / are** + глагол с **-ing**.
 
-Схема: **подлежащее + am/is/are + глагол с окончанием -ing**. Например: **I am working** — я работаю сейчас. Отрицание: **I'm not working**. Вопрос: **Are you working?**
+## Суть
+
+Помнишь, по-русски «Я пью кофе» может значить и «обычно», и «сейчас»? Для «сейчас» в английском есть отдельное время.
+
+Представь, что ты делаешь **фото**: на нём человек застыл посреди действия. Это и есть Continuous — действие **не закончено, оно идёт**.
+
+- **Shh! The baby ==is sleeping==.** — Тише! Ребёнок спит.
+
+## Как построить
+
+Нужны **обе** части — без любой из них время «ломается»:
+
+> [!example] Формула
+> **Кто** + **am / is / are** + **глагол-ing**
+>
+> **She** + **is** + **reading**.
+
+- **Отрицание:** I'm **not** working.
+- **Вопрос:** **Are** you working? (меняем местами, как с обычным be)
+
+## Не только «прямо сейчас»
+
+Present Continuous подходит и для **временных** ситуаций и **изменений**:
+
+- **I'm staying with friends this week.** — На этой неделе я живу у друзей. *Временно.*
+- **The weather is getting warmer.** — Становится теплее. *Меняется.*
 
 ## Примеры
 
-- **Shh! The baby is sleeping.** — Тише! Ребёнок спит сейчас.
-- **I'm staying with friends this week.** — На этой неделе я живу у друзей: временно.
-- **The weather is getting warmer.** — Становится теплее: изменение.
+- **Listen! Somebody is singing.** — Слушай! Кто-то поёт.
+- **Look! It's snowing.** — Смотри! Идёт снег.
+- **What are you doing?** — Что ты делаешь?
+- **I'm not working this week.** — На этой неделе я не работаю.
 
-Выбирай время по ситуации, а не только по слову `now`. Глаголы состояния, например **know, want, believe**, обычно не ставят в Continuous.
+> [!tip] Слова-сигналы
+> **now, right now, at the moment, Look!, Listen!** — подсказка, что нужен Continuous. Но главное — смысл: действие идёт сейчас.
 
-> [!warning] Нужны обе части
-> **She is working**, а не *She working* или *She is work*.
+> [!warning] Частые ошибки
+> - ~~She reading.~~ → **She is reading.** — без `is` не работает.
+> - ~~She is read.~~ → **She is reading.** — без `-ing` тоже.
+> - ~~What do you doing?~~ → **What are you doing?** — помощник здесь `are`, а не `do`.
 
 ## Проверь себя
 
@@ -38,12 +67,12 @@ tags:
 6. Выбери: Look! It (snows / is snowing).
 
 > [!success]- Ответы и пояснения
-> 1. **is singing** — действие идёт прямо сейчас.
-> 2. **am not working** (полностью: **I'm not working**) — временная ситуация этой недели.
-> 3. **Are they watching a film?** — `are` переставляем вперёд.
-> 4. **She is reading a book now.** — без `is` формы Continuous нет.
-> 5. **What are you doing?** — в Continuous помощник — `be`, а не `do`.
-> 6. **is snowing** — видим процесс сейчас.
+> 1. **is singing** — поют прямо сейчас.
+> 2. **am not working** (коротко: **I'm not working**) — временная ситуация на этой неделе.
+> 3. **Are they watching a film?** — `are` выходит вперёд.
+> 4. **She is reading a book now.** — нужна часть `is`.
+> 5. **What are you doing?** — в этом времени помощник — `are`.
+> 6. **is snowing** — «Смотри!» — снег идёт прямо сейчас.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Be](https://dictionary.cambridge.org/it/grammatica/grammatica-britannico/be-expressions-with-be)

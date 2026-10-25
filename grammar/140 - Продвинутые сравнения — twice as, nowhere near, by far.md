@@ -2,7 +2,7 @@
 level: C1
 order: 140
 prerequisites: 93
-keywords:
+keywords: twice as, nowhere near, by far, the second largest, no better than
 tags:
   - english/grammar
   - english/C1
@@ -11,26 +11,46 @@ tags:
 # Продвинутые сравнения — twice as, nowhere near, by far
 
 > [!abstract] Коротко
-> Продвинутое сравнение уточняет **масштаб различия и отношение говорящего**.
+> Как сказать «**вдвое** больше», «**далеко не** такой», «**безусловно** лучший»: **twice as big as**, **nowhere near as good as**, **by far the best**.
 
-| Значение | Модель |
-| --- | --- |
-| вдвое больше | twice as big as / twice the size of |
-| вдвое дешевле | half as expensive as |
-| ничуть не менее | just as / every bit as good as |
-| далеко не такой | nowhere near as good as / not nearly as good as |
-| безусловно лучший | by far / easily the best |
-| второй по величине | the second largest |
-| более старший из двух | the older of the two |
-| не столько X, сколько Y | not so much X as Y |
+## Суть
+
+Основа — модель **as… as** из темы 93. Добавляя к ней слова, можно точно показать **масштаб** разницы:
+
+| Хочу сказать | Модель | Пример |
+| --- | --- | --- |
+| **вдвое** больше | **twice as** big **as** | The flat is **twice as big as** ours. |
+| **втрое** больше | **three times as** big **as** | It's **three times as expensive as**… |
+| **вдвое** дешевле | **half as** expensive **as** | It's **half as expensive as**… |
+| **ничуть не** хуже | **just as / every bit as** good **as** | It's **every bit as good as** the original. |
+| **далеко не** такой | **nowhere near as** hard **as** | It's **nowhere near as hard as** I expected. |
+| **безусловно** лучший | **by far** the best | She's **by far the best** player. |
+| **второй** по величине | **the second** largest | the **second largest** city |
+
+> [!example] Формула
+> **twice / three times / half** + **as** + слово + **as**
+>
+> This house is **twice as big as** ours.
+
+## Ещё несколько полезных моделей
+
+- **no + -er** — «ничуть не»: **He's ==no better== than me.** — Он ничуть не лучше меня.
+- **the -er of the two** — из двух: **Tom is ==the taller of the two==.** — Том выше из двух.
+- **better than ever** — лучше, чем когда-либо.
 
 ## Примеры
 
-- **The flat is twice as big as ours.** — Квартира вдвое больше нашей.
-- **It's nowhere near as hard as I expected.** — Это далеко не так трудно, как ожидал.
-- **He's no better than me.** — Он ничуть не лучше меня.
+- **This house is twice as big as ours.** — Этот дом вдвое больше нашего.
+- **The exam was nowhere near as difficult as I thought.** — Экзамен был далеко не таким трудным, как я думал.
+- **She is by far the best player in the team.** — Она безусловно лучший игрок в команде.
+- **His car is no cheaper than mine.** — Его машина ничуть не дешевле моей.
 
-Также **better than ever** — «лучше, чем когда-либо», **as soon as possible** — «как можно скорее», **more angry than upset** — «скорее сердит, чем расстроен». Не теряй второе **as** при явном сравнении.
+> [!tip] Twice, а не two times
+> «В два раза» — **twice**. С трёх и дальше — **three times, four times**.
+
+> [!warning] Частые ошибки
+> - ~~two times more expensive as~~ → **twice as expensive as**
+> - ~~twice as big than~~ → **twice as big as** — с `as` всегда второе `as`.
 
 ## Проверь себя
 
@@ -38,18 +58,18 @@ tags:
 
 1. Переведи: «Этот дом вдвое больше нашего».
 2. Переведи: «Экзамен был далеко не таким трудным, как я думал».
-3. Перефразируй: *She is the best player in the team, and nobody is close.* (by far)
+3. Перефразируй с by far: *She is the best player in the team, and nobody is close.*
 4. Вставь: Of the two brothers, Tom is ___ taller.
-5. Перефразируй: *His car is not cheaper than mine at all.* (no)
+5. Перефразируй с no: *His car is not cheaper than mine at all.*
 6. Исправь ошибку: *This phone is two times more expensive as that one.*
 
 > [!success]- Ответы и пояснения
 > 1. **This house is twice as big as ours.** — `twice as … as`.
 > 2. **The exam was nowhere near as difficult as I thought.** — или `not nearly as`.
-> 3. **She is by far the best player in the team.** — `by far the + superlative`.
-> 4. **the** — `the + comparative of the two`.
-> 5. **His car is no cheaper than mine.** — `no + comparative`.
-> 6. **This phone is twice as expensive as that one.** — `twice as … as`.
+> 3. **She is by far the best player in the team.** — `by far the best`.
+> 4. **the** — «из двух» → `the taller`.
+> 5. **His car is no cheaper than mine.** — `no` + `-er`.
+> 6. **This phone is twice as expensive as that one.** — «вдвое» = `twice as … as`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Comparison: comparisons of equality](https://dictionary.cambridge.org/grammar/british-grammar/comparison-comparisons-of-equality-as-tall-as-his-father)

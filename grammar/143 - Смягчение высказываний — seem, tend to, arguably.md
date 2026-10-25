@@ -2,7 +2,7 @@
 level: C1
 order: 143
 prerequisites: 55, 141
-keywords: осторожность смягчение hedging
+keywords: осторожность смягчение hedging, seem tend to, suggest may, it would appear
 tags:
   - english/grammar
   - english/C1
@@ -11,19 +11,50 @@ tags:
 # Смягчение высказываний — seem, tend to, arguably
 
 > [!abstract] Коротко
-> Смягчение ограничивает **уверенность, обобщение или категоричность**. Выбирай слова по реальному смыслу, а не для украшения.
+> Чтобы не звучать слишком категорично, англичане «смягчают» утверждения: не **People overestimate…**, а **People ==tend to== overestimate…** — Люди **склонны** переоценивать. Это особенно важно в эссе и деловой речи.
 
-## Примеры
+## Суть
 
-- **This approach seems to be more effective.** — Подход кажется эффективнее: осторожная оценка.
-- **People tend to overestimate their abilities.** — Люди склонны переоценивать способности: тенденция, не все и не всегда.
-- **The results suggest that stress may contribute to illness.** — Результаты позволяют предположить, что стресс может способствовать развитию болезни. Такая формулировка осторожно указывает на возможную связь.
-- **She seems to have left.** — Кажется, она ушла раньше: **to have + третья форма**.
+Сравни:
 
-Полезные выражения: **It would appear that…** — «По-видимому…», **There is some evidence that…** — «Есть некоторые данные о том, что…», **To some extent…** — «В некоторой степени…», **I'd say…** — «Я бы сказал(а)…». Отрицание часто **doesn't seem to understand**.
+- **Women live longer than men.** — Женщины живут дольше мужчин. *Звучит как закон — а вдруг кто-то возразит?*
+- **Women ==tend to== live longer than men.** — Женщины, как правило, живут дольше. *Осторожно и точно.*
 
-> [!warning] Не складывай синонимы
-> Обычно достаточно одного-двух смягчителей. **Apparently** — судя по сведениям; **arguably** — можно обоснованно утверждать; **obviously** — очевидно. Это не взаимозаменяемые слова.
+Смягчение — это не неуверенность, а **честность**: мы говорим ровно столько, сколько можем доказать.
+
+## Инструменты смягчения
+
+| Инструмент | Значит | Пример |
+| --- | --- | --- |
+| **seem / appear to** | кажется, похоже | He **seems to be** unhappy. |
+| **tend to** | склонны, как правило | People **tend to** overestimate themselves. |
+| **may / might** | может, возможно | Stress **may** contribute to illness. |
+| **suggest** (вместо prove) | позволяет предположить | The results **suggest** that… |
+| **It would appear that** | по-видимому | **It would appear that** the project has failed. |
+| **to some extent** | в некоторой степени | This is true **to some extent**. |
+| **arguably** | пожалуй, можно утверждать | It is **arguably** the best film of the year. |
+
+> [!example] Было → стало
+> **This proves that the theory is wrong.** — Это доказывает, что теория неверна.
+>
+> → **This suggests that the theory may be wrong.** — Это позволяет предположить, что теория может быть неверна.
+
+## О прошлом
+
+Если «кажется» относится к прошлому действию: **seem + to have + V3**:
+
+- **She seems ==to have forgotten==.** — Похоже, она забыла.
+
+## Отрицание
+
+Самый естественный вариант: **doesn't seem to**: **He ==doesn't seem to== understand.** — Кажется, он не понимает.
+
+> [!tip] Не перебарщивай
+> Одного-двух смягчителей достаточно. ~~It may possibly perhaps seem~~ — уже слишком.
+
+> [!warning] Частые ошибки
+> - ~~He seems not understand.~~ → **He doesn't seem to understand.**
+> - ~~She seems forgot.~~ → **She seems to have forgotten.**
 
 ## Проверь себя
 
@@ -31,18 +62,18 @@ tags:
 
 1. Смягчи с seem: *He is unhappy.*
 2. Смягчи с tend: *Women live longer than men.*
-3. Смягчи: *This proves that the theory is wrong.* (suggest, may)
+3. Смягчи с suggest и may: *This proves that the theory is wrong.*
 4. Смягчи с it would appear: *The project has failed.*
 5. Перефразируй: *It seems that she has forgotten.* → She ___
 6. Исправь ошибку: *He seems not understand the question.*
 
 > [!success]- Ответы и пояснения
-> 1. **He seems (to be) unhappy.** — `seem` смягчает.
-> 2. **Women tend to live longer than men.** — `tend to` — тенденция.
-> 3. **This suggests that the theory may be wrong.** — `suggest` + `may`.
-> 4. **It would appear that the project has failed.** — осторожная безличная формулировка.
-> 5. **She seems to have forgotten.** — о прошлом → `to + have + третья форма`.
-> 6. **He doesn't seem to understand the question. / He seems not to understand the question.** — естественное отрицание `doesn't seem to`.
+> 1. **He seems (to be) unhappy.**
+> 2. **Women tend to live longer than men.** — тенденция, а не закон.
+> 3. **This suggests that the theory may be wrong.**
+> 4. **It would appear that the project has failed.**
+> 5. **She seems to have forgotten.** — о прошлом → `to have` + V3.
+> 6. **He doesn't seem to understand the question.** — естественное отрицание. Возможно и `He seems not to understand`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Hedges](https://dictionary.cambridge.org/grammar/british-grammar/hedges-just)

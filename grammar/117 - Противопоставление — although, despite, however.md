@@ -2,7 +2,7 @@
 level: B2
 order: 117
 prerequisites: 116
-keywords:
+keywords: although despite however, хотя несмотря на однако, in spite of
 tags:
   - english/grammar
   - english/B2
@@ -11,19 +11,45 @@ tags:
 # Противопоставление — although, despite, however
 
 > [!abstract] Коротко
-> **Although + предложение. Despite / in spite of + существительное или -ing.** Все выражают контраст.
+> **although** — «**хотя**» + целое предложение: **although it rained**. **despite** — «**несмотря на**» + просто слово: **despite the rain**. **however** — «**однако**» в начале нового предложения.
+
+## Суть
+
+Это та же логика, что **because / because of** в прошлом уроке. Смотри, что идёт после связки:
+
+| Связка | После неё | Пример |
+| --- | --- | --- |
+| **although / even though** — хотя | **целое предложение** | **Although it rained**, we went out. |
+| **despite / in spite of** — несмотря на | **слово или -ing** | **Despite the rain**, we went out. |
+| **however** — однако | **новое предложение** | It was hard. **However**, we finished. |
+
+> [!example] Как проверить
+> После связки есть **глагол**? → **although**.
+>
+> Только **существительное** или **-ing**? → **despite**.
+
+## Если очень хочется despite + предложение
+
+Добавь **the fact that**: **Despite ==the fact that== it was cold, we went out.**
+
+## Ещё полезные слова
+
+- **whereas / while** — «а, тогда как» (сравниваем два факта): **I like tea, whereas she prefers coffee.**
+- **though** в конце фразы — «но всё же» (в разговоре): **It was useful, though.**
 
 ## Примеры
 
-- **Although it rained, we went out.** — Хотя шёл дождь, мы вышли.
-- **Despite the rain, we went out.** — Несмотря на дождь, мы вышли.
-- **In spite of being tired, she continued.** — Несмотря на усталость, она продолжала.
+- **Although she was tired, she kept working.** — Хотя она устала, она продолжала работать.
+- **In spite of being tired, she kept working.** — Несмотря на усталость, она продолжала работать.
 - **It was difficult. However, we finished.** — Было трудно. Однако мы закончили.
 
-**Whereas/while** сопоставляют факты: **I like tea, whereas she prefers coffee** — «Я люблю чай, а она предпочитает кофе». **Even though** означает «хотя, даже несмотря на то что» и вводит реальное обстоятельство; **even if** — условие «даже если». В разговоре **though** бывает в конце: **It was useful, though** — «Но всё-таки это было полезно».
+> [!tip] Хотя… но — по-русски можно, по-английски нет
+> «**Хотя** он богат, **но** не счастлив» — в английском только одно: **Although he is rich, he isn't happy.**
 
-> [!warning] Без despite of
-> **Despite the rain / in spite of the rain**. Полное предложение: **despite the fact that it rained**. Обычно не соединяй **although…but**.
+> [!warning] Частые ошибки
+> - ~~Despite of the noise~~ → **Despite the noise** — после `despite` нет `of`.
+> - ~~Although he is rich, but…~~ → **Although he is rich, he…**
+> - ~~Despite it was raining~~ → **Although it was raining**
 
 ## Проверь себя
 
@@ -37,11 +63,11 @@ tags:
 6. Исправь ошибку: *Although he is rich, but he isn't happy.*
 
 > [!success]- Ответы и пояснения
-> 1. **Despite** — дальше существительное.
+> 1. **Despite** — дальше только слово `the rain`.
 > 2. **Although** — дальше целое предложение.
-> 3. **In spite of being tired, she kept working. / In spite of her tiredness, she kept working.** — после `in spite of` — `-ing` или существительное.
-> 4. **Despite the fact that it was cold, we went out.** — `despite the fact that + подлежащее + сказуемое`.
-> 5. **Despite the noise, I slept well.** — после `despite` нет `of`.
+> 3. **In spite of being tired, she kept working. / In spite of her tiredness, …** — после `in spite of` — `-ing` или слово.
+> 4. **Despite the fact that it was cold, we went out.**
+> 5. **Despite the noise, I slept well.** — без `of`.
 > 6. **Although he is rich, he isn't happy.** — лишнее `but`.
 
 > [!info]- Источники

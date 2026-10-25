@@ -2,7 +2,7 @@
 level: B1
 order: 109
 prerequisites: 103
-keywords:
+keywords: other another the other others, другой ещё один остальные
 tags:
   - english/grammar
   - english/B1
@@ -11,23 +11,45 @@ tags:
 # Other, another и the other
 
 > [!abstract] Коротко
-> **Another** — «ещё один» или «другой, не этот»: **another cup**. **Other** — «другие» или «другой» перед существительным с определителем: **other people**, **my other bag**. **The other** — «второй из двух» или «оставшийся, о котором нам известно».
+> **another** — «**ещё один**, какой-нибудь другой» (**another cup**). **the other** — «**второй** из двух, оставшийся» (**the other shoe**). **other** — «другие» (**other people**). **the others** — «остальные».
 
-| Форма | Пример |
-| --- | --- |
-| another + единственное | another cup |
-| other + множественное/неисчисляемое | other people / other information |
-| the other + единственное/множественное | the other shoe / the other students |
-| others — без существительного | Some stayed; others left. |
-| the others — остальные | Where are the others? |
+## Суть
+
+Представь, что у тебя две туфли и много чашек:
+
+| Слово | Значит | Пример |
+| --- | --- | --- |
+| **another** | ещё одна, **любая** другая | This cup is dirty. Can I have **another** one? |
+| **the other** | **та, вторая** (из двух) или оставшаяся | One shoe is here. Where's **the other** one? |
+| **other** + много | **другие** (какие-то) | **other** people, **other** ways |
+| **others** | другие (без слова после) | Some stayed; **others** left. |
+| **the others** | **все остальные** | Only Tom came. Where are **the others**? |
+
+**Another** = **an + other**, поэтому пишется **слитно** и только с **одной** вещью.
+
+> [!example] Как выбрать
+> Знаю, какой именно (из двух или остаток)? → **the other**
+>
+> Любой, ещё один? → **another**
+
+## Ещё два
+
+**Another** может стоять перед числом: **We need ==another two== days.** — Нам нужно ещё два дня.
 
 ## Примеры
 
-- **One bag is mine; the other is yours.** — Одна сумка моя, вторая твоя.
-- **I'd like another coffee.** — Я бы хотел ещё кофе: ещё одну порцию.
-- **We need another two days.** — Нужно ещё два дня: `another` может стоять перед числом.
+- **I have two brothers. One is a teacher, the other is a doctor.** — У меня два брата. Один учитель, другой врач.
+- **I'd like another coffee.** — Я бы хотел ещё кофе.
+- **Some people like coffee; others prefer tea.** — Одни любят кофе, другие предпочитают чай.
+- **There are other ways to do it.** — Есть другие способы это сделать.
 
-Перед единственным `other` нужен определитель: **my other bag / the other option**.
+> [!tip] -s только когда слово стоит одно
+> Перед словом — **other** без -s: **other ways**. Без слова — **others**: **some… others…**
+
+> [!warning] Частые ошибки
+> - ~~others ways~~ → **other ways**
+> - ~~an other piece~~ → **another piece**
+> - ~~another books~~ → **other books** — `another` только с одной вещью.
 
 ## Проверь себя
 
@@ -43,9 +65,9 @@ tags:
 > [!success]- Ответы и пояснения
 > 1. **another** — ещё одну, любую другую.
 > 2. **the other** — второй из двух.
-> 3. **others** — «другие» без существительного.
-> 4. **the others** — остальные из известной группы.
-> 5. **There are other ways to do it.** — перед существительным — `other` без `-s`.
+> 3. **others** — «другие», после него нет слова.
+> 4. **the others** — все остальные.
+> 5. **There are other ways to do it.** — перед словом `other` без `-s`.
 > 6. **Can I have another piece?** — `another` пишется слитно.
 
 > [!info]- Источники

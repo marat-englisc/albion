@@ -2,7 +2,7 @@
 level: B2
 order: 80
 prerequisites: 77, 67
-keywords:
+keywords: make let help, заставить разрешить, see him cross, без to
 tags:
   - english/grammar
   - english/B2
@@ -11,19 +11,49 @@ tags:
 # Инфинитив без to — make, let, help и восприятие
 
 > [!abstract] Коротко
-> После **make/let + кого** нужен глагол **без to**. После `help` возможны оба варианта.
+> После **make** (заставить) и **let** (разрешить) + человек — глагол **без to**: **They made us ==wait==.** — Нас заставили ждать. **Let me ==help==.** — Позволь помочь.
+
+## Суть
+
+Обычно после **want, ask, tell** + человек идёт **to**: **I want you ==to== help.** Но у нескольких глаголов **to** пропадает:
+
+| Глагол | Значит | Пример |
+| --- | --- | --- |
+| **make** | заставить | My mum **made me clean** my room. |
+| **let** | разрешить | **Let me explain**. |
+| **help** | помочь (to — по желанию) | She **helped me (to) carry** the bags. |
+
+> [!example] Формула
+> **make / let** + **кого** + **глагол** (без to)
+
+## Видел, слышал
+
+После глаголов восприятия — **see, hear, watch, notice** — тоже нет **to**. Но есть выбор:
+
+- **I saw him ==cross== the road.** — Я видел, как он перешёл дорогу. *Всё действие целиком.*
+- **I saw him ==crossing== the road.** — Я видел, как он переходил дорогу. *Кусочек процесса.*
+
+## В пассиве to возвращается
+
+Это ловушка: в пассиве после **make** и **see** появляется **to**:
+
+- They **made us wait**. → **We were made ==to== wait.** — Нас заставили ждать.
+
+А у **let** пассива нет — вместо него **be allowed to**: **We were allowed to use the pool.**
 
 ## Примеры
 
-- **They made us wait.** — Нас заставили ждать.
-- **Let me help.** — Позволь помочь.
-- **She helped me (to) carry the bags.** — Она помогла нести сумки.
-- **I saw him cross the road. / I saw him crossing the road.** — Видел переход целиком. / Видел в процессе.
+- **They made us wait for hours.** — Нас заставили ждать несколько часов.
+- **Let me know.** — Дай мне знать.
+- **I heard someone call my name.** — Я услышал, как кто-то позвал меня по имени.
 
-Так различают формы после **see, hear, watch, notice**: начальная форма — событие целиком, `-ing` — процесс.
+> [!tip] Как запомнить
+> **Make** и **let** — короткие сильные слова. Им не нужен помощник **to**.
 
-> [!warning] В пассиве после make и see появляется to
-> **We were made to wait. He was seen to leave.** Для разрешения обычно **We were allowed to leave**, без пассива с `let`.
+> [!warning] Частые ошибки
+> - ~~She made him to apologise.~~ → **She made him apologise.**
+> - ~~Let me to help.~~ → **Let me help.**
+> - ~~We were let to use the pool.~~ → **We were allowed to use the pool.**
 
 ## Проверь себя
 
@@ -37,12 +67,12 @@ tags:
 6. Выбери: I heard someone (call / to call) my name.
 
 > [!success]- Ответы и пояснения
-> 1. **clean** — `make + кого + начальная форма` без `to`.
-> 2. **explain** — `let + кого + начальная форма`.
-> 3. **to wait** — в пассиве после `make` нужно `to`.
-> 4. **We were allowed to use the pool.** — разрешение в пассиве обычно передают через `be allowed to`.
-> 5. **She made him apologise.** — в активной модели без `to`.
-> 6. **call** — после `hear + кого` — инфинитив без `to`.
+> 1. **clean** — после `make` + человек — без `to`.
+> 2. **explain** — после `let` + человек — без `to`.
+> 3. **to wait** — в пассиве после `make` появляется `to`.
+> 4. **We were allowed to use the pool.** — у `let` пассива нет, вместо него `be allowed to`.
+> 5. **She made him apologise.** — без `to`.
+> 6. **call** — после `hear` + человек — без `to`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Infinitives with and without to](https://dictionary.cambridge.org/grammar/british-grammar/infinitives)

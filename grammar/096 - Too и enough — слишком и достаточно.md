@@ -2,7 +2,7 @@
 level: B1
 order: 96
 prerequisites: 89
-keywords:
+keywords: too enough, слишком достаточно, too much too many
 tags:
   - english/grammar
   - english/B1
@@ -11,23 +11,50 @@ tags:
 # Too и enough — слишком и достаточно
 
 > [!abstract] Коротко
-> **Too — больше нужного, обычно проблема. Enough — достаточно.** `Too` не равно просто «очень».
+> **Too** — «**слишком**» (больше, чем нужно, — это проблема): **too hot**. **Enough** — «**достаточно**»: **warm enough**. Главная хитрость — **enough** стоит **после** прилагательного.
 
-| Что описываешь | Порядок |
-| --- | --- |
-| слишком холодно | too cold |
-| достаточно тёплый | warm enough |
-| достаточно времени | enough time |
-| слишком много книг / воды | too many books / too much water |
+## Суть
+
+**Too** — это не «очень», а именно «слишком»: из-за этого что-то **не получается**.
+
+- **The coffee is ==too== hot.** — Кофе слишком горячий. *(Не могу пить.)*
+- **The coffee is ==very== hot.** — Кофе очень горячий. *(Просто факт.)*
+
+**Enough** — «достаточно», хватает. А место у него хитрое:
+
+| Что | Порядок | Пример |
+| --- | --- | --- |
+| **too** + признак | too → слово | **too cold** — слишком холодно |
+| признак + **enough** | слово → enough | **old enough** — достаточно взрослый |
+| **enough** + вещь | enough → вещь | **enough time** — достаточно времени |
+
+> [!example] Формула
+> **too** + прилагательное + (**to** + глагол)
+>
+> It's **too cold to swim**. — Слишком холодно, чтобы плавать.
+>
+> прилагательное + **enough** + (**to** + глагол)
+>
+> She's **old enough to drive**. — Она достаточно взрослая, чтобы водить.
+
+## Слишком много
+
+- **too many** + то, что считают: **too many people** — слишком много людей.
+- **too much** + то, что не считают: **too much water** — слишком много воды.
 
 ## Примеры
 
-- **It's too cold to swim.** — Слишком холодно, чтобы плавать.
-- **She's old enough to drive.** — Ей достаточно лет, чтобы водить.
-- **We haven't got enough money.** — У нас недостаточно денег.
+- **She's only 15. She isn't old enough to vote.** — Ей всего 15, ей рано голосовать.
+- **We don't have enough chairs.** — У нас не хватает стульев.
+- **There are too many people here.** — Здесь слишком много людей.
 
-> [!warning] Место enough
-> После признака, перед предметом: **big enough / enough boxes**. **Big enough boxes** — достаточно большие коробки; **enough big boxes** — достаточное количество больших коробок.
+> [!tip] Как запомнить
+> **Enough** — «вежливый гость»: пропускает прилагательное вперёд (**tall enough**), но идёт впереди предмета (**enough chairs**).
+
+> [!warning] Частые ошибки
+> - ~~enough tall~~ → **tall enough**
+> - ~~too much difficult~~ → **too difficult** — перед прилагательным просто `too`.
+> - ~~too much people~~ → **too many people**
 
 ## Проверь себя
 
@@ -41,12 +68,12 @@ tags:
 6. Исправь ошибку: *This exercise is too much difficult.*
 
 > [!success]- Ответы и пояснения
-> 1. **enough** — качества не хватает → `прилагательное + enough`.
-> 2. **too** — превышение с проблемой.
-> 3. **We don't have enough chairs.** — количество → `enough + существительное`.
-> 4. **many** — люди исчисляемые.
+> 1. **enough** — возраста не хватает → `old enough`.
+> 2. **too** — слишком горячий — и поэтому проблема.
+> 3. **We don't have enough chairs.** — с вещью `enough` стоит впереди.
+> 4. **many** — людей можно посчитать.
 > 5. **He isn't tall enough to play basketball.** — `enough` после прилагательного.
-> 6. **This exercise is too difficult.** — перед прилагательным — просто `too`.
+> 6. **This exercise is too difficult.** — перед прилагательным просто `too`.
 
 > [!info]- Источники
 > - [British Council — Using 'enough'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/using-enough)

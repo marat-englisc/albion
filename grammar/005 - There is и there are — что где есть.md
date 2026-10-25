@@ -2,7 +2,7 @@
 level: A1
 order: 5
 prerequisites: 3
-keywords: наличие есть находится, there is there are
+keywords: наличие есть находится, there is there are, имеется
 tags:
   - english/grammar
   - english/A1
@@ -11,23 +11,42 @@ tags:
 # There is и there are — что где есть
 
 > [!abstract] Коротко
-> **There is / there are** сообщает, что где-то что-то есть. Начальное `there` здесь не переводится как «там».
+> Когда хочешь сказать «где-то **есть** что-то», начни с **There is** (одно) или **There are** (много): **There is a café near here** — Рядом есть кафе.
 
-| Что есть | Форма |
+## Суть
+
+По-русски мы говорим «В холодильнике есть молоко» — сначала место, потом предмет. В английском начинать с места неудобно, поэтому придумали специальный «стартер» — **there is / there are**.
+
+Слово **there** здесь **не переводится** как «там». Это просто сигнал: «сейчас скажу, что где-то что-то есть».
+
+> [!example] Формула
+> **There is** + один предмет + где
+>
+> **There are** + несколько предметов + где
+
+| Что есть | Начало |
 | --- | --- |
-| Один предмет или неисчисляемое | there is |
-| Несколько предметов | there are |
+| одна вещь или «вещество» (молоко, вода) | **there is** |
+| несколько вещей | **there are** |
 
-Отрицание: **there isn't / aren't**. Вопрос: **Is / Are there…?**
+## Отрицание и вопрос
+
+- **Нет:** **There ==isn't== a bank here.** / **There ==aren't== any chairs.**
+- **Есть?** Меняем местами: **==Is there== a bank here?** / **==Are there== any chairs?**
 
 ## Примеры
 
 - **There is a café near here.** — Рядом есть кафе.
 - **There is some milk in the fridge.** — В холодильнике есть молоко.
-- **Are there any chairs?** — Есть стулья?
+- **There are two museums in our town.** — В нашем городе два музея.
+- **Are there any questions?** — Есть вопросы?
 
-> [!warning] Наличие или описание?
-> **There is a café here** — здесь есть кафе. **It is small** — оно маленькое: описываем уже названное кафе.
+> [!tip] Как перевести на английский
+> Читай русское предложение **с конца**: «В комнате (есть) три окна» → **There are three windows in the room.**
+
+> [!warning] Частые ошибки
+> - ~~In my room is a bed.~~ → **There is a bed in my room.** — новое «есть» начинаем с `there`.
+> - ~~There is a café. There is small.~~ → **There is a café. It is small.** — когда предмет уже назван и мы его описываем, нужен `it`.
 
 ## Проверь себя
 
@@ -42,11 +61,11 @@ tags:
 
 > [!success]- Ответы и пояснения
 > 1. **are** — окон несколько → `are`.
-> 2. **is** — `milk` неисчисляемое → `is`.
-> 3. **Is there a pharmacy near here?** — `is` переходит в начало, `there` остаётся.
+> 2. **is** — молоко нельзя посчитать штуками, это «вещество» → `is`.
+> 3. **Is there a pharmacy near here?** — `is` переходит в начало, `there` остаётся на месте.
 > 4. **There aren't any chairs in the room.** — отрицание `aren't`; в отрицании `some` обычно меняется на `any`.
-> 5. **There is** — сообщаем о наличии кафе; `it is` описывало бы уже известный предмет.
-> 6. **There are two museums in our town.** — вводим новую информацию о наличии → `there are`; место в конце.
+> 5. **There is** — сообщаем, что кафе есть. `It is` описывало бы кафе, о котором уже говорили.
+> 6. **There are two museums in our town.** — музеев два → `there are`; место — в конце.
 
 > [!info]- Источники
 > - [British Council — Using 'there is' and 'there are'](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/using-there-there-are)

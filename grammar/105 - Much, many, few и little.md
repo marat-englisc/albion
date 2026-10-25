@@ -2,7 +2,7 @@
 level: A2
 order: 105
 prerequisites: 103
-keywords: много мало немного quantifiers
+keywords: много мало немного quantifiers, much many few little, a lot of
 tags:
   - english/grammar
   - english/A2
@@ -11,22 +11,50 @@ tags:
 # Much, many, few и little
 
 > [!abstract] Коротко
-> **Many/few — считаем предметы. Much/little — неисчисляемое.** Артикль `a` меняет смысл `few/little`.
+> «Много» — **many** (то, что считают: many books) или **much** (то, что не считают: much time). «Немного» — **a few** / **a little**. А универсальное «много» — **a lot of**.
 
-| Исчисляемое | Неисчисляемое |
-| --- | --- |
-| many books — много | much time — много |
-| a few books — немного, есть | a little time — немного, есть |
-| few books — мало | little time — мало |
-| fewer books — меньше | less time — меньше |
+## Суть
+
+Всё зависит от того, можно ли посчитать предмет штуками (тема 7):
+
+| | Можно посчитать (books) | Нельзя посчитать (time) |
+| --- | --- | --- |
+| **много** | **many** books | **much** time |
+| **немного, есть** | **a few** books | **a little** time |
+| **мало, почти нет** | **few** books | **little** time |
+| **меньше** | **fewer** books | **less** time |
+| **много (любое)** | **a lot of** books | **a lot of** time |
+
+## Маленькое «a» меняет смысл
+
+- **I have ==a few== friends.** — У меня **есть** несколько друзей. 😊 *Хорошо!*
+- **I have ==few== friends.** — У меня **мало** друзей. 😔 *Плохо.*
+
+**a few / a little** — стакан **наполовину полон**. **few / little** — **наполовину пуст**.
+
+## A lot of — самое простое
+
+В обычных утверждениях англичане чаще говорят **a lot of** — оно подходит ко всему:
+
+- **We've got a lot of time.** — У нас много времени.
+- **She has a lot of friends.** — У неё много друзей.
+
+**Much / many** чаще звучат в вопросах и отрицаниях: **How much…? How many…? I don't have much money.**
 
 ## Примеры
 
-- **I have a few friends here.** — Здесь есть несколько друзей.
-- **I have few friends here.** — Здесь мало друзей: акцент на нехватке.
-- **We've got a lot of time.** — У нас много времени.
+- **How much money do you have?** — Сколько у тебя денег?
+- **How many brothers do you have?** — Сколько у тебя братьев?
+- **I need a few minutes.** — Мне нужно несколько минут.
+- **There isn't much traffic today.** — Сегодня машин немного.
 
-В обычных положительных фразах **a lot of / lots of** часто естественнее `much`; они подходят к обоим типам слов. **Much/many** часты в вопросах, отрицаниях и сочетаниях **so much / too many**.
+> [!tip] Ловушка: money
+> **Money** в английском не считают (считают **dollars, roubles**). Поэтому **how ==much== money**.
+
+> [!warning] Частые ошибки
+> - ~~many traffic~~ → **much traffic** — `traffic` не считают.
+> - ~~How many money?~~ → **How much money?**
+> - ~~less people~~ → **fewer people** (в аккуратной речи)
 
 ## Проверь себя
 
@@ -40,12 +68,12 @@ tags:
 6. Исправь ошибку: *There isn't many traffic today.*
 
 > [!success]- Ответы и пояснения
-> 1. **much** — `money` — неисчисляемое существительное в английском.
-> 2. **many** — братья исчисляемые.
-> 3. **a few** — минуты исчисляемые.
-> 4. **little** — «мало, почти нет».
-> 5. **a few** — «есть несколько» — позитив.
-> 6. **There isn't much traffic today.** — `traffic` неисчисляемое.
+> 1. **much** — деньги в английском не считают.
+> 2. **many** — братьев можно посчитать.
+> 3. **a few** — минуты считают.
+> 4. **little** — «почти нет надежды», всё плохо.
+> 5. **a few** — «есть несколько» — поэтому не одиноко.
+> 6. **There isn't much traffic today.** — `traffic` не считают → `much`.
 
 > [!info]- Источники
 > - [British Council — Nouns: countable and uncountable](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/nouns-countable-uncountable)

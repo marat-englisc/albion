@@ -2,7 +2,7 @@
 level: B2
 order: 120
 prerequisites: 22, 84
-keywords:
+keywords: выделение, I do like, it was who, what I need is, cleft sentences
 tags:
   - english/grammar
   - english/B2
@@ -11,22 +11,50 @@ tags:
 # Выделение мысли — do и cleft sentences
 
 > [!abstract] Коротко
-> Чтобы подчеркнуть важную часть мысли, можно использовать ударное **do**, конструкцию **It was…that/who…** — «именно…» или **What…is…** — «то, что…, — это…».
+> Три способа сказать «**действительно**» и «**именно**»: ударное **do** (**I ==do== like it** — мне правда нравится), **It was… who** (**It was ==Anna== who called** — именно Анна позвонила) и **What… is** (**What I need is a break** — что мне нужно, так это отдых).
 
-В конструкции **It is/was + выделяемая часть + that/who + остальная часть предложения** слово `who` подходит для людей, а `that` — и для людей, и для других выделяемых частей: **It was Tom who/that called**, **It was yesterday that we met**.
+## Суть
+
+По-русски мы выделяем мысль голосом или словами «правда», «именно», «как раз». В английском для этого есть готовые конструкции.
+
+## 1. Ударное do — «правда, действительно»
+
+Вставь **do / does / did** перед глаголом и сделай на нём ударение:
+
+- **I ==do== like your dress!** — Мне правда нравится твоё платье!
+- **She ==does== work hard.** — Она и правда много работает.
+- **I ==did== call you!** — Я же звонил тебе!
+
+После **do / does / did** глагол — в начальной форме (как в вопросах).
+
+## 2. It was… who / that — «именно»
+
+> [!example] Формула
+> **It was** + **то, что выделяем** + **who / that** + остальное
+>
+> **It was Tom who** found the keys. — Именно Том нашёл ключи.
+
+- **who** — для людей, **that** — для чего угодно: **It was ==in 2015== that we met.** — Мы познакомились именно в 2015 году.
+
+## 3. What… is — «что…, так это…»
+
+- **What I need is a break.** — Что мне нужно, так это отдых.
+
+Главное — в **конце**, после **is**. Так оно звучит весомее.
 
 ## Примеры
 
-- **I do agree.** — Я действительно согласен.
-- **She does work hard.** — Она и правда много работает.
-- **It was Anna who called.** — Именно Анна позвонила.
-- **It was yesterday that we met.** — Мы встретились именно вчера.
-- **What I need is a break.** — Что мне нужно — так это отдых.
+- **I do agree with you.** — Я действительно с тобой согласен.
+- **He did try to help.** — Он правда пытался помочь.
+- **It was Anna who called.** — Звонила именно Анна.
+- **What I want is some peace.** — Чего я хочу, так это покоя.
 
-После **do/does/did** — начальная форма, а время сохраняется: **I did call** — я всё-таки звонил.
+> [!tip] Как запомнить
+> **do** — «правда!», **It was…** — «именно!», **What… is** — «вот что важно!»
 
-> [!warning] Согласование внутри конструкции
-> **It was the students who were late**: `were` относится к студентам. Не добавляй в придаточное лишнее местоимение: **It was Anna who called**, без `she`.
+> [!warning] Частые ошибки
+> - ~~She does likes chocolate.~~ → **She does like chocolate.**
+> - ~~It was Anna who she called.~~ → **It was Anna who called.** — лишнее `she`.
 
 ## Проверь себя
 
@@ -41,14 +69,13 @@ tags:
 
 > [!success]- Ответы и пояснения
 > 1. **I do like your dress.** — ударное `do` + начальная форма.
-> 2. **He did try to help.** — прошлое переходит в `did`, глагол — `try`.
-> 3. **It was Tom who found the keys.** — it-cleft выделяет исполнителя.
-> 4. **It was in 2015 that we met.** — выделяем обстоятельство времени.
-> 5. **What I need is some sleep.** — what-cleft выносит главное в конец.
+> 2. **He did try to help.** — прошлое уходит в `did`, остаётся `try`.
+> 3. **It was Tom who found the keys.** — «именно Том».
+> 4. **It was in 2015 that we met.** — время выделяем через `that`.
+> 5. **What I need is some sleep.** — главное — в конце.
 > 6. **She does like chocolate.** — после `does` начальная форма.
 
 > [!info]- Источники
-> - [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
 > - [Cambridge Dictionary — Do](https://dictionary.cambridge.org/grammar/british-grammar/do)
 > - [Cambridge Dictionary — Word order: structures](https://dictionary.cambridge.org/grammar/british-grammar/word-order-structures)
 

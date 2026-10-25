@@ -2,7 +2,7 @@
 level: A1
 order: 100
 prerequisites: 5
-keywords: предлог места place preposition
+keywords: предлог места place preposition, in on at, under next to
 tags:
   - english/grammar
   - english/A1
@@ -11,31 +11,60 @@ tags:
 # Предлоги места — in, on, at
 
 > [!abstract] Коротко
-> **In — пространство. On — поверхность. At — точка или место деятельности.** Устойчивые сочетания запоминай целиком.
+> **in** — **внутри** (in the box), **on** — **на поверхности** (on the table), **at** — **в точке**, у места (at the door, at the station).
 
-| Где | Примеры |
+## Суть
+
+Русское «в / на» не всегда совпадает с английским. Лучше думать картинками:
+
+| Предлог | Картинка | Примеры |
+| --- | --- | --- |
+| **in** | 📦 внутри чего-то | in a room, in London, in a car |
+| **on** | ⬜ на поверхности | on the table, on the wall, on the third floor |
+| **at** | 📍 точка на карте | at the door, at the station, at work |
+
+## At или in?
+
+- **I'm ==at== the station.** — Я на вокзале. *Это место встречи, точка.*
+- **I'm ==in== the station.** — Я внутри здания вокзала.
+
+## Транспорт
+
+- **in** — маленький транспорт, где нельзя встать: **in a car, in a taxi**.
+- **on** — большой, где можно ходить: **on a bus, on a train, on a plane**.
+
+## Другие предлоги места
+
+| Предлог | Значит |
 | --- | --- |
-| in | in a room / in London / in a car |
-| on | on the table / on the wall / on the third floor / on a bus |
-| at | at the door / at the station / at work / at 10 Green Street |
-| under / above | под / выше |
-| behind / in front of | за / перед |
-| next to / opposite | рядом / напротив |
-| between / among | между отдельными объектами / среди группы |
+| **under** | под |
+| **above** | над |
+| **behind** | за, позади |
+| **in front of** | перед |
+| **next to** | рядом с |
+| **opposite** | напротив |
+| **between** | между |
 
 ## Примеры
 
-- **I'm at the station.** — Я на вокзале: место встречи.
-- **I'm in the station.** — Я внутри здания.
+- **The keys are on the table.** — Ключи на столе.
+- **She lives in Paris.** — Она живёт в Париже.
+- **I'll wait for you at the bus stop.** — Я подожду тебя на остановке.
+- **There's a picture on the wall.** — На стене картина.
 
-> [!warning] Between — не только для двух
-> Возможны и несколько объектов, если важны отношения между каждым из них. Транспорт: **in a car**, но **on a bus/train**.
+> [!tip] Этажи — on
+> По-русски «**на** третьем этаже», и по-английски тоже **on**: **on the third floor**. Этаж — это пол, поверхность.
+
+> [!warning] Частые ошибки
+> - ~~in the third floor~~ → **on the third floor**
+> - ~~on a taxi~~ → **in a taxi**
+> - ~~in work~~ → **at work**
 
 ## Проверь себя
 
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
-1. Вставь предлог: The keys are ___ the table. (лежат на столе)
+1. Вставь предлог (ключи лежат на столе): The keys are ___ the table.
 2. Вставь предлог: She lives ___ Paris.
 3. Вставь предлог: I'll wait for you ___ the bus stop.
 4. Вставь предлог: There's a picture ___ the wall.
@@ -43,11 +72,11 @@ tags:
 6. Исправь ошибку: *My office is in the third floor.*
 
 > [!success]- Ответы и пояснения
-> 1. **on** — поверхность.
-> 2. **in** — город — пространство.
-> 3. **at** — точка встречи.
-> 4. **on** — вертикальная поверхность — тоже `on`.
-> 5. **in, on** — устойчивые сочетания с транспортом.
+> 1. **on** — поверхность стола.
+> 2. **in** — город — это пространство, мы внутри.
+> 3. **at** — остановка — точка встречи.
+> 4. **on** — стена — тоже поверхность.
+> 5. **in, on** — такси маленькое → `in`; поезд большой → `on`.
 > 6. **My office is on the third floor.** — этажи — `on`.
 
 > [!info]- Источники

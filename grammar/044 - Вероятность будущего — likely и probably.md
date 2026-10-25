@@ -2,7 +2,7 @@
 level: B1
 order: 44
 prerequisites: 41
-keywords:
+keywords: вероятность, probably likely, may might, наверное, вряд ли
 tags:
   - english/grammar
   - english/B1
@@ -11,24 +11,49 @@ tags:
 # Вероятность будущего — likely и probably
 
 > [!abstract] Коротко
-> Вероятность — оценка говорящего. У **may, might, probably** нет фиксированных процентов.
+> Будущее редко известно точно. Чтобы показать, **насколько ты уверен**, добавь слово-«градусник»: **definitely** — точно, **probably** — наверное, **might** — может быть, **unlikely** — вряд ли.
 
-| Что хочешь сказать | Модель |
-| --- | --- |
-| точно / наверняка | will definitely / will certainly + начальная форма |
-| вероятно | will probably + глагол |
-| вероятно не | probably won't + глагол |
-| возможно | may / might / could + глагол |
-| скорее всего | be likely to + глагол |
-| маловероятно | be unlikely to + глагол |
+## Суть
+
+Представь шкалу уверенности:
+
+| Уверенность | Как сказать | Пример |
+| --- | --- | --- |
+| точно | **will definitely** | She'**ll definitely** come. |
+| наверное | **will probably** | She'**ll probably** come. |
+| скорее всего | **is likely to** | She'**s likely to** come. |
+| может быть | **may / might** | She **might** come. |
+| наверное, нет | **probably won't** | She **probably won't** come. |
+| вряд ли | **is unlikely to** | She'**s unlikely to** come. |
+
+## Куда ставить probably
+
+Есть одна хитрость с местом слова:
+
+> [!example] Формула
+> «да»: **will** + **probably** — He'**ll probably** be late.
+>
+> «нет»: **probably** + **won't** — He **probably won't** be late.
+
+## To или без to?
+
+- После **may, might, will** — глагол **без to**: It **might rain**.
+- После **likely / unlikely** — **с to**: Prices are **likely to rise**.
 
 ## Примеры
 
-- **She'll probably come. / She probably won't come.** — Вероятно, придёт. / Вероятно, не придёт.
-- **It's likely that prices will rise.** — Вероятно, цены вырастут.
-- **He's sure to notice.** — Он наверняка заметит.
+- **She'll probably come.** — Она, наверное, придёт.
+- **It might rain tonight.** — Вечером может пойти дождь.
+- **Prices are likely to rise.** — Цены, скорее всего, вырастут.
+- **He's unlikely to agree.** — Вряд ли он согласится.
 
-**Be about to** означает «вот-вот», а не степень вероятности: **The train is about to leave**.
+> [!tip] Вот-вот
+> **Be about to** — не про вероятность, а про «вот-вот, сейчас»: **The train is about to leave.** — Поезд вот-вот отправится.
+
+> [!warning] Частые ошибки
+> - ~~She will definitely not to come.~~ → **She definitely won't come.** — после `will` нет `to`.
+> - ~~He won't probably come.~~ → **He probably won't come.**
+> - ~~It might to rain.~~ → **It might rain.**
 
 ## Проверь себя
 
@@ -42,11 +67,11 @@ tags:
 6. Исправь ошибку: *She will definitely not to come.*
 
 > [!success]- Ответы и пояснения
-> 1. **He will probably be late.** — в утверждении `probably` после `will`.
-> 2. **She probably won't come.** — в отрицании `probably` перед `won't`.
-> 3. **— (без to)** — после модального `might` начальная форма без `to`.
-> 4. **to** — после `likely` нужно `to`.
-> 5. **He's unlikely to agree. / He probably won't agree.** — маловероятно → `unlikely to`.
+> 1. **He will probably be late.** — в «да» `probably` после `will`.
+> 2. **She probably won't come.** — в «нет» `probably` перед `won't`.
+> 3. **— (без to)** — после `might` глагол без `to`.
+> 4. **to** — после `likely` нужен `to`.
+> 5. **He's unlikely to agree. / He probably won't agree.** — «вряд ли» → `unlikely to`.
 > 6. **She definitely won't come. / She will definitely not come.** — после `will` нет `to`.
 
 > [!info]- Источники

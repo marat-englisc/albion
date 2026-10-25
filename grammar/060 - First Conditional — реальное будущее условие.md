@@ -2,7 +2,7 @@
 level: A2
 order: 60
 prerequisites: 41, 59
-keywords: условие первое first conditional
+keywords: условие первое first conditional, если будет, реальное условие
 tags:
   - english/grammar
   - english/A2
@@ -11,20 +11,39 @@ tags:
 # First Conditional — реальное будущее условие
 
 > [!abstract] Коротко
-> First Conditional — **возможное будущее условие и его результат**.
+> First Conditional — для **реальных** «если» о будущем: **If it rains tomorrow, we'll stay home.** — Если завтра пойдёт дождь, останемся дома. После **if** — настоящее время, а **will** — в другой части.
 
-Основная схема: **if + подлежащее + глагол в Present Simple, подлежащее + will + начальная форма глагола без to**. Часть с `if` выражает условие, другая часть — результат. Вместо `will` в результате возможны `can/may/must` или повелительная форма.
+## Суть
 
-В условии можно использовать и другие формы настоящего времени, если этого требует смысл: **If you're working tomorrow…** — «Если ты завтра работаешь…».
+Это самое частое «если» в жизни: что-то вполне может случиться, и мы говорим, что тогда будет.
+
+Главная ловушка для русскоговорящих: по-русски «Если завтра **пойдёт** дождь» — будущее. По-английски после **if** будущее выражают **настоящим**: **If it ==rains==** (не ~~will rain~~). **Will** уходит во вторую часть.
+
+> [!example] Формула
+> **If** + Present Simple, + **will** + глагол
+>
+> **If** you **study**, you **will pass**.
+
+Во второй части вместо **will** можно поставить **can, may, must** или просьбу: **If you finish early, ==call== me.**
+
+## If или when?
+
+- **If he comes…** — Если он придёт… *Может, и не придёт.*
+- **When he comes…** — Когда он придёт… *Точно придёт, вопрос только когда.*
 
 ## Примеры
 
 - **If it rains tomorrow, we'll stay home.** — Если завтра будет дождь, останемся дома.
-- **If you finish early, call me.** — Если закончишь рано, позвони.
-- **If you're working tomorrow, we can meet on Sunday.** — Если завтра работаешь, можем встретиться в воскресенье.
+- **We'll miss the train if we don't hurry.** — Мы опоздаем на поезд, если не поторопимся.
+- **If she calls, tell her I'm busy.** — Если она позвонит, скажи, что я занят.
+- **If you're late, I won't wait.** — Если опоздаешь, я не буду ждать.
 
-> [!warning] Обычное условие — без will
-> **If it rains**, а не *if it will rain*. Настоящее время здесь имеет будущий смысл. **When he arrives** предполагает приезд, **if he arrives** оставляет его под вопросом.
+> [!tip] Как запомнить
+> **If** и **will** — соседи, которые не живут в одной комнате. **Will** всегда в другой части предложения.
+
+> [!warning] Частые ошибки
+> - ~~If it will be sunny, we'll go.~~ → **If it is sunny, we'll go.**
+> - ~~If you will study, you pass.~~ → **If you study, you will pass.** — `will` не в той части.
 
 ## Проверь себя
 
@@ -33,17 +52,17 @@ tags:
 1. Вставь глаголы: If you ___ (study), you ___ (pass) the exam.
 2. Вставь глаголы: We ___ (miss) the train if we ___ (not / hurry).
 3. Вставь глаголы: If she ___ (call), ___ (tell) her I'm busy.
-4. Выбери: (If / When) I get home, I'll make dinner. (я точно приду домой)
+4. Выбери (я точно приду домой): (If / When) I get home, I'll make dinner.
 5. Исправь ошибку: *If it will be sunny, we'll go to the beach.*
 6. Переведи: «Если опоздаешь, я не буду ждать».
 
 > [!success]- Ответы и пояснения
-> 1. **study, will pass** — реальное будущее условие.
-> 2. **will miss, don't hurry** — после `if` — Present Simple.
-> 3. **calls, tell** — в результате — повелительное наклонение.
-> 4. **When** — событие ожидается наверняка.
+> 1. **study, will pass** — после `if` настоящее, во второй части `will`.
+> 2. **will miss, don't hurry** — часть с `if` стоит второй, но правило то же.
+> 3. **calls, tell** — во второй части — просьба.
+> 4. **When** — домой я приду точно.
 > 5. **If it is sunny, we'll go to the beach.** — после `if` не ставим `will`.
-> 6. **If you're late, I won't wait.** — реальное будущее: `if` + подлежащее + глагол в настоящем времени; в результате — подлежащее + `won't` + начальная форма.
+> 6. **If you're late, I won't wait.** — после `if` настоящее, во второй части `won't`.
 
 > [!info]- Источники
 > - [British Council — Conditionals: zero, first and second](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-zero-first-second)

@@ -2,7 +2,7 @@
 level: A2
 order: 90
 prerequisites: 89
-keywords:
+keywords: bored boring, interested interesting, -ed -ing прилагательные
 tags:
   - english/grammar
   - english/A2
@@ -11,24 +11,37 @@ tags:
 # Прилагательные на -ed и -ing
 
 > [!abstract] Коротко
-> В парах **bored/boring** форма **-ed — чувство**, **-ing — то, что его вызывает**.
+> **I'm bored** — мне скучно (я **чувствую** скуку). **The film is boring** — фильм скучный (он **вызывает** скуку). **-ed** — что чувствуешь, **-ing** — что вызывает это чувство.
 
-| Что чувствует | Что вызывает чувство |
+## Суть
+
+Представь двоих: **фильм** и **зритель**. Фильм **вызывает** скуку, зритель её **чувствует**:
+
+- **The film is bor==ing==.** — Фильм скучный.
+- **I'm bor==ed==.** — Мне скучно.
+
+| Чувствую (-ed) | Вызывает чувство (-ing) |
 | --- | --- |
-| bored — скучает | boring — скучный |
-| interested — заинтересован | interesting — интересный |
-| excited — взволнован | exciting — захватывающий |
-| confused — растерян | confusing — запутанный |
-| tired — устал | tiring — утомительный |
+| **bored** — мне скучно | **boring** — скучный |
+| **interested** — мне интересно | **interesting** — интересный |
+| **excited** — я в восторге | **exciting** — захватывающий |
+| **tired** — я устал | **tiring** — утомительный |
+| **confused** — я запутался | **confusing** — запутанный |
 
 ## Примеры
 
 - **I'm bored because the film is boring.** — Мне скучно, потому что фильм скучный.
-- **He's an interesting person.** — Он интересный человек: вызывает интерес.
-- **The dog was frightened.** — Собака испугалась: испытывает чувство.
+- **He's an interesting person.** — Он интересный человек.
+- **I'm very interested in history.** — Мне очень интересна история.
+- **It was a tiring journey.** — Это была утомительная поездка.
 
-> [!warning] Это не деление на людей и вещи
-> Человек может быть **boring**, а животное — **frightened**. Правило относится к таким парам, не ко всем словам на `-ed/-ing`.
+> [!tip] Осторожно с «I'm boring»
+> **I'm boring** значит «Я **скучный** человек» — со мной скучно! А «Мне скучно» — **I'm bored**. Так же: **I'm interesting** — «я интересный», **I'm interested** — «мне интересно».
+
+> [!warning] Частые ошибки
+> - ~~I'm very interesting in history.~~ → **I'm very interested in history.**
+> - ~~I'm exciting about the trip.~~ → **I'm excited about the trip.**
+> - ~~The instructions are confused.~~ → **The instructions are confusing.**
 
 ## Проверь себя
 
@@ -43,11 +56,11 @@ tags:
 
 > [!success]- Ответы и пояснения
 > 1. **boring** — лекция вызывает скуку.
-> 2. **excited** — чувство испытываю я.
-> 3. **confusing** — инструкции вызывают растерянность.
-> 4. **embarrassed** — чувство испытывает она.
+> 2. **excited** — восторг чувствую я.
+> 3. **confusing** — инструкции запутывают.
+> 4. **embarrassed** — смущение чувствует она.
 > 5. **tiring** — поездка утомляет.
-> 6. **I'm very interested in history.** — интерес испытываю я → `-ed`.
+> 6. **I'm very interested in history.** — интерес чувствую я → `-ed`.
 
 > [!info]- Источники
 > - [British Council — Adjectives ending in '-ed' and '-ing'](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/adjectives-ending-ed-ing)

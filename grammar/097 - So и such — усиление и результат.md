@@ -2,7 +2,7 @@
 level: B1
 order: 97
 prerequisites: 89, 12
-keywords:
+keywords: so such, такой так, so that, such a
 tags:
   - english/grammar
   - english/B1
@@ -11,23 +11,49 @@ tags:
 # So и such — усиление и результат
 
 > [!abstract] Коротко
-> **So + признак. Such + предмет с описанием.** Результат можно добавить через `that`.
+> «Так / такой» — **so** или **such**. **So** — перед **прилагательным**: **so cold**. **Such** — перед **существительным**: **such a cold day**.
 
-| Модель | Пример |
-| --- | --- |
-| so + прилагательное/наречие | so cold / so quickly |
-| such + a/an + прилагательное (если нужно) + исчисляемое существительное в единственном числе | such a cold day |
-| such + прилагательное (если нужно) + существительное во множественном числе или неисчисляемое | such kind people / such bad weather |
-| so many/few + множественное | so many questions |
-| so much/little + неисчисляемое | so little time |
+## Суть
+
+Посмотри, что стоит после «так / такой»:
+
+- только признак (холодный, быстро) → **so**: **It's ==so== cold!** — Так холодно!
+- есть предмет (день, книга, люди) → **such**: **It's ==such a== cold day!** — Такой холодный день!
+
+| После | Слово | Пример |
+| --- | --- | --- |
+| прилагательное или наречие | **so** | **so** tired, **so** quickly |
+| один предмет (+ описание) | **such a / an** | **such a** good book |
+| много предметов или вещество | **such** (без a) | **such** kind people, **such** bad weather |
+| many / much / few / little | **so** | **so many** questions, **so little** time |
+
+## Так…, что
+
+Чтобы добавить результат, ставим **that**:
+
+> [!example] Формула
+> **so** + прилагательное + **that** + …
+>
+> I was **so tired that** I fell asleep. — Я так устал, что уснул.
+>
+> **such a** + прилагательное + предмет + **that** + …
+>
+> It was **such a good book that** I read it twice.
 
 ## Примеры
 
-- **I was so tired that I fell asleep.** — Я так устал, что уснул.
-- **It was such a good book that I read it twice.** — Книга была такой хорошей, что прочитал дважды.
+- **The weather was so nice that we went to the beach.** — Погода была такой хорошей, что мы пошли на пляж.
+- **It was such a nice day.** — Был такой хороший день.
+- **They are such friendly people.** — Они такие дружелюбные люди.
+- **There were so many people that we couldn't get in.** — Было столько людей, что мы не смогли войти.
 
-> [!warning] Не теряй артикль
-> **Such an interesting idea**, а не *such interesting idea*.
+> [!tip] Не теряй a
+> Если предмет **один** и его можно посчитать, после **such** нужен **a / an**: **such ==an== interesting idea**.
+
+> [!warning] Частые ошибки
+> - ~~It was so good film.~~ → **It was such a good film.** — есть предмет → `such a`.
+> - ~~such beautiful view~~ → **such a beautiful view**
+> - ~~such many people~~ → **so many people**
 
 ## Проверь себя
 
@@ -41,12 +67,12 @@ tags:
 6. Исправь ошибку: *I've never seen such beautiful view.*
 
 > [!success]- Ответы и пояснения
-> 1. **so** — дальше только прилагательное.
-> 2. **such** — есть существительное `day`.
-> 3. **such** — множественное существительное — `such` без `a`.
-> 4. **so** — перед `many/much` — `so`.
-> 5. **It was such a good film.** — есть существительное → `such a`.
-> 6. **I've never seen such a beautiful view.** — исчисляемое в единственном числе требует `a`.
+> 1. **so** — после него только прилагательное.
+> 2. **such** — есть предмет `day`.
+> 3. **such** — `people` — много людей, без `a`.
+> 4. **so** — перед `many` всегда `so`.
+> 5. **It was such a good film.** — есть предмет → `such a`.
+> 6. **I've never seen such a beautiful view.** — один предмет → `such a`.
 
 > [!info]- Источники
 > - [British Council — Intensifiers: 'so' and 'such'](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/intensifiers-so-such)

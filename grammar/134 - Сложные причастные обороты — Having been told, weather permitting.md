@@ -2,7 +2,7 @@
 level: C1
 order: 134
 prerequisites: 87
-keywords: деепричастный причастный оборот participle clause
+keywords: деепричастный причастный оборот participle clause, having been, weather permitting, with
 tags:
   - english/grammar
   - english/C1
@@ -11,25 +11,53 @@ tags:
 # Сложные причастные обороты — Having been told, weather permitting
 
 > [!abstract] Коротко
-> В причастном обороте сначала определи **кто действует, актив или пассив и было ли действие раньше**.
+> Это продолжение темы 87. Теперь обороты бывают **пассивными** (**Having been told** — когда ему сказали) и **со своим «кто»** (**Weather permitting** — если погода позволит).
 
-| Форма | Смысл |
-| --- | --- |
-| doing | активное действие, часто одновременно |
-| done / being done | пассивное состояние / процесс |
-| having done | активное действие раньше |
-| having been done | пассивное действие раньше |
-| not knowing | отрицание |
+## Суть
+
+Чтобы выбрать форму, задай два вопроса:
+
+- **Сам** делает или **с ним** делают?
+- **Одновременно** или **раньше**?
+
+| | Одновременно | Раньше |
+| --- | --- | --- |
+| **сам** делает | **doing** — делая | **having done** — сделав |
+| **с ним** делают | **being done** — когда его… | **having been done** — после того как его… |
+| **не** | **not knowing** — не зная | **not having done** — не сделав |
+
+> [!example] Пример
+> **Having read** the report, she called. — Прочитав отчёт, она позвонила. *Сама, раньше.*
+>
+> **Having been told** the news, she cried. — Когда ей сообщили новость, она заплакала. *Ей сказали, раньше.*
+
+## Оборот со своим «кто»
+
+Иногда у оборота **собственное** подлежащее:
+
+- **==Weather== permitting, we'll go out.** — Если погода позволит, пойдём гулять.
+- **==The work== done, we went home.** — Когда работа была закончена, мы пошли домой.
+- **==With the door== open, we could hear everything.** — Дверь была открыта, и мы всё слышали.
+
+## «Висячий» оборот — ошибка
+
+Если у оборота нет своего «кто», он относится к **первому слову после запятой**:
+
+- ~~Driving to work, the sun blinded me.~~ — *Получается, солнце ехало на работу!*
+- **Driving to work, ==I== was blinded by the sun.** ✓
 
 ## Примеры
 
-- **Having read the report, she called.** — Прочитав отчёт, она позвонила: оба действия её.
-- **Having been told the news, she cried.** — Узнав новость от другого человека, она заплакала.
-- **Weather permitting, we'll go out.** — Если погода позволит, мы пойдём гулять. У оборота своё подлежащее `weather`.
-- **The work finished, we went home.** — Закончив работу, мы пошли домой. Буквально: «Работа была закончена, и мы ушли»; у оборота своё подлежащее `the work`.
+- **Having checked the figures, she sent the report.** — Проверив цифры, она отправила отчёт.
+- **Having been injured, he couldn't play.** — Получив травму, он не мог играть.
+- **Not knowing the way, I asked a policeman.** — Не зная дороги, я спросил полицейского.
 
-> [!warning] Не «висячее» причастие
-> **Driving to work, I was blinded by the sun**, без *Driving to work, the sun…*: солнце не ехало. Отдельное подлежащее нужно назвать явно: **with his eyes closed / the rain having stopped**.
+> [!tip] Где встречается
+> Это письменный стиль: статьи, отчёты, книги. В разговоре проще сказать через **when, because, after**.
+
+> [!warning] Частые ошибки
+> - ~~Walking into the room, the smell of coffee hit me.~~ → **Walking into the room, I was hit by the smell of coffee.**
+> - ~~Not having knowing~~ → **Not knowing**
 
 ## Проверь себя
 
@@ -38,17 +66,17 @@ tags:
 1. Сократи: *After she had checked the figures, she sent the report.*
 2. Сократи: *Because he had been injured, he couldn't play.*
 3. Сократи: *As I didn't know the way, I asked a policeman.*
-4. Сократи с независимым оборотом: *When the work was done, we went home.*
+4. Сократи с собственным «кто»: *When the work was done, we went home.*
 5. Перефразируй с with: *The door was open, so we could hear everything.*
 6. Исправь висячий оборот: *Walking into the room, the smell of coffee hit me.*
 
 > [!success]- Ответы и пояснения
-> 1. **Having checked the figures, she sent the report.** — раньше, актив.
-> 2. **Having been injured, he couldn't play.** — раньше, пассив.
-> 3. **Not knowing the way, I asked a policeman.** — отрицание перед причастием.
-> 4. **The work done, we went home.** — у оборота своё подлежащее `the work`.
-> 5. **With the door open, we could hear everything.** — `with + существительное + прилагательное/причастие`.
-> 6. **Walking into the room, I was hit by the smell of coffee.** / **When I walked into the room, the smell of coffee hit me.** — в первом варианте оборот относится к подлежащему `I`. Во втором использованы две полные части со своими подлежащими: `I` и `the smell of coffee`.
+> 1. **Having checked the figures, she sent the report.** — сама, раньше.
+> 2. **Having been injured, he couldn't play.** — с ним случилось, раньше.
+> 3. **Not knowing the way, I asked a policeman.** — `not` перед `knowing`.
+> 4. **The work done, we went home.** — у оборота своё «кто» — `the work`.
+> 5. **With the door open, we could hear everything.**
+> 6. **Walking into the room, I was hit by the smell of coffee. / When I walked into the room, the smell of coffee hit me.** — входил в комнату я, значит после запятой — `I`.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Clauses: finite and non-finite](https://dictionary.cambridge.org/grammar/british-grammar/clauses-finite-and-non-finite)

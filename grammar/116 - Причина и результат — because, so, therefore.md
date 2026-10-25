@@ -2,7 +2,7 @@
 level: B1
 order: 116
 prerequisites: 1
-keywords:
+keywords: because so therefore, потому что поэтому, because of due to
 tags:
   - english/grammar
   - english/B1
@@ -11,24 +11,50 @@ tags:
 # Причина и результат — because, so, therefore
 
 > [!abstract] Коротко
-> **Because — причина. So — результат.** После `because of` нужно название причины, а не полное предложение.
+> **because** — «**потому что**» (причина). **so** — «**поэтому**» (результат). **because of** — «**из-за**» + слово (не целое предложение): **because of the rain**.
 
-| Связка | Что после неё |
-| --- | --- |
-| because / as / since | подлежащее + глагол |
-| because of / due to | существительное или -ing |
-| so | результат |
-| therefore / as a result | отдельное высказывание о результате |
+## Суть
+
+Одну и ту же связь можно показать с двух сторон:
+
+- **We stayed home ==because== it was raining.** — Мы остались дома, **потому что** шёл дождь. *Сначала результат, потом причина.*
+- **It was raining, ==so== we stayed home.** — Шёл дождь, **поэтому** мы остались дома. *Сначала причина, потом результат.*
+
+## Because или because of?
+
+Это главная ловушка темы. Смотри, что идёт **после**:
+
+| Слово | После него | Пример |
+| --- | --- | --- |
+| **because** — потому что | **целое предложение** (кто + глагол) | because **it was raining** |
+| **because of** — из-за | **просто слово** | because of **the rain** |
+| **due to** — из-за (официально) | **просто слово** | due to **the storm** |
+
+> [!example] Как проверить
+> После связки есть **глагол** (was, is, have)? → **because**.
+>
+> Только **существительное** (the rain, the traffic)? → **because of**.
+
+## Therefore — для письма
+
+**Therefore** и **as a result** — «поэтому, в результате» — звучат официально. Обычно начинают **новое** предложение:
+
+- **The road was closed. ==Therefore==, we took another route.** — Дорога была закрыта. Поэтому мы поехали другим путём.
 
 ## Примеры
 
-- **We stayed home because it was raining.** — Остались дома, потому что шёл дождь.
-- **We stayed home because of the rain.** — Остались дома из-за дождя.
-- **It was raining, so we stayed home.** — Шёл дождь, поэтому остались дома.
-- **It was raining. Therefore, we stayed home.** — Та же связь с отдельным предложением.
+- **We were late because of the traffic.** — Мы опоздали из-за пробок.
+- **We were late because there was a lot of traffic.** — Мы опоздали, потому что было много машин.
+- **I was hungry, so I made a sandwich.** — Я был голоден, поэтому сделал бутерброд.
+- **The flight was cancelled due to the storm.** — Рейс отменили из-за шторма.
 
-> [!warning] Не because…so
-> Для одной связи достаточно одного из них. Перед `therefore`, соединяющим полные предложения, нужна точка или точка с запятой, не одна запятая.
+> [!tip] Одна связка — одна связь
+> По-русски бывает «**Так как** я болел, **поэтому** остался дома». В английском — **только одно** из двух: **because** или **so**.
+
+> [!warning] Частые ошибки
+> - ~~Because I was ill, so I stayed.~~ → **Because I was ill, I stayed.** или **I was ill, so I stayed.**
+> - ~~because the rain~~ → **because of the rain**
+> - ~~because of it was raining~~ → **because it was raining**
 
 ## Проверь себя
 
@@ -42,12 +68,12 @@ tags:
 6. Соедини с therefore: *The road was closed. We took another route.*
 
 > [!success]- Ответы и пояснения
-> 1. **because of** — дальше только существительное.
-> 2. **because** — дальше целое предложение.
-> 3. **so** — результат.
-> 4. **The flight was cancelled due to the storm.** — `due to + существительное`.
-> 5. **Because I was ill, I stayed at home. / I was ill, so I stayed at home.** — одна связка на одну связь.
-> 6. **The road was closed. Therefore, we took another route.** — `therefore` обычно начинает новое предложение.
+> 1. **because of** — дальше только слово `the traffic`.
+> 2. **because** — дальше целое предложение `there was…`.
+> 3. **so** — бутерброд — результат голода.
+> 4. **The flight was cancelled due to the storm.** — `due to` + слово.
+> 5. **Because I was ill, I stayed at home. / I was ill, so I stayed at home.** — одна связка.
+> 6. **The road was closed. Therefore, we took another route.** — `therefore` начинает новое предложение.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Conjunctions](https://dictionary.cambridge.org/grammar/british-grammar/conjunctions)

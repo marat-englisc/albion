@@ -2,7 +2,7 @@
 level: C1
 order: 131
 prerequisites: 56, 57
-keywords: will have may well bound to might as well
+keywords: will have may well bound to might as well, догадки, наверняка
 tags:
   - english/grammar
   - english/C1
@@ -11,40 +11,65 @@ tags:
 # Модальные глаголы C1 — will для догадок, may well, be bound to
 
 > [!abstract] Коротко
-> Модальные формы передают не только время, но и **уверенность, ожидание и отношение**.
+> Продвинутые модальные выражения передают **уверенность и отношение**: **That'll be Anna.** — Это, наверняка, Анна. **Prices may well rise.** — Цены вполне могут вырасти. **We might as well walk.** — Можно и пешком пройтись.
 
-| Оттенок | Пример |
-| --- | --- |
-| догадка о настоящем | That'll be Anna. — Наверняка Анна. |
-| догадка о прошлом | They'll have left by now. — Наверняка уже ушли. |
-| ожидаемо | The parcel should arrive today. |
-| вполне вероятно | Prices may/might well rise. |
-| наверняка | He's bound/sure to notice. |
-| раз лучшего варианта нет | We might as well walk. |
+## Суть
 
-**He WILL interrupt** с ударением — раздражающая привычка. **The car won't start** — никак не заводится. **She would say that** — это для неё типично.
+Ты уже знаешь, что **must** может значить «должно быть» (тема 55). Вот ещё несколько способов показать уверенность:
 
-> [!warning] Не буквальный перевод
-> **Might as well** — «можно и». **You could have told me!** — упрёк. **I daren't ask / How dare you!** — не смею / как ты смеешь. **Can't help laughing** — не могу удержаться от смеха.
+| Хочу сказать | Как | Пример |
+| --- | --- | --- |
+| **наверняка** (догадка о сейчас) | **will** | (звонок в дверь) **That'll be** Anna. |
+| **наверняка уже** (о прошлом) | **will have** + V3 | They'**ll have left** by now. |
+| **должно** (ожидаемо) | **should** | The parcel **should arrive** today. |
+| **вполне вероятно** | **may / might well** | Prices **may well** rise. |
+| **точно, непременно** | **be bound / sure to** | He'**s bound to** notice. |
+| **можно и** (лучше нет) | **might as well** | We **might as well** walk. |
+
+## Will — не только будущее
+
+**Will** умеет выражать **уверенную догадку** о настоящем:
+
+- **Don't call him now — he'll be asleep.** — Не звони ему сейчас, он наверняка спит.
+
+## Will и would — характер
+
+- **He ==WILL== interrupt!** (с ударением) — Ну вечно он перебивает! *Раздражающая привычка.*
+- **The car ==won't== start.** — Машина никак не заводится. *Упрямо отказывается.*
+- **She ==would== say that.** — Ну конечно, она так и скажет. *Это для неё типично.*
+
+## Примеры
+
+- **The shop is closed. We might as well go home.** — Магазин закрыт. Можно и домой пойти.
+- **The price may well go up.** — Цена вполне может вырасти.
+- **They'll have left already.** — Они наверняка уже ушли.
+- **My printer won't work!** — Мой принтер никак не хочет работать!
+
+> [!tip] Might as well
+> Это не «мог бы так же хорошо», а «**раз уж так, можно и**…»: делаем, потому что лучшего варианта нет.
+
+> [!warning] Частые ошибки
+> - ~~We might as well to walk.~~ → **We might as well walk.**
+> - ~~He's bound notice.~~ → **He's bound to notice.**
 
 ## Проверь себя
 
 Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
 
 1. Переведи: «Не звони ему сейчас — он наверняка спит».
-2. Переведи: «Посылка должна прийти завтра» (ожидаемо).
-3. Вставь: The shop is closed. We ___ ___ ___ go home. (можно и)
-4. Перефразируй: *It's very likely that the price will go up.* (may well)
-5. Вставь глагол: My printer ___ (отказывается) work! Снова не запускается.
-6. Перефразируй: *I'm sure they have already left.* (will have)
+2. Переведи (ожидаемо): «Посылка должна прийти завтра».
+3. Вставь (можно и): The shop is closed. We ___ ___ ___ go home.
+4. Перефразируй с may well: *It's very likely that the price will go up.*
+5. Вставь глагол (отказывается): My printer ___ work! Снова не запускается.
+6. Перефразируй с will have: *I'm sure they have already left.*
 
 > [!success]- Ответы и пояснения
-> 1. **Don't call him now — he'll be asleep.** — `will` для догадки о настоящем.
-> 2. **The parcel should arrive tomorrow.** — `should` для ожидаемого результата.
-> 3. **might as well** — раз лучшего варианта нет.
+> 1. **Don't call him now — he'll be asleep.** — `will` для уверенной догадки.
+> 2. **The parcel should arrive tomorrow.** — `should` — ожидаемое.
+> 3. **might as well** — «раз уж так, можно и».
 > 4. **The price may well go up.** — «вполне вероятно».
-> 5. **won't** — упорный отказ: `My printer won't work!`
-> 6. **They'll have left already.** / **They will have already left.** — догадка о прошлом.
+> 5. **won't** — упрямо отказывается.
+> 6. **They'll have left already. / They will have already left.** — догадка о прошлом.
 
 > [!info]- Источники
 > - [Cambridge Dictionary — Will](https://dictionary.cambridge.org/grammar/british-grammar/will)

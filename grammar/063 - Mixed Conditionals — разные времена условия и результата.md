@@ -2,7 +2,7 @@
 level: B2
 order: 63
 prerequisites: 62
-keywords: смешанное условие would have
+keywords: смешанное условие would have, mixed conditionals
 tags:
   - english/grammar
   - english/B2
@@ -11,20 +11,41 @@ tags:
 # Mixed Conditionals — разные времена условия и результата
 
 > [!abstract] Коротко
-> В Mixed Conditionals **условие и результат относятся к разным временам**. Подпиши каждую часть: «тогда» или «сейчас».
+> Иногда «если бы» — про **прошлое**, а результат — про **сейчас**: **If I'd slept more, I wouldn't be tired now.** — Если бы я поспал подольше (вчера), я бы не был уставшим (сейчас). Это смешанное условие.
 
-| Связь | Формы |
-| --- | --- |
-| прошлое → сейчас | if + подлежащее + had + третья форма → подлежащее + would + начальная форма |
-| общая черта → прошлое | if + подлежащее + глагол в Past Simple → подлежащее + would + have + третья форма |
+## Суть
+
+Second Conditional — всё про «сейчас». Third — всё про «тогда». А в жизни часто бывает, что **прошлое влияет на настоящее**. Тогда мы просто берём **по половинке** от каждого:
+
+> [!example] Формула
+> **If** + **had** + V3 *(тогда)*, + **would** + глагол *(сейчас)*
+>
+> If I **had taken** that job, I **would be** rich now.
+
+Главное — **подпиши каждую часть**: «тогда» или «сейчас», и выбери для неё форму.
+
+| Часть | Тогда (прошлое) | Сейчас |
+| --- | --- | --- |
+| **условие с if** | had + V3 | Past Simple |
+| **результат** | would have + V3 | would + глагол |
+
+## Второй вариант
+
+Бывает и наоборот: **постоянная черта** (сейчас и всегда) объясняет **прошлое** событие:
+
+- **If I ==were== more careful, I ==wouldn't have lost== my keys yesterday.** — Будь я внимательнее (вообще), я бы не потерял ключи (вчера).
 
 ## Примеры
 
-- **If I'd slept more, I wouldn't be tired now.** — Если бы поспал дольше тогда, сейчас не устал бы.
-- **If I were more careful, I wouldn't have lost my keys yesterday.** — Если бы я был внимательнее вообще, вчера не потерял бы ключи.
+- **If I'd eaten breakfast, I wouldn't be hungry now.** — Если бы я позавтракал, сейчас бы не был голоден.
+- **If we hadn't missed the flight, we would be in Rome now.** — Если бы мы не опоздали на рейс, были бы сейчас в Риме.
+- **If he were braver, he would have jumped.** — Будь он смелее, он бы прыгнул.
 
-> [!warning] Не просто смешение форм
-> Общая черта должна быть применима и к прошлому событию. Если обе части относятся к завершённому прошлому, обычно нужен Third Conditional.
+> [!tip] Ищи слово «сейчас»
+> Видишь в результате **now, today, still** — скорее всего нужен **would + глагол**, даже если условие в прошлом.
+
+> [!warning] Частые ошибки
+> - ~~If I had studied medicine, I would have been a doctor now.~~ → **…I would be a doctor now.** — результат «сейчас».
 
 ## Проверь себя
 
@@ -35,15 +56,15 @@ tags:
 3. Перефразируй: *I didn't eat breakfast, so I'm hungry now.*
 4. Перефразируй: *He isn't brave, so he didn't jump.*
 5. Выбери: If we hadn't missed the flight, we (would be / would have been) in Rome now.
-6. Поставь результат в обычную для этой модели форму о настоящем: *If I had studied medicine, I would have been a doctor now.*
+6. Исправь результат так, чтобы он был о настоящем: *If I had studied medicine, I would have been a doctor now.*
 
 > [!success]- Ответы и пояснения
-> 1. **had taken, would be** — прошлое условие → результат сейчас.
-> 2. **were/was, wouldn't have lost** — постоянная черта → прошлое событие.
-> 3. **If I had eaten breakfast, I wouldn't be hungry now.** — прошлое → сейчас.
-> 4. **If he were braver, he would have jumped.** — общая черта характера, которая была ему свойственна и тогда, объясняет прошлое действие.
-> 5. **would be** — `now` — результат в настоящем.
-> 6. **If I had studied medicine, I would be a doctor now.** — условие относится к прошлому, а желаемое положение дел сейчас передаём через `would be`.
+> 1. **had taken, would be** — условие «тогда» (last year), результат «сейчас» (now).
+> 2. **were / was, wouldn't have lost** — черта характера «вообще» объясняет вчерашнюю потерю.
+> 3. **If I had eaten breakfast, I wouldn't be hungry now.** — тогда → сейчас.
+> 4. **If he were braver, he would have jumped.** — постоянная черта → прошлый поступок.
+> 5. **would be** — есть `now`, результат в настоящем.
+> 6. **If I had studied medicine, I would be a doctor now.** — «сейчас был бы врачом» → `would be`.
 
 > [!info]- Источники
 > - [British Council — Conditionals: third and mixed](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/conditionals-third-mixed)

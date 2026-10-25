@@ -2,7 +2,7 @@
 level: A1
 order: 4
 prerequisites: 3
-keywords: иметь у меня есть, possession
+keywords: иметь у меня есть, possession, have got
 tags:
   - english/grammar
   - english/A1
@@ -11,23 +11,45 @@ tags:
 # Have и have got — обладание
 
 > [!abstract] Коротко
-> «У меня есть» — **I have** или разговорное **I've got**. В вопросах и отрицаниях не смешивай части этих двух моделей.
+> «У меня есть» по-английски звучит как «Я имею»: **I have a car**. В разговоре часто говорят **I've got a car** — смысл тот же.
 
-| Have | Have got |
+## Суть
+
+По-русски мы говорим «**У меня** есть кошка». Англичанин говорит иначе: «**Я имею** кошку» — **I have a cat**. Человек стоит в начале, как обычно.
+
+С **he, she, it** вместо `have` говорим **has**:
+
+| Кто | Форма |
+| --- | --- |
+| I, you, we, they | **have** |
+| he, she, it | **has** |
+
+Есть второй вариант — **have got**. Он чуть разговорнее, особенно в Британии. Значат они одно и то же: **She has a dog = She's got a dog.**
+
+## Отрицание и вопрос
+
+Главное правило: **не смешивай два варианта**.
+
+| С have | С have got |
 | --- | --- |
 | She has a car. | She's got a car. |
-| She doesn't have a car. | She hasn't got a car. |
-| Does she have a car? | Has she got a car? |
-
-С `I/you/we/they` — `have`, с `he/she/it` — `has`. Обе модели могут описывать вещи, родственников и другие отношения: **I have two sisters / I've got two sisters**.
-
-В значении «есть, имеется» модель `have got` обычно используют в настоящем времени. Для прошлого используй **had**, **didn't have**, **Did you have…?**, для будущего — **will have**. Эти формы подробно разбираются в следующих уроках.
+| She ==doesn't have== a car. | She ==hasn't got== a car. |
+| ==Does== she ==have== a car? | ==Has== she ==got== a car? |
 
 ## Примеры
 
 - **I've got two sisters.** — У меня две сестры.
 - **Do you have a pen?** — У тебя есть ручка?
-- **I have breakfast at seven.** — Я завтракаю в семь. Здесь `have` — действие, поэтому без `got`.
+- **My flat has a big kitchen.** — В моей квартире большая кухня.
+- **He doesn't have time.** — У него нет времени.
+
+> [!tip] Have — это не только «иметь»
+> **I have breakfast** — я завтракаю. **Have a shower** — принять душ. Здесь `have` — действие, и **got** к нему не добавляют.
+
+> [!warning] Частые ошибки
+> - ~~Do you have got a pen?~~ → **Do you have a pen?** или **Have you got a pen?** — выбери один вариант.
+> - ~~She have a dog.~~ → **She has a dog.** — с `he/she/it` нужен `has`.
+> - ~~I've got breakfast at seven.~~ → **I have breakfast at seven.** — с действием `got` не используется.
 
 ## Проверь себя
 
@@ -37,16 +59,16 @@ tags:
 2. Сделай вопрос с do: *They have a car.*
 3. Сделай вопрос с got: *She has got a dog.*
 4. Исправь ошибку: *Do you have got a pen?*
-5. Исправь ошибку: *I've got breakfast at seven.* (имеется в виду ежедневное «Я завтракаю в семь»)
+5. Исправь ошибку: *I've got breakfast at seven.* (имеется в виду «Я завтракаю в семь»)
 6. Переведи: «У него нет машины».
 
 > [!success]- Ответы и пояснения
-> 1. **has** — `my sister` = `she` → `has`.
-> 2. **Do they have a car?** — у обычного `have` вопрос строится через `do`.
-> 3. **Has she got a dog?** — в модели `have got` вперёд выходит `has`.
-> 4. **Do you have a pen? / Have you got a pen?** — выбери одну модель: `do…have` или `have…got`.
-> 5. **I have breakfast at seven.** — `have breakfast` — действие «завтракать», с ним `got` не используется.
-> 6. **He doesn't have a car. / He hasn't got a car.** — оба варианта верны; главное — не смешивать их.
+> 1. **has** — сестра — это «она» → `has`.
+> 2. **Do they have a car?** — у обычного `have` вопрос начинается с `do`.
+> 3. **Has she got a dog?** — в варианте с `got` вперёд выходит `has`.
+> 4. **Do you have a pen? / Have you got a pen?** — либо `do… have`, либо `have… got`, но не всё сразу.
+> 5. **I have breakfast at seven.** — «завтракать» — это действие, с ним `got` не бывает.
+> 6. **He doesn't have a car. / He hasn't got a car.** — оба верны, главное — не смешивать.
 
 > [!info]- Источники
 > - [British Council — Present simple: 'have got'](https://learnenglish.britishcouncil.org/free-resources/grammar/a1-a2/present-simple-have-got)

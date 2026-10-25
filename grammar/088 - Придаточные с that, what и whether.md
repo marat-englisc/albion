@@ -2,7 +2,7 @@
 level: B2
 order: 88
 prerequisites: 17
-keywords:
+keywords: that what whether, что то что ли, косвенный вопрос
 tags:
   - english/grammar
   - english/B2
@@ -11,17 +11,48 @@ tags:
 # Придаточные с that, what и whether
 
 > [!abstract] Коротко
-> **That** вводит сообщение или мысль — «что»; **what** означает «то, что»; **whether/if** передают «ли».
+> Русское «**что**» переводится по-разному: **that** — «что» (союз: **I know ==that== she's here**), **what** — «**то, что**» (**I understand ==what== you mean**). А «**ли**» — это **whether / if**.
+
+## Суть
+
+Русское «что» — хитрое слово. Разберём три случая:
+
+| По-русски | По-английски | Пример |
+| --- | --- | --- |
+| «Знаю, **что** она здесь» — просто связка | **that** | I know **that** she's here. |
+| «Понимаю, **что** ты имеешь в виду» = «то, что» | **what** | I understand **what** you mean. |
+| «Не знаю, здесь **ли** она» | **whether / if** | I don't know **whether** she's here. |
+
+> [!example] Как проверить
+> Можно вставить «**то, что**»? → **what**: Я не верю (**тому, что**) он сказал → I can't believe **what** he said.
+>
+> Нельзя? → **that**: Я думаю, **что** он честный → I think **that** he's honest.
+
+**That** часто вообще выбрасывают: **I know she's here.**
+
+## Внутри — обычный порядок
+
+Если внутри есть вопросительное слово (**where, how, why**), порядок — как в утверждении, без **do**:
+
+- **Tell me how ==it works==.** — Скажи, как это работает. (не ~~how does it work~~)
+
+## Только whether
+
+**If** и **whether** обычно взаимозаменяемы. Но перед **to** + глагол — только **whether**: **We haven't decided ==whether to go==.**
 
 ## Примеры
 
-- **I know (that) she is here.** — Знаю, что она здесь. `That` после `know` можно опустить.
-- **I understand what you mean.** — Понимаю то, что ты имеешь в виду. `What` уже включает «то».
-- **I don't know whether she's here.** — Не знаю, здесь ли она.
-- **Tell me how it works.** — Скажи, как это работает: порядок утверждения.
+- **I believe he is honest.** — Я верю, что он честный.
+- **I can't believe what he said.** — Не могу поверить в то, что он сказал.
+- **I wonder if he will come.** — Интересно, придёт ли он.
+- **I don't know where she lives.** — Я не знаю, где она живёт.
 
-> [!warning] Когда только whether
-> Перед инфинитивом: **whether to go**, не *if to go*. В начале предложения-подлежащего: **Whether he comes matters** — «Важно, придёт ли он»; здесь `if` не используется. Не заменяй `what` словом `that` механически.
+> [!tip] What = the thing that
+> **What I need is time** = **The thing that I need is time.** — То, что мне нужно, — это время.
+
+> [!warning] Частые ошибки
+> - ~~The thing what I need~~ → **The thing (that) I need** или **What I need**
+> - ~~I don't know where does she live.~~ → **I don't know where she lives.**
 
 ## Проверь себя
 
@@ -36,11 +67,11 @@ tags:
 
 > [!success]- Ответы и пояснения
 > 1. **what** — «то, что он сказал».
-> 2. **that** — вводим мысль «он честный»; `that` не заменяет ни один член следующего предложения.
-> 3. **whether** — выбор «ли» перед `to + начальная форма`.
-> 4. **I don't know where she lives.** — внутри порядок утверждения, без `does`.
-> 5. **The thing (that) I need is time. / What I need is time.** — после существительного — `that/which`, а не `what`.
-> 6. **I wonder if/whether he will come.** — «ли» → `if/whether`.
+> 2. **that** — просто связка «что», «то, что» вставить нельзя.
+> 3. **whether** — «ли» перед `to` + глагол.
+> 4. **I don't know where she lives.** — внутри обычный порядок, без `does`.
+> 5. **The thing (that) I need is time. / What I need is time.** — после `the thing` нужно `that`, а не `what`.
+> 6. **I wonder if / whether he will come.** — «ли» → `if / whether`.
 
 > [!info]- Источники
 > - [British Council — Reporting verbs with 'that', 'wh-' and 'if' clauses](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/reporting-verbs-wh-if-clauses)
