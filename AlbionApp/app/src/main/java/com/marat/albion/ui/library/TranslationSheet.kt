@@ -1,13 +1,10 @@
 package com.marat.albion.ui.library
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,11 +44,18 @@ import androidx.compose.material.icons.rounded.BorderColor
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
@@ -103,6 +107,7 @@ fun TranslationSheet(
     var cards by remember(text) { mutableStateOf<List<CardEntity>>(emptyList()) }
     var entries by remember(text) { mutableStateOf<List<DictEntry>?>(null) }
     var glosses by remember(text) { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var details by rememberSaveable(text) { mutableStateOf(false) }
 
     LaunchedEffect(text) {
         if (isWord) {
@@ -143,7 +148,7 @@ fun TranslationSheet(
                 .padding(horizontal = 24.dp).navigationBarsPadding().imePadding().padding(bottom = 20.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Eyebrow(if (isWord) "Слово" else "Фрагмент", Modifier.weight(1f))
+                Eyebrow(if (isWord) "Перевод слова" else "Перевод фрагмента", Modifier.weight(1f))
                 AudioButton(
                     playing = audio.playingKey == "read:$text",
                     onClick = {
@@ -154,6 +159,9 @@ fun TranslationSheet(
                     size = 38.dp,
                     primary = false,
                 )
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Rounded.Close, "Закрыть перевод", tint = Ink.Muted)
+                }
             }
             Spacer(Modifier.height(10.dp))
             Text(
@@ -161,80 +169,87 @@ fun TranslationSheet(
                 style = TextStyle(fontFamily = Serif, fontSize = if (isWord) 34.sp else 20.sp, lineHeight = if (isWord) 40.sp else 29.sp),
                 color = Ink.Fg,
             )
-            if (bookSource != null) {
-                BookWordAction(text, cards, entries.orEmpty(), (result as? TranslationResult.Done)?.text,
-                    bookSource, bookExample, onOpenBookWords)
+            val dictionary = entries.orEmpty()
+            val firstEntry = dictionary.firstOrNull { entry -> entry.senses.any { it.isNotBlank() } }
+            val dictionaryMeaning = firstEntry?.senses?.firstOrNull { it.isNotBlank() }
+            val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu
+            val automatic = (result as? TranslationResult.Done)?.text?.takeIf { it.isNotBlank() }
+            val ipa = cards.firstOrNull { it.ipa.isNotBlank() }?.ipa
+            if (isWord && (firstEntry?.posLabel?.isNotBlank() == true || ipa != null)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(top = 6.dp)) {
+                    firstEntry?.posLabel?.takeIf { it.isNotBlank() }?.let { Chip(it) }
+                    if (ipa != null) Text(ipa, style = AlbionType.ipa)
+                }
             }
-            if (onHighlight != null) {
-                HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
+            // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
+            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic
+            Spacer(Modifier.height(12.dp))
+            if (meaning != null) {
+                Text(meaning, style = TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 30.sp), color = Ink.Text)
+                Text(when {
+                    dictionaryMeaning != null -> "Словарь"
+                    cardMeaning != null -> "Из ваших карточек"
+                    else -> "Автоперевод"
+                }, style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                    modifier = Modifier.padding(top = 6.dp))
+            } else {
+                when (val r = result) {
+                    TranslationResult.Loading -> {
+                        Text(if (isWord && entries == null) "Ищу перевод…"
+                            else if (model == ModelState.Downloading) "Загружается перевод предложений…" else "Перевожу…",
+                            style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                        LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
+                            color = Ink.Accent, trackColor = Ink.Line)
+                    }
+                    is TranslationResult.Failed -> Text(r.message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    else -> Text("Перевод не найден. Значение можно указать при сохранении.",
+                        style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                }
+                if (glosses.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    Eyebrow("Перевод по словам")
+                    WordGlosses(glosses.take(4))
+                }
             }
-            Spacer(Modifier.height(18.dp))
-            Hairline()
 
-            if (isWord) {
+            if (bookSource != null || onHighlight != null) {
                 Spacer(Modifier.height(16.dp))
-                Eyebrow("Словарь")
-                Spacer(Modifier.height(8.dp))
-                val list = entries
-                when {
-                    list == null -> Text("Ищу…", style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                    list.isEmpty() -> Text("Во встроенном словаре этого слова нет.", style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                    else -> Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                        list.forEach { e -> DictionaryArticle(e, showHeadword = !e.headword.equals(text, ignoreCase = true)) }
-                    }
+                Hairline()
+                if (bookSource != null) {
+                    BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords)
                 }
+                if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
             }
 
-            if (result != TranslationResult.Skipped) {
-                Spacer(Modifier.height(if (isWord) 20.dp else 16.dp))
-                Eyebrow(if (isWord) "Машинный перевод · ML Kit" else "Перевод · ML Kit")
-                Spacer(Modifier.height(8.dp))
-                AnimatedContent(
-                    targetState = result,
-                    transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) },
-                    label = "translation",
-                ) { r ->
-                    when (r) {
-                        TranslationResult.Loading, TranslationResult.Skipped -> Column {
-                            Text(
-                                if (model == ModelState.Downloading) "Модель перевода фраз загружается в фоне — перевод появится, как только она будет готова."
-                                else "Перевожу…",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Ink.Muted,
-                            )
-                            Spacer(Modifier.height(12.dp))
-                            LinearProgressIndicator(Modifier.fillMaxWidth().height(2.dp), color = Ink.Fg, trackColor = Ink.Line)
+            val hasDetails = dictionary.sumOf { it.senses.size } > 1 || cards.isNotEmpty() ||
+                (isWord && automatic != null && !automatic.equals(meaning, ignoreCase = true)) ||
+                (meaning == null && glosses.size > 4) ||
+                dictionary.any { !it.headword.equals(text, ignoreCase = true) }
+            if (hasDetails) {
+                Spacer(Modifier.height(12.dp))
+                TextButton(onClick = { details = !details }, modifier = Modifier.fillMaxWidth().semantics {
+                    stateDescription = if (details) "Развёрнуто" else "Свёрнуто"
+                }) {
+                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = Ink.Accent)
+                    Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Accent,
+                        modifier = Modifier.padding(start = 8.dp).rotate(if (details) 180f else 0f))
+                }
+                AnimatedVisibility(details) {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(top = 8.dp)) {
+                        dictionary.forEach { DictionaryArticle(it, showHeadword = !it.headword.equals(text, ignoreCase = true)) }
+                        if (isWord && automatic != null && !automatic.equals(meaning, ignoreCase = true)) {
+                            Column {
+                                Eyebrow("Автоперевод")
+                                Text(automatic, style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                            }
                         }
-                        is TranslationResult.Done -> Text(
-                            r.text,
-                            style = TextStyle(fontFamily = Serif, fontSize = if (isWord) 22.sp else 19.sp, lineHeight = 28.sp),
-                            color = Ink.Text,
-                        )
-                        is TranslationResult.Failed -> Text(r.message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                    }
-                }
-            }
-
-            if (glosses.isNotEmpty()) {
-                Spacer(Modifier.height(20.dp))
-                Eyebrow("По словам · встроенный словарь")
-                Spacer(Modifier.height(10.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    glosses.forEach { (w, t) ->
-                        Row {
-                            Text(w, style = TextStyle(fontFamily = Serif, fontSize = 17.sp), color = Ink.Fg, modifier = Modifier.width(120.dp))
-                            Text(t, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                        if (meaning == null && glosses.size > 4) WordGlosses(glosses.drop(4))
+                        if (cards.isNotEmpty()) {
+                            Eyebrow("В ваших карточках")
+                            cards.forEach { DictionaryEntry(it) }
                         }
                     }
-                }
-            }
-
-            if (cards.isNotEmpty()) {
-                Spacer(Modifier.height(22.dp))
-                Eyebrow("В ваших карточках")
-                Spacer(Modifier.height(10.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    cards.forEach { card -> DictionaryEntry(card) }
                 }
             }
         }
@@ -243,6 +258,18 @@ fun TranslationSheet(
 
 private val ARTICLES = setOf("a", "an", "the")
 private val WORD = Regex("[A-Za-z][A-Za-z'’-]*")
+
+@Composable
+private fun WordGlosses(glosses: List<Pair<String, String>>) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 8.dp)) {
+        glosses.forEach { (word, meaning) ->
+            Column {
+                Text(word, style = TextStyle(fontFamily = Serif, fontSize = 17.sp), color = Ink.Fg)
+                Text(meaning, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+            }
+        }
+    }
+}
 
 @Composable
 private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
@@ -333,7 +360,7 @@ private fun HighlightSection(
             )
         }
         Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             when {
                 editing -> {
                     SmallAction("Сохранить", Icons.Rounded.Check) {
@@ -359,7 +386,8 @@ private fun HighlightSection(
 @Composable
 private fun SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        Modifier.border(1.dp, Ink.LineStrong, RoundedCornerShape(20.dp)).clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 8.dp),
+        Modifier.border(1.dp, Ink.LineStrong, RoundedCornerShape(20.dp)).clickable(onClick = onClick)
+            .heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, null, tint = Ink.Fg, modifier = Modifier.size(16.dp))

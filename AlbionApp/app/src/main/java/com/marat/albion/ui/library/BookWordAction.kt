@@ -74,7 +74,7 @@ internal fun BookWordAction(
     Column(Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(14.dp))
         PrimaryButton(
-            if (existing.isEmpty()) "Добавить в «Слова из книг»" else "Добавить другое значение",
+            if (existing.isEmpty()) "В «Слова из книг»" else "Добавить другое значение",
             onClick = { editing = true }, icon = Icons.Rounded.Add,
         )
         saved?.let { result ->

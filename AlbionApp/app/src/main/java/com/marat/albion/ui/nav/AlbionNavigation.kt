@@ -19,6 +19,9 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -35,6 +38,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,21 +57,31 @@ import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -89,6 +103,8 @@ import com.marat.albion.ui.browse.CardDetailScreen
 import com.marat.albion.ui.components.CenteredColumn
 import com.marat.albion.ui.components.DashboardWidth
 import com.marat.albion.ui.components.FocusWidth
+import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.Hairline
 
 import com.marat.albion.ui.components.ReadableWidth
 import com.marat.albion.ui.components.WidthClass
@@ -308,29 +324,28 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp)
+    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp,
+        fontWeight = FontWeight.SemiBold)
     val textMeasurer = rememberTextMeasurer()
-    val labelWidth = with(LocalDensity.current) {
-        tabs.maxOf { textMeasurer.measure(it.label, labelStyle.copy(fontWeight = FontWeight.SemiBold), softWrap = false).size.width }.toDp() + 12.dp
-    }
     val shape = RoundedCornerShape(28.dp)
     Box(
         Modifier.background(Ink.Bg).windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 10.dp),
+            .padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 10.dp),
     ) {
         BoxWithConstraints(
             Modifier.fillMaxWidth().softShadow(shape, 10.dp).background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
-                .padding(horizontal = 6.dp),
         ) {
             val tabWidth = maxWidth / tabs.size
-            val compact = tabWidth < labelWidth
-            val selectedWidth = if (compact) {
-                labelWidth.coerceAtMost(maxWidth - 48.dp * (tabs.size - 1)).coerceAtLeast(tabWidth)
-            } else tabWidth
-            val otherWidth = (maxWidth - selectedWidth) / (tabs.size - 1)
-            val blobWidth = 56.dp
+            val availablePx = with(LocalDensity.current) { (tabWidth - 2.dp).roundToPx() }
+            // Полные названия не разрываем внутри слов и не уменьшаем системный шрифт.
+            val needsMenu = tabs.any { textMeasurer.measure(it.label, labelStyle, softWrap = false).size.width > availablePx }
+            if (needsMenu) {
+                NavigationMenu(selected, onSelect)
+                return@BoxWithConstraints
+            }
+            val blobWidth = 56.dp.coerceAtMost(tabWidth)
             val indicatorX by animateDpAsState(
-                otherWidth * index + (selectedWidth - blobWidth) / 2,
+                tabWidth * index + (tabWidth - blobWidth) / 2,
                 spring(dampingRatio = 0.62f, stiffness = 420f),
                 label = "indicator",
             )
@@ -341,19 +356,75 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                     val isSelected = i == index
                     val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "tab")
                     Column(
-                        Modifier.width(if (isSelected) selectedWidth else otherWidth).fillMaxHeight().heightIn(min = 68.dp)
+                        Modifier.weight(1f).fillMaxHeight().heightIn(min = 68.dp)
                             .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
-                            .padding(horizontal = 2.dp, vertical = 8.dp),
+                            // Подпись выше нижних скруглений капсулы, включая экран 320 dp.
+                            .padding(start = 1.dp, end = 1.dp, top = 8.dp, bottom = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Box(Modifier.width(blobWidth).height(32.dp), contentAlignment = Alignment.Center) {
-                            TabIcon(tab.icon, isSelected, if (compact && !isSelected) tab.label else null)
+                            TabIcon(tab.icon, isSelected, null)
                         }
-                        if (!compact || isSelected) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(tab.label, style = labelStyle.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium),
-                                maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
+                        Spacer(Modifier.height(4.dp))
+                        Text(tab.label, style = labelStyle, maxLines = 1, softWrap = false,
+                            textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** При крупном шрифте список сохраняет полные названия и оставляет место самой странице. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    val current = tabs.first { it.route == selected }
+    val density = LocalDensity.current
+    Row(Modifier.fillMaxWidth().heightIn(min = 68.dp)
+        .clickable(role = Role.Button, onClick = { open = true }).padding(horizontal = 20.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Icon(current.icon, null, tint = Ink.Accent, modifier = Modifier.size(24.dp))
+        Column(Modifier.weight(1f)) {
+            Text(current.label, style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 14.sp,
+                lineHeight = 20.sp, fontWeight = FontWeight.SemiBold), color = Ink.Fg)
+            Text("Все разделы", style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp,
+                lineHeight = 16.sp), color = Ink.Muted)
+        }
+        Icon(Icons.Rounded.Menu, null, tint = Ink.Accent, modifier = Modifier.size(24.dp))
+    }
+    if (open) ModalBottomSheet(
+        onDismissRequest = { open = false },
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Ink.Raised, contentColor = Ink.Text, scrimColor = Ink.Bg.copy(alpha = 0.4f),
+        dragHandle = { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) },
+    ) {
+        CompositionLocalProvider(LocalDensity provides density) {
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
+                .navigationBarsPadding().padding(bottom = 12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Eyebrow("Разделы", Modifier.weight(1f))
+                    IconButton(onClick = { open = false }) {
+                        Icon(Icons.Rounded.Close, "Закрыть разделы", tint = Ink.Muted)
+                    }
+                }
+                Column(Modifier.selectableGroup()) {
+                    tabs.forEach { tab ->
+                        val active = tab.route == selected
+                        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
+                            .background(if (active) Ink.AccentSoft else Ink.Raised, RoundedCornerShape(16.dp))
+                            .selectable(selected = active, role = Role.Tab, onClick = {
+                                open = false
+                                onSelect(tab.route)
+                            }).padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Icon(tab.icon, null, tint = if (active) Ink.Accent else Ink.Muted, modifier = Modifier.size(24.dp))
+                            Text(tab.label, modifier = Modifier.weight(1f), style = AlbionType.eyebrow.copy(
+                                letterSpacing = 0.sp, fontSize = 16.sp, lineHeight = 22.sp), color = Ink.Fg)
+                            if (active) Icon(Icons.Rounded.Check, null, tint = Ink.Accent, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
