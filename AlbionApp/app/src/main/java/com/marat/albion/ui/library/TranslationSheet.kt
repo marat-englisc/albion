@@ -263,7 +263,7 @@ private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
 
 @Composable
 private fun DictionaryEntry(card: CardEntity) {
-    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(card.term, style = TextStyle(fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
             Spacer(Modifier.width(10.dp))
@@ -308,7 +308,7 @@ private fun HighlightSection(
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         if (highlight != null) {
-            Column(Modifier.fillMaxWidth().background(Ink.Fg.copy(alpha = 0.06f), RoundedCornerShape(4.dp)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(Ink.Fg.copy(alpha = 0.06f), RoundedCornerShape(12.dp)).padding(14.dp)) {
                 Eyebrow("Выделено")
                 Spacer(Modifier.height(6.dp))
                 Text(highlight.text, style = TextStyle(fontFamily = Serif, fontSize = 16.sp, lineHeight = 23.sp), color = Ink.Text, maxLines = 4)

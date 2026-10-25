@@ -104,7 +104,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = AlbionType.index)
@@ -178,7 +178,7 @@ fun CardBack(
                 Spacer(Modifier.height(22.dp))
                 Column(
                     Modifier.fillMaxWidth().reveal(reveal, ++i, step = 70)
-                        .border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(14.dp),
+                        .border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))

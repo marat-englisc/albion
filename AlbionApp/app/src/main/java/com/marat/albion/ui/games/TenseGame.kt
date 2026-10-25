@@ -166,7 +166,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(16.dp)) {
+                    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(16.dp)) {
                         Eyebrow(task.formLabel, color = Ink.Soft)
                         Spacer(Modifier.height(8.dp))
                         Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)

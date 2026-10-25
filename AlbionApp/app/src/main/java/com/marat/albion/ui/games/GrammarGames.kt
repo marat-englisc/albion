@@ -49,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -318,30 +319,31 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
-            GameSetupHeader(vm.game!!, Modifier.reveal(reveal, 0))
-            if (total == 0) {
-                EmptyState(
-                    "Заданий пока нет",
-                    "Задания берутся из collections/grammar_tasks.xlsx. Пересоберите приложение с материалами.",
-                    Modifier.padding(top = 24.dp),
-                )
-                return@Column
-            }
-            Column(Modifier.reveal(reveal, 1)) {
-                SectionHeader("Уровень", Modifier.padding(top = 20.dp), trailing = if (total > 0) "$total" else null)
-                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(22.dp)) {
-                    LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
+            GameSetupHeader(vm.game!!, Modifier.reveal(reveal, 0)) {
+                if (total == 0) {
+                    Text(
+                        "Заданий пока нет. Они берутся из collections/grammar_tasks.xlsx — пересоберите приложение с материалами.",
+                        style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, modifier = Modifier.padding(top = 10.dp),
+                    )
+                    return@GameSetupHeader
+                }
+                Column(Modifier.reveal(reveal, 1)) {
+                    SectionHeader("Уровень", Modifier.padding(top = 0.dp), trailing = "$total")
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
+                    }
+                }
+                Column(Modifier.reveal(reveal, 2)) {
+                    SectionHeader("Длина", Modifier.padding(top = 4.dp))
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
+                    }
                 }
             }
-            Column(Modifier.reveal(reveal, 2)) {
-                SectionHeader("Длина", Modifier.padding(top = 12.dp))
-                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
-                    listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
-                }
-            }
-            Spacer(Modifier.height(28.dp))
+            if (total == 0) return@Column
+            Spacer(Modifier.height(24.dp))
             PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                modifier = Modifier.reveal(reveal, 3).peekingFinn(at = 0.86f, height = 56.dp))
+                modifier = Modifier.reveal(reveal, 3))
         }
     }
 }
@@ -383,7 +385,7 @@ private fun TaskHeader(task: GrammarTaskEntity) {
 private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
         if (task.explanation.isNotBlank()) {
-            Row(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(14.dp)) {
+            Row(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp)) {
                 Text(task.explanation, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
             }
         }
@@ -452,33 +454,50 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
 
 internal enum class OptionState { Idle, Correct, Wrong, Dim }
 
-/** Вариант ответа: верный заливается, неверный выбранный — зачёркивается. */
+/** Вариант ответа: верный заливается зелёным и подпрыгивает, неверный выбранный — тёплым и зачёркивается. */
 @Composable
 internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
-    val bg by animateColorAsState(if (state == OptionState.Correct) Ink.Fg else Ink.Bg, tween(260), label = "bg")
+    val bg by animateColorAsState(
+        when (state) {
+            OptionState.Correct -> Ink.Accent
+            OptionState.Wrong -> Ink.WarmSoft
+            else -> Ink.Raised
+        },
+        tween(260), label = "bg",
+    )
     val fg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> Ink.Bg
-            OptionState.Wrong, OptionState.Dim -> Ink.Faint
+            OptionState.Correct -> Ink.OnAccent
+            OptionState.Wrong -> Ink.Warm
+            OptionState.Dim -> Ink.Faint
             OptionState.Idle -> Ink.Text
         },
         tween(260), label = "fg",
     )
     val border by animateColorAsState(
         when (state) {
-            OptionState.Correct -> Ink.Fg
-            OptionState.Wrong -> Ink.Muted
+            OptionState.Correct -> Ink.AccentDeep
+            OptionState.Wrong -> Ink.Warm
             OptionState.Dim -> Ink.Line
             OptionState.Idle -> Ink.LineStrong
         },
         tween(260), label = "border",
     )
+    val pop = remember { androidx.compose.animation.core.Animatable(1f) }
+    LaunchedEffect(state) {
+        if (state == OptionState.Correct) {
+            pop.snapTo(0.94f)
+            pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 600f))
+        }
+    }
+    val shape = RoundedCornerShape(16.dp)
     Row(
         Modifier.fillMaxWidth().heightIn(min = 56.dp)
-            .pressScale(interaction, 0.98f)
-            .background(bg, RoundedCornerShape(4.dp))
-            .border(1.dp, border, RoundedCornerShape(4.dp))
+            .graphicsLayer { scaleX = pop.value; scaleY = pop.value }
+            .pressScale(interaction, 0.97f)
+            .background(bg, shape)
+            .border(if (state == OptionState.Idle) 1.dp else 2.dp, border, shape)
             .clickable(interaction, indication = null, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -490,8 +509,8 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
             modifier = Modifier.weight(1f),
         )
         when (state) {
-            OptionState.Correct -> Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(18.dp))
-            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Muted, modifier = Modifier.size(18.dp))
+            OptionState.Correct -> Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(18.dp))
+            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Warm, modifier = Modifier.size(18.dp))
             else -> {}
         }
     }

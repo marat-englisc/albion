@@ -3,7 +3,27 @@ package com.marat.albion.ui.settings
 import com.marat.albion.ui.components.PeekFrom
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.FinnPeek
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextAlign
+import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.theme.Palette
+import com.marat.albion.ui.theme.pressScale
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -46,7 +66,7 @@ import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.data.settings.ThemeMode
-import com.marat.albion.data.settings.ThemeStyle
+
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
@@ -86,41 +106,15 @@ fun SettingsScreen(onBack: () -> Unit) {
                 SectionHeader("Оформление", Modifier.padding(top = 16.dp))
                 Column(Modifier.padding(vertical = 14.dp)) {
                     Text("Тема", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                    Spacer(Modifier.height(8.dp))
-                    Column(Modifier.fillMaxWidth().selectableGroup()) {
-                        ThemeMode.entries.forEach { mode ->
-                            RadioSettingOption(mode.title, s.themeMode == mode) { scope.launch { repo.setThemeMode(mode) } }
-                        }
-                    }
                     Spacer(Modifier.height(12.dp))
-                    Text("Палитра", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                    Spacer(Modifier.height(8.dp))
-                    Column(Modifier.fillMaxWidth().selectableGroup()) {
-                        ThemeStyle.entries.forEach { style ->
-                            Row(
-                                Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                                    .selectable(selected = s.themeStyle == style, role = Role.RadioButton,
-                                        onClick = { scope.launch { repo.setThemeStyle(style) } })
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(selected = s.themeStyle == style, onClick = null,
-                                    colors = RadioButtonDefaults.colors(selectedColor = Ink.Fg, unselectedColor = Ink.Muted))
-                                Spacer(Modifier.width(12.dp))
-                                Text(style.title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium,
-                                    color = if (s.themeStyle == style) Ink.Fg else Ink.Soft)
-                                Spacer(Modifier.width(12.dp))
-                                listOf(false, true).forEach { dark ->
-                                    val preview = paletteFor(dark, style == ThemeStyle.SOFT)
-                                    Box(Modifier.padding(start = 6.dp).size(22.dp)
-                                        .background(preview.bg, CircleShape).border(1.dp, Ink.LineStrong, CircleShape))
-                                }
-                            }
+                    Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        ThemeMode.entries.forEach { mode ->
+                            ThemeTile(mode, s.themeMode == mode, Modifier.weight(1f)) { scope.launch { repo.setThemeMode(mode) } }
                         }
                     }
-                    Text("«Бумага» в светлой теме, «Графит» — в тёмной.",
+                    Text("Светлая — утро у моря, тёмная — ночной фьорд. Цвета взяты у Финна: шарф, клюв и оперение.",
                         style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
-                        modifier = Modifier.padding(top = 8.dp))
+                        modifier = Modifier.padding(top = 12.dp))
                 }
                 Hairline()
             }
@@ -222,14 +216,75 @@ fun SettingsScreen(onBack: () -> Unit) {
     if (confirmGrammarReset) {
         AlertDialog(
             onDismissRequest = { confirmGrammarReset = false },
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Text("Сбросить прогресс учебника?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("Отметки «изучено» и закладки будут удалены.") },
             confirmButton = {
-                TextButton(onClick = { confirmGrammarReset = false; scope.launch { c.grammar.resetProgress() } }) { Text("Сбросить", color = Ink.Fg) }
+                TextButton(onClick = { confirmGrammarReset = false; scope.launch { c.grammar.resetProgress() } }) { Text("Сбросить", color = Ink.Warm) }
             },
             dismissButton = { TextButton(onClick = { confirmGrammarReset = false }) { Text("Отмена", color = Ink.Muted) } },
         )
+    }
+}
+
+/**
+ * Плитка темы — маленькое превью экрана в её цветах: строки текста, пилюля прогресса и кнопка.
+ * «Как в системе» показывает обе половины. Выбранная приподнимается и получает зелёную рамку.
+ */
+@Composable
+private fun ThemeTile(mode: ThemeMode, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val lift by animateFloatAsState(if (selected) 1f else 0f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMediumLow), label = "tile")
+    val shape = RoundedCornerShape(20.dp)
+    Column(
+        modifier
+            .graphicsLayer { translationY = -lift * 4.dp.toPx() }
+            .pressScale(interaction, 0.95f)
+            .selectable(selected = selected, role = Role.RadioButton, interactionSource = interaction, indication = null, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            Modifier.fillMaxWidth().height(96.dp)
+                .border(if (selected) 2.5.dp else 1.dp, lerpColor(Ink.LineStrong, Ink.Accent, lift), shape)
+                .padding(4.dp)
+                .clip(RoundedCornerShape(16.dp)),
+        ) {
+            when (mode) {
+                ThemeMode.LIGHT -> ThemePreview(paletteFor(false), Modifier.fillMaxSize())
+                ThemeMode.DARK -> ThemePreview(paletteFor(true), Modifier.fillMaxSize())
+                ThemeMode.SYSTEM -> Row(Modifier.fillMaxSize()) {
+                    ThemePreview(paletteFor(false), Modifier.weight(1f).fillMaxHeight())
+                    ThemePreview(paletteFor(true), Modifier.weight(1f).fillMaxHeight())
+                }
+            }
+            if (lift > 0.01f) {
+                Box(
+                    Modifier.align(Alignment.TopEnd).padding(6.dp).size(20.dp)
+                        .graphicsLayer { scaleX = lift; scaleY = lift }
+                        .background(Ink.Accent, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) { Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(14.dp)) }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(mode.title, style = MaterialTheme.typography.labelLarge, color = if (selected) Ink.Fg else Ink.Muted, textAlign = TextAlign.Center)
+    }
+}
+
+/** Миниатюра экрана в цветах [p]. */
+@Composable
+private fun ThemePreview(p: Palette, modifier: Modifier) {
+    Canvas(modifier.background(p.bg)) {
+        val u = size.width / 10f
+        val r = CornerRadius(u * 0.5f)
+        drawRoundRect(p.fg, Offset(u, u * 1.2f), Size(u * 4.5f, u * 0.9f), r)
+        drawRoundRect(p.muted, Offset(u, u * 2.6f), Size(u * 6.5f, u * 0.55f), r)
+        drawRoundRect(p.accentSoft, Offset(u, u * 3.8f), Size(size.width - u * 2, u * 2.4f), CornerRadius(u))
+        drawRoundRect(p.high, Offset(u * 1.6f, u * 4.6f), Size(size.width - u * 3.2f, u * 0.6f), r)
+        drawRoundRect(p.accent, Offset(u * 1.6f, u * 4.6f), Size((size.width - u * 3.2f) * 0.6f, u * 0.6f), r)
+        drawRoundRect(p.accentDeep, Offset(u, size.height - u * 2.1f), Size(size.width - u * 2, u * 1.4f), r)
+        drawRoundRect(p.accent, Offset(u, size.height - u * 2.4f), Size(size.width - u * 2, u * 1.4f), r)
+        drawCircle(p.beak, u * 0.45f, Offset(size.width - u * 1.6f, u * 1.6f))
     }
 }
 
@@ -247,7 +302,7 @@ private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> 
             selected = selected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = Ink.Fg,
+                selectedColor = Ink.Accent,
                 unselectedColor = Ink.Muted,
             ),
         )
@@ -274,7 +329,10 @@ internal fun SliderSetting(
     Column(Modifier.padding(vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
-            Text(value, style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+            Text(
+                value, style = MaterialTheme.typography.titleMedium, color = Ink.Accent,
+                modifier = Modifier.background(Ink.AccentSoft, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
+            )
         }
         ThinSlider(
             value = current.coerceIn(range.start, range.endInclusive),
@@ -295,9 +353,10 @@ internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) 
             checked = checked,
             onCheckedChange = onChange,
             colors = SwitchDefaults.colors(
-                checkedTrackColor = Ink.Fg,
-                checkedThumbColor = Ink.Bg,
-                uncheckedTrackColor = Ink.Bg,
+                checkedTrackColor = Ink.Accent,
+                checkedThumbColor = Ink.OnAccent,
+                checkedBorderColor = Ink.Accent,
+                uncheckedTrackColor = Ink.Surface,
                 uncheckedThumbColor = Ink.Muted,
                 uncheckedBorderColor = Ink.LineStrong,
             ),

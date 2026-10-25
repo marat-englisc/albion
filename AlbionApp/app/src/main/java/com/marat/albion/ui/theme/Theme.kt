@@ -7,13 +7,18 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Font
@@ -23,7 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.R
 
-/** Набор тонов одной темы. Иерархия строится яркостью, успех дополнительно выделяется в мягких темах. */
+/**
+ * Набор тонов одной темы. Палитра выведена из Финна: кремовое оперение, тёмно-графитовая спинка,
+ * зелёный вязаный шарф с бежевой полоской и оранжевый клюв. Иерархия текста строится яркостью,
+ * акцент (шарф) отмечает действие и успех, тёплый (клюв) — ошибки, серию и праздники.
+ */
 @Immutable
 data class Palette(
     val isDark: Boolean,
@@ -43,73 +52,81 @@ data class Palette(
     val faint: Color,
     val code: Color,
     val success: Color,
+    /** Шарф Финна — главное действие, выбор, прогресс. */
+    val accent: Color,
+    val onAccent: Color,
+    /** Нижняя «кромка» объёмных кнопок. */
+    val accentDeep: Color,
+    /** Мягкая заливка выбранного и карточек с акцентом. */
+    val accentSoft: Color,
+    /** Клюв — ошибки, серия, предупреждения; читается как текст. */
+    val warm: Color,
+    val onWarm: Color,
+    val warmDeep: Color,
+    val warmSoft: Color,
+    /** Чистый оранжевый клюва — только для декора: конфетти, огонёк серии. */
+    val beak: Color,
+    /** Бежевая полоска шарфа — блики и праздничные искры. */
+    val stripe: Color,
+    /** Тень под карточками. */
+    val shadow: Color,
 )
 
-val DarkPalette = Palette(
-    isDark = true,
-    bg = Color(0xFF000000),
-    raised = Color(0xFF0A0A0A),
-    surface = Color(0xFF111111),
-    elevated = Color(0xFF191919),
-    high = Color(0xFF222222),
-    line = Color(0xFF232323),
-    lineStrong = Color(0xFF3A3A3A),
-    fg = Color(0xFFFFFFFF),
-    text = Color(0xFFEDEDED),
-    soft = Color(0xFFC4C4C4),
-    muted = Color(0xFFA8A8A8),
-    faint = Color(0xFF929292),
-    code = Color(0xFF1C1C1C),
-    success = Color(0xFFFFFFFF),
-)
-
+/** Светлая тема — «утро у моря»: кремовая бумага, графитовые чернила, зелёный шарф. */
 val LightPalette = Palette(
     isDark = false,
-    bg = Color(0xFFFFFFFF),
-    raised = Color(0xFFF8F8F8),
-    surface = Color(0xFFF3F3F3),
-    elevated = Color(0xFFEBEBEB),
-    high = Color(0xFFE2E2E2),
-    line = Color(0xFFE6E6E6),
-    lineStrong = Color(0xFFC8C8C8),
-    fg = Color(0xFF000000),
-    text = Color(0xFF151515),
-    soft = Color(0xFF3B3B3B),
-    muted = Color(0xFF555555),
-    faint = Color(0xFF626262),
-    code = Color(0xFFEFEFEF),
-    success = Color(0xFF000000),
+    bg = Color(0xFFFBF6EE), raised = Color(0xFFFFFDF8), surface = Color(0xFFF6EFE3),
+    elevated = Color(0xFFEFE6D6), high = Color(0xFFE7DCC8),
+    line = Color(0xFFEADFCC), lineStrong = Color(0xFFD5C6AD),
+    fg = Color(0xFF272325), text = Color(0xFF2E2A2C), soft = Color(0xFF4A4345),
+    muted = Color(0xFF5F5658), faint = Color(0xFF655B5D), code = Color(0xFFF3EADB),
+    success = Color(0xFF2C6249),
+    accent = Color(0xFF2C6249), onAccent = Color(0xFFFFFDF7), accentDeep = Color(0xFF1C4232), accentSoft = Color(0xFFDDEBDF),
+    warm = Color(0xFF9C4217), onWarm = Color(0xFFFFFDF7), warmDeep = Color(0xFF6E2C0C), warmSoft = Color(0xFFFBE4D4),
+    beak = Color(0xFFEE7A3F), stripe = Color(0xFFE6CC94),
+    shadow = Color(0xFF6B4F2A),
 )
 
-val GraphitePalette = Palette(
+/** Тёмная тема — «ночной фьорд»: глубокая сине-зелёная вода, кремовый текст, светящийся шарф. */
+val DarkPalette = Palette(
     isDark = true,
-    bg = Color(0xFF121416), raised = Color(0xFF1C1F22), surface = Color(0xFF1C1F22),
-    elevated = Color(0xFF24282D), high = Color(0xFF2D3238),
-    line = Color(0xFF3B4149), lineStrong = Color(0xFF606973),
-    fg = Color(0xFFF2F3F5), text = Color(0xFFE6E8EB), soft = Color(0xFFCAD0D7),
-    muted = Color(0xFFB5BDC6), faint = Color(0xFFA9AFB7), code = Color(0xFF24282D),
-    success = Color(0xFF9BC7AF),
+    bg = Color(0xFF111917), raised = Color(0xFF16201D), surface = Color(0xFF1A2522),
+    elevated = Color(0xFF212E2A), high = Color(0xFF283733),
+    line = Color(0xFF26332F), lineStrong = Color(0xFF3B4C47),
+    fg = Color(0xFFF7F0E4), text = Color(0xFFEEE7DB), soft = Color(0xFFD3CBBE),
+    muted = Color(0xFFB3AB9E), faint = Color(0xFFA8A094), code = Color(0xFF1E2A27),
+    success = Color(0xFF86CFA4),
+    accent = Color(0xFF86CFA4), onAccent = Color(0xFF0E1A14), accentDeep = Color(0xFF4C8D69), accentSoft = Color(0xFF1D362B),
+    warm = Color(0xFFF49A68), onWarm = Color(0xFF1A0F08), warmDeep = Color(0xFFB8653A), warmSoft = Color(0xFF3A261A),
+    beak = Color(0xFFF08A52), stripe = Color(0xFFE9D3A1),
+    shadow = Color(0xFF000000),
 )
 
-val PaperPalette = Palette(
-    isDark = false,
-    bg = Color(0xFFF7F5F0), raised = Color(0xFFFFFFFF), surface = Color(0xFFFFFFFF),
-    elevated = Color(0xFFECEAE4), high = Color(0xFFE2E0D8),
-    line = Color(0xFFD8D6CE), lineStrong = Color(0xFFA7ABA2),
-    fg = Color(0xFF20211F), text = Color(0xFF282A26), soft = Color(0xFF43473F),
-    muted = Color(0xFF565C52), faint = Color(0xFF5D6359), code = Color(0xFFEEECE6),
-    success = Color(0xFF2D644E),
-)
+fun paletteFor(dark: Boolean): Palette = if (dark) DarkPalette else LightPalette
 
-fun paletteFor(dark: Boolean, soft: Boolean = false): Palette = when {
-    soft && dark -> GraphitePalette
-    soft -> PaperPalette
-    dark -> DarkPalette
-    else -> LightPalette
+/** Промежуточная палитра — для плавной смены темы. */
+fun lerpPalette(a: Palette, b: Palette, t: Float): Palette {
+    if (t <= 0f) return a
+    if (t >= 1f) return b
+    fun c(x: Color, y: Color) = lerp(x, y, t)
+    return Palette(
+        isDark = if (t < 0.5f) a.isDark else b.isDark,
+        bg = c(a.bg, b.bg), raised = c(a.raised, b.raised), surface = c(a.surface, b.surface),
+        elevated = c(a.elevated, b.elevated), high = c(a.high, b.high),
+        line = c(a.line, b.line), lineStrong = c(a.lineStrong, b.lineStrong),
+        fg = c(a.fg, b.fg), text = c(a.text, b.text), soft = c(a.soft, b.soft),
+        muted = c(a.muted, b.muted), faint = c(a.faint, b.faint), code = c(a.code, b.code),
+        success = c(a.success, b.success),
+        accent = c(a.accent, b.accent), onAccent = c(a.onAccent, b.onAccent),
+        accentDeep = c(a.accentDeep, b.accentDeep), accentSoft = c(a.accentSoft, b.accentSoft),
+        warm = c(a.warm, b.warm), onWarm = c(a.onWarm, b.onWarm),
+        warmDeep = c(a.warmDeep, b.warmDeep), warmSoft = c(a.warmSoft, b.warmSoft),
+        beak = c(a.beak, b.beak), stripe = c(a.stripe, b.stripe), shadow = c(a.shadow, b.shadow),
+    )
 }
 
 /**
- * Текущая палитра Albion — монохромная или мягкая.
+ * Текущая палитра Albion.
  * Значения читаются из snapshot-состояния, поэтому при смене темы
  * всё, что их использует (композиция и отрисовка), обновляется само.
  */
@@ -132,6 +149,18 @@ object Ink {
     val Faint get() = palette.faint
     val Code get() = palette.code
     val Success get() = palette.success
+
+    val Accent get() = palette.accent
+    val OnAccent get() = palette.onAccent
+    val AccentDeep get() = palette.accentDeep
+    val AccentSoft get() = palette.accentSoft
+    val Warm get() = palette.warm
+    val OnWarm get() = palette.onWarm
+    val WarmDeep get() = palette.warmDeep
+    val WarmSoft get() = palette.warmSoft
+    val Beak get() = palette.beak
+    val Stripe get() = palette.stripe
+    val Shadow get() = palette.shadow
 }
 
 /** Антиква — для заголовков, терминов и цифр; гротеск — для интерфейса. */
@@ -150,9 +179,9 @@ val Sans = FontFamily(
 private fun schemeOf(p: Palette): ColorScheme {
     val base = if (p.isDark) darkColorScheme() else lightColorScheme()
     return base.copy(
-        primary = p.fg,
-        onPrimary = p.bg,
-        primaryContainer = p.high,
+        primary = p.accent,
+        onPrimary = p.onAccent,
+        primaryContainer = p.accentSoft,
         onPrimaryContainer = p.fg,
         secondary = p.soft,
         onSecondary = p.bg,
@@ -177,9 +206,9 @@ private fun schemeOf(p: Palette): ColorScheme {
         surfaceDim = p.bg,
         outline = p.lineStrong,
         outlineVariant = p.line,
-        error = p.fg,
-        onError = p.bg,
-        errorContainer = p.elevated,
+        error = p.warm,
+        onError = p.onWarm,
+        errorContainer = p.warmSoft,
         onErrorContainer = p.fg,
         inverseSurface = p.fg,
         inverseOnSurface = p.bg,
@@ -208,12 +237,13 @@ private val typography = Typography(
     bodySmall = base.bodySmall.copy(fontFamily = Sans, fontSize = 14.sp, lineHeight = 21.sp),
 )
 
+/** Мягкие, «галечные» скругления — как у игрушки, а не у таблицы. */
 private val shapes = Shapes(
-    extraSmall = RoundedCornerShape(2.dp),
-    small = RoundedCornerShape(4.dp),
-    medium = RoundedCornerShape(6.dp),
-    large = RoundedCornerShape(8.dp),
-    extraLarge = RoundedCornerShape(12.dp),
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(14.dp),
+    medium = RoundedCornerShape(18.dp),
+    large = RoundedCornerShape(22.dp),
+    extraLarge = RoundedCornerShape(28.dp),
 )
 
 object AlbionType {
@@ -228,10 +258,28 @@ object AlbionType {
     val index get() = TextStyle(fontFamily = Serif, fontSize = 15.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
-/** Палитра переключается целиком: при смешивании светлой и тёмной тем текст сливался с фоном. */
+/**
+ * Палитра переключается целиком (при смешивании светлой и тёмной тем текст сливался с фоном),
+ * но не скачком: цвета перетекают за полсекунды, как будто над фьордом сменилось освещение.
+ */
 @Composable
-fun AlbionTheme(dark: Boolean = true, soft: Boolean = false, content: @Composable () -> Unit) {
-    val palette = paletteFor(dark, soft)
+fun AlbionTheme(dark: Boolean = true, content: @Composable () -> Unit) {
+    val palette = animatedPalette(paletteFor(dark))
     SideEffect { if (Ink.palette != palette) Ink.palette = palette }
     MaterialTheme(colorScheme = schemeOf(palette), typography = typography, shapes = shapes, content = content)
+}
+
+@Composable
+private fun animatedPalette(target: Palette): Palette {
+    var from by remember { mutableStateOf(target) }
+    var to by remember { mutableStateOf(target) }
+    val t = remember { Animatable(1f) }
+    LaunchedEffect(target) {
+        if (target == to) return@LaunchedEffect
+        from = lerpPalette(from, to, t.value)
+        to = target
+        t.snapTo(0f)
+        t.animateTo(1f, tween(520, easing = Easing.Standard))
+    }
+    return lerpPalette(from, to, t.value)
 }

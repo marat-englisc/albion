@@ -71,7 +71,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
         TopBar(onBack = navigator::back) {
             Box {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreHoriz, "Ещё", tint = Ink.Fg) }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Elevated) {
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
                     DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
                 }
             }
@@ -158,7 +158,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Text("Сбросить прогресс?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("Все карточки колоды «${deck.title}» снова станут новыми, статистика занятий сохранится.") },
             confirmButton = {

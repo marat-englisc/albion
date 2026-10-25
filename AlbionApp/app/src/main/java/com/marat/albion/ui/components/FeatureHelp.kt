@@ -46,21 +46,20 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         c.appScope.launch { c.settings.markHelpViewed(key) }
     }
 
-    IconButton(onClick = { presented = true; expanded = true }) {
-        Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = "Справка: $title", tint = Ink.Fg)
-    }
+    RoundIconButton(Icons.AutoMirrored.Outlined.HelpOutline, "Справка: $title", onClick = { presented = true; expanded = true }, spin = -20f)
     if (expanded) {
         AlertDialog(
             onDismissRequest = ::dismiss,
-            containerColor = Ink.Elevated,
-            // Финн показывает, чем здесь занимаются: слушает, пишет, читает.
+            containerColor = Ink.Raised,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+            // Финн «переходит» со страницы в диалог и показывает, чем здесь занимаются.
             icon = mascot?.let { { Mascot(it, 104.dp) } },
             title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
             text = {
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,
                     modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))
             },
-            confirmButton = { TextButton(onClick = ::dismiss) { Text("Понятно", color = Ink.Fg) } },
+            confirmButton = { TextButton(onClick = ::dismiss) { Text("Понятно", color = Ink.Accent, style = MaterialTheme.typography.titleMedium) } },
         )
     }
 }

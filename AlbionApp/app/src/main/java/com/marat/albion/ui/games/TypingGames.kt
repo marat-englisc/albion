@@ -43,6 +43,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -117,11 +119,11 @@ internal fun AnswerField(
                 textStyle = TextStyle(
                     fontFamily = Serif,
                     fontSize = 30.sp,
-                    color = if (struck) Ink.Faint else Ink.Fg,
+                    color = if (struck) Ink.Warm else Ink.Fg,
                     textAlign = TextAlign.Center,
                     textDecoration = if (struck) TextDecoration.LineThrough else null,
                 ),
-                cursorBrush = SolidColor(Ink.Fg),
+                cursorBrush = SolidColor(Ink.Accent),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,
                     autoCorrectEnabled = false,
@@ -132,7 +134,10 @@ internal fun AnswerField(
                 modifier = Modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { focused = it.isFocused },
             )
         }
-        Hairline(color = lerpColor(Ink.LineStrong, Ink.Fg, line))
+        // Линия под полем «наливается» цветом шарфа при фокусе.
+        Box(Modifier.fillMaxWidth().height(3.dp).background(Ink.Line, RoundedCornerShape(8.dp))) {
+            Box(Modifier.fillMaxWidth(line).height(3.dp).align(Alignment.Center).background(Ink.Accent, RoundedCornerShape(8.dp)))
+        }
     }
 }
 
@@ -141,7 +146,7 @@ internal fun annotateMistakes(correct: String, answer: String): AnnotatedString 
     val mask = AnswerCheck.mistakeMask(answer, correct)
     return buildAnnotatedString {
         correct.forEachIndexed { i, ch ->
-            if (mask[i]) withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = Ink.Fg)) { append(ch) } else append(ch)
+            if (mask[i]) withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = Ink.Warm)) { append(ch) } else append(ch)
         }
     }
 }
@@ -169,20 +174,31 @@ private fun skeleton(term: String, revealed: Int): String {
 private fun hintLetters(term: String) =
     term.split(' ').filterNot { AnswerCheck.isPlaceholder(it) }.sumOf { w -> w.count { it.isLetter() } }
 
+/** Вердикт — пилюля, которая выпрыгивает пружиной: зелёная для верного, тёплая для ошибки. */
 @Composable
 internal fun VerdictLine(verdict: Verdict) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        if (verdict != Verdict.Wrong) {
-            Icon(Icons.Rounded.Check, null, tint = Ink.Fg, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(8.dp))
-        }
+    val pop = remember { androidx.compose.animation.core.Animatable(0.6f) }
+    LaunchedEffect(verdict) {
+        pop.snapTo(0.6f)
+        pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.4f, stiffness = 500f))
+    }
+    val good = verdict != Verdict.Wrong
+    val fg = if (good) Ink.Accent else Ink.Warm
+    Row(
+        Modifier.graphicsLayer { scaleX = pop.value; scaleY = pop.value; alpha = ((pop.value - 0.6f) / 0.4f).coerceIn(0f, 1f) }
+            .background(if (good) Ink.AccentSoft else Ink.WarmSoft, RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(if (good) Icons.Rounded.Check else Icons.Rounded.Close, null, tint = fg, modifier = Modifier.size(16.dp))
+        Spacer(Modifier.width(6.dp))
         Eyebrow(
             when (verdict) {
                 Verdict.Correct -> "Верно"
                 Verdict.Typo -> "Почти — опечатка"
                 Verdict.Wrong -> "Неверно"
             },
-            color = Ink.Fg,
+            color = fg,
         )
     }
 }

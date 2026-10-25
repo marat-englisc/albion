@@ -45,6 +45,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -155,7 +157,8 @@ fun LibraryScreen(navigator: Navigator) {
                     // Пока своих книг нет, Финн с книгами в руках подсказывает, что сюда можно принести свою.
                     if (list.isNotEmpty() && list.none { it.book.source == "user" }) {
                         Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Mascot(Finn.IMPORT_BOOK, 88.dp, delayMs = 200)
+                            // Финн на экране один: если он уже выглядывает из-за «Продолжить», здесь только текст.
+                            if (continueBook == null) Mascot(Finn.IMPORT_BOOK, 88.dp, delayMs = 200)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text("Читайте то, что нравится", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
@@ -181,7 +184,9 @@ fun LibraryScreen(navigator: Navigator) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         // Перевод фраз недоступен — Финн «без подключения»; во время загрузки и после неё он не нужен.
                         if (model == ModelState.Missing || model == ModelState.Failed) {
-                            Mascot(Finn.OFFLINE, 72.dp)
+                            Box(Modifier.size(40.dp).background(Ink.WarmSoft, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Rounded.CloudOff, null, tint = Ink.Warm, modifier = Modifier.size(20.dp))
+                            }
                             Spacer(Modifier.width(12.dp))
                         }
                         Text(
@@ -212,11 +217,11 @@ fun LibraryScreen(navigator: Navigator) {
     toDelete?.let { b ->
         AlertDialog(
             onDismissRequest = { toDelete = null },
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Text("Удалить книгу?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("«${b.book.title}», закладки, выделения и заметки к ней будут удалены из библиотеки.") },
             confirmButton = {
-                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = Ink.Fg) }
+                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = Ink.Warm) }
             },
             dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Отмена", color = Ink.Muted) } },
         )
@@ -258,7 +263,7 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
             if (onDelete != null) {
                 Box {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreHoriz, "Ещё", tint = Ink.Muted) }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Elevated) {
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
                         DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete() })
                     }
                 }
@@ -271,8 +276,18 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
 /** Типографская обложка: название антиквой на «чернильной» плашке; на маленькой — монограмма. */
 @Composable
 fun BookCover(title: String, modifier: Modifier = Modifier) {
+    // Цвет обложки — от названия: у каждой книги свой, но всегда из палитры Финна.
+    val (cover, ink) = when (Math.floorMod(title.hashCode(), 4)) {
+        0 -> Ink.Accent to Ink.OnAccent
+        1 -> Ink.Warm to Ink.OnWarm
+        2 -> Ink.AccentDeep to Ink.OnAccent
+        else -> Ink.Fg to Ink.Bg
+    }
     androidx.compose.foundation.layout.BoxWithConstraints(
-        modifier.background(Ink.Fg, RoundedCornerShape(2.dp)).padding(7.dp),
+        modifier.background(cover, RoundedCornerShape(6.dp))
+            // Корешок — полоска как на шарфе Финна.
+            .drawBehind { drawRect(Ink.Stripe.copy(alpha = 0.55f), size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)) }
+            .padding(start = 9.dp, end = 7.dp, top = 7.dp, bottom = 7.dp),
     ) {
         // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()
@@ -287,7 +302,7 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
         }
         val small = maxWidth < 44.dp || fontSize == null
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-            Box(Modifier.width(14.dp).height(1.dp).background(Ink.Bg))
+            Box(Modifier.width(14.dp).height(2.dp).background(ink.copy(alpha = 0.6f), RoundedCornerShape(1.dp)))
             if (small) {
                 val monogram = title.split(' ')
                     .filter { it.isNotBlank() && it.lowercase() !in setOf("the", "a", "an", "of", "and") }
@@ -298,13 +313,13 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
                         measured.size.width <= widthPx && measured.size.height <= heightPx
                     } ?: 6
                 }
-                Text(monogram, style = TextStyle(fontFamily = Serif, fontSize = monogramSize.sp), color = Ink.Bg,
+                Text(monogram, style = TextStyle(fontFamily = Serif, fontSize = monogramSize.sp), color = ink,
                     maxLines = 1, softWrap = false)
             } else {
                 Text(
                     title,
                     style = TextStyle(fontFamily = Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.2f).sp),
-                    color = Ink.Bg,
+                    color = ink,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Start,

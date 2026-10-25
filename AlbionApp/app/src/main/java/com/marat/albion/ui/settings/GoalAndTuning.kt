@@ -121,7 +121,7 @@ fun GoalReminderSection(s: Settings) {
         val state = rememberTimePickerState(s.reminderHour, s.reminderMinute, is24Hour = true)
         AlertDialog(
             onDismissRequest = { pickTime = false },
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Eyebrow("Время напоминания", color = Ink.Soft) },
             text = {
                 TimePicker(
@@ -131,7 +131,7 @@ fun GoalReminderSection(s: Settings) {
                         clockDialSelectedContentColor = Ink.Bg,
                         clockDialUnselectedContentColor = Ink.Text,
                         selectorColor = Ink.Fg,
-                        containerColor = Ink.Elevated,
+                        containerColor = Ink.Raised,
                         timeSelectorSelectedContainerColor = Ink.Fg,
                         timeSelectorUnselectedContainerColor = Ink.High,
                         timeSelectorSelectedContentColor = Ink.Bg,

@@ -3,7 +3,29 @@ package com.marat.albion.ui.home
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.layout.onSizeChanged
-import com.marat.albion.ui.components.Mascot
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
+import com.marat.albion.ui.components.ConfettiBurst
+import com.marat.albion.ui.components.FinnLedge
+import com.marat.albion.ui.components.StatPill
 import com.marat.albion.ui.components.Finn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -113,14 +135,34 @@ data class HomeState(
         else -> Finn.TODAY
     }
 
-    /** Короткая подпись под приветствием; в обычный день её нет. */
-    val finnCaption: String? get() = when (finn) {
-        Finn.WELCOME -> "Первое занятие займёт пару минут"
-        Finn.WELCOME_BACK -> "С возвращением — карточки ждали вас"
-        Finn.DAILY_GOAL -> "Цель дня выполнена"
-        Finn.ALL_DONE -> "На сегодня всё повторено"
-        else -> null
+    /** Первая реплика Финна — о том, что сегодня за день. */
+    val finnCaption: String get() = when (finn) {
+        Finn.WELCOME -> "Привет! Я Финн. Первое занятие займёт пару минут."
+        Finn.WELCOME_BACK -> "С возвращением! Карточки ждали вас."
+        Finn.DAILY_GOAL -> "Цель дня выполнена — горжусь!"
+        Finn.ALL_DONE -> "На сегодня всё повторено. Можно почитать."
+        else -> decks.sumOf { it.toStudy }.let { n ->
+            if (n > 0) "Сегодня нас ждут $n ${pluralCards(n)}. Начнём?" else "Готов, когда вы готовы."
+        }
     }
+
+    /** Реплики по касанию: первая — о дне, дальше — короткие советы по кругу. */
+    val finnLines: List<String> get() = listOf(finnCaption) + FINN_TIPS
+}
+
+private val FINN_TIPS = listOf(
+    "Немного каждый день работает лучше, чем много за раз.",
+    "Слова с ошибками я покажу чаще — так они запомнятся.",
+    "Слушайте озвучку и повторяйте вслух — это тоже тренировка.",
+    "В «Чтении» коснитесь слова — я подскажу перевод.",
+    "Хватит меня тыкать, щекотно! Лучше откроем карточки.",
+)
+
+private fun pluralCards(n: Int) = when {
+    n % 100 in 11..14 -> "карточек"
+    n % 10 == 1 -> "карточка"
+    n % 10 in 2..4 -> "карточки"
+    else -> "карточек"
 }
 
 class HomeViewModel(c: AppContainer) : ViewModel() {
@@ -155,59 +197,40 @@ fun HomeScreen(navigator: Navigator) {
     val status by vm.importStatus.collectAsStateWithLifecycle()
     val reveal = rememberReveal()
     val date = remember { SimpleDateFormat("EEEE · d MMMM", Locale.forLanguageTag("ru")).format(Date()) }
+    var line by rememberSaveable { mutableIntStateOf(0) }
 
-    // Высота шапки (приветствие, Финн, серия) — чтобы колоды справа начинались вровень с «Сегодня».
+    // Высота верхней строки — чтобы колоды справа начинались вровень с Финном.
     var headerPx by remember { mutableIntStateOf(0) }
     val headerHeight = with(LocalDensity.current) { headerPx.toDp() }
     // Занятие на сегодня и продолжение — одна колонка; колоды — вторая, если на экране есть место.
     val overview: LazyListScope.() -> Unit = {
         item {
-            Column(Modifier.onSizeChanged { headerPx = it.height }.windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp).reveal(reveal, 0)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AlbionLogo(size = 22.dp)
-                    Spacer(Modifier.width(10.dp))
-                    Eyebrow("Albion", Modifier.weight(1f), color = Ink.Fg)
-                    SettingsShortcut(navigator::openSettings)
-                }
-                if (state.streak > 0) {
-                    val days = when {
-                        state.streak % 100 in 11..14 -> "дней"
-                        state.streak % 10 == 1 -> "день"
-                        state.streak % 10 in 2..4 -> "дня"
-                        else -> "дней"
-                    }
-                    Text("${state.streak} $days подряд", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
-                }
-                Spacer(Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Column(Modifier.weight(1f).padding(bottom = 10.dp)) {
-                        Eyebrow(date)
-                        Spacer(Modifier.height(4.dp))
-                        Text(greeting(), style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
-                        state.finnCaption?.let {
-                            Spacer(Modifier.height(4.dp))
-                            Text(it, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                        }
-                    }
-                    if (state.loaded) Mascot(state.finn, 104.dp, delayMs = 180)
-                    else Spacer(Modifier.size(104.dp))
-                }
+            Row(
+                Modifier.onSizeChanged { headerPx = it.height }.windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = 8.dp).reveal(reveal, 0),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AlbionLogo(size = 22.dp, color = Ink.Accent)
+                Spacer(Modifier.width(10.dp))
+                Eyebrow("Albion", color = Ink.Fg)
+                Spacer(Modifier.weight(1f))
+                if (state.streak > 0) StreakChip(state.streak)
+                SettingsShortcut(navigator::openSettings)
             }
         }
 
         item {
             AnimatedVisibility(status is ImportStatus.Importing || status is ImportStatus.Failed || status == ImportStatus.Empty) {
-                Column(Modifier.padding(top = 24.dp)) {
+                Column(Modifier.padding(top = 16.dp)) {
                     when (val s = status) {
                         is ImportStatus.Importing -> Row(verticalAlignment = Alignment.CenterVertically) {
-                            CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 1.5.dp, color = Ink.Fg)
+                            CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp, color = Ink.Accent)
                             Spacer(Modifier.width(12.dp))
                             Eyebrow("Загружаю «${s.deck.title}» · ${s.index}/${s.total}")
                         }
-                        is ImportStatus.Failed -> Text("Не удалось загрузить материалы: ${s.message}", color = Ink.Soft, style = MaterialTheme.typography.bodyMedium)
+                        is ImportStatus.Failed -> Text("Не удалось загрузить материалы: ${s.message}", color = Ink.Warm, style = MaterialTheme.typography.bodyMedium)
                         ImportStatus.Empty -> Panel {
                             EmptyState(
-                                mascot = Finn.EMPTY_LIBRARY,
                                 title = "Материалы не добавлены",
                                 message = "Сборка собрана без таблиц и озвучки. Включите albion.bundleContent=true и пересоберите приложение.",
                             )
@@ -219,10 +242,24 @@ fun HomeScreen(navigator: Navigator) {
         }
 
         item {
-            TodayBlock(state, Modifier.padding(top = 16.dp).reveal(reveal, 1)) { navigator.open(StudyRoute(it)) }
+            // Финн стоит на карточке «Сегодня» и говорит; касание — следующая реплика.
+            val lines = state.finnLines
+            FinnLedge(
+                pose = if (state.loaded) state.finn else null,
+                line = if (state.loaded) lines[line % lines.size] else null,
+                onTap = { line++ },
+                modifier = Modifier.padding(top = 4.dp).reveal(reveal, 1),
+                header = {
+                    Eyebrow(date)
+                    Spacer(Modifier.height(4.dp))
+                    Text(greeting(), style = MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                },
+            ) {
+                TodayBlock(state) { navigator.open(StudyRoute(it)) }
+            }
         }
 
-        item { SectionHeader("Продолжить", Modifier.padding(top = 6.dp).reveal(reveal, 2)) }
+        item { SectionHeader("Продолжить", Modifier.padding(top = 14.dp).reveal(reveal, 2)) }
         item { ReadingBlock(Modifier.reveal(reveal, 3), navigator) }
         item {
             GrammarBlock(
@@ -237,18 +274,17 @@ fun HomeScreen(navigator: Navigator) {
     val decks: LazyListScope.() -> Unit = {
         item { SectionHeader("Колоды", Modifier.padding(top = 8.dp).reveal(reveal, 5), trailing = "0${Deck.entries.size}") }
         itemsIndexed(state.decks, key = { _, it -> it.deck.id }) { i, summary ->
-            DeckRow(i + 1, summary, Modifier.reveal(reveal, 6 + i)) { navigator.open(DeckRoute(summary.deck)) }
+            DeckRow(i + 1, summary, Modifier.padding(vertical = 5.dp).reveal(reveal, 6 + i)) { navigator.open(DeckRoute(summary.deck)) }
         }
     }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(Ink.Bg)) {
-        val padding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp)
+        val padding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp)
         if (maxWidth >= TWO_COLUMNS_MIN_WIDTH) {
             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) { overview() }
                 LazyColumn(Modifier.weight(1f).fillMaxHeight(), contentPadding = padding) {
-                    // Колоды начинаются вровень с блоком «Сегодня» слева.
-                    item { Spacer(Modifier.height((headerHeight - DECKS_ALIGN_OFFSET).coerceAtLeast(0.dp))) }
+                    item { Spacer(Modifier.height(headerHeight)) }
                     decks()
                 }
             }
@@ -264,44 +300,58 @@ fun HomeScreen(navigator: Navigator) {
 /** С какой ширины главная делится на две колонки. */
 private val TWO_COLUMNS_MIN_WIDTH = 900.dp
 
-/** Насколько заголовок «Колоды» выше своего блока, чем «Сегодня» — выравниваем их по тексту. */
-private val DECKS_ALIGN_OFFSET = 14.dp
+/** Серия дней: огонёк цвета клюва, который мерцает, пока серия жива. */
+@Composable
+private fun StreakChip(streak: Int) {
+    val days = when {
+        streak % 100 in 11..14 -> "дней"
+        streak % 10 == 1 -> "день"
+        streak % 10 in 2..4 -> "дня"
+        else -> "дней"
+    }
+    val flicker by rememberInfiniteTransition(label = "flame").animateFloat(
+        0.92f, 1.08f, infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "flicker",
+    )
+    Row(
+        Modifier.semantics(mergeDescendants = true) {}.background(Ink.WarmSoft, CircleShape).padding(start = 8.dp, end = 12.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Rounded.LocalFireDepartment, null, tint = Ink.Beak,
+            modifier = Modifier.size(18.dp).graphicsLayer { scaleX = flicker; scaleY = 2f - flicker; transformOrigin = TransformOrigin(0.5f, 1f) },
+        )
+        Spacer(Modifier.width(4.dp))
+        Text("$streak $days", style = MaterialTheme.typography.labelLarge, color = Ink.Warm)
+    }
+}
 
 @Composable
-private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) -> Unit) {
+private fun TodayBlock(state: HomeState, onStart: (Deck?) -> Unit) {
     val due = state.decks.sumOf { it.due }
     val new = state.decks.sumOf { it.newAvailable }
     // Есть что учить в нескольких колодах — общее занятие; в одной — сразу её.
     val withWork = state.decks.filter { it.toStudy > 0 }
-    val measurer = rememberTextMeasurer()
-    val labelWidth = with(LocalDensity.current) {
-        measurer.measure("ПОВТОРИТЬ", AlbionType.eyebrow).size.width.toDp() + 12.dp
-    }
-    Column(modifier) {
-        Eyebrow("Сегодня", color = Ink.Soft)
-        Spacer(Modifier.height(8.dp))
+    Column {
+        Eyebrow("Сегодня", color = Ink.Accent)
+        Spacer(Modifier.height(10.dp))
         BoxWithConstraints {
-            if (labelWidth * 3 <= maxWidth) {
-                Row {
-                    Metric(due, "повторить", Modifier.weight(1f))
-                    Metric(new, "доступно\nновых", Modifier.weight(1f))
-                    Metric(state.answersToday, "ответов", Modifier.weight(1f))
+            if (maxWidth >= 300.dp) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatPill(due, "повторить", Modifier.weight(1f))
+                    StatPill(new, "новых", Modifier.weight(1f))
+                    StatPill(state.answersToday, "ответов", Modifier.weight(1f))
                 }
             } else {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf("Повторить" to due, "Доступно новых" to new, "Ответов" to state.answersToday).forEach { (label, value) ->
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Text(label, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted, modifier = Modifier.weight(1f))
-                            Spacer(Modifier.width(16.dp))
-                            AnimatedNumber(value, AlbionType.numberSmall, color = Ink.Fg)
-                        }
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatPill(due, "повторить", Modifier.fillMaxWidth())
+                    StatPill(new, "новых", Modifier.fillMaxWidth())
+                    StatPill(state.answersToday, "ответов", Modifier.fillMaxWidth())
                 }
             }
         }
-        Spacer(Modifier.height(14.dp))
-        GoalBar(state.answersToday, state.dailyGoal)
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(16.dp))
+        GoalBar(state.answersToday, state.dailyGoal, state.loaded)
+        Spacer(Modifier.height(16.dp))
         if (withWork.size > 1) {
             PrimaryButton(
                 text = "Занятие · все колоды",
@@ -316,8 +366,6 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) ->
                 trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
             )
         } else if (state.decks.any { it.total > 0 }) {
-            Hairline()
-            Spacer(Modifier.height(14.dp))
             Text(
                 "На сегодня всё. Следующее повторение появится здесь.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -327,29 +375,22 @@ private fun TodayBlock(state: HomeState, modifier: Modifier, onStart: (Deck?) ->
     }
 }
 
-@Composable
-private fun Metric(value: Int, label: String, modifier: Modifier = Modifier) {
-    Column(modifier) {
-        AnimatedNumber(value, AlbionType.numberSmall, color = if (value == 0) Ink.Faint else Ink.Fg)
-        Spacer(Modifier.height(2.dp))
-        Eyebrow(label)
-    }
-}
-
+/** Колода — карточка с «фишкой»-номером и полоской прогресса. */
 @Composable
 private fun DeckRow(index: Int, summary: DeckSummary, modifier: Modifier, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Column(
-        modifier
-            .fillMaxWidth()
-            .pressScale(interaction, 0.98f)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
-    ) {
-        Row(Modifier.padding(vertical = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("%02d".format(index), style = AlbionType.index, modifier = Modifier.width(36.dp))
+    val active = summary.toStudy > 0
+    Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(start = 14.dp, end = 10.dp, top = 14.dp, bottom = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(40.dp).background(if (active) Ink.AccentSoft else Ink.Surface, RoundedCornerShape(14.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("%02d".format(index), style = AlbionType.index.copy(color = if (active) Ink.Accent else Ink.Faint, fontStyle = FontStyle.Normal))
+            }
+            Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(summary.deck.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     when {
                         summary.total == 0 -> summary.deck.subtitle
@@ -357,14 +398,23 @@ private fun DeckRow(index: Int, summary: DeckSummary, modifier: Modifier, onClic
                         else -> "${summary.due} повторить · ${summary.newAvailable} новых"
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (summary.toStudy > 0) Ink.Soft else Ink.Muted,
+                    color = if (active) Ink.Soft else Ink.Muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
             Icon(Icons.Rounded.ChevronRight, null, tint = Ink.Faint)
         }
-        ThinProgress(summary.progress, track = Ink.Line)
+        Spacer(Modifier.height(12.dp))
+        ThinProgress(summary.progress, Modifier.padding(end = 4.dp))
+    }
+}
+
+/** Значок раздела в мягкой цветной «плитке». */
+@Composable
+private fun IconTile(icon: ImageVector, tint: Color, background: Color) {
+    Box(Modifier.size(44.dp).background(background, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
+        Icon(icon, null, tint = tint, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -372,11 +422,13 @@ private fun DeckRow(index: Int, summary: DeckSummary, modifier: Modifier, onClic
 private fun GrammarBlock(state: HomeState, modifier: Modifier, onOpenBook: () -> Unit, onContinue: (Topic) -> Unit) {
     val total = state.grammar.lessons.size
     val topic = state.continueTopic
-    Panel(modifier.padding(top = 8.dp), onClick = { if (topic != null) onContinue(topic) else onOpenBook() }, contentPadding = PaddingValues(14.dp)) {
+    Panel(modifier.padding(top = 10.dp), onClick = { if (topic != null) onContinue(topic) else onOpenBook() }, contentPadding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            IconTile(Icons.AutoMirrored.Outlined.MenuBook, Ink.Accent, Ink.AccentSoft)
+            Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("Грамматика", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     topic?.let { listOfNotNull(it.number?.toString(), it.title).joinToString(". ") }
                         ?: if (total == 0) "Темы появятся вместе с материалами" else "Учебник · $total тем",
@@ -387,38 +439,50 @@ private fun GrammarBlock(state: HomeState, modifier: Modifier, onOpenBook: () ->
                 )
             }
             Spacer(Modifier.width(12.dp))
-            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
+            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Accent, modifier = Modifier.size(20.dp))
         }
         if (total > 0) {
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(12.dp))
             ThinProgress(state.grammarRead.toFloat() / total)
         }
     }
 }
 
-/** Дневная цель: линия заполняется, при выполнении — галочка с пружинным появлением. */
+/** Дневная цель: полоска заполняется, при выполнении — галочка с пружинным появлением и салют. */
 @Composable
-private fun GoalBar(done: Int, goal: Int) {
+private fun GoalBar(done: Int, goal: Int, loaded: Boolean) {
     val reached = goal > 0 && done >= goal
+    var seen by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var celebrate by remember { mutableIntStateOf(0) }
+    LaunchedEffect(loaded, reached) {
+        if (!loaded) return@LaunchedEffect
+        if (seen == false && reached) celebrate++
+        seen = reached
+    }
     val check by androidx.compose.animation.core.animateFloatAsState(
         if (reached) 1f else 0f,
         androidx.compose.animation.core.spring(dampingRatio = 0.45f, stiffness = 300f),
         label = "goal",
     )
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (check > 0.01f) {
-                Icon(
-                    Icons.Rounded.Check, null, tint = Ink.Success,
-                    modifier = Modifier.size(16.dp).graphicsLayer { scaleX = check; scaleY = check },
-                )
-                Spacer(Modifier.width(8.dp))
+    Box {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (check > 0.01f) {
+                    Box(
+                        Modifier.size(20.dp).graphicsLayer { scaleX = check; scaleY = check; rotationZ = (1f - check) * -90f }
+                            .background(Ink.Accent, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) { Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(14.dp)) }
+                    Spacer(Modifier.width(8.dp))
+                }
+                Eyebrow(if (reached) "Цель дня выполнена" else "Цель дня", Modifier.weight(1f), color = if (reached) Ink.Accent else Ink.Muted)
+                Text("${minOf(done, 9999)} / $goal", style = AlbionType.index.copy(color = Ink.Soft))
             }
-            Eyebrow(if (reached) "Цель дня выполнена" else "Цель дня", Modifier.weight(1f), color = if (reached) Ink.Success else Ink.Muted)
-            Text("${minOf(done, 9999)} / $goal", style = AlbionType.index.copy(color = Ink.Soft))
+            Spacer(Modifier.height(10.dp))
+            ThinProgress(if (goal == 0) 0f else done.toFloat() / goal, height = 10.dp)
         }
-        Spacer(Modifier.height(10.dp))
-        ThinProgress(if (goal == 0) 0f else done.toFloat() / goal, color = if (reached) Ink.Success else Ink.Fg)
+        // Салют — только когда цель выполнена «на глазах», а не при каждом открытии главной.
+        if (celebrate > 0) ConfettiBurst(celebrate, Modifier.matchParentSize(), count = 40)
     }
 }
 
@@ -434,12 +498,14 @@ private fun ReadingBlock(modifier: Modifier, navigator: Navigator) {
     }, contentPadding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (current != null) {
-                com.marat.albion.ui.library.BookCover(current.book.title, Modifier.size(width = 32.dp, height = 46.dp))
-                Spacer(Modifier.width(12.dp))
+                com.marat.albion.ui.library.BookCover(current.book.title, Modifier.size(width = 34.dp, height = 46.dp))
+            } else {
+                IconTile(Icons.Outlined.AutoStories, Ink.Warm, Ink.WarmSoft)
             }
+            Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("Чтение", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     current?.book?.title
                         ?: "Книги с переводом касанием",
@@ -450,12 +516,11 @@ private fun ReadingBlock(modifier: Modifier, navigator: Navigator) {
                 )
             }
             Spacer(Modifier.width(12.dp))
-            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(20.dp))
+            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Accent, modifier = Modifier.size(20.dp))
         }
         if (current != null && current.lastRead != null) {
-            Spacer(Modifier.height(10.dp))
-            ThinProgress(current.progress)
+            Spacer(Modifier.height(12.dp))
+            ThinProgress(current.progress, color = Ink.Beak)
         }
     }
 }
-

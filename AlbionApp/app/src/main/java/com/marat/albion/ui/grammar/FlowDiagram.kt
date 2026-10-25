@@ -59,7 +59,7 @@ private fun buildForest(graph: FlowGraph): List<TreeNode> {
 @Composable
 fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
     val forest = remember(graph) { buildForest(graph) }
-    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(16.dp)) {
+    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(16.dp)) {
         Eyebrow("Схема")
         Spacer(Modifier.height(14.dp))
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { forest.forEach { TreeView(it) } }
@@ -111,7 +111,7 @@ private fun NodeBox(node: FlowNode, reference: Boolean) {
     val decision = node.shape == NodeShape.Decision && !reference
     val shape = when (node.shape) {
         NodeShape.Round, NodeShape.Circle -> RoundedCornerShape(50)
-        else -> RoundedCornerShape(3.dp)
+        else -> RoundedCornerShape(10.dp)
     }
     val scale = LocalMdEnv.current.scale
     Row(

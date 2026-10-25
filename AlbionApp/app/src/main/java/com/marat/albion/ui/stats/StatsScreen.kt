@@ -35,6 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -57,6 +59,8 @@ import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.library.pluralRu
 import com.marat.albion.ui.nav.Navigator
+import com.marat.albion.ui.components.FinnLedge
+import com.marat.albion.ui.components.StatPill
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
@@ -80,31 +84,30 @@ fun StatsScreen(navigator: Navigator) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
-        // Финн подмигивает из-за правого края экрана рядом с первыми цифрами.
+        // Финн на экране один: в обычный день он выглядывает из-за края рядом с цифрами,
+        // в день рекорда — стоит на карточке достижения.
+        val milestone = streakMilestone(s.streak)
         Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)
-            .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.22f, height = 84.dp, outset = 24.dp, delayMs = 500)) {
-            Row {
-                Tile(s.streak, "дней подряд", Modifier.weight(1f))
-                Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
-            }
-            // Длинная серия — повод для Финна со стопкой прочитанных книг.
-            streakMilestone(s.streak)?.let { (title, text) ->
-                Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Mascot(Finn.MILESTONE, 88.dp, delayMs = 200)
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(title, style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                        Spacer(Modifier.height(4.dp))
-                        Text(text, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                    }
+            .then(if (milestone == null) Modifier.peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.2f, height = 84.dp, outset = 24.dp, delayMs = 500) else Modifier)) {
+            if (milestone != null) {
+                FinnLedge(
+                    pose = Finn.MILESTONE,
+                    line = milestone.first,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    finnSize = 104.dp,
+                    contentPadding = PaddingValues(18.dp),
+                ) {
+                    Text(milestone.second, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
                 }
             }
-            Spacer(Modifier.height(20.dp))
-            Hairline()
-            Spacer(Modifier.height(20.dp))
-            Row {
-                Tile(s.retention?.let { (it * 100).toInt() }, "удержание FSRS\nза 30 дней", Modifier.weight(1f), suffix = "%")
-                Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatPill(s.streak, "дней подряд", Modifier.weight(1f), tint = Ink.WarmSoft, valueColor = if (s.streak == 0) Ink.Faint else Ink.Warm)
+                StatPill(s.answersToday, "ответов сегодня", Modifier.weight(1f), tint = Ink.AccentSoft)
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatPill(s.retention?.let { (it * 100).toInt() }, "удержание FSRS за 30 дней", Modifier.weight(1f), suffix = "%")
+                StatPill((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
             }
         }
 
@@ -142,10 +145,10 @@ fun StatsScreen(navigator: Navigator) {
 @Composable
 private fun GameBreakdown(s: Stats) {
     SectionHeader("Практика", trailing = "${s.totalGameAnswers} ${pluralRu(s.totalGameAnswers, "ответ", "ответа", "ответов")}")
-    Spacer(Modifier.height(16.dp))
-    Row {
-        Tile(s.gameAnswersToday, "ответов сегодня", Modifier.weight(1f))
-        Tile(s.gameAccuracy?.let { (it * 100).toInt() }, "верных ответов", Modifier.weight(1f), suffix = "%")
+    Spacer(Modifier.height(12.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        StatPill(s.gameAnswersToday, "ответов сегодня", Modifier.weight(1f))
+        StatPill(s.gameAccuracy?.let { (it * 100).toInt() }, "верных ответов", Modifier.weight(1f), suffix = "%", tint = Ink.AccentSoft)
     }
     Spacer(Modifier.height(18.dp))
     val totals = s.games.associateBy { it.game }
@@ -229,15 +232,16 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
         verticalAlignment = Alignment.Bottom,
     ) {
         values.forEachIndexed { i, v ->
-            Box(Modifier.weight(1f).fillMaxHeight().background(if (i == selected) Ink.Elevated else Color.Transparent), contentAlignment = Alignment.BottomCenter) {
+            Box(Modifier.weight(1f).fillMaxHeight().background(if (i == selected) Ink.Surface else Color.Transparent, RoundedCornerShape(4.dp)), contentAlignment = Alignment.BottomCenter) {
                 val h = if (v == 0) 0.015f else (v.toFloat() / max).coerceAtLeast(0.04f)
                 val color = when {
                     v == 0 -> Ink.Line
-                    i == selected -> Ink.Fg
-                    forecast -> Ink.Muted
-                    else -> Ink.Soft
+                    forecast && i == selected -> Ink.Warm
+                    forecast -> Ink.Beak.copy(alpha = 0.55f)
+                    i == selected -> Ink.Accent
+                    else -> Ink.Accent.copy(alpha = 0.55f)
                 }
-                Box(Modifier.fillMaxWidth().fillMaxHeight(h * grow.value).background(color))
+                Box(Modifier.fillMaxWidth().fillMaxHeight(h * grow.value).background(color, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 1.dp, bottomEnd = 1.dp)))
             }
         }
     }
@@ -264,20 +268,20 @@ private fun DeckBreakdown(s: Stats) {
                     Text("${c.started} / ${c.total}", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
                 }
                 Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth().height(8.dp).background(Ink.Line)) {
+                Row(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)).background(Ink.High)) {
                     val total = c.total.coerceAtLeast(1).toFloat()
-                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Muted))
-                    if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(Ink.Soft))
-                    if (c.mature > 0) Box(Modifier.weight(c.mature / total).fillMaxHeight().background(Ink.Fg))
+                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Beak))
+                    if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(Ink.Accent.copy(alpha = 0.5f)))
+                    if (c.mature > 0) Box(Modifier.weight(c.mature / total).fillMaxHeight().background(Ink.Accent))
                     val rest = (c.total - c.started) / total
                     if (rest > 0f) Spacer(Modifier.weight(rest))
                 }
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Legend(Ink.Muted, "Учу ${c.learning}")
-                    Legend(Ink.Soft, "Повтор $young")
-                    Legend(Ink.Fg, "Выучено ${c.mature}")
-                    Legend(Ink.Line, "Новые ${(c.total - c.started).coerceAtLeast(0)}")
+                    Legend(Ink.Beak, "Учу ${c.learning}")
+                    Legend(Ink.Accent.copy(alpha = 0.5f), "Повтор $young")
+                    Legend(Ink.Accent, "Выучено ${c.mature}")
+                    Legend(Ink.High, "Новые ${(c.total - c.started).coerceAtLeast(0)}")
                 }
             }
         }

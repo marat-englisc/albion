@@ -29,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.marat.albion.ui.components.Panel
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.theme.Serif
@@ -72,19 +74,22 @@ fun GamesScreen(navigator: Navigator) {
 
 @Composable
 private fun GameRow(game: Game, modifier: Modifier, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Column(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clickable(interaction, indication = null, onClick = onClick)) {
-        Row(Modifier.padding(vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(game.icon, null, tint = Ink.Soft, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.width(16.dp))
+    // Упражнения чередуют оттенки шарфа и клюва — список читается как игровое поле.
+    val warm = game.ordinal % 2 == 1
+    Panel(modifier.fillMaxWidth().padding(vertical = 5.dp), onClick = onClick, contentPadding = PaddingValues(14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(48.dp).background(if (warm) Ink.WarmSoft else Ink.AccentSoft, RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center,
+            ) { Icon(game.icon, null, tint = if (warm) Ink.Warm else Ink.Accent, modifier = Modifier.size(24.dp)) }
+            Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Serif, fontSize = 20.sp, lineHeight = 26.sp), color = Ink.Fg)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
             Icon(Icons.Rounded.ChevronRight, null, tint = Ink.Faint)
         }
-        Hairline()
     }
 }

@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.data.settings.ThemeMode
-import com.marat.albion.data.settings.ThemeStyle
 import com.marat.albion.ui.intro.IntroScreen
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
@@ -48,13 +47,12 @@ class MainActivity : ComponentActivity() {
         val initial = runBlocking { container.settings.current() }
         val systemDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
-        Ink.palette = paletteFor(isDark(initial.themeMode, systemDark), initial.themeStyle == ThemeStyle.SOFT)
+        Ink.palette = paletteFor(isDark(initial.themeMode, systemDark))
 
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
             val dark = isDark(settings.themeMode, isSystemInDarkTheme())
-            val soft = settings.themeStyle == ThemeStyle.SOFT
-            val palette = paletteFor(dark, soft)
+            val palette = paletteFor(dark)
 
             // Значки статус-бара и навигации — светлые на тёмной теме, тёмные на светлой.
             DisposableEffect(palette) {
@@ -69,7 +67,7 @@ class MainActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(LocalAppContainer provides container) {
-                AlbionTheme(dark = dark, soft = soft) {
+                AlbionTheme(dark = dark) {
                     // Заставка — только при холодном старте; приложение под ней
                     // начинает рисоваться в момент ухода заставки, чтобы каскадные
                     // анимации главного экрана совпали с её исчезновением.

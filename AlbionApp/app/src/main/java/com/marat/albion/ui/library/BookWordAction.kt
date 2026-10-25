@@ -89,7 +89,7 @@ internal fun BookWordAction(
             }
         }
         if (existing.isNotEmpty() || saved != null) {
-            TextButton(onClick = onOpenDeck) { Text("Открыть «Слова из книг»", color = Ink.Fg) }
+            TextButton(onClick = onOpenDeck) { Text("Открыть «Слова из книг»", color = Ink.Accent) }
         }
     }
     if (editing) {
@@ -120,7 +120,7 @@ private fun BookWordEditor(
 
     AlertDialog(
         onDismissRequest = { if (!saving) onDismiss() },
-        containerColor = Ink.Elevated,
+        containerColor = Ink.Raised,
         title = { Text("Слово из книги", style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -130,8 +130,8 @@ private fun BookWordEditor(
                     enabled = !saving, modifier = Modifier.fillMaxWidth(), isError = meaning.length > 2000)
                 if (meanings.size > 1) {
                     Box {
-                        TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = Ink.Fg) }
-                        DropdownMenu(choices, onDismissRequest = { choices = false }, containerColor = Ink.Elevated) {
+                        TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = Ink.Accent) }
+                        DropdownMenu(choices, onDismissRequest = { choices = false }, containerColor = Ink.Raised) {
                             meanings.forEach { option ->
                                 DropdownMenuItem(text = { Text(option, maxLines = 4, overflow = TextOverflow.Ellipsis) },
                                     onClick = { meaning = option; choices = false })

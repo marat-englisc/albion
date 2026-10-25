@@ -159,7 +159,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
             if (headingIndex.isNotEmpty()) {
                 Box {
                     IconButton(onClick = { tocMenu = true }) { Icon(Icons.AutoMirrored.Rounded.List, "Разделы темы", tint = Ink.Fg) }
-                    DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }, containerColor = Ink.Elevated) {
+                    DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }, containerColor = Ink.Raised) {
                         headingIndex.forEach { (index, title) ->
                             DropdownMenuItem(
                                 text = { Text(title, color = Ink.Text) },
@@ -174,7 +174,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
             }
             Box {
                 IconButton(onClick = { sizeMenu = true }) { Icon(Icons.Rounded.TextFields, "Размер текста", tint = Ink.Fg) }
-                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Elevated) {
+                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(settings.grammarTextScale * 100).toInt()}%")
                         ThinSlider(
@@ -293,7 +293,7 @@ private fun TopicFooter(
                 Modifier.fillMaxWidth()
                     // Финн задумчиво выглядывает из-за блока с тестом.
                     .peekingFinn(at = 0.86f, height = 56.dp)
-                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).padding(20.dp),
+                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(12.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверь себя", color = Ink.Soft)
                 Spacer(Modifier.height(10.dp))

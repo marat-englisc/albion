@@ -295,7 +295,7 @@ fun GrammarScreen(navigator: Navigator) {
                             PrimaryButton("Повторить: ${first.number}. ${first.title}", onClick = { quiz(first) },
                                 trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                TextButton(onClick = { open(first) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.Fg) }
+                                TextButton(onClick = { open(first) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.Accent) }
                                 TextButton(onClick = {
                                     reviewsOnly = true; query = ""; level = null; bookmarksOnly = false
                                 }, modifier = Modifier.weight(1f)) { Text("Очередь (${due.size})", color = Ink.Fg) }
@@ -307,7 +307,7 @@ fun GrammarScreen(navigator: Navigator) {
                             Text("${next.topic.number}. ${next.topic.title}",
                                 style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
                                 modifier = Modifier.padding(top = 8.dp))
-                            TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.Fg) }
+                            TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.Accent) }
                         }
                         else -> {
                             Text("Пройдите тест в конце темы — здесь появится её ближайшее повторение.",

@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -220,32 +221,40 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.Fg
-            TileStyle.Placed -> Ink.Elevated
-            else -> Ink.Bg
+            TileStyle.Correct -> Ink.Accent
+            TileStyle.Placed -> Ink.AccentSoft
+            TileStyle.Wrong -> Ink.WarmSoft
+            TileStyle.Ghost -> Ink.Surface
+            TileStyle.Idle -> Ink.Raised
         },
         tween(240), label = "tileBg",
     )
     val fg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.Bg
-            TileStyle.Wrong -> Ink.Muted
+            TileStyle.Correct -> Ink.OnAccent
+            TileStyle.Wrong -> Ink.Warm
             else -> Ink.Fg
         },
         tween(240), label = "tileFg",
     )
     val border = when (style) {
         TileStyle.Idle -> Ink.LineStrong
-        TileStyle.Placed -> Ink.LineStrong
+        TileStyle.Placed -> Ink.Accent
         TileStyle.Ghost -> Ink.Line
-        TileStyle.Correct -> Ink.Fg
-        TileStyle.Wrong -> Ink.Muted
+        TileStyle.Correct -> Ink.AccentDeep
+        TileStyle.Wrong -> Ink.Warm
     }
+    // Плитка — маленькая фишка с кромкой снизу, как в настольной игре.
+    val shape = RoundedCornerShape(12.dp)
     Box(
         Modifier
-            .pressScale(interaction, 0.94f)
-            .background(bg, RoundedCornerShape(4.dp))
-            .border(1.dp, border, RoundedCornerShape(4.dp))
+            .pressScale(interaction, 0.9f)
+            .then(if (style == TileStyle.Ghost) Modifier else Modifier.drawBehind {
+                drawRoundRect(border, topLeft = androidx.compose.ui.geometry.Offset(0f, 3.dp.toPx()), size = size,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()))
+            })
+            .background(bg, shape)
+            .border(1.dp, border, shape)
             .clickable(interaction, indication = null, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 9.dp),
     ) {

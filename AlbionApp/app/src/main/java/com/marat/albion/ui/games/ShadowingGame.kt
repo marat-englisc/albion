@@ -270,7 +270,7 @@ private fun PlaybackActions(onCompare: () -> Unit, onPlayMine: () -> Unit) {
 /** Разбор попытки: общий процент, три шкалы, график мелодики и советы. */
 @Composable
 private fun ReportCard(r: ShadowReport) {
-    Column(Modifier.fillMaxWidth().padding(top = 18.dp).border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(18.dp)) {
+    Column(Modifier.fillMaxWidth().padding(top = 18.dp).border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(18.dp)) {
         Row(verticalAlignment = Alignment.Bottom) {
             AnimatedNumber(r.overall, AlbionType.number, color = Ink.Fg, suffix = "%")
             Spacer(Modifier.width(14.dp))

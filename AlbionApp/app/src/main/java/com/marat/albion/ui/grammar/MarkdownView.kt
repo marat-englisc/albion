@@ -319,7 +319,7 @@ private fun TableView(table: MdTable, modifier: Modifier) {
             TableAsCards(table, headStyle, cellStyle)
         } else {
             val widths = layout.map { with(density) { it.toDp() } }
-            Column(Modifier.border(1.dp, Ink.Line, RoundedCornerShape(4.dp))) {
+            Column(Modifier.border(1.dp, Ink.Line, RoundedCornerShape(12.dp))) {
                 TableRow(table.header, widths, headStyle, Ink.Elevated, cellPadding)
                 table.rows.forEachIndexed { r, row ->
                     Hairline()
@@ -351,7 +351,7 @@ private fun TableAsCards(table: MdTable, headStyle: TextStyle, cellStyle: TextSt
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         table.rows.forEach { row ->
             Column(
-                Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 val title = row.firstOrNull().orEmpty()
@@ -398,7 +398,7 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
     var open by rememberSaveable(c.title, c.kind) { mutableStateOf(c.initiallyExpanded) }
     val arrow by animateFloatAsState(if (open) 180f else 0f, tween(320, easing = Easing.Emphasized), label = "chevron")
     val scale = LocalMdEnv.current.scale
-    val shape = RoundedCornerShape(4.dp)
+    val shape = RoundedCornerShape(12.dp)
     val container = when (l.frame) {
         Frame.Box -> modifier.fillMaxWidth().clip(shape).background(Ink.Raised).border(1.dp, Ink.Fg.copy(alpha = 0.85f), shape)
         Frame.Filled -> modifier.fillMaxWidth().clip(shape).background(Ink.Elevated)
@@ -441,7 +441,7 @@ private fun QuoteView(q: MdQuote, modifier: Modifier) {
 
 @Composable
 private fun CodeView(code: MdCode, modifier: Modifier) {
-    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)).background(Ink.Code).padding(14.dp)) {
+    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Ink.Code).padding(14.dp)) {
         Text(code.code, style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = Ink.Text))
     }
 }

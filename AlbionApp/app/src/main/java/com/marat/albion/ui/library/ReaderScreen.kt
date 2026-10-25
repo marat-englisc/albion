@@ -230,7 +230,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             IconButton(onClick = { showHighlights = true }) { Icon(Icons.Rounded.BorderColor, "Выделения и заметки", tint = Ink.Fg) }
             Box {
                 IconButton(onClick = { sizeMenu = true }) { Icon(Icons.Rounded.TextFields, "Размер текста", tint = Ink.Fg) }
-                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Elevated) {
+                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(scale * 100).toInt()}%")
                         ThinSlider(

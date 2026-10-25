@@ -5,6 +5,8 @@ import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import com.marat.albion.ui.theme.pressScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -179,19 +181,24 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
     }
 }
 
-/** Фильтр-вкладка: текст с подчёркиванием, которое проявляется у выбранной. */
+/** Фильтр — пилюля: выбранная заливается цветом шарфа с пружинным «щелчком». */
 @Composable
 fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
-    val t by animateFloatAsState(if (selected) 1f else 0f, label = "tab")
-    Column(
-        Modifier.clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val t by animateFloatAsState(if (selected) 1f else 0f, androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 500f), label = "tab")
+    val interaction = remember { MutableInteractionSource() }
+    val shape = androidx.compose.foundation.shape.RoundedCornerShape(50)
+    Box(
+        Modifier
+            .pressScale(interaction, 0.93f)
+            .background(lerpColor(Ink.Surface, Ink.Accent, t), shape)
+            .border(1.dp, lerpColor(Ink.Line, Ink.Accent, t), shape)
+            .clickable(interaction, indication = null, role = androidx.compose.ui.semantics.Role.Tab, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
-        Text(label.uppercase(), style = com.marat.albion.ui.theme.AlbionType.eyebrow, color = lerpColor(Ink.Faint, Ink.Fg, t))
-        Spacer(Modifier.height(6.dp))
-        Box(Modifier.width(18.dp * t).height(1.dp).background(Ink.Fg))
+        Text(label.uppercase(), style = com.marat.albion.ui.theme.AlbionType.eyebrow, color = lerpColor(Ink.Soft, Ink.OnAccent, t))
     }
 }
+
 
 @Composable
 private fun CardRow(card: CardEntity, showRussian: Boolean, playing: Boolean, selected: Boolean, onPlay: () -> Unit, onClick: () -> Unit, modifier: Modifier) {
@@ -277,7 +284,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     if (confirmRemove) {
         AlertDialog(
             onDismissRequest = { if (!removing) confirmRemove = false },
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Text("Удалить слово?", color = Ink.Fg) },
             text = {
                 Text(if (removeError) "Не удалось удалить слово. Попробуйте ещё раз."

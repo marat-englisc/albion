@@ -123,6 +123,8 @@ fun Modifier.peekingFinn(
         kotlinx.coroutines.delay(delayMs.toLong())
         appear.animateTo(1f, spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow))
     }
+    // Финн на экране один: если его «перехватил» другой элемент (диалог, итог), он прячется за край.
+    val presence = rememberStagePresence()
     val sway by rememberInfiniteTransition(label = "peek").animateFloat(
         initialValue = -2f, targetValue = 2f,
         animationSpec = infiniteRepeatable(tween(2600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
@@ -131,8 +133,8 @@ fun Modifier.peekingFinn(
 
     drawWithContent {
         drawContent()
-        val p = appear.value
-        if (p <= 0f) return@drawWithContent
+        val p = appear.value * presence
+        if (p <= 0.001f) return@drawWithContent
         val h = heightPx
         val w = h * image.width / image.height
         if (peek == FinnPeek.SIDE) drawSide(image, from, at, w, h, outsetPx, mirror, p, sway)

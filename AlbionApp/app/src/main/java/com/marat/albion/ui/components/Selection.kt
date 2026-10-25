@@ -3,6 +3,7 @@ package com.marat.albion.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.semantics.selected
@@ -17,5 +18,8 @@ import com.marat.albion.ui.theme.Ink
 fun Modifier.selectedRow(selected: Boolean): Modifier =
     if (!selected) this
     else semantics { this.selected = true }
-        .background(Ink.High)
-        .drawBehind { drawRect(Ink.Fg, Offset.Zero, Size(2.dp.toPx(), size.height)) }
+        .background(Ink.AccentSoft)
+        .drawBehind {
+            val w = 4.dp.toPx()
+            drawRoundRect(Ink.Accent, Offset(0f, size.height * 0.2f), Size(w, size.height * 0.6f), CornerRadius(w / 2))
+        }

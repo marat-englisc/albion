@@ -3,6 +3,7 @@ package com.marat.albion.ui.nav
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -17,6 +18,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -55,6 +57,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.key
@@ -62,6 +65,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -85,11 +89,12 @@ import com.marat.albion.ui.browse.CardDetailScreen
 import com.marat.albion.ui.components.CenteredColumn
 import com.marat.albion.ui.components.DashboardWidth
 import com.marat.albion.ui.components.FocusWidth
-import com.marat.albion.ui.components.Hairline
+
 import com.marat.albion.ui.components.ReadableWidth
 import com.marat.albion.ui.components.WidthClass
 import com.marat.albion.ui.components.widthClassOf
 import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.deck.DeckScreen
 import com.marat.albion.ui.games.GameHost
 import com.marat.albion.ui.games.TopicQuizHost
@@ -116,18 +121,18 @@ private val tabs = listOf(
     Tab(StatsRoute, "Прогресс", Icons.Outlined.Insights),
 )
 
-// Переход вглубь: новый экран въезжает справа и «приближается», старый уходит в глубину.
+// Новый экран въезжает справа с лёгким пружинным «доездом», старый отступает в глубину.
 private fun forward(): ContentTransform =
-    (slideInHorizontally(tween(220, easing = Easing.Emphasized)) { (it * 0.08f).toInt() } +
-        fadeIn(tween(180)) +
-        scaleIn(tween(220, easing = Easing.Emphasized), initialScale = 0.985f)) togetherWith
-        (fadeOut(tween(140)) + scaleOut(tween(220, easing = Easing.Emphasized), targetScale = 0.98f))
+    (slideInHorizontally(spring(dampingRatio = 0.86f, stiffness = 520f)) { (it * 0.14f).toInt() } +
+        fadeIn(tween(200)) +
+        scaleIn(tween(300, easing = Easing.Emphasized), initialScale = 0.97f)) togetherWith
+        (fadeOut(tween(160)) + scaleOut(tween(300, easing = Easing.Emphasized), targetScale = 0.96f))
 
 private fun backward(): ContentTransform =
-    (fadeIn(tween(180)) + scaleIn(tween(220, easing = Easing.Emphasized), initialScale = 0.98f)) togetherWith
-        (slideOutHorizontally(tween(220, easing = Easing.Emphasized)) { (it * 0.1f).toInt() } +
-            fadeOut(tween(160)) +
-            scaleOut(tween(220, easing = Easing.Emphasized), targetScale = 0.985f))
+    (fadeIn(tween(220)) + scaleIn(tween(300, easing = Easing.Emphasized), initialScale = 0.96f)) togetherWith
+        (slideOutHorizontally(tween(260, easing = Easing.Emphasized)) { (it * 0.16f).toInt() } +
+            fadeOut(tween(180)) +
+            scaleOut(tween(260, easing = Easing.Emphasized), targetScale = 0.97f))
 
 @Composable
 fun AlbionNavigation() {
@@ -232,15 +237,36 @@ private fun maxWidthFor(route: NavKey): Dp = when (route) {
     else -> ReadableWidth
 }
 
-/** Боковая панель вкладок для планшета: та же тонкая черта, но вертикальная и слева от вкладки. */
+/** Значок вкладки: при выборе подпрыгивает с лёгким «перелётом», как фишка на игровом поле. */
+@Composable
+private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) {
+    val bounce = remember { Animatable(1f) }
+    LaunchedEffect(selected) {
+        if (selected) {
+            bounce.snapTo(0.78f)
+            bounce.animateTo(1f, spring(dampingRatio = 0.35f, stiffness = 500f))
+        }
+    }
+    val emphasis by animateFloatAsState(if (selected) 1f else 0f, tween(200), label = "tabTint")
+    Icon(
+        icon, description,
+        tint = lerpColor(Ink.Muted, Ink.Accent, emphasis),
+        modifier = Modifier.size(24.dp).graphicsLayer {
+            scaleX = bounce.value; scaleY = bounce.value
+            translationY = (1f - bounce.value) * 18f
+        },
+    )
+}
+
+/** Боковая панель вкладок для планшета: мягкая «капля» перетекает к выбранной вкладке. */
 @Composable
 private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
     val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp)
     val itemHeight = 84.dp
     val indicatorY by animateDpAsState(
-        itemHeight * index + (itemHeight - 28.dp) / 2,
-        spring(dampingRatio = 0.72f, stiffness = 380f),
+        itemHeight * index + (itemHeight - 32.dp - 22.dp) / 2,
+        spring(dampingRatio = 0.62f, stiffness = 420f),
         label = "railIndicator",
     )
     Row(
@@ -248,12 +274,12 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom)),
     ) {
         Box(Modifier.width(96.dp).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars).padding(top = 24.dp)) {
-            Box(Modifier.offset { IntOffset(0, indicatorY.roundToPx()) }.width(2.dp).height(28.dp).background(Ink.Fg))
+            Box(Modifier.offset { IntOffset(((96.dp - 60.dp) / 2).roundToPx(), indicatorY.roundToPx()) }
+                .width(60.dp).height(32.dp).background(Ink.AccentSoft, RoundedCornerShape(16.dp)))
             Column(Modifier.fillMaxWidth().selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val isSelected = i == index
                     val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "railTab")
-                    val tint = lerpColor(Ink.Muted, Ink.Fg, emphasis)
                     Column(
                         Modifier.fillMaxWidth().height(itemHeight)
                             .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
@@ -261,12 +287,12 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Box(Modifier.width(48.dp).height(28.dp).background(if (isSelected) Ink.High else Ink.Bg, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                            Icon(tab.icon, null, tint = tint, modifier = Modifier.size(24.dp))
+                        Box(Modifier.width(60.dp).height(32.dp), contentAlignment = Alignment.Center) {
+                            TabIcon(tab.icon, isSelected, null)
                         }
                         Spacer(Modifier.height(6.dp))
                         Text(tab.label, style = labelStyle.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium),
-                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = tint)
+                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
                     }
                 }
             }
@@ -275,7 +301,10 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     }
 }
 
-/** Нижняя панель: тонкая белая черта пружинисто скользит к выбранной вкладке. */
+/**
+ * Нижняя панель — плавающая «пилюля» над страницей. За выбранной вкладкой пружинисто
+ * перетекает мягкая капля цвета шарфа, значок подпрыгивает.
+ */
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
@@ -284,40 +313,47 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val labelWidth = with(LocalDensity.current) {
         tabs.maxOf { textMeasurer.measure(it.label, labelStyle.copy(fontWeight = FontWeight.SemiBold), softWrap = false).size.width }.toDp() + 12.dp
     }
-    Column(Modifier.background(Ink.Bg).windowInsetsPadding(WindowInsets.navigationBars)) {
-        Hairline()
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val shape = RoundedCornerShape(28.dp)
+    Box(
+        Modifier.background(Ink.Bg).windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 10.dp),
+    ) {
+        BoxWithConstraints(
+            Modifier.fillMaxWidth().softShadow(shape, 10.dp).background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
+                .padding(horizontal = 6.dp),
+        ) {
             val tabWidth = maxWidth / tabs.size
             val compact = tabWidth < labelWidth
             val selectedWidth = if (compact) {
                 labelWidth.coerceAtMost(maxWidth - 48.dp * (tabs.size - 1)).coerceAtLeast(tabWidth)
             } else tabWidth
             val otherWidth = (maxWidth - selectedWidth) / (tabs.size - 1)
+            val blobWidth = 56.dp
             val indicatorX by animateDpAsState(
-                otherWidth * index + (selectedWidth - 28.dp) / 2,
-                spring(dampingRatio = 0.72f, stiffness = 380f),
+                otherWidth * index + (selectedWidth - blobWidth) / 2,
+                spring(dampingRatio = 0.62f, stiffness = 420f),
                 label = "indicator",
             )
-            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(28.dp).height(2.dp).background(Ink.Fg))
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 8.dp.roundToPx()) }
+                .width(blobWidth).height(32.dp).background(Ink.AccentSoft, RoundedCornerShape(16.dp)))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val isSelected = i == index
                     val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "tab")
                     Column(
-                        Modifier.width(if (isSelected) selectedWidth else otherWidth).fillMaxHeight().heightIn(min = 80.dp)
+                        Modifier.width(if (isSelected) selectedWidth else otherWidth).fillMaxHeight().heightIn(min = 68.dp)
                             .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
-                            .padding(horizontal = 4.dp, vertical = 12.dp),
+                            .padding(horizontal = 2.dp, vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
                     ) {
-                        val tint = lerpColor(Ink.Muted, Ink.Fg, emphasis)
-                        Box(Modifier.width(48.dp).height(28.dp).background(if (isSelected) Ink.High else Ink.Bg, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                            Icon(tab.icon, if (compact && !isSelected) tab.label else null, tint = tint, modifier = Modifier.size(24.dp))
+                        Box(Modifier.width(blobWidth).height(32.dp), contentAlignment = Alignment.Center) {
+                            TabIcon(tab.icon, isSelected, if (compact && !isSelected) tab.label else null)
                         }
                         if (!compact || isSelected) {
-                            Spacer(Modifier.height(6.dp))
+                            Spacer(Modifier.height(4.dp))
                             Text(tab.label, style = labelStyle.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium),
-                                maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = tint)
+                                maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
                         }
                     }
                 }

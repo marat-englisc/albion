@@ -77,6 +77,10 @@ import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.ConfettiBurst
+import com.marat.albion.ui.components.SpeechBubble
+import com.marat.albion.ui.components.StatPill
+import com.marat.albion.ui.components.Tail
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
@@ -131,7 +135,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator) {
     state.error?.let { message ->
         AlertDialog(
             onDismissRequest = vm::dismissError,
-            containerColor = Ink.Elevated,
+            containerColor = Ink.Raised,
             title = { Text("Не удалось записать изменения") },
             text = { Text(message) },
             confirmButton = { TextButton(onClick = vm::dismissError) { Text("Понятно") } },
@@ -315,11 +319,12 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) 
 
 @Composable
 private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
+    // «Снова» — тёплый клюв, «Хорошо» — шарф: цвет подсказывает смысл ещё до чтения подписи.
     val (bg, fg, border) = when (r) {
-        Rating.Again -> Triple(Color.Transparent, Ink.Soft, Ink.LineStrong)
-        Rating.Hard -> Triple(Ink.Elevated, Ink.Text, Ink.LineStrong)
-        Rating.Good -> Triple(Ink.Fg, Ink.Bg, Ink.Fg)
-        Rating.Easy -> Triple(Ink.Raised, Ink.Text, Ink.LineStrong)
+        Rating.Again -> Triple(Ink.WarmSoft, Ink.Warm, Ink.WarmSoft)
+        Rating.Hard -> Triple(Ink.Surface, Ink.Text, Ink.LineStrong)
+        Rating.Good -> Triple(Ink.Accent, Ink.OnAccent, Ink.AccentDeep)
+        Rating.Easy -> Triple(Ink.AccentSoft, Ink.Accent, Ink.AccentSoft)
     }
     val interaction = remember { MutableInteractionSource() }
     val appear = remember { Animatable(0f) }
@@ -331,9 +336,9 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         modifier.fillMaxHeight().heightIn(min = 66.dp)
             .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
             .pressScale(interaction, 0.96f)
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(4.dp))
+            .border(1.dp, border, RoundedCornerShape(16.dp))
             .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -342,19 +347,26 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Text(r.label, style = MaterialTheme.typography.labelLarge, color = fg, textAlign = TextAlign.Center)
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
-            color = if (r == Rating.Good) Ink.Bg else Ink.Muted, textAlign = TextAlign.Center)
+            color = if (r == Rating.Good) Ink.OnAccent else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
     }
 }
 
 /** Итог занятия: Финн радуется сделанному (или отдыхает, если повторять было нечего), цифры набегают. */
 @Composable
 private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+    if (state.answered > 0) ConfettiBurst(Unit, Modifier.fillMaxSize())
     Column(
         Modifier.fillMaxSize().padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Mascot(if (state.answered == 0) Finn.REST else Finn.SESSION_COMPLETE, 176.dp)
+        // Финн говорит итог сам — и радуется, если его погладить.
+        SpeechBubble(
+            if (state.answered == 0) "Отдыхаем! Повторять пока нечего." else "Ура! ${state.answered} ${answersWord(state.answered)} — отличная работа.",
+            tail = Tail.Bottom, tailAt = 0.5f, delayMs = 500,
+        )
+        Mascot(if (state.answered == 0) Finn.REST else Finn.SESSION_COMPLETE, 176.dp, delayMs = 150)
         Spacer(Modifier.height(20.dp))
         Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
         Spacer(Modifier.height(10.dp))
@@ -365,11 +377,11 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
             textAlign = TextAlign.Center,
         )
         if (state.answered > 0) {
-            Spacer(Modifier.height(36.dp))
-            Row(Modifier.fillMaxWidth()) {
-                Stat(state.answered, "ответов", "", Modifier.weight(1f))
-                Stat((state.answered - state.again) * 100 / state.answered, "вспомнил", "%", Modifier.weight(1f))
-                Stat((state.elapsedMs / 60000).toInt().coerceAtLeast(1), "минут", "", Modifier.weight(1f))
+            Spacer(Modifier.height(28.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatPill(state.answered, "ответов", Modifier.weight(1f))
+                StatPill((state.answered - state.again) * 100 / state.answered, "вспомнил", Modifier.weight(1f), suffix = "%", tint = Ink.AccentSoft)
+                StatPill((state.elapsedMs / 60000).toInt().coerceAtLeast(1), "минут", Modifier.weight(1f))
             }
         }
         if (state.learningCount > 0) {
@@ -388,6 +400,14 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
             GhostButton("Отменить последний ответ", onClick = onUndo)
         }
     }
+    }
+}
+
+private fun answersWord(n: Int) = when {
+    n % 100 in 11..14 -> "ответов"
+    n % 10 == 1 -> "ответ"
+    n % 10 in 2..4 -> "ответа"
+    else -> "ответов"
 }
 
 @Composable

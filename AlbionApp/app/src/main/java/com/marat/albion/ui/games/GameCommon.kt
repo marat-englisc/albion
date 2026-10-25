@@ -2,6 +2,22 @@ package com.marat.albion.ui.games
 
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.Mascot
+import com.marat.albion.ui.components.ButtonTone
+import com.marat.albion.ui.components.ConfettiBurst
+import com.marat.albion.ui.components.FinnLedge
+import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.theme.pressScale
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.zIndex
 import com.marat.albion.ui.components.Finn
 import android.Manifest
 import android.content.pm.PackageManager
@@ -200,64 +216,71 @@ fun GameSetup(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
-            GameSetupHeader(game, Modifier.reveal(reveal, 0))
-            if (game.decks.size > 1) {
-                Column(Modifier.reveal(reveal, 1)) {
-                    SectionHeader("Колода", Modifier.padding(top = 8.dp))
-                    OptionGrid(game.decks.map { it.title }, game.decks.indexOf(deck)) { onDeck(game.decks[it]) }
-                }
-            }
-            if (game.modes.isNotEmpty()) {
-                Column(Modifier.reveal(reveal, 1)) {
-                    SectionHeader("Режим", Modifier.padding(top = 20.dp))
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
-                        game.modes.forEachIndexed { i, m -> TextTab(m, mode == i) { onMode(i) } }
+            GameSetupHeader(game, Modifier.reveal(reveal, 0)) {
+                if (game.decks.size > 1) {
+                    Column(Modifier.reveal(reveal, 1)) {
+                        SectionHeader("Колода", Modifier.padding(top = 0.dp))
+                        OptionGrid(game.decks.map { it.title }, game.decks.indexOf(deck)) { onDeck(game.decks[it]) }
                     }
                 }
-            }
-            if (mistakes > 0) {
+                if (game.modes.isNotEmpty()) {
+                    Column(Modifier.reveal(reveal, 1)) {
+                        SectionHeader("Режим", Modifier.padding(top = 8.dp))
+                        Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            game.modes.forEachIndexed { i, m -> TextTab(m, mode == i) { onMode(i) } }
+                        }
+                    }
+                }
+                if (mistakes > 0) {
+                    Column(Modifier.reveal(reveal, 2)) {
+                        SectionHeader("Ошибки", Modifier.padding(top = 4.dp), trailing = "%02d".format(mistakes))
+                        Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TextTab("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
+                            TextTab("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
+                        }
+                    }
+                }
                 Column(Modifier.reveal(reveal, 2)) {
-                    SectionHeader("Ошибки", Modifier.padding(top = 12.dp), trailing = "%02d".format(mistakes))
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
-                        TextTab("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
-                        TextTab("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
+                    SectionHeader("Длина", Modifier.padding(top = 4.dp))
+                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        counts.forEach { n -> TextTab(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
                     }
                 }
             }
-            Column(Modifier.reveal(reveal, 2)) {
-                SectionHeader("Длина", Modifier.padding(top = 12.dp))
-                Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(26.dp)) {
-                    counts.forEach { n -> TextTab(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
-                }
-            }
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(24.dp))
             PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                modifier = Modifier.reveal(reveal, 3).peekingFinn(at = 0.86f, height = 56.dp))
+                modifier = Modifier.reveal(reveal, 3))
         }
     }
 }
 
-/** Варианты в столбик: выбранный отмечен белой чертой слева. */
+/** Варианты в столбик: выбранный — на мягкой зелёной плашке с отметкой. */
 @Composable
 private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
-    Column {
+    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         options.forEachIndexed { i, label ->
             val isSel = i == selected
+            val t by animateFloatAsState(if (isSel) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 400f), label = "opt")
+            val interaction = remember { MutableInteractionSource() }
             Row(
                 Modifier.fillMaxWidth()
-                    .clickable(remember { MutableInteractionSource() }, indication = null) { onSelect(i) }
-                    .padding(vertical = 13.dp),
+                    .pressScale(interaction, 0.97f)
+                    .background(lerpColor(Ink.Surface, Ink.AccentSoft, t), RoundedCornerShape(16.dp))
+                    .clickable(interaction, indication = null) { onSelect(i) }
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(Modifier.width(2.dp).height(20.dp).background(if (isSel) Ink.Fg else Ink.Bg))
+                Box(
+                    Modifier.size(22.dp).border(2.dp, lerpColor(Ink.LineStrong, Ink.Accent, t), CircleShape).padding(5.dp)
+                        .graphicsLayer { scaleX = t; scaleY = t }.background(Ink.Accent, CircleShape),
+                )
                 Spacer(Modifier.width(14.dp))
                 Text(
                     label,
                     style = MaterialTheme.typography.headlineSmall,
-                    color = if (isSel) Ink.Fg else Ink.Faint,
+                    color = lerpColor(Ink.Soft, Ink.Fg, t),
                 )
             }
-            if (i < options.lastIndex) Hairline()
         }
     }
 }
@@ -308,20 +331,25 @@ val Game.mascot: Finn get() = when (this) {
     Game.TENSES -> Finn.THINKING
 }
 
-/** Шапка настройки упражнения: номер, название и подзаголовок слева, Финн справа. */
+/**
+ * Шапка настройки упражнения: название слева, Финн в позе упражнения стоит на карточке
+ * с параметрами и коротко говорит, чем займёмся.
+ */
 @Composable
-internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Eyebrow("Упражнение · %02d".format(game.ordinal + 1))
-            Spacer(Modifier.height(8.dp))
-            Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options: @Composable ColumnScope.() -> Unit) {
+    FinnLedge(
+        pose = game.mascot,
+        line = game.tagline,
+        modifier = modifier.fillMaxWidth().padding(top = 4.dp),
+        delayMs = 120,
+        contentPadding = PaddingValues(start = 18.dp, end = 18.dp, top = 6.dp, bottom = 14.dp),
+        header = {
+            Eyebrow("Упражнение · %02d".format(game.ordinal + 1), color = Ink.Accent)
             Spacer(Modifier.height(6.dp))
-            Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-        }
-        Spacer(Modifier.width(12.dp))
-        Mascot(game.mascot, 112.dp, delayMs = 120)
-    }
+            Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+        },
+        content = options,
+    )
 }
 
 /** Итог: кольцо результата прорисовывается, проценты набегают. */
@@ -343,6 +371,9 @@ fun GameSummary(
     LaunchedEffect(Unit) { ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
     val ringSize = 150.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
+    Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+    // Хороший результат — салют цветами Финна поверх итога.
+    if (total > 0 && ratio >= 0.8f) ConfettiBurst(Unit, Modifier.fillMaxSize().zIndex(1f))
     Column(
         Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
@@ -360,11 +391,17 @@ fun GameSummary(
         Row(verticalAlignment = Alignment.Bottom) {
             Mascot(pose, 128.dp, Modifier.reveal(reveal, 0), delayMs = 260)
             Spacer(Modifier.width(8.dp))
+            val track = Ink.High
+            val arc = if (ratio >= 0.5f) Ink.Accent else Ink.Beak
             Box(Modifier.size(ringSize).reveal(reveal, 0), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
-                    val w = 2.dp.toPx()
-                    drawCircle(Ink.Line, style = Stroke(w))
-                    drawArc(Ink.Fg, -90f, 360f * ring.value, false, style = Stroke(w * 1.5f, cap = StrokeCap.Round))
+                    val w = 10.dp.toPx()
+                    drawCircle(track, radius = size.minDimension / 2 - w / 2, style = Stroke(w))
+                    drawArc(
+                        arc, -90f, 360f * ring.value, false,
+                        topLeft = Offset(w / 2, w / 2), size = Size(size.width - w, size.height - w),
+                        style = Stroke(w, cap = StrokeCap.Round),
+                    )
                 }
                 Column(Modifier.padding(horizontal = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     AnimatedNumber((ratio * 100).toInt(), AlbionType.number, color = Ink.Fg, suffix = "%")
@@ -396,6 +433,7 @@ fun GameSummary(
 
         if (mistakes.isNotEmpty()) {
             Column(Modifier.fillMaxWidth().reveal(reveal, 3)) {
+                // Ошибки — тёплым цветом клюва: заметно, но не тревожно.
                 SectionHeader("Ошибки", Modifier.padding(top = 20.dp), trailing = "%02d".format(mistakes.size))
                 Text(
                     "Сохранены — в следующем занятии эти слова попадутся первыми.",
@@ -413,7 +451,7 @@ fun GameSummary(
                             Text(
                                 m.answer,
                                 style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
-                                color = Ink.Faint,
+                                color = Ink.Warm,
                             )
                         }
                     }
@@ -424,11 +462,12 @@ fun GameSummary(
 
         Spacer(Modifier.height(32.dp))
         Column(Modifier.reveal(reveal, 4), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (onRetryMistakes != null && mistakes.isNotEmpty()) PrimaryButton("Повторить ошибки", onClick = onRetryMistakes)
+            if (onRetryMistakes != null && mistakes.isNotEmpty()) PrimaryButton("Повторить ошибки", onClick = onRetryMistakes, tone = ButtonTone.Warm)
             if (onRetryMistakes != null && mistakes.isNotEmpty()) GhostButton(restartLabel, onClick = onRestart)
             else PrimaryButton(restartLabel, onClick = onRestart)
             GhostButton("Готово", onClick = onDone)
         }
+    }
     }
 }
 
