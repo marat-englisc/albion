@@ -1,5 +1,17 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.shape.CircleShape
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.ThinProgress
+import com.marat.albion.ui.components.softShadow
+import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -172,53 +184,53 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
         vm.next()
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 28.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TermBlock(card)
-            Spacer(Modifier.height(30.dp))
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Top) {
-                RoundAction(Icons.Rounded.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}")
-                RecordButton(recording = recording, level = level, onClick = ::toggleRecord)
+            val micSize = if (LocalNarrow.current) 76.dp else 84.dp
+            Row(
+                Modifier.fillMaxWidth().padding(vertical = 18.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.Top,
+            ) {
+                RoundAction(Icons.Rounded.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
+                RecordButton(recording = recording, level = level, onClick = ::toggleRecord, size = micSize)
                 RoundAction(
                     Icons.Rounded.SlowMotionVideo, "Медленно",
                     { playOriginal(0.7f, "slow:${card.id}") },
-                    enabled = card.audio != null, active = playing == "slow:${card.id}",
+                    enabled = card.audio != null, active = playing == "slow:${card.id}", slot = micSize + MicLip,
                 )
             }
-            Spacer(Modifier.height(22.dp))
 
-            // Волна: живая во время записи.
+            // Волна: живая во время записи — тёплая, как кнопка записи.
             AnimatedVisibility(recording || (!hasTake && report == null)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
-                        Modifier.fillMaxWidth().height(48.dp),
+                        Modifier.fillMaxWidth().height(44.dp).padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         wave.forEach { v ->
-                            val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.06f) else 0.06f, spring(stiffness = 600f), label = "bar")
-                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Fg else Ink.LineStrong, RoundedCornerShape(1.dp)))
+                            val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.1f) else 0.1f, spring(stiffness = 600f), label = "bar")
+                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Warm else Ink.LineStrong, CircleShape))
                         }
                     }
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(12.dp))
                 }
             }
-            Eyebrow(
-                when {
-                    micDenied -> "Нет доступа к микрофону"
-                    recording -> "Говорите — запись остановится, когда вы замолчите"
-                    analyzing -> "Сравниваю с диктором…"
-                    unclear -> "Не удалось разобрать запись — говорите громче и ближе к телефону"
-                    report != null -> "Попытка $takes" + (best?.takeIf { takes > 1 }?.let { " · лучшая $it%" } ?: "")
-                    hasTake && original == null -> "Для этой карточки нет записи диктора — сравните на слух"
-                    else -> "1 · Послушайте   2 · Повторите   3 · Сравните"
-                },
-                color = if (recording) Ink.Fg else Ink.Muted,
-            )
+            when {
+                micDenied -> ShadowStatus("Нет доступа к микрофону — разрешите его в настройках телефона.", warm = true)
+                recording -> ShadowStatus("Говорите — запись остановится, когда вы замолчите", warm = true)
+                analyzing -> ShadowStatus("Сравниваю с диктором…")
+                unclear -> ShadowStatus("Не удалось разобрать запись — говорите громче и ближе к телефону", warm = true)
+                report != null -> ShadowStatus("Попытка $takes" + (best?.takeIf { takes > 1 }?.let { " · лучшая $it%" } ?: ""))
+                hasTake && original == null -> ShadowStatus("Для этой карточки нет записи диктора — сравните на слух")
+                else -> ShadowSteps()
+            }
 
             AnimatedVisibility(report != null && !recording, enter = fadeIn(tween(320)) + expandVertically()) {
                 report?.let { ReportCard(it) }
@@ -232,7 +244,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             "Дальше",
             onClick = ::next,
             trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         )
     }
 }
@@ -241,40 +253,73 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
 private fun PlaybackActions(onCompare: () -> Unit, onPlayMine: () -> Unit) {
     val compareLabel = "Диктор → я"
     val mineLabel = "Моя запись"
-    val style = MaterialTheme.typography.titleMedium
-    val measurer = rememberTextMeasurer()
-    val density = LocalDensity.current
-    val labelWidth = maxOf(
-        measurer.measure(compareLabel, style, softWrap = false).size.width,
-        measurer.measure(mineLabel, style, softWrap = false).size.width,
-    )
-    val requiredWidth = with(density) { labelWidth.toDp() } + 24.dp
     val padding = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+    Box(Modifier.padding(top = 14.dp)) {
+        ButtonPair(
+            listOf(compareLabel, mineLabel),
+            first = { m -> GhostButton(compareLabel, onCompare, m, contentPadding = padding) },
+            second = { m -> GhostButton(mineLabel, onPlayMine, m, contentPadding = padding) },
+        )
+    }
+}
 
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 18.dp)) {
-        // При крупном системном шрифте даём каждой подписи всю ширину экрана.
-        if ((maxWidth - 10.dp) / 2 >= requiredWidth) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GhostButton(compareLabel, onCompare, Modifier.weight(1f), contentPadding = padding)
-                GhostButton(mineLabel, onPlayMine, Modifier.weight(1f), contentPadding = padding)
-            }
-        } else {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                GhostButton(compareLabel, onCompare, contentPadding = padding)
-                GhostButton(mineLabel, onPlayMine, contentPadding = padding)
+/** Подсказка-статус под кнопками: обычный текст, тёплый — когда идёт запись или что-то не так. */
+@Composable
+private fun ShadowStatus(text: String, warm: Boolean = false) {
+    Text(
+        text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = if (warm) Ink.Warm else Ink.Soft,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(horizontal = 8.dp),
+    )
+}
+
+/** Три шага занятия — пронумерованные «фишки», переносятся на узком экране. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ShadowSteps() {
+    FlowRow(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        listOf("Послушайте", "Повторите", "Сравните").forEachIndexed { i, step ->
+            Row(
+                Modifier.background(Ink.Surface, CircleShape).padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.size(22.dp).background(Ink.AccentSoft, CircleShape), contentAlignment = Alignment.Center) {
+                    Text("${i + 1}", style = MaterialTheme.typography.labelMedium, color = Ink.Accent)
+                }
+                Spacer(Modifier.width(6.dp))
+                Text(step, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
             }
         }
     }
 }
 
-/** Разбор попытки: общий процент, три шкалы, график мелодики и советы. */
+/** Разбор попытки: общий процент, три шкалы, график мелодики и советы — на мягкой карточке. */
 @Composable
-private fun ReportCard(r: ShadowReport) {
-    Column(Modifier.fillMaxWidth().padding(top = 18.dp).border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(18.dp)) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            AnimatedNumber(r.overall, AlbionType.number, color = Ink.Fg, suffix = "%")
+internal fun ReportCard(r: ShadowReport) {
+    val good = r.overall >= PASS
+    val shape = MaterialTheme.shapes.extraLarge
+    Column(
+        Modifier.fillMaxWidth().padding(top = 16.dp)
+            .softShadow(shape)
+            .background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
+            .padding(if (LocalNarrow.current) 16.dp else 18.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Процент — в цветном «камешке»: зелёный, если похоже, тёплый — если ещё нет.
+            Box(
+                Modifier.background(if (good) Ink.AccentSoft else Ink.WarmSoft, RoundedCornerShape(18.dp))
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.Accent else Ink.Warm, suffix = "%")
+            }
             Spacer(Modifier.width(14.dp))
-            Column(Modifier.padding(bottom = 8.dp)) {
+            Column(Modifier.weight(1f)) {
                 Text(
                     when {
                         r.overall >= 85 -> "Очень близко"
@@ -282,13 +327,13 @@ private fun ReportCard(r: ShadowReport) {
                         r.overall >= PASS -> "Неплохо"
                         else -> "Ещё попытка"
                     },
-                    style = TextStyle(fontFamily = Serif, fontSize = 22.sp),
+                    style = TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 26.sp),
                     color = Ink.Fg,
                 )
-                Eyebrow("сходство с диктором")
+                Text("сходство с диктором", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             }
         }
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(14.dp))
         r.intonation?.let { Scale("Интонация", it, null) }
         Scale("Ритм", r.rhythm, null)
         Scale(
@@ -300,39 +345,45 @@ private fun ReportCard(r: ShadowReport) {
             },
         )
 
-        Spacer(Modifier.height(16.dp))
-        Eyebrow("Мелодика")
+        Spacer(Modifier.height(14.dp))
+        Eyebrow("Мелодика", color = Ink.Soft)
         Spacer(Modifier.height(8.dp))
         MelodyChart(r)
 
         if (r.tips.isNotEmpty() || r.overall >= 85) {
-            Spacer(Modifier.height(16.dp))
-            Hairline()
             Spacer(Modifier.height(14.dp))
             val tips = r.tips.ifEmpty { listOf("Мелодика, ритм и темп совпадают с диктором. Попробуйте следующее слово.") }
-            tips.forEach { tip ->
-                Row(Modifier.padding(vertical = 4.dp)) {
-                    Text("—", color = Ink.Faint, modifier = Modifier.width(18.dp))
-                    Text(tip, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+            NoteCard(tone = NoteTone.Neutral) {
+                Eyebrow("Советы", color = Ink.Accent)
+                Spacer(Modifier.height(4.dp))
+                tips.forEach { tip ->
+                    Row(Modifier.padding(vertical = 4.dp)) {
+                        Box(Modifier.padding(top = 9.dp, end = 10.dp).size(6.dp).background(Ink.Accent, CircleShape))
+                        Text(tip, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                    }
                 }
             }
         }
     }
 }
 
+/** Шкала разбора: подпись, проценты и полоса — зелёная, если похоже, тёплая — если пока нет. */
 @Composable
 private fun Scale(label: String, value: Int, note: String?) {
-    val fill = remember { Animatable(0f) }
-    LaunchedEffect(value) { fill.animateTo(value / 100f, tween(700)) }
-    Column(Modifier.padding(vertical = 6.dp)) {
+    Column(Modifier.padding(vertical = 5.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = MaterialTheme.typography.bodyMedium, color = Ink.Text, modifier = Modifier.weight(1f))
-            note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Ink.Muted); Spacer(Modifier.width(10.dp)) }
+            // Пояснение идёт сразу за подписью и переносится целыми словами при крупном шрифте.
+            Text(
+                buildAnnotatedString {
+                    append(label)
+                    if (note != null) withStyle(SpanStyle(color = Ink.Muted, fontSize = MaterialTheme.typography.bodySmall.fontSize)) { append(" · $note") }
+                },
+                style = MaterialTheme.typography.bodyMedium, color = Ink.Text, modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(10.dp))
             Text("$value%", style = AlbionType.index.copy(color = Ink.Fg))
         }
         Spacer(Modifier.height(6.dp))
-        Box(Modifier.fillMaxWidth().height(3.dp).background(Ink.Line)) {
-            Box(Modifier.fillMaxWidth(fill.value).fillMaxHeight().background(Ink.Fg))
-        }
+        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.Beak, height = 8.dp)
     }
 }

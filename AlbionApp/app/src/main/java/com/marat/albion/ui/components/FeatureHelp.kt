@@ -59,7 +59,7 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,
                     modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))
             },
-            confirmButton = { TextButton(onClick = ::dismiss) { Text("Понятно", color = Ink.Accent, style = MaterialTheme.typography.titleMedium) } },
+            confirmButton = { PrimaryButton("Понятно", onClick = ::dismiss) },
         )
     }
 }

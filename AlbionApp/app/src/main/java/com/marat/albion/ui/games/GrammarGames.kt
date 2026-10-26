@@ -1,5 +1,9 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.ui.draw.clip
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import android.os.SystemClock
 
@@ -315,9 +319,11 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description, mascot = vm.game.mascot)
         }
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
+        SetupBody(
+            start = if (total == 0) null else ({
+                PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                    modifier = Modifier.reveal(reveal, 3))
+            }),
         ) {
             GameSetupHeader(vm.game!!, Modifier.reveal(reveal, 0)) {
                 if (total == 0) {
@@ -329,21 +335,17 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
                 }
                 Column(Modifier.reveal(reveal, 1)) {
                     SectionHeader("Уровень", Modifier.padding(top = 0.dp), trailing = "$total")
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ChipFlow {
                         LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
                     }
                 }
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Длина", Modifier.padding(top = 4.dp))
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ChipFlow {
                         listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
                     }
                 }
             }
-            if (total == 0) return@Column
-            Spacer(Modifier.height(24.dp))
-            PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                modifier = Modifier.reveal(reveal, 3))
         }
     }
 }
@@ -374,7 +376,8 @@ internal fun promptWithGap(prompt: String, filled: String?): AnnotatedString = b
 @Composable
 private fun TaskHeader(task: GrammarTaskEntity) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "), Modifier.weight(1f, fill = false))
+        Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "),
+            Modifier.weight(1f, fill = false), color = Ink.Accent, maxLines = 2)
         Spacer(Modifier.width(10.dp))
         LevelBadge(task.level)
     }
@@ -383,20 +386,31 @@ private fun TaskHeader(task: GrammarTaskEntity) {
 /** Пояснение и ссылка на правило после ответа. */
 @Composable
 private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
+    Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
         if (task.explanation.isNotBlank()) {
-            Row(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp)) {
-                Text(task.explanation, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+            NoteCard {
+                Eyebrow("Почему так", color = Ink.Accent)
+                Spacer(Modifier.height(6.dp))
+                Text(task.explanation, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
             }
         }
         task.topic?.let { n ->
-            Text(
-                "Правило · тема $n  →",
-                style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.Underline),
-                color = Ink.Fg,
-                // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
-                modifier = Modifier.focusProperties { canFocus = false }.clickable { openRule(n) }.padding(vertical = 12.dp),
-            )
+            // Ссылка на правило — мягкая «пилюля» цвета шарфа, как остальные действия.
+            Row(
+                Modifier.padding(top = 10.dp).heightIn(min = 44.dp).clip(CircleShape)
+                    // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
+                    .focusProperties { canFocus = false }
+                    .clickable { openRule(n) }
+                    .background(Ink.AccentSoft, CircleShape)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.AutoMirrored.Outlined.MenuBook, null, tint = Ink.Accent, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.Accent)
+                Spacer(Modifier.width(6.dp))
+                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Accent, modifier = Modifier.size(16.dp))
+            }
         }
     }
 }
@@ -410,17 +424,18 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
     var shake by remember(task.id) { mutableIntStateOf(0) }
     val answered = picked != null
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
-            TaskHeader(task)
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
+            TaskCard(Modifier.shakeOn(shake)) {
+                TaskHeader(task)
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    promptWithGap(task.prompt, if (answered && task.prompt.contains("___")) task.answer else null),
+                    style = promptStyle,
+                    color = Ink.Fg,
+                )
+            }
             Spacer(Modifier.height(20.dp))
-            Text(
-                promptWithGap(task.prompt, if (answered && task.prompt.contains("___")) task.answer else null),
-                style = TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp),
-                color = Ink.Fg,
-                modifier = Modifier.shakeOn(shake),
-            )
-            Spacer(Modifier.height(28.dp))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 options.forEach { option ->
                     OptionButton(
@@ -447,7 +462,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
             }
         }
         AnimatedVisibility(answered, enter = fadeIn(tween(240)) + slideInVertically { it / 2 }) {
-            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.padding(vertical = 14.dp))
+            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.padding(vertical = 12.dp))
         }
     }
 }
@@ -551,16 +566,18 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
         else -> accepted.firstOrNull() ?: task.answer
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
-            TaskHeader(task)
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
+            TaskCard {
+                TaskHeader(task)
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    promptWithGap(task.prompt, filled),
+                    style = promptStyle,
+                    color = Ink.Fg,
+                )
+            }
             Spacer(Modifier.height(20.dp))
-            Text(
-                promptWithGap(task.prompt, filled),
-                style = TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp),
-                color = Ink.Fg,
-            )
-            Spacer(Modifier.height(26.dp))
             AnswerField(
                 value = input,
                 onChange = { if (verdict == null) input = it },
@@ -578,13 +595,13 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             )
             AnimatedVisibility(verdict != null, enter = fadeIn(tween(300)) + expandVertically()) {
                 val v = verdict ?: Verdict.Wrong
-                Column(Modifier.fillMaxWidth().padding(top = 20.dp)) {
+                Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
                     VerdictLine(v)
                     if (v != Verdict.Correct) {
                         Spacer(Modifier.height(10.dp))
                         Text(
                             AnnotatedString(accepted.first()),
-                            style = TextStyle(fontFamily = Serif, fontSize = 28.sp),
+                            style = promptStyle,
                             color = Ink.Fg,
                         )
                     }
@@ -600,7 +617,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)

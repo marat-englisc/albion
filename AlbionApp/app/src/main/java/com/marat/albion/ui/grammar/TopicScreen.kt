@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import com.marat.albion.ui.theme.pressScale
@@ -158,7 +159,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         TopBar(onBack = navigator::back) {
             if (headingIndex.isNotEmpty()) {
                 Box {
-                    IconButton(onClick = { tocMenu = true }) { Icon(Icons.AutoMirrored.Rounded.List, "Разделы темы", tint = Ink.Fg) }
+                    com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.List, "Разделы темы", { tocMenu = true })
                     DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }, containerColor = Ink.Raised) {
                         headingIndex.forEach { (index, title) ->
                             DropdownMenuItem(
@@ -173,7 +174,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                 }
             }
             Box {
-                IconButton(onClick = { sizeMenu = true }) { Icon(Icons.Rounded.TextFields, "Размер текста", tint = Ink.Fg) }
+                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.TextFields, "Размер текста", { sizeMenu = true })
                 DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(settings.grammarTextScale * 100).toInt()}%")
@@ -187,9 +188,11 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                 }
             }
             if (topic?.kind == TopicKind.Lesson || topic?.kind == TopicKind.Reference) {
-                IconButton(onClick = { scope.launch { c.grammar.toggleBookmark(topicId) } }) {
-                    Icon(if (progress?.bookmarked == true) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, "Закладка", tint = Ink.Fg)
-                }
+                com.marat.albion.ui.components.RoundIconButton(
+                    if (progress?.bookmarked == true) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, "Закладка",
+                    { scope.launch { c.grammar.toggleBookmark(topicId) } },
+                    tint = if (progress?.bookmarked == true) Ink.Accent else Ink.Fg,
+                )
             }
         }
         ThinProgress(readProgress, track = Ink.Bg)
@@ -202,7 +205,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 40.dp),
+                        contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp, bottom = 40.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         item(key = "header") { TopicHeader(topic, doc!!, Modifier.reveal(reveal, 0),

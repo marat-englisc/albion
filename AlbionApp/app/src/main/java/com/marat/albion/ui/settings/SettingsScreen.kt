@@ -1,5 +1,6 @@
 package com.marat.albion.ui.settings
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.PeekFrom
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.FinnPeek
@@ -95,7 +96,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         TopBar(onBack = onBack)
         Column(
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp).padding(bottom = 32.dp),
+                .padding(horizontal = gutter).padding(bottom = 32.dp),
         ) {
             // Финн свисает вниз головой рядом с заголовком — настройки «вверх дном».
             Box(Modifier.fillMaxWidth().reveal(reveal, 0).peekingFinn(FinnPeek.HELLO, from = PeekFrom.Ceiling, at = 0.86f, height = 50.dp)) {

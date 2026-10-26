@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.ui.text.style.TextAlign
 import com.marat.albion.ui.components.Mascot
@@ -213,7 +214,7 @@ fun GrammarScreen(navigator: Navigator) {
     LazyColumn(
         Modifier.fillMaxSize().background(Ink.Bg).imePadding(),
         state = listState,
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
+        contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item(key = "header") {
             Box(Modifier.reveal(reveal, 0)) {

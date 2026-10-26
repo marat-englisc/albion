@@ -1,5 +1,6 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.components.selectedRow
@@ -116,7 +117,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
 
     Column(Modifier.fillMaxSize().background(Ink.Bg).imePadding()) {
         TopBar(onBack = navigator::back, title = deck.title)
-        SearchField(query, { query = it }, "Поиск по-английски", Modifier.padding(horizontal = 24.dp))
+        SearchField(query, { query = it }, "Поиск по-английски", Modifier.padding(horizontal = gutter))
         Row(
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(22.dp),
@@ -229,7 +230,7 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, playing: Boolean, se
             Spacer(Modifier.width(12.dp))
             AudioButton(playing = playing, onClick = onPlay, size = 36.dp, primary = false)
         }
-        Hairline(Modifier.padding(horizontal = 24.dp))
+        Hairline(Modifier.padding(horizontal = gutter))
     }
 }
 

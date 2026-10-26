@@ -1,5 +1,15 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import com.marat.albion.ui.components.HeroCard
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.RoundIconButton
+import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.Mascot
 import com.marat.albion.ui.components.ButtonTone
@@ -212,9 +222,11 @@ fun GameSetup(
                 "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.",
                 mascot = game.mascot)
         }
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
+        SetupBody(
+            start = {
+                PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                    modifier = Modifier.reveal(reveal, 3))
+            },
         ) {
             GameSetupHeader(game, Modifier.reveal(reveal, 0)) {
                 if (game.decks.size > 1) {
@@ -226,7 +238,7 @@ fun GameSetup(
                 if (game.modes.isNotEmpty()) {
                     Column(Modifier.reveal(reveal, 1)) {
                         SectionHeader("Режим", Modifier.padding(top = 8.dp))
-                        Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ChipFlow {
                             game.modes.forEachIndexed { i, m -> TextTab(m, mode == i) { onMode(i) } }
                         }
                     }
@@ -234,7 +246,7 @@ fun GameSetup(
                 if (mistakes > 0) {
                     Column(Modifier.reveal(reveal, 2)) {
                         SectionHeader("Ошибки", Modifier.padding(top = 4.dp), trailing = "%02d".format(mistakes))
-                        Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ChipFlow {
                             TextTab("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
                             TextTab("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
                         }
@@ -242,16 +254,44 @@ fun GameSetup(
                 }
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Длина", Modifier.padding(top = 4.dp))
-                    Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ChipFlow {
                         counts.forEach { n -> TextTab(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
                     }
                 }
             }
-            Spacer(Modifier.height(24.dp))
-            PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                modifier = Modifier.reveal(reveal, 3))
         }
     }
+}
+
+/**
+ * Тело экрана настройки: параметры прокручиваются, кнопка «Начать» закреплена внизу —
+ * на маленьком экране её не нужно искать прокруткой.
+ */
+@Composable
+internal fun ColumnScope.SetupBody(start: (@Composable () -> Unit)?, content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
+            .padding(horizontal = gutter).padding(bottom = 16.dp),
+        content = content,
+    )
+    if (start != null) {
+        Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(top = 4.dp, bottom = 16.dp)) {
+            start()
+        }
+    } else {
+        Spacer(Modifier.windowInsetsPadding(WindowInsets.navigationBars))
+    }
+}
+
+/** Ряд фишек-вариантов, который переносится на новую строку вместо горизонтальной прокрутки. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+internal fun ChipFlow(content: @Composable () -> Unit) {
+    androidx.compose.foundation.layout.FlowRow(
+        Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) { content() }
 }
 
 /** Варианты в столбик: выбранный — на мягкой зелёной плашке с отметкой. */
@@ -267,7 +307,8 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
                     .pressScale(interaction, 0.97f)
                     .background(lerpColor(Ink.Surface, Ink.AccentSoft, t), RoundedCornerShape(16.dp))
                     .clickable(interaction, indication = null) { onSelect(i) }
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                    .heightIn(min = 52.dp)
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
@@ -277,7 +318,10 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
                 Spacer(Modifier.width(14.dp))
                 Text(
                     label,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontSize = if (LocalNarrow.current) 18.sp else 20.sp,
+                        lineHeight = if (LocalNarrow.current) 24.sp else 26.sp,
+                    ),
                     color = lerpColor(Ink.Soft, Ink.Fg, t),
                 )
             }
@@ -289,31 +333,68 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
 @Composable
 fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: String = game?.title.orEmpty()) {
     Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(start = 10.dp, end = gutter, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             // Кнопка не принимает фокус: клавиатура по «Готово» не должна перескакивать на неё.
-            IconButton(onClick = onClose, modifier = Modifier.focusProperties { canFocus = false }) {
-                Icon(Icons.Rounded.Close, "Закрыть", tint = Ink.Fg)
-            }
-            Eyebrow(title, Modifier.weight(1f), color = Ink.Soft)
-            Text("${(index + 1).coerceAtMost(total)} / $total", style = AlbionType.index.copy(color = Ink.Soft), modifier = Modifier.padding(end = 16.dp))
+            RoundIconButton(Icons.Rounded.Close, "Закрыть", onClose, Modifier.focusProperties { canFocus = false }, spin = 90f)
+            Spacer(Modifier.width(6.dp))
+            Eyebrow(title, Modifier.weight(1f), color = Ink.Soft, maxLines = 1)
+            Spacer(Modifier.width(10.dp))
+            // Счётчик — маленькая «фишка», как счётчики секций.
+            Text(
+                "${(index + 1).coerceAtMost(total)} / $total",
+                style = AlbionType.index.copy(color = Ink.Soft),
+                maxLines = 1,
+                modifier = Modifier.background(Ink.Surface, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
+            )
         }
-        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = 24.dp))
+        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), height = 8.dp)
     }
 }
 
-/** Равные кнопки ответа; высота растёт вместе с системным размером текста. */
+/** Равные кнопки ответа; при крупном системном шрифте встают друг под другом. */
 @Composable
 internal fun GameAnswerActions(
     onCheck: () -> Unit,
     onSecondary: () -> Unit,
     secondaryLabel: String = "Не знаю",
 ) {
-    Row(
-        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        PrimaryButton("Проверить", onCheck, Modifier.weight(1f).fillMaxHeight())
-        GhostButton(secondaryLabel, onSecondary, Modifier.weight(1f).fillMaxHeight())
+    ButtonPair(
+        listOf("Проверить", secondaryLabel),
+        first = { m -> PrimaryButton("Проверить", onCheck, m) },
+        second = { m -> GhostButton(secondaryLabel, onSecondary, m, contentPadding = PairPadding) },
+    )
+}
+
+private val PairPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+
+/**
+ * Две кнопки рядом, если подписи помещаются в половину ширины целиком; иначе — друг под другом.
+ * Так слово никогда не рвётся по буквам («Проверит-ь») при крупном шрифте и на узком экране.
+ */
+@Composable
+internal fun ButtonPair(
+    labels: List<String>,
+    first: @Composable (Modifier) -> Unit,
+    second: @Composable (Modifier) -> Unit,
+) {
+    val style = MaterialTheme.typography.titleMedium
+    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+    val density = LocalDensity.current
+    val widest = labels.maxOf { measurer.measure(it, style, softWrap = false).size.width }
+    // Поля основной кнопки — по 20 dp с каждой стороны, плюс запас на округление.
+    val need = with(density) { widest.toDp() } + 48.dp
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if ((maxWidth - 10.dp) / 2 >= need) {
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                first(Modifier.weight(1f).fillMaxHeight())
+                second(Modifier.weight(1f).fillMaxHeight())
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                first(Modifier)
+                second(Modifier)
+            }
+        }
     }
 }
 
@@ -370,13 +451,13 @@ fun GameSummary(
     val ratio = if (total == 0) 0f else correct.toFloat() / total
     LaunchedEffect(Unit) { ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
-    val ringSize = 150.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
+    val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
     Box(Modifier.fillMaxSize().background(Ink.Bg)) {
     // Хороший результат — салют цветами Финна поверх итога.
     if (total > 0 && ratio >= 0.8f) ConfettiBurst(Unit, Modifier.fillMaxSize().zIndex(1f))
     Column(
         Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars)
-            .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)
+            .verticalScroll(rememberScrollState()).padding(horizontal = gutter)
             .windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp, top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -388,8 +469,12 @@ fun GameSummary(
             ratio >= 0.5f -> Finn.SESSION_COMPLETE
             else -> Finn.TRY_AGAIN
         }
+        BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        // Кольцо растёт с системным шрифтом, Финн уступает ему место на узком экране.
+        val finnSize = if (maxWidth < 300.dp) 96.dp else 128.dp
+        val ringSize = minOf(150.dp * fontScale, maxWidth - finnSize - 8.dp)
         Row(verticalAlignment = Alignment.Bottom) {
-            Mascot(pose, 128.dp, Modifier.reveal(reveal, 0), delayMs = 260)
+            Mascot(pose, finnSize, Modifier.reveal(reveal, 0), delayMs = 260)
             Spacer(Modifier.width(8.dp))
             val track = Ink.High
             val arc = if (ratio >= 0.5f) Ink.Accent else Ink.Beak
@@ -404,7 +489,11 @@ fun GameSummary(
                     )
                 }
                 Column(Modifier.padding(horizontal = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    AnimatedNumber((ratio * 100).toInt(), AlbionType.number, color = Ink.Fg, suffix = "%")
+                    AnimatedNumber(
+                        (ratio * 100).toInt(),
+                        if (ringSize < 140.dp) AlbionType.numberSmall else AlbionType.number,
+                        color = Ink.Fg, suffix = "%",
+                    )
                     Text(
                         "$correct ИЗ $total\n${scoreLabel.uppercase()}",
                         style = AlbionType.eyebrow,
@@ -413,6 +502,7 @@ fun GameSummary(
                     )
                 }
             }
+        }
         }
         Spacer(Modifier.height(28.dp))
         Text(
@@ -423,7 +513,7 @@ fun GameSummary(
                 ratio >= 0.4f -> "Keep going."
                 else -> "Practice makes perfect."
             },
-            style = MaterialTheme.typography.displaySmall,
+            style = if (LocalNarrow.current) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall,
             color = Ink.Fg,
             textAlign = TextAlign.Center,
             modifier = Modifier.reveal(reveal, 1),
@@ -441,21 +531,33 @@ fun GameSummary(
                     color = Ink.Muted,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                 )
-                mistakes.forEach { m ->
-                    Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
-                        Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                        Spacer(Modifier.height(4.dp))
-                        Text(m.correct, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
-                        if (m.answer.isNotBlank()) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                m.answer,
-                                style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
-                                color = Ink.Warm,
-                            )
+                Column(Modifier.padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    mistakes.forEach { m ->
+                        Row(
+                            Modifier.fillMaxWidth().background(Ink.Raised, MaterialTheme.shapes.medium)
+                                .border(1.dp, Ink.Line, MaterialTheme.shapes.medium)
+                                .height(IntrinsicSize.Min)
+                                .padding(end = 14.dp, top = 12.dp, bottom = 12.dp),
+                        ) {
+                            // Тёплая «закладка» слева — ошибка, к которой вернёмся.
+                            Box(Modifier.padding(start = 8.dp, end = 12.dp).width(4.dp).fillMaxHeight().background(Ink.Beak.copy(alpha = 0.7f), CircleShape))
+                            Column(Modifier.weight(1f)) {
+                                if (m.prompt.isNotBlank()) {
+                                    Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                                    Spacer(Modifier.height(2.dp))
+                                }
+                                Text(m.correct, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                                if (m.answer.isNotBlank()) {
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(
+                                        m.answer,
+                                        style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
+                                        color = Ink.Warm,
+                                    )
+                                }
+                            }
                         }
                     }
-                    Hairline()
                 }
             }
         }
@@ -498,4 +600,66 @@ fun Modifier.shakeOn(trigger: Int): Modifier = composed {
         for (k in listOf(1f, -0.8f, 0.6f, -0.4f, 0.2f, 0f)) offset.animateTo(k * px, tween(55))
     }
     graphicsLayer { translationX = offset.value }
+}
+
+// ------------------------------------------------------------------ общие элементы раунда
+
+/**
+ * Карточка задания: то, на что нужно ответить, лежит на мягкой карточке с градиентом шарфа —
+ * как карточки на главной и в занятии. Поля ужимаются на узком экране.
+ */
+@Composable
+internal fun TaskCard(
+    modifier: Modifier = Modifier,
+    centered: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val pad = if (LocalNarrow.current) 16.dp else 20.dp
+    HeroCard(modifier.fillMaxWidth(), contentPadding = PaddingValues(pad)) {
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
+            content = content,
+        )
+    }
+}
+
+/** Тон плашки разбора. */
+internal enum class NoteTone { Neutral, Good, Bad }
+
+/** Плашка разбора после ответа: правило, пояснение, верный ответ. Мягкая заливка без жёстких рамок. */
+@Composable
+internal fun NoteCard(
+    modifier: Modifier = Modifier,
+    tone: NoteTone = NoteTone.Neutral,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val shape = MaterialTheme.shapes.large
+    val bg = when (tone) {
+        NoteTone.Neutral -> Ink.Surface
+        NoteTone.Good -> Ink.AccentSoft
+        NoteTone.Bad -> Ink.WarmSoft
+    }
+    Column(
+        modifier.fillMaxWidth().clip(shape).background(bg)
+            .then(if (tone == NoteTone.Neutral) Modifier.border(1.dp, Ink.Line, shape) else Modifier)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        content = content,
+    )
+}
+
+/** Текст задания антиквой: на узком экране чуть мельче, чтобы предложение не превращалось в столбик. */
+internal val promptStyle: TextStyle
+    @Composable get() = if (LocalNarrow.current) TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 31.sp)
+    else TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp)
+
+/** Крупный термин (слово, ответ): размер зависит от длины и ширины экрана. */
+@Composable
+internal fun termStyle(text: String, max: Int = 48): TextStyle {
+    val size = when {
+        text.length <= 10 -> max
+        text.length <= 20 -> max * 4 / 5
+        else -> max * 5 / 8
+    }.let { if (LocalNarrow.current) it * 5 / 6 else it }
+    return TextStyle(fontFamily = Serif, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
 }

@@ -34,6 +34,27 @@ val FocusWidth = 680.dp
 @Composable
 fun CenteredColumn(maxWidth: Dp, content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        Box(Modifier.widthIn(max = maxWidth).fillMaxSize()) { content() }
+        MeasureNarrow(Modifier.widthIn(max = maxWidth).fillMaxSize()) { content() }
+    }
+}
+
+/** Узкий экран (до 360 dp): поля и крупный текст ужимаются, чтобы содержимому хватило места. */
+val LocalNarrow = androidx.compose.runtime.compositionLocalOf { false }
+
+fun isNarrow(width: Dp) = width < 360.dp
+
+/** Боковое поле экрана: 24 dp, на узких телефонах — 16 dp. */
+val gutter: Dp
+    @Composable get() = if (LocalNarrow.current) 16.dp else 24.dp
+
+/**
+ * Меряет доступную ширину и сообщает вложенным элементам, узкий ли экран ([LocalNarrow]).
+ * Ширина берётся из раскладки, а не из конфигурации, — так колонка планшета и тесты
+ * с узким контейнером ведут себя одинаково.
+ */
+@Composable
+fun MeasureNarrow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier) {
+        androidx.compose.runtime.CompositionLocalProvider(LocalNarrow provides isNarrow(maxWidth)) { content() }
     }
 }

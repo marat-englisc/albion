@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -104,20 +106,21 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
         finish(if (giveUp) Verdict.Wrong else AnswerCheck.checkGrammar(input, task.accepted), input)
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Eyebrow("Какая форма нужна?", Modifier.weight(1f))
-                LevelBadge(card.level)
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
+            TaskCard(Modifier.shakeOn(shake)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = Ink.Accent)
+                    LevelBadge(card.level)
+                }
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    sentence(task, filled = verdict?.let { shownAnswer(task, if (typing) input else picked, it) }),
+                    style = promptStyle,
+                    color = Ink.Fg,
+                )
             }
             Spacer(Modifier.height(20.dp))
-            Text(
-                sentence(task, filled = verdict?.let { shownAnswer(task, if (typing) input else picked, it) }),
-                style = TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp),
-                color = Ink.Fg,
-                modifier = Modifier.shakeOn(shake),
-            )
-            Spacer(Modifier.height(26.dp))
 
             if (typing) {
                 AnswerField(
@@ -155,24 +158,24 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
 
             AnimatedVisibility(verdict != null, enter = fadeIn(tween(300)) + expandVertically()) {
                 val v = verdict ?: Verdict.Wrong
-                Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
+                Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
                     VerdictLine(v)
                     if (typing && v != Verdict.Correct) {
                         Spacer(Modifier.height(8.dp))
                         Text(
                             AnnotatedString(task.answer),
-                            style = TextStyle(fontFamily = Serif, fontSize = 26.sp),
+                            style = promptStyle,
                             color = Ink.Fg,
                         )
                     }
-                    Spacer(Modifier.height(16.dp))
-                    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(16.dp)) {
-                        Eyebrow(task.formLabel, color = Ink.Soft)
+                    Spacer(Modifier.height(14.dp))
+                    NoteCard {
+                        Eyebrow(task.formLabel, color = Ink.Accent)
                         Spacer(Modifier.height(8.dp))
                         Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
                         Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(forms(task, data), style = TextStyle(fontFamily = Serif, fontSize = 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
+                            Text(forms(task, data), style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(10.dp))
                             AudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
                         }
@@ -189,7 +192,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             when {
                 answered -> PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)

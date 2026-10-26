@@ -75,8 +75,11 @@ import com.marat.albion.ui.theme.pressScale
 
 /** Подпись секции: мелкие заглавные с широкой разрядкой. */
 @Composable
-fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = Ink.Muted) {
-    Text(text.uppercase(), modifier = modifier, style = AlbionType.eyebrow, color = color)
+fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = Ink.Muted, maxLines: Int = Int.MAX_VALUE) {
+    Text(
+        text.uppercase(), modifier = modifier, style = AlbionType.eyebrow, color = color, maxLines = maxLines,
+        overflow = if (maxLines == Int.MAX_VALUE) androidx.compose.ui.text.style.TextOverflow.Clip else androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+    )
 }
 
 @Composable
@@ -148,17 +151,18 @@ fun RoundIconButton(
     modifier: Modifier = Modifier,
     tint: Color = Ink.Fg,
     spin: Float = 0f,
+    enabled: Boolean = true,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val turn by animateFloatAsState(if (pressed) spin else 0f, spring(dampingRatio = 0.4f, stiffness = Spring.StiffnessMediumLow), label = "turn")
     Box(
         modifier.size(48.dp).pressScale(interaction, 0.88f)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.size(40.dp).background(Ink.Surface, CircleShape).border(1.dp, Ink.Line, CircleShape), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription, tint = tint, modifier = Modifier.size(22.dp).graphicsLayer { rotationZ = turn })
+            Icon(icon, contentDescription, tint = if (enabled) tint else Ink.Faint, modifier = Modifier.size(22.dp).graphicsLayer { rotationZ = turn })
         }
     }
 }

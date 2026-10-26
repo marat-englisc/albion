@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.ui.components.Mascot
@@ -106,7 +107,7 @@ fun LibraryScreen(navigator: Navigator) {
     }
 
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp)) {
             item {
                 Box(Modifier.reveal(reveal, 0)) {
                     ScreenHeader(

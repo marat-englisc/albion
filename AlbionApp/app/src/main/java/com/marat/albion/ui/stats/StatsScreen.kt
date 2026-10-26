@@ -1,5 +1,6 @@
 package com.marat.albion.ui.stats
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.PeekFrom
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.FinnPeek
@@ -79,7 +80,7 @@ fun StatsScreen(navigator: Navigator) {
 
     Column(
         Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp).padding(bottom = 32.dp),
+            .padding(horizontal = gutter).padding(bottom = 32.dp),
     ) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
@@ -87,8 +88,9 @@ fun StatsScreen(navigator: Navigator) {
         // Финн на экране один: в обычный день он выглядывает из-за края рядом с цифрами,
         // в день рекорда — стоит на карточке достижения.
         val milestone = streakMilestone(s.streak)
-        Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)
-            .then(if (milestone == null) Modifier.peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.2f, height = 84.dp, outset = 24.dp, delayMs = 500) else Modifier)) {
+        // Финн держится за верхний край плашек справа — над ними, а не поверх цифр и подписей.
+        Column(Modifier.padding(top = if (milestone == null) 28.dp else 16.dp).reveal(reveal, 1)
+            .then(if (milestone == null) Modifier.peekingFinn(at = 0.86f, height = 56.dp, delayMs = 500) else Modifier)) {
             if (milestone != null) {
                 FinnLedge(
                     pose = Finn.MILESTONE,

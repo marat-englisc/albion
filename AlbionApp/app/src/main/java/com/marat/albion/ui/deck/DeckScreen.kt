@@ -1,5 +1,10 @@
 package com.marat.albion.ui.deck
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import com.marat.albion.ui.components.StatPill
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -70,7 +75,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = navigator::back) {
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreHoriz, "Ещё", tint = Ink.Fg) }
+                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.MoreHoriz, "Ещё", { menu = true })
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
                     DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
                 }
@@ -78,12 +83,13 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
         }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
+                .padding(horizontal = gutter).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) deckContent@{
             Column(Modifier.reveal(reveal, 0)) {
                 Eyebrow("Колода · %02d".format(deck.ordinal + 1))
                 Spacer(Modifier.height(12.dp))
-                Text(deck.title, style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
+                Text(deck.title, style = if (com.marat.albion.ui.components.LocalNarrow.current) MaterialTheme.typography.displaySmall
+                    else MaterialTheme.typography.displayMedium, color = Ink.Fg)
                 Spacer(Modifier.height(8.dp))
                 Text(deck.subtitle, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
             }
@@ -101,9 +107,11 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 return@deckContent
             }
 
-            Row(Modifier.padding(top = 36.dp).reveal(reveal, 1)) {
-                Metric(summary.due, "к повторению", Modifier.weight(1f))
-                Metric(summary.newAvailable, "новых сегодня", Modifier.weight(1f))
+            // Те же «камешки» с цифрами, что на главной и в «Прогрессе».
+            Row(Modifier.padding(top = 28.dp).height(IntrinsicSize.Min).reveal(reveal, 1), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatPill(summary.due, "к повторению", Modifier.weight(1f).fillMaxHeight(), tint = Ink.WarmSoft,
+                    valueColor = if (summary.due == 0) Ink.Faint else Ink.Warm)
+                StatPill(summary.newAvailable, "новых сегодня", Modifier.weight(1f).fillMaxHeight(), tint = Ink.AccentSoft)
             }
             // Над кнопкой выглядывает Финн — оставляем ему место, чтобы не заслонить подписи.
             Spacer(Modifier.height(if (summary.toStudy > 0) 52.dp else 28.dp))
@@ -129,17 +137,15 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 SectionHeader("Прогресс", Modifier.padding(top = 28.dp), trailing = "${(summary.progress * 100).toInt()}%")
                 Spacer(Modifier.height(8.dp))
                 ThinProgress(summary.progress)
-                Spacer(Modifier.height(24.dp))
-                Row {
-                    Metric(summary.total, "всего", Modifier.weight(1f), small = true)
-                    Metric(summary.total - summary.started, "не начато", Modifier.weight(1f), small = true)
+                Spacer(Modifier.height(16.dp))
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatPill(summary.total, "всего", Modifier.weight(1f).fillMaxHeight())
+                    StatPill(summary.total - summary.started, "не начато", Modifier.weight(1f).fillMaxHeight())
                 }
-                Spacer(Modifier.height(20.dp))
-                Hairline()
-                Spacer(Modifier.height(20.dp))
-                Row {
-                    Metric(summary.learning, "изучаются", Modifier.weight(1f), small = true)
-                    Metric(summary.mature, "выучено · 21+ дн", Modifier.weight(1f), small = true)
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatPill(summary.learning, "изучаются", Modifier.weight(1f).fillMaxHeight())
+                    StatPill(summary.mature, "выучено · 21+ дн", Modifier.weight(1f).fillMaxHeight())
                 }
             }
 
@@ -169,14 +175,5 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             },
             dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Отмена", color = Ink.Muted) } },
         )
-    }
-}
-
-@Composable
-private fun Metric(value: Int, label: String, modifier: Modifier = Modifier, small: Boolean = false) {
-    Column(modifier) {
-        AnimatedNumber(value, if (small) AlbionType.numberSmall else AlbionType.number, color = if (value == 0) Ink.Faint else Ink.Fg)
-        Spacer(Modifier.height(2.dp))
-        Eyebrow(label)
     }
 }

@@ -1,5 +1,20 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.Role
+import com.marat.albion.ui.components.LevelBadge
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.ThinProgress
+import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.components.softShadow
+import com.marat.albion.ui.theme.pressScale
+import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -90,96 +105,144 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-/** Термин крупно — общий заголовок голосовых игр. */
+/** Термин крупно на карточке задания — общий заголовок голосовых игр. */
 @Composable
-internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Chip(card.pos)
-        Spacer(Modifier.height(22.dp))
-        val size = when {
-            card.term.length <= 10 -> 48
-            card.term.length <= 20 -> 38
-            else -> 30
+internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: (@Composable () -> Unit)? = null) {
+    TaskCard(centered = true) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (card.pos.isNotBlank()) Chip(card.pos)
+            LevelBadge(card.level)
         }
-        Text(
-            card.term,
-            style = TextStyle(fontFamily = Serif, fontSize = size.sp, lineHeight = (size * 1.15f).sp),
-            color = Ink.Fg,
-            textAlign = TextAlign.Center,
-        )
-        if (card.ipa.isNotBlank()) {
-            Spacer(Modifier.height(8.dp))
-            Text(card.ipa, style = AlbionType.ipa)
+        Spacer(Modifier.height(12.dp))
+        Text(card.term, style = termStyle(card.term), color = Ink.Fg)
+        if (card.ipa.isNotBlank() || trailing != null) {
+            Spacer(Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (card.ipa.isNotBlank()) Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
+                if (trailing != null) {
+                    Spacer(Modifier.width(12.dp))
+                    trailing()
+                }
+            }
         }
         if (showMeaning && card.meaningRu.isNotBlank()) {
-            Spacer(Modifier.height(12.dp))
-            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(10.dp))
+            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft, textAlign = TextAlign.Center)
         }
     }
 }
 
-/** Круглая кнопка с подписью снизу. */
+/** Круглая кнопка-«камешек» с подписью снизу: светлая с зелёным значком, активная — заливается шарфом. */
 @Composable
 internal fun RoundAction(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
-    size: Dp = 64.dp,
-    filled: Boolean = false,
+    size: Dp = 60.dp,
     enabled: Boolean = true,
     active: Boolean = false,
+    slot: Dp = size,
 ) {
     val interaction = remember { MutableInteractionSource() }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val on by animateFloatAsState(if (active) 1f else 0f, tween(220), label = "active")
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(min = size + 20.dp)) {
+        // Кнопка центрируется в «слоте» высотой с соседний микрофон — подписи стоят на одной линии.
+        Box(Modifier.height(slot), contentAlignment = Alignment.Center) {
         Box(
             Modifier.size(size).pressScale(interaction, 0.9f)
-                .background(if (filled || active) Ink.Fg else Ink.Bg, CircleShape)
-                .border(1.dp, if (!enabled) Ink.Line else if (filled || active) Ink.Fg else Ink.LineStrong, CircleShape)
-                .clickable(interaction, indication = null, enabled = enabled, onClick = onClick),
+                .softShadow(CircleShape, 4.dp)
+                .background(lerpColor(Ink.Raised, Ink.Accent, on), CircleShape)
+                .border(1.5.dp, if (!enabled) Ink.Line else lerpColor(Ink.LineStrong, Ink.Accent, on), CircleShape)
+                .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                icon, null,
-                tint = when {
-                    !enabled -> Ink.Faint
-                    filled || active -> Ink.Bg
-                    else -> Ink.Fg
-                },
-                modifier = Modifier.size(size * 0.4f),
+                icon, label,
+                tint = if (!enabled) Ink.Faint else lerpColor(Ink.Accent, Ink.OnAccent, on),
+                modifier = Modifier.size(size * 0.42f),
             )
         }
-        Spacer(Modifier.height(10.dp))
-        Eyebrow(label, color = if (enabled) Ink.Soft else Ink.Faint)
+        }
+        Spacer(Modifier.height(8.dp))
+        // Подпись не переносится по буквам («Медленн-о»): при крупном шрифте кнопка просто шире.
+        Text(
+            label, style = MaterialTheme.typography.labelMedium, color = if (enabled) Ink.Soft else Ink.Faint,
+            textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
+        )
+    }
+}
+
+/**
+ * Большая кнопка микрофона — объёмная «фишка» с кромкой, как главные кнопки. В покое зелёная
+ * (шарф: «можно говорить»), во время записи — тёплая, пульсирует в такт голосу и пускает кольца.
+ */
+@Composable
+internal fun MicButton(
+    active: Boolean,
+    level: Float,
+    onClick: () -> Unit,
+    label: String? = null,
+    size: Dp = 84.dp,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val t = rememberInfiniteTransition(label = "mic")
+    val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "wave")
+    val amp by animateFloatAsState(if (active) level else 0f, spring(stiffness = 400f), label = "amp")
+    val on by animateFloatAsState(if (active) 1f else 0f, tween(240), label = "on")
+    val face = lerpColor(Ink.Accent, Ink.Warm, on)
+    val lip = lerpColor(Ink.AccentDeep, Ink.WarmDeep, on)
+    val fg = lerpColor(Ink.OnAccent, Ink.OnWarm, on)
+    val ring = Ink.Warm
+    val lipH = MicLip
+    val sink by animateDpAsState(if (pressed) lipH else 0.dp, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessHigh), label = "sink")
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(size, size + lipH), contentAlignment = Alignment.TopCenter) {
+            if (active) {
+                // Кольца расходятся за пределы кнопки и не раздувают раскладку.
+                Canvas(Modifier.size(size)) {
+                    for (k in 0..2) {
+                        val p = (wave + k / 3f) % 1f
+                        val r = size.toPx() / 2f * (1f + p * (0.45f + amp * 0.2f))
+                        drawCircle(ring.copy(alpha = (1f - p) * 0.5f), radius = r, style = Stroke(2.dp.toPx()))
+                    }
+                }
+            }
+            Box(
+                Modifier.size(size, size + lipH)
+                    .graphicsLayer { val s = 1f + amp * 0.08f; scaleX = s; scaleY = s }
+                    .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
+                    .drawBehind {
+                        val d = this.size.width
+                        drawCircle(lip, radius = d / 2, center = Offset(d / 2, d / 2 + lipH.toPx()))
+                        drawCircle(face, radius = d / 2, center = Offset(d / 2, d / 2 + sink.toPx()))
+                    },
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                Box(Modifier.size(size).graphicsLayer { translationY = sink.toPx() }, contentAlignment = Alignment.Center) {
+                    AnimatedContent(targetState = active, transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) }, label = "rec") { rec ->
+                        Icon(if (rec) Icons.Rounded.Stop else Icons.Rounded.Mic, if (rec) "Остановить" else "Говорить", tint = fg, modifier = Modifier.size(size * 0.42f))
+                    }
+                }
+            }
+        }
+        if (label != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(label, style = MaterialTheme.typography.labelMedium, color = if (active) Ink.Warm else Ink.Soft)
+        }
     }
 }
 
 // Шэдоуинг — в ShadowingGame.kt.
 
-/** Большая кнопка записи: во время записи пульсирует в такт голосу. */
+/** Кнопка записи шэдоуинга. */
 @Composable
-internal fun RecordButton(recording: Boolean, level: Float, onClick: () -> Unit) {
-    val pulse by animateFloatAsState(if (recording) 1f + level * 0.35f else 1f, spring(stiffness = 500f), label = "pulse")
-    val interaction = remember { MutableInteractionSource() }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(88.dp), contentAlignment = Alignment.Center) {
-            if (recording) {
-                Box(Modifier.size(88.dp).graphicsLayer { scaleX = pulse; scaleY = pulse }.border(1.dp, Ink.Fg.copy(alpha = 0.5f), CircleShape))
-            }
-            Box(
-                Modifier.size(80.dp).pressScale(interaction, 0.9f)
-                    .background(Ink.Fg, CircleShape)
-                    .clickable(interaction, indication = null, onClick = onClick),
-                contentAlignment = Alignment.Center,
-            ) {
-                AnimatedContent(targetState = recording, transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) }, label = "rec") { rec ->
-                    Icon(if (rec) Icons.Rounded.Stop else Icons.Rounded.Mic, if (rec) "Остановить" else "Записать", tint = Ink.Bg, modifier = Modifier.size(34.dp))
-                }
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        Eyebrow(if (recording) "Стоп" else "Запись", color = Ink.Fg)
-    }
+internal fun RecordButton(recording: Boolean, level: Float, onClick: () -> Unit, size: Dp = 84.dp) {
+    MicButton(recording, level, onClick, label = if (recording) "Стоп" else "Запись", size = size)
 }
+
+/** Высота кнопки микрофона вместе с кромкой — для выравнивания соседних кнопок. */
+internal val MicLip = 5.dp
 
 // ------------------------------------------------------------------ произношение
 
@@ -221,31 +284,31 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
 
     fun listen() = micAccess { c.audio.stop(); checker.listen() }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 32.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TermBlock(card, showMeaning = false)
-            Spacer(Modifier.height(16.dp))
-            AudioButton(
-                playing = playing == "term:${card.id}",
-                onClick = { c.audio.play(deck, card.audio, card.term, "term:${card.id}") },
-                size = 40.dp,
-                primary = false,
-            )
-            Spacer(Modifier.height(40.dp))
+            TermBlock(card, showMeaning = false) {
+                AudioButton(
+                    playing = playing == "term:${card.id}",
+                    onClick = { c.audio.play(deck, card.audio, card.term, "term:${card.id}") },
+                    size = 40.dp,
+                )
+            }
+            Spacer(Modifier.height(20.dp))
 
-            MicButton(listening = listening, level = level, onClick = { if (listening) checker.stopListening() else listen() })
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(24.dp))
+            MicButton(active = listening, level = level, onClick = { if (listening) checker.stopListening() else listen() })
+            Spacer(Modifier.height(28.dp))
 
             val s = state
-            Box(Modifier.fillMaxWidth().height(110.dp), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.fillMaxWidth().heightIn(min = 110.dp), contentAlignment = Alignment.TopCenter) {
                 when {
                     micDenied -> Message("Нет доступа к микрофону — разрешите его в настройках телефона.")
                     !checker.isAvailable -> Message("На телефоне нет сервиса распознавания речи. Установите приложение Google и офлайн-пакет английского.")
                     s is SpeechState.Listening -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Eyebrow("Слушаю…", color = Ink.Fg)
+                        Eyebrow("Слушаю…", color = Ink.Warm)
                         if (s.partial.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
                             Text("«${s.partial}»", style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
@@ -260,7 +323,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
         }
 
         val done = best >= 0.999f || attempts >= 3
-        AnimatedContent(targetState = attempts > 0, label = "actions", modifier = Modifier.padding(vertical = 14.dp)) { tried ->
+        AnimatedContent(targetState = attempts > 0, label = "actions", modifier = Modifier.padding(vertical = 12.dp)) { tried ->
             if (!tried) {
                 GhostButton("Пропустить", onClick = {
                     checker.reset()
@@ -292,52 +355,24 @@ private fun Message(text: String) {
 
 @Composable
 private fun ScoreView(score: Float, heard: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Eyebrow(
-            when {
-                score >= 0.999f -> "Отлично — узнано точно"
-                score >= PASS -> "Почти — узнано с расхождением"
-                else -> "Ещё раз — пока не узнаётся"
-            },
-            color = Ink.Fg,
-        )
+    val good = score >= PASS
+    NoteCard(tone = if (good) NoteTone.Good else NoteTone.Bad) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                when {
+                    score >= 0.999f -> "Отлично — узнано точно"
+                    good -> "Почти — узнано с расхождением"
+                    else -> "Ещё раз — пока не узнаётся"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                color = if (good) Ink.Accent else Ink.Warm,
+                modifier = Modifier.weight(1f),
+            )
+            Text("${(score * 100).toInt()}%", style = AlbionType.index.copy(color = Ink.Fg))
+        }
+        Spacer(Modifier.height(8.dp))
+        Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
         Spacer(Modifier.height(10.dp))
-        Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyLarge, color = Ink.Soft, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(10.dp))
-        // Шкала сходства.
-        Box(Modifier.width(180.dp).height(2.dp).background(Ink.Line)) {
-            val p by animateFloatAsState(score, tween(700), label = "score")
-            Box(Modifier.fillMaxWidth(p).height(2.dp).background(Ink.Fg))
-        }
-    }
-}
-
-/** Микрофон: в режиме прослушивания вокруг расходятся кольца, их размах — от громкости голоса. */
-@Composable
-private fun MicButton(listening: Boolean, level: Float, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val t = rememberInfiniteTransition(label = "mic")
-    val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "wave")
-    val amp by animateFloatAsState(level, spring(stiffness = 400f), label = "amp")
-    Box(Modifier.size(150.dp), contentAlignment = Alignment.Center) {
-        if (listening) {
-            Canvas(Modifier.size(150.dp)) {
-                for (k in 0..2) {
-                    val p = (wave + k / 3f) % 1f
-                    val r = size.minDimension / 2f * (0.55f + p * (0.3f + amp * 0.15f))
-                    drawCircle(Ink.Fg.copy(alpha = (1f - p) * 0.45f), radius = r, style = Stroke(1.dp.toPx()))
-                }
-            }
-        }
-        Box(
-            Modifier.size(84.dp).pressScale(interaction, 0.9f)
-                .graphicsLayer { val s = 1f + amp * 0.08f; scaleX = s; scaleY = s }
-                .background(lerpColor(Ink.Bg, Ink.Fg, if (listening) 1f else 0f), CircleShape)
-                .border(1.dp, Ink.Fg, CircleShape)
-                .clickable(interaction, indication = null, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Rounded.Mic, if (listening) "Остановить" else "Говорить", tint = if (listening) Ink.Bg else Ink.Fg, modifier = Modifier.size(36.dp))
-        }
+        ThinProgress(score, color = if (good) Ink.Accent else Ink.Beak, track = Ink.Raised, height = 8.dp)
     }
 }

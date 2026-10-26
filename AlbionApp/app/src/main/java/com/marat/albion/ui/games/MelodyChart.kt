@@ -1,5 +1,8 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,24 +39,29 @@ import kotlin.math.ceil
 internal fun MelodyChart(report: ShadowReport) {
     val original = remember(report) { preparePitchContour(report.originalPitch, report.originalEnergy) }
     val mine = remember(report) { preparePitchContour(report.minePitch, report.mineEnergy) }
-    val fg = Ink.Fg
-    val muted = Ink.Muted
+    // Диктор — сплошная линия цвета шарфа, вы — тёплый пунктир цвета клюва.
+    val fg = Ink.Accent
+    val muted = Ink.Beak
     val grid = Ink.Line
     val center = Ink.LineStrong
+    val band = Ink.Surface
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (original.available || mine.available) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (original.available) MelodyLegend(dashed = false, label = "Диктор")
                 if (mine.available) MelodyLegend(dashed = true, label = "Вы")
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                Modifier.fillMaxWidth().background(band, RoundedCornerShape(16.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 Column(
                     Modifier.height(144.dp).padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("Выше", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                    Text("Ниже", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    Text("Выше", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                    Text("Ниже", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
                 }
                 Column(Modifier.weight(1f)) {
                     Canvas(Modifier.fillMaxWidth().height(144.dp).semantics {
@@ -70,7 +78,10 @@ internal fun MelodyChart(report: ShadowReport) {
 
                         for (level in listOf(-1f, 0f, 1f)) {
                             val yy = y(level * limit)
-                            drawLine(if (level == 0f) center else grid, Offset(inset, yy), Offset(size.width - inset, yy), 1.dp.toPx())
+                            drawLine(
+                                if (level == 0f) center else grid, Offset(inset, yy), Offset(size.width - inset, yy), 1.dp.toPx(),
+                                pathEffect = if (level == 0f) null else PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx())),
+                            )
                         }
                         fun drawContour(contour: PitchContour, dashed: Boolean) {
                             for (segment in contour.segments) {
@@ -87,18 +98,18 @@ internal fun MelodyChart(report: ShadowReport) {
                                 drawPath(
                                     path, if (dashed) muted else fg,
                                     style = Stroke(
-                                        width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round,
+                                        width = (if (dashed) 2.5.dp else 3.dp).toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round,
                                         pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())) else null,
                                     ),
                                 )
                             }
                         }
-                        drawContour(original, dashed = false)
                         drawContour(mine, dashed = true)
+                        drawContour(original, dashed = false)
                     }
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Начало", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                        Text("Конец", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                        Text("Начало", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                        Text("Конец", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
                     }
                 }
             }
@@ -124,16 +135,19 @@ internal fun MelodyChart(report: ShadowReport) {
 
 @Composable
 private fun MelodyLegend(dashed: Boolean, label: String) {
-    val color = if (dashed) Ink.Muted else Ink.Fg
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(width = 28.dp, height = 8.dp)) {
+    val color = if (dashed) Ink.Beak else Ink.Accent
+    Row(
+        Modifier.background(Ink.Surface, RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Canvas(Modifier.size(width = 24.dp, height = 8.dp)) {
             drawLine(
                 color, Offset(0f, size.height / 2), Offset(size.width, size.height / 2),
-                strokeWidth = 2.5.dp.toPx(), cap = StrokeCap.Round,
+                strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round,
                 pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())) else null,
             )
         }
         Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
     }
 }

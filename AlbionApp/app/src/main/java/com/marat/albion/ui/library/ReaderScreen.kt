@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.PeekFrom
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.FinnPeek
@@ -224,12 +225,13 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     val book = vm.book
 
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
-        TopBar(onBack = navigator::back, title = vm.title) {
-            IconButton(onClick = { showToc = true }) { Icon(Icons.AutoMirrored.Rounded.List, "Оглавление", tint = Ink.Fg) }
-            IconButton(onClick = { showBookmarks = true }) { Icon(Icons.Rounded.Bookmarks, "Закладки", tint = Ink.Fg) }
-            IconButton(onClick = { showHighlights = true }) { Icon(Icons.Rounded.BorderColor, "Выделения и заметки", tint = Ink.Fg) }
+        // На узком экране название не помещается рядом с четырьмя кнопками — глава и так видна внизу.
+        TopBar(onBack = navigator::back, title = vm.title.takeUnless { com.marat.albion.ui.components.LocalNarrow.current }) {
+            com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.List, "Оглавление", { showToc = true })
+            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.Bookmarks, "Закладки", { showBookmarks = true })
+            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.BorderColor, "Выделения и заметки", { showHighlights = true })
             Box {
-                IconButton(onClick = { sizeMenu = true }) { Icon(Icons.Rounded.TextFields, "Размер текста", tint = Ink.Fg) }
+                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.TextFields, "Размер текста", { sizeMenu = true })
                 DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(scale * 100).toInt()}%")
@@ -689,7 +691,7 @@ private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.co
         containerColor = Ink.Raised,
         dragHandle = { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) },
     ) {
-        Column(Modifier.padding(horizontal = 24.dp).navigationBarsPadding()) {
+        Column(Modifier.padding(horizontal = gutter).navigationBarsPadding()) {
             Eyebrow(title, Modifier.padding(vertical = 10.dp))
             LazyColumn(Modifier.fillMaxWidth().padding(bottom = 16.dp), content = content)
         }

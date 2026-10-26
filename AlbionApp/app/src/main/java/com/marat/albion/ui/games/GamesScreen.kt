@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.PeekFrom
 import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.FinnPeek
@@ -51,12 +53,12 @@ fun GamesScreen(navigator: Navigator) {
     val reveal = rememberReveal()
     LazyColumn(
         Modifier.fillMaxSize().background(Ink.Bg),
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 32.dp),
+        contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item {
             // Финн заглядывает в «Практику» из-за правого края экрана, на уровне заголовка.
             Box(Modifier.fillMaxWidth().reveal(reveal, 0)
-                .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.86f, height = 88.dp, outset = 24.dp)) {
+                .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.86f, height = 88.dp, outset = gutter)) {
                 ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
                     Row {
                         FeatureHelp("practice", "Как заниматься", "Выберите упражнение, колоду или уровень и длину занятия.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в статистике, расписание повторения карточек остаётся прежним.", showOnFirstUse = false, mascot = Finn.HINT)
@@ -82,9 +84,11 @@ private fun GameRow(game: Game, modifier: Modifier, onClick: () -> Unit) {
                 Modifier.size(48.dp).background(if (warm) Ink.WarmSoft else Ink.AccentSoft, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center,
             ) { Icon(game.icon, null, tint = if (warm) Ink.Warm else Ink.Accent, modifier = Modifier.size(24.dp)) }
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.width(if (LocalNarrow.current) 12.dp else 14.dp))
             Column(Modifier.weight(1f)) {
-                Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Serif, fontSize = 20.sp, lineHeight = 26.sp), color = Ink.Fg)
+                val narrow = LocalNarrow.current
+                Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Serif,
+                    fontSize = if (narrow) 18.sp else 20.sp, lineHeight = if (narrow) 23.sp else 26.sp), color = Ink.Fg)
                 Spacer(Modifier.height(2.dp))
                 Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             }

@@ -1,5 +1,10 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -91,7 +96,10 @@ import com.marat.albion.ui.theme.Serif
 
 // ------------------------------------------------------------------ поле ввода
 
-/** Крупное поле ввода антиквой с линией снизу, без автокоррекции. */
+/**
+ * Крупное поле ввода антиквой, без автокоррекции: мягкая «лунка» с рамкой, которая при фокусе
+ * наливается цветом шарфа. Подсказка видна, пока поле не в фокусе, — курсор не наезжает на неё.
+ */
 @Composable
 internal fun AnswerField(
     value: String,
@@ -105,40 +113,56 @@ internal fun AnswerField(
     struck: Boolean = false,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val line by animateFloatAsState(if (focused || value.isNotEmpty()) 1f else 0f, tween(260), label = "line")
-    Column(modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-            if (value.isEmpty()) {
-                Text(placeholder, style = TextStyle(fontFamily = Serif, fontSize = 26.sp, color = Ink.Faint), textAlign = TextAlign.Center)
-            }
-            BasicTextField(
-                value = value,
-                onValueChange = onChange,
-                enabled = enabled,
-                singleLine = true,
-                textStyle = TextStyle(
-                    fontFamily = Serif,
-                    fontSize = 30.sp,
-                    color = if (struck) Ink.Warm else Ink.Fg,
-                    textAlign = TextAlign.Center,
-                    textDecoration = if (struck) TextDecoration.LineThrough else null,
-                ),
-                cursorBrush = SolidColor(Ink.Accent),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    autoCorrectEnabled = false,
-                    keyboardType = KeyboardType.Ascii,
-                    imeAction = imeAction,
-                ),
-                keyboardActions = KeyboardActions(onAny = { onIme() }),
-                modifier = Modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { focused = it.isFocused },
-            )
-        }
-        // Линия под полем «наливается» цветом шарфа при фокусе.
-        Box(Modifier.fillMaxWidth().height(3.dp).background(Ink.Line, RoundedCornerShape(8.dp))) {
-            Box(Modifier.fillMaxWidth(line).height(3.dp).align(Alignment.Center).background(Ink.Accent, RoundedCornerShape(8.dp)))
-        }
+    val on by animateFloatAsState(if (focused) 1f else 0f, tween(220), label = "focus")
+    val narrow = LocalNarrow.current
+    val shape = RoundedCornerShape(18.dp)
+    val border = when {
+        struck -> Ink.Warm
+        else -> lerpColor(Ink.LineStrong, Ink.Accent, on)
     }
+    BasicTextField(
+        value = value,
+        onValueChange = onChange,
+        enabled = enabled,
+        singleLine = true,
+        textStyle = TextStyle(
+            fontFamily = Serif,
+            fontSize = if (narrow) 24.sp else 28.sp,
+            color = if (struck) Ink.Warm else Ink.Fg,
+            textAlign = TextAlign.Center,
+            textDecoration = if (struck) TextDecoration.LineThrough else null,
+        ),
+        cursorBrush = SolidColor(Ink.Accent),
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.None,
+            autoCorrectEnabled = false,
+            keyboardType = KeyboardType.Ascii,
+            imeAction = imeAction,
+        ),
+        keyboardActions = KeyboardActions(onAny = { onIme() }),
+        modifier = modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { focused = it.isFocused },
+        decorationBox = { inner ->
+            Box(
+                Modifier.fillMaxWidth()
+                    .background(if (struck) Ink.WarmSoft else Ink.Raised, shape)
+                    .border(if (on > 0.5f || struck) 2.dp else 1.5.dp, border, shape)
+                    .heightIn(min = 60.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (value.isEmpty() && !focused) {
+                    Text(
+                        placeholder,
+                        style = TextStyle(fontFamily = Serif, fontSize = if (narrow) 20.sp else 22.sp, color = Ink.Faint),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    )
+                }
+                inner()
+            }
+        },
+    )
 }
 
 /** Правильный ответ, где пропущенные или искажённые буквы подчёркнуты. */
@@ -158,7 +182,7 @@ internal fun annotateMistakes(correct: String, answer: String): AnnotatedString 
  */
 private fun skeleton(term: String, revealed: Int): String {
     var shown = 0
-    return term.split(' ').joinToString("     ") { word ->
+    return term.split(' ').joinToString("   ") { word ->
         if (AnswerCheck.isPlaceholder(word)) word
         else word.map { ch ->
             when {
@@ -205,39 +229,25 @@ internal fun VerdictLine(verdict: Verdict) {
 
 // ------------------------------------------------------------------ ввод ответа
 
-/** Контрастный разбор ошибки: введённый вариант и правильное слово в одном блоке. */
+/** Разбор ошибки: введённый вариант зачёркнут, правильное слово — крупно, на тёплой плашке. */
 @Composable
 private fun WrongAnswerFeedback(answer: String, correct: String) {
-    Column(
-        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.small)
-            .background(Ink.Surface).border(1.dp, Ink.LineStrong, MaterialTheme.shapes.small)
-            .semantics { liveRegion = LiveRegionMode.Polite },
-    ) {
-        Row(
-            Modifier.fillMaxWidth().background(Ink.Fg).padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Icon(Icons.Rounded.Close, null, tint = Ink.Bg, modifier = Modifier.size(28.dp))
-            Text("Неверно", style = MaterialTheme.typography.titleLarge, color = Ink.Bg)
-        }
-        Column(Modifier.fillMaxWidth().padding(16.dp)) {
-            Eyebrow("Ваш ответ")
-            Spacer(Modifier.height(4.dp))
-            Text(
-                answer.ifBlank { "Ответ не дан" },
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = if (answer.isNotBlank()) TextDecoration.LineThrough else null,
-                ),
-                color = Ink.Text,
-            )
-            Spacer(Modifier.height(14.dp))
-            Hairline()
-            Spacer(Modifier.height(14.dp))
-            Eyebrow("Правильный ответ")
-            Spacer(Modifier.height(6.dp))
-            Text(correct, style = MaterialTheme.typography.displaySmall, color = Ink.Fg)
-        }
+    NoteCard(Modifier.semantics { liveRegion = LiveRegionMode.Polite }, tone = NoteTone.Bad) {
+        VerdictLine(Verdict.Wrong)
+        Spacer(Modifier.height(12.dp))
+        Eyebrow("Ваш ответ", color = Ink.Warm)
+        Spacer(Modifier.height(2.dp))
+        Text(
+            answer.ifBlank { "Ответ не дан" },
+            style = MaterialTheme.typography.bodyLarge.copy(
+                textDecoration = if (answer.isNotBlank()) TextDecoration.LineThrough else null,
+            ),
+            color = Ink.Soft,
+        )
+        Spacer(Modifier.height(10.dp))
+        Eyebrow("Правильный ответ", color = Ink.Warm)
+        Spacer(Modifier.height(2.dp))
+        Text(correct, style = termStyle(correct, 34).copy(textAlign = TextAlign.Start), color = Ink.Fg)
     }
 }
 
@@ -273,40 +283,45 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
         audio.play(deck, card.audio, card.term, "term:${card.id}")
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 14.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Chip(card.pos)
-                LevelBadge(card.level)
-            }
-            Spacer(Modifier.height(12.dp))
-            Text(
-                card.meaningRu,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Ink.Fg,
-                textAlign = if (card.meaningRu.length > 80) TextAlign.Start else TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            AnimatedVisibility(showEn && verdict == null, enter = expandVertically() + fadeIn()) {
+            TaskCard(centered = true) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (card.pos.isNotBlank()) Chip(card.pos)
+                    LevelBadge(card.level)
+                }
+                Spacer(Modifier.height(12.dp))
                 Text(
-                    card.meaningEn,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Ink.Muted,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 12.dp),
+                    card.meaningRu,
+                    style = if (LocalNarrow.current) MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp, lineHeight = 24.sp)
+                        else MaterialTheme.typography.bodyLarge,
+                    color = Ink.Fg,
+                    textAlign = if (card.meaningRu.length > 80) TextAlign.Start else TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                 )
-            }
-            if (verdict == null) {
-                Spacer(Modifier.height(14.dp))
-                Text(
-                    skeleton(card.term, hints),
-                    style = TextStyle(fontFamily = Serif, fontSize = 17.sp, letterSpacing = 1.sp),
-                    color = Ink.Muted,
-                    textAlign = TextAlign.Center,
-                )
+                AnimatedVisibility(showEn && verdict == null, enter = expandVertically() + fadeIn()) {
+                    Text(
+                        card.meaningEn,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Ink.Muted,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 10.dp),
+                    )
+                }
+                if (verdict == null) {
+                    Spacer(Modifier.height(14.dp))
+                    // Скелет слова — на мягкой плашке, открытые подсказкой буквы проступают на ней.
+                    Text(
+                        skeleton(card.term, hints),
+                        style = TextStyle(fontFamily = Serif, fontSize = 18.sp, letterSpacing = 1.sp),
+                        color = Ink.Soft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.background(Ink.Surface, RoundedCornerShape(12.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
+                    )
+                }
             }
 
             AnimatedVisibility(
@@ -314,7 +329,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 enter = fadeIn(tween(300)) + slideInVertically(tween(420)) { it / 3 },
             ) {
                 val v = verdict ?: Verdict.Wrong
-                Column(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     if (v == Verdict.Wrong) {
                         WrongAnswerFeedback(input, card.term)
                     } else {
@@ -332,15 +347,14 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         Spacer(Modifier.height(14.dp))
                         Text(
                             if (v == Verdict.Typo) annotateMistakes(card.term, input) else AnnotatedString(card.term),
-                            style = TextStyle(fontFamily = Serif, fontSize = 34.sp, lineHeight = 40.sp),
+                            style = termStyle(card.term, 36),
                             color = Ink.Fg,
-                            textAlign = TextAlign.Center,
                         )
                     }
                     Spacer(Modifier.height(10.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (card.ipa.isNotBlank()) {
-                            Text(card.ipa, style = AlbionType.ipa)
+                            Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
                             Spacer(Modifier.width(12.dp))
                         }
                         AudioButton(
@@ -350,8 +364,12 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         )
                     }
                     if (card.example1.isNotBlank()) {
-                        Spacer(Modifier.height(16.dp))
-                        Text(card.example1, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(12.dp))
+                        NoteCard {
+                            Eyebrow("Пример")
+                            Spacer(Modifier.height(4.dp))
+                            Text(card.example1, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                        }
                     }
                 }
             }
@@ -367,36 +385,26 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 focus = focus,
                 imeAction = ImeAction.Done,
                 onIme = { check() },
-                modifier = Modifier.padding(top = 8.dp).shakeOn(shake),
+                modifier = Modifier.padding(top = 10.dp).shakeOn(shake),
             )
         }
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(
-                        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        GhostButton(
-                            if (hints < letters - 1) "Буква" else "Определение",
-                            onClick = { if (hints < letters - 1) hints++ else showEn = true },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
-                        )
-                        GhostButton(
-                            "Не знаю",
-                            onClick = { check(giveUp = true) },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
-                        )
-                    }
+                    val hintLabel = if (hints < letters - 1) "Буква" else "Определение"
+                    val pad = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+                    ButtonPair(
+                        listOf(hintLabel, "Не знаю"),
+                        first = { m -> GhostButton(hintLabel, onClick = { if (hints < letters - 1) hints++ else showEn = true }, modifier = m, contentPadding = pad) },
+                        second = { m -> GhostButton("Не знаю", onClick = { check(giveUp = true) }, modifier = m, contentPadding = pad) },
+                    )
                     PrimaryButton("Проверить", onClick = { check() })
                 }
             }
@@ -445,31 +453,36 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
         keyboard?.hide()
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 28.dp),
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Eyebrow("V1 · Infinitive")
-            Spacer(Modifier.height(14.dp))
-            Text(card.term, style = TextStyle(fontFamily = Serif, fontSize = 48.sp, lineHeight = 54.sp), color = Ink.Fg)
-            Spacer(Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (card.ipa.isNotBlank()) {
-                    Text(card.ipa, style = AlbionType.ipa)
-                    Spacer(Modifier.width(12.dp))
+            TaskCard(centered = true) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Eyebrow("V1 · Infinitive", color = Ink.Accent)
+                    LevelBadge(card.level)
                 }
-                AudioButton(
-                    playing = audio.playingKey == "term:${card.id}",
-                    onClick = { audio.play(Deck.IRREGULAR, card.audio, card.term, "term:${card.id}") },
-                    size = 38.dp,
-                )
+                Spacer(Modifier.height(10.dp))
+                Text(card.term, style = termStyle(card.term), color = Ink.Fg)
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (card.ipa.isNotBlank()) {
+                        Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
+                        Spacer(Modifier.width(12.dp))
+                    }
+                    AudioButton(
+                        playing = audio.playingKey == "term:${card.id}",
+                        onClick = { audio.play(Deck.IRREGULAR, card.audio, card.term, "term:${card.id}") },
+                        size = 40.dp,
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft, textAlign = TextAlign.Center)
             }
-            Spacer(Modifier.height(12.dp))
-            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(34.dp))
+            Spacer(Modifier.height(22.dp))
 
-            Column(Modifier.shakeOn(shake), verticalArrangement = Arrangement.spacedBy(22.dp)) {
+            Column(Modifier.shakeOn(shake), verticalArrangement = Arrangement.spacedBy(18.dp)) {
                 FormInput(
                     label = "V2 · Past Simple",
                     value = v2,
@@ -502,7 +515,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             targetState = result != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
             else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Я не знаю")
@@ -510,6 +523,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FormInput(
     label: String,
@@ -525,8 +539,8 @@ private fun FormInput(
     keyPrefix: String,
 ) {
     Column(Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow(label, Modifier.weight(1f))
+        Row(Modifier.padding(start = 4.dp, bottom = 8.dp).heightIn(min = 28.dp), verticalAlignment = Alignment.CenterVertically) {
+            Eyebrow(label, Modifier.weight(1f), color = Ink.Soft)
             if (verdict != null) VerdictLine(verdict)
         }
         AnswerField(
@@ -540,20 +554,23 @@ private fun FormInput(
             struck = verdict == Verdict.Wrong,
         )
         AnimatedVisibility(verdict != null, enter = expandVertically() + fadeIn()) {
-            Row(
-                Modifier.fillMaxWidth().padding(top = 10.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+            // Вариантов может быть два (abided / abode) — на узком экране они переносятся.
+            FlowRow(
+                Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 correct.forEachIndexed { i, text ->
-                    if (i > 0) Text("  /  ", color = Ink.Faint)
-                    Text(
-                        if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
-                        style = TextStyle(fontFamily = Serif, fontSize = 24.sp),
-                        color = Ink.Fg,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    AudioButton(playing = playingKey == "$keyPrefix:$i", onClick = { onPlay(i) }, size = 32.dp, primary = false)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (i > 0) Text("/", color = Ink.Faint, modifier = Modifier.padding(end = 10.dp))
+                        Text(
+                            if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
+                            style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
+                            color = Ink.Fg,
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        AudioButton(playing = playingKey == "$keyPrefix:$i", onClick = { onPlay(i) }, size = 32.dp, primary = false)
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.components.gutter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -148,7 +149,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator) {
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
         TopRow(deck, state, onClose = { c.audio.stop(); navigator.back() }, onUndo = vm::undo)
-        ThinProgress(state.progress, modifier = Modifier.padding(horizontal = 24.dp))
+        ThinProgress(state.progress, modifier = Modifier.padding(horizontal = gutter))
 
         when {
             state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -207,16 +208,14 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
     // В общем занятии подписываем колоду текущей карточки: от неё зависит, что вспоминать.
     val title = deck?.title ?: listOfNotNull("Все колоды", state.current?.let { Deck.byId(it.card.deck)?.title }).joinToString(" · ")
     Column {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, "Закрыть", tint = Ink.Fg) }
-            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center)
+        Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.Close, "Закрыть", onClose, spin = 90f)
+            Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
+                Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center, maxLines = 2)
             }
-            IconButton(onClick = onUndo, enabled = state.canUndo) {
-                Icon(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", tint = if (state.canUndo) Ink.Fg else Ink.Faint)
-            }
+            com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
-        Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
             QueueCount(state.learningCount + if (state.current?.fromLearning == true) 1 else 0, "учу", Modifier.weight(1f))
             QueueCount(

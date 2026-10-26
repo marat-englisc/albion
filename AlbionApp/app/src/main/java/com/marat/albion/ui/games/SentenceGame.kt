@@ -1,5 +1,9 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextOverflow
+import com.marat.albion.ui.components.LocalNarrow
+import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -108,20 +112,25 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
         order.firstOrNull { it !in placed && puzzle.tokens[it].equals(need, ignoreCase = true) }?.let { placed += it }
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp)) {
-            Eyebrow("Соберите предложение")
-            Spacer(Modifier.height(12.dp))
+    Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
+            TaskCard {
+            Eyebrow("Соберите предложение", color = Ink.Accent)
+            Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip(card.term)
+                Chip(card.term, Modifier.weight(1f, fill = false))
                 if (card.meaningRu.isNotBlank()) {
-                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = Ink.Muted, maxLines = 2, modifier = Modifier.weight(1f, fill = false))
+                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = Ink.Muted, maxLines = 2,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                 }
             }
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(18.dp))
 
-            // Ответ: поставленные плашки на линиях «тетради».
-            Column(Modifier.fillMaxWidth().heightIn(min = 132.dp).shakeOn(shake).animateContentSize(tween(220))) {
+            // Ответ: поставленные плашки на линии «тетради».
+            Column(
+                Modifier.fillMaxWidth().heightIn(min = 104.dp).shakeOn(shake).animateContentSize(tween(220)),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
                 FlowRow(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -142,8 +151,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         Text(puzzle.ending, style = TileText, color = Ink.Muted, modifier = Modifier.padding(top = 9.dp))
                     }
                 }
-                Spacer(Modifier.height(14.dp))
-                Hairline(color = Ink.LineStrong)
+                Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(2.dp).background(Ink.LineStrong, CircleShape))
+            }
             }
 
             AnimatedContent(
@@ -154,7 +163,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                 if (!answered) {
                     // Запас слов: поставленные остаются пустыми местами, чтобы плашки не прыгали.
                     FlowRow(
-                        Modifier.fillMaxWidth().padding(top = 26.dp),
+                        Modifier.fillMaxWidth().padding(top = 22.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
@@ -168,7 +177,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         }
                     }
                 } else {
-                    Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
+                    NoteCard(Modifier.padding(top = 18.dp), tone = if (verdict == Verdict.Correct) NoteTone.Good else NoteTone.Bad) {
                         val v = verdict ?: Verdict.Wrong
                         VerdictLine(v)
                         if (v == Verdict.Correct && hinted) {
@@ -179,7 +188,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 puzzle.original,
-                                style = TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 31.sp),
+                                style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
                                 color = Ink.Fg,
                                 modifier = Modifier.weight(1f),
                             )
@@ -200,7 +209,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
             label = "actions",
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
                 PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
@@ -214,6 +223,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
 private enum class TileStyle { Idle, Placed, Ghost, Correct, Wrong }
 
 private val TileText = TextStyle(fontFamily = Serif, fontSize = 19.sp, lineHeight = 24.sp)
+private val TileTextNarrow = TextStyle(fontFamily = Serif, fontSize = 17.sp, lineHeight = 22.sp)
 
 /** Плашка со словом. Ghost — пустое место, откуда слово уже взято. */
 @Composable
@@ -256,11 +266,11 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clickable(interaction, indication = null, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .padding(horizontal = if (LocalNarrow.current) 10.dp else 12.dp, vertical = 9.dp),
     ) {
         Text(
             text,
-            style = TileText.copy(textDecoration = if (style == TileStyle.Wrong) TextDecoration.LineThrough else null),
+            style = (if (LocalNarrow.current) TileTextNarrow else TileText).copy(textDecoration = if (style == TileStyle.Wrong) TextDecoration.LineThrough else null),
             color = fg,
             modifier = Modifier.alpha(if (style == TileStyle.Ghost) 0f else 1f),
         )
