@@ -1,5 +1,7 @@
 package com.marat.albion.ui.settings
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.animation.core.tween
 
 import com.marat.albion.ui.components.gutter
@@ -12,8 +14,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -91,7 +91,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     val repo = c.settings
     val reveal = rememberReveal()
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = onBack)
         Column(
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
@@ -117,6 +117,18 @@ fun SettingsScreen(onBack: () -> Unit) {
                         modifier = Modifier.padding(top = 12.dp))
                 }
                 Hairline()
+            }
+
+            Column(Modifier.reveal(reveal, 2)) {
+                SectionHeader("Звук и ощущения")
+                SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
+                Text("Тихое фортепианное созвучие в конце занятия. Учитывает беззвучный режим телефона.",
+                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
+                SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
+                Text("Спокойные переходы без перемещения и переворота карточек.",
+                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Hairline(Modifier.padding(top = 16.dp))
             }
 
             Column(Modifier.reveal(reveal, 2)) { GoalReminderSection(s) }
@@ -262,7 +274,7 @@ private fun ThemeTile(mode: ThemeMode, selected: Boolean, modifier: Modifier, on
                         .graphicsLayer { scaleX = lift; scaleY = lift }
                         .background(Ink.Accent, CircleShape),
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(14.dp)) }
+                ) { Icon(AlbionIcons.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(14.dp)) }
             }
         }
         Spacer(Modifier.height(8.dp))

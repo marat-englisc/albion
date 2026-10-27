@@ -1,5 +1,6 @@
 package com.marat.albion.ui.components
 
+import com.marat.albion.ui.theme.paperSurface
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -37,11 +38,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -67,6 +63,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.headingFamily
+import com.marat.albion.ui.theme.LocalFeedback
+import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.pressScale
 
 @Composable
@@ -79,7 +78,7 @@ fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = Ink.Mute
 
 @Composable
 fun Hairline(modifier: Modifier = Modifier, color: Color = Ink.Line) {
-    Box(modifier.fillMaxWidth().height(1.dp).background(color))
+    Box(modifier.fillMaxWidth().height(0.5.dp).background(color))
 }
 
 @Composable
@@ -127,7 +126,13 @@ fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = nul
             }
             Spacer(Modifier.height(10.dp))
         }
-        Text(title, style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displaySmall, color = Ink.Fg)
+        Text(title, style = (if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displaySmall)
+            .copy(fontFamily = headingFamily(title)), color = Ink.Fg)
+        Spacer(Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.width(30.dp).height(1.dp).background(Ink.Gold))
+            Box(Modifier.weight(1f).height(0.5.dp).background(Ink.Line))
+        }
         if (subtitle != null) {
             Spacer(Modifier.height(6.dp))
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
@@ -145,15 +150,17 @@ fun RoundIconButton(
     spin: Float = 0f,
     enabled: Boolean = true,
 ) {
+    val feedback = LocalFeedback.current
+    val reduced = LocalReducedMotion.current
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val turn by animateFloatAsState(if (pressed) spin else 0f, tween(140), label = "turn")
+    val turn by animateFloatAsState(if (pressed && !reduced) spin else 0f, tween(140), label = "turn")
     Box(
         modifier.size(48.dp).pressScale(interaction, 0.96f)
-            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = { feedback.selection(); onClick() }),
         contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.size(40.dp).background(Ink.Raised, RoundedCornerShape(12.dp)).border(1.dp, Ink.Line, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(40.dp).background(if (pressed) Ink.Surface else Color.Transparent, CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription, tint = if (enabled) tint else Ink.Faint, modifier = Modifier.size(22.dp).graphicsLayer { rotationZ = turn })
         }
     }
@@ -161,7 +168,7 @@ fun RoundIconButton(
 
 @Composable
 fun SettingsShortcut(onClick: () -> Unit) {
-    RoundIconButton(Icons.Outlined.Settings, "Настройки", onClick, spin = 0f)
+    RoundIconButton(AlbionIcons.Settings, "Настройки", onClick, spin = 0f)
 }
 
 @Composable
@@ -210,12 +217,13 @@ private fun RefinedButton(
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 15.dp),
     content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
 ) {
+    val feedback = LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val fill by androidx.compose.animation.animateColorAsState(if (pressed && enabled) pressedFace else face, tween(140), label = "buttonFill")
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RoundedCornerShape(4.dp)
     Surface(
-        onClick = onClick, enabled = enabled, interactionSource = interaction,
+        onClick = { feedback.selection(); onClick() }, enabled = enabled, interactionSource = interaction,
         modifier = modifier.fillMaxWidth().pressScale(interaction, 0.99f),
         shape = shape, color = fill,
         border = border?.let { BorderStroke(1.dp, it) },
@@ -236,9 +244,10 @@ fun PrimaryButton(
     icon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     tone: ButtonTone = ButtonTone.Accent,
+    inverse: Boolean = false,
 ) {
     val on by animateFloatAsState(if (enabled) 1f else 0f, tween(300), label = "btn")
-    val (faceOn, lipOn, fgOn) = when (tone) {
+    val (faceOn, lipOn, fgOn) = if (inverse) Triple(Ink.Ivory, androidx.compose.ui.graphics.Color(0xFFE8DDCA), androidx.compose.ui.graphics.Color(0xFF861F39)) else when (tone) {
         ButtonTone.Accent -> Triple(Ink.Accent, Ink.AccentDeep, Ink.OnAccent)
         ButtonTone.Warm -> Triple(Ink.WarmFill, Ink.WarmDeep, Ink.OnWarm)
         ButtonTone.Error -> Triple(Ink.ErrorFill, Ink.ErrorDeep, Ink.OnError)
@@ -305,7 +314,7 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        if (playing) {
+        if (playing && !LocalReducedMotion.current) {
             val t = rememberInfiniteTransition(label = "rings")
             val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Restart), label = "wave")
             Canvas(Modifier.size(size)) {
@@ -327,7 +336,7 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.AutoMirrored.Rounded.VolumeUp,
+                AlbionIcons.VolumeUp,
                 contentDescription = "Озвучить",
                 tint = if (playing) Ink.OnAccent else Ink.AccentText,
                 modifier = Modifier.size(size * 0.46f),
@@ -353,7 +362,7 @@ fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
 fun Chip(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
-        modifier = modifier.background(Ink.Raised, RoundedCornerShape(12.dp)).border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 3.dp),
+        modifier = modifier.background(Ink.Raised, RoundedCornerShape(4.dp)).border(0.5.dp, Ink.Line, RoundedCornerShape(4.dp)).padding(horizontal = 10.dp, vertical = 3.dp),
         style = MaterialTheme.typography.labelMedium,
         color = Ink.Soft,
     )
@@ -365,9 +374,10 @@ fun ThinProgress(
     modifier: Modifier = Modifier,
     color: Color = Ink.Accent,
     track: Color = Ink.High,
-    height: Dp = 4.dp,
+    height: Dp = 2.dp,
 ) {
-    val p by animateFloatAsState(progress.coerceIn(0f, 1f), spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessLow), label = "progress")
+    val reduced = LocalReducedMotion.current
+    val p by animateFloatAsState(progress.coerceIn(0f, 1f), tween(if (reduced) 0 else 360, easing = com.marat.albion.ui.theme.Easing.Standard), label = "progress")
     val trackColor = if (track == Ink.Bg) Ink.Surface else track
     Canvas(modifier.fillMaxWidth().height(height).progressSemantics(progress.coerceIn(0f, 1f))) {
         val r = CornerRadius(size.height / 2)
@@ -391,7 +401,7 @@ fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Icon(Icons.Rounded.Inventory2, null, tint = Ink.Gold, modifier = Modifier.size(32.dp))
+        Icon(AlbionIcons.Inventory2, null, tint = Ink.Gold, modifier = Modifier.size(32.dp))
         Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, color = Ink.Fg)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
     }
@@ -404,10 +414,10 @@ fun TopBar(
     actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
 ) {
     Row(
-        Modifier.fillMaxWidth().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars).height(64.dp).padding(horizontal = 10.dp),
+        Modifier.fillMaxWidth().paperSurface().windowInsetsPadding(WindowInsets.statusBars).height(64.dp).padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RoundIconButton(Icons.AutoMirrored.Rounded.ArrowBack, "Назад", onBack)
+        RoundIconButton(AlbionIcons.ArrowBack, "Назад", onBack)
         if (title != null) {
             Text(
                 title,
@@ -436,7 +446,7 @@ fun ThinSlider(
     val interaction = remember { MutableInteractionSource() }
     val dragged by interaction.collectIsDraggedAsState()
     val pressed by interaction.collectIsPressedAsState()
-    val grow by animateFloatAsState(if (dragged || pressed) 1.25f else 1f, spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessMedium), label = "thumb")
+    val grow by animateFloatAsState(if (dragged || pressed) 1.25f else 1f, tween(180), label = "thumb")
     val colors = androidx.compose.material3.SliderDefaults.colors(
         thumbColor = Ink.Accent,
         activeTrackColor = Ink.Accent,

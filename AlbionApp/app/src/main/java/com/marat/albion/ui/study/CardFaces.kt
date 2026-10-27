@@ -40,7 +40,7 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.theme.Sans
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 
@@ -61,7 +61,7 @@ private fun termStyle(term: String, large: Boolean): TextStyle {
         term.length <= 28 -> 34
         else -> 28
     }
-    return TextStyle(fontFamily = Serif, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 40f).sp)
+    return TextStyle(fontFamily = Sans, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
 }
 
 @Composable
@@ -108,7 +108,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
                     ) {
                         Text("V${i + 2}", style = AlbionType.index)
                         Spacer(Modifier.height(2.dp))
-                        Text("?", style = TextStyle(fontFamily = Serif, fontSize = 26.sp), color = Ink.Faint)
+                        Text("?", style = TextStyle(fontFamily = Sans, fontSize = 26.sp), color = Ink.Faint)
                         Spacer(Modifier.height(2.dp))
                         Eyebrow(form.label, color = Ink.Faint)
                     }
@@ -220,7 +220,7 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
                         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Column {
-                                Text(v.text, style = TextStyle(fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
+                                Text(v.text, style = TextStyle(fontFamily = Sans, fontSize = 20.sp), color = Ink.Fg)
                                 if (v.ipa.isNotBlank()) Text(v.ipa, style = AlbionType.ipa.copy(fontSize = 14.sp))
                             }
                             v.audio.ifEmpty { listOf(null) }.forEachIndexed { k, file ->

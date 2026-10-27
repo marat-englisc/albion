@@ -1,5 +1,7 @@
 package com.marat.albion.ui.deck
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,10 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.MoreHoriz
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -66,10 +64,10 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     var confirmReset by remember { mutableStateOf(false) }
     val reveal = rememberReveal()
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = navigator::back) {
             Box {
-                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.MoreHoriz, "Ещё", { menu = true })
+                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true })
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
                     DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
                 }
@@ -97,7 +95,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                     style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
                 Spacer(Modifier.height(20.dp))
                 PrimaryButton("Открыть библиотеку", onClick = { navigator.switchTab(LibraryRoute) },
-                    trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                    trailingIcon = AlbionIcons.ArrowForward)
                 return@deckContent
             }
 
@@ -113,7 +111,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
                 onClick = { navigator.open(StudyRoute(deck)) },
                 enabled = summary.toStudy > 0,
-                trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                trailingIcon = AlbionIcons.ArrowForward,
 
                 modifier = Modifier.reveal(reveal, 2),
             )
@@ -121,7 +119,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             GhostButton(
                 "Все карточки и поиск",
                 onClick = { navigator.open(BrowseRoute(deck)) },
-                icon = Icons.Rounded.Search,
+                icon = AlbionIcons.Search,
                 modifier = Modifier.reveal(reveal, 3),
             )
 

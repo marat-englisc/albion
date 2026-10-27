@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -28,6 +27,7 @@ import com.marat.albion.data.settings.ThemeMode
 import com.marat.albion.ui.intro.IntroScreen
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
+import com.marat.albion.ui.theme.AlbionExperience
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.paletteFor
@@ -70,23 +70,24 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(LocalAppContainer provides container) {
                 AlbionTheme(dark = dark) {
-                    // Заставка — только при холодном старте; приложение под ней
-                    // начинает рисоваться в момент ухода заставки, чтобы каскадные
-                    // анимации главного экрана совпали с её исчезновением.
-                    var introVisible by rememberSaveable { mutableStateOf(true) }
-                    val status by container.importer.status.collectAsStateWithLifecycle()
-                    Box(Modifier.fillMaxSize().background(Ink.Bg)) {
-                        if (!introVisible) AlbionNavigation()
-                        AnimatedVisibility(
-                            visible = introVisible,
-                            enter = androidx.compose.animation.EnterTransition.None,
-                            exit = fadeOut(tween(180, easing = Easing.Emphasized)) +
-                                scaleOut(tween(220, easing = Easing.EmphasizedAccelerate), targetScale = 1.04f),
-                        ) {
-                            IntroScreen(status = status, full = !initial.introSeen, onFinished = {
-                                introVisible = false
-                                if (!initial.introSeen) container.appScope.launch { container.settings.markIntroSeen() }
-                            })
+                    AlbionExperience(settings) {
+                        // Заставка — только при холодном старте; приложение под ней
+                        // начинает рисоваться в момент ухода заставки, чтобы каскадные
+                        // анимации главного экрана совпали с её исчезновением.
+                        var introVisible by rememberSaveable { mutableStateOf(true) }
+                        val status by container.importer.status.collectAsStateWithLifecycle()
+                        Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+                            if (!introVisible) AlbionNavigation()
+                            AnimatedVisibility(
+                                visible = introVisible,
+                                enter = androidx.compose.animation.EnterTransition.None,
+                                exit = fadeOut(tween(240, easing = Easing.Standard)),
+                            ) {
+                                IntroScreen(status = status, full = !initial.introSeen, onFinished = {
+                                    introVisible = false
+                                    if (!initial.introSeen) container.appScope.launch { container.settings.markIntroSeen() }
+                                })
+                            }
                         }
                     }
                 }

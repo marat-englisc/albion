@@ -61,6 +61,9 @@ data class Settings(
     /** Подчёркивать в книгах слова из начатых карточек. */
     val readerMarkWords: Boolean = true,
     val shortSessionAnswers: Int = 10,
+    val interfaceSounds: Boolean = true,
+    val hapticsEnabled: Boolean = true,
+    val reduceMotion: Boolean = false,
 )
 
 data class PracticeOptions(val deckId: String? = null, val count: Int = 10, val mode: Int = 0, val level: String = "")
@@ -100,6 +103,9 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val viewedHelp = stringSetPreferencesKey("viewed_help")
         val shortSessionAnswers = intPreferencesKey("short_session_answers")
         val lastPractice = stringPreferencesKey("last_practice")
+        val interfaceSounds = booleanPreferencesKey("interface_sounds")
+        val hapticsEnabled = booleanPreferencesKey("haptics_enabled")
+        val reduceMotion = booleanPreferencesKey("reduce_motion")
     }
 
     val settings: Flow<Settings> = store.data.map { p ->
@@ -130,6 +136,9 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             fsrsImprovement = p[Keys.fsrsImprovement] ?: 0f,
             readerTextScale = p[Keys.readerScale] ?: 1.0f,
             readerMarkWords = p[Keys.readerMarkWords] ?: true,
+            interfaceSounds = p[Keys.interfaceSounds] ?: true,
+            hapticsEnabled = p[Keys.hapticsEnabled] ?: true,
+            reduceMotion = p[Keys.reduceMotion] ?: false,
             shortSessionAnswers = (p[Keys.shortSessionAnswers] ?: 10).takeIf { it in listOf(5, 10, 20) } ?: 10,
         )
     }
@@ -175,6 +184,9 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
     suspend fun setDayStartHour(v: Int) = edit { it[Keys.dayStart] = v }
     suspend fun setLastGrammarTopic(v: String) = edit { it[Keys.lastTopic] = v }
     suspend fun setThemeMode(v: ThemeMode) = edit { it[Keys.themeMode] = v.name }
+    suspend fun setInterfaceSounds(v: Boolean) = edit { it[Keys.interfaceSounds] = v }
+    suspend fun setHapticsEnabled(v: Boolean) = edit { it[Keys.hapticsEnabled] = v }
+    suspend fun setReduceMotion(v: Boolean) = edit { it[Keys.reduceMotion] = v }
     suspend fun markIntroSeen() = edit { it[Keys.introSeen] = true }
     suspend fun setShowRussian(v: Boolean) = edit { it[Keys.showRussian] = v }
     suspend fun setDailyGoal(v: Int) = edit { it[Keys.dailyGoal] = v }

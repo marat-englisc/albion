@@ -174,32 +174,71 @@ object Ink {
     val Shadow get() = palette.shadow
 }
 
-// Libre Baskerville covers Latin; the bundled Noto serif provides Cyrillic/IPA.
-// Adobe Caslon Pro is reserved for the wordmark and brand phrases.
+// The brand voice and English editorial headings use the supplied Adobe Caslon.
 val Brand = FontFamily(
     Font(R.font.adobe_caslon_pro_regular, weight = FontWeight.Normal),
-    Font(R.font.adobe_caslon_pro_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+    Font(R.font.adobe_caslon_pro_italic, style = FontStyle.Italic),
     Font(R.font.adobe_caslon_pro_semibold, weight = FontWeight.SemiBold),
     Font(R.font.adobe_caslon_pro_semibold_italic, weight = FontWeight.SemiBold, style = FontStyle.Italic),
     Font(R.font.adobe_caslon_pro_bold, weight = FontWeight.Bold),
     Font(R.font.adobe_caslon_pro_bold_italic, weight = FontWeight.Bold, style = FontStyle.Italic),
 )
-var Serif = FontFamily(Font(R.font.libre_baskerville), Font(R.font.libre_baskerville_italic, style = FontStyle.Italic))
+
+@OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+private fun editorialFont(id: Int, weight: FontWeight = FontWeight.Normal, italic: Boolean = false) = Font(
+    id, weight = weight, style = if (italic) FontStyle.Italic else FontStyle.Normal,
+    variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(
+        androidx.compose.ui.text.font.FontVariation.weight(weight.weight),
+    ),
+)
+
+val Cyrillic = FontFamily(
+    editorialFont(R.font.cormorant_garamond_variable, FontWeight.Medium),
+    editorialFont(R.font.cormorant_garamond_variable, FontWeight.Normal),
+    editorialFont(R.font.cormorant_garamond_variable, FontWeight.SemiBold),
+    editorialFont(R.font.cormorant_garamond_variable, FontWeight.Bold),
+    editorialFont(R.font.cormorant_garamond_italic_variable, italic = true),
+)
+val Reading = FontFamily(
+    editorialFont(R.font.literata_variable),
+    editorialFont(R.font.literata_variable, FontWeight.SemiBold),
+    editorialFont(R.font.literata_variable, FontWeight.Bold),
+    editorialFont(R.font.literata_italic_variable, italic = true),
+    editorialFont(R.font.literata_italic_variable, FontWeight.Bold, italic = true),
+)
+
+var Serif: FontFamily = Cyrillic
     private set
 
-/** Explicit Cyrillic and IPA fallback keeps Russian lesson titles in a serif. */
+/** Caslon for Latin, Cormorant for Cyrillic, Inter for symbols and IPA. */
 internal fun initializeTypography(resources: android.content.res.Resources) {
     if (android.os.Build.VERSION.SDK_INT >= 29) {
-        fun family(regular: Int, italic: Int) = android.graphics.fonts.FontFamily.Builder(
-            android.graphics.fonts.Font.Builder(resources, regular).setWeight(400)
-                .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_UPRIGHT).build(),
-        ).addFont(android.graphics.fonts.Font.Builder(resources, italic).setWeight(400)
-            .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_ITALIC).build()).build()
-        val typeface = android.graphics.Typeface.CustomFallbackBuilder(
-            family(R.font.libre_baskerville, R.font.libre_baskerville_italic),
-        ).addCustomFallback(family(R.font.noto_serif_regular, R.font.noto_serif_italic))
-            .setSystemFallback("serif").build()
-        Serif = FontFamily(typeface)
+        fun family(regular: Int, italic: Int, variable: Boolean = false): android.graphics.fonts.FontFamily {
+            val builder = android.graphics.fonts.FontFamily.Builder(
+                android.graphics.fonts.Font.Builder(resources, regular).setWeight(400)
+                    .apply { if (variable) setFontVariationSettings("'wght' 400") }.build(),
+            )
+            builder.addFont(android.graphics.fonts.Font.Builder(resources, italic).setWeight(400)
+                .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_ITALIC)
+                .apply { if (variable) setFontVariationSettings("'wght' 400") }.build())
+            return builder.build()
+        }
+        Serif = FontFamily(android.graphics.Typeface.CustomFallbackBuilder(
+            family(R.font.adobe_caslon_pro_regular, R.font.adobe_caslon_pro_italic),
+        ).addCustomFallback(family(R.font.cormorant_garamond_variable, R.font.cormorant_garamond_italic_variable, true))
+            .addCustomFallback(family(R.font.inter_variable, R.font.inter_italic_variable, true))
+            .setSystemFallback("serif").build())
+    }
+}
+
+/** Explicit script selection also preserves the intended face on Android 8 and 9. */
+fun headingFamily(text: String): FontFamily {
+    val cyrillic = text.any { it in '\u0400'..'\u052f' }
+    val latin = text.any { it in 'A'..'Z' || it in 'a'..'z' }
+    return when {
+        cyrillic && latin -> Serif
+        cyrillic -> Cyrillic
+        else -> Brand
     }
 }
 
@@ -281,11 +320,11 @@ private val typography get() = Typography(
 )
 
 private val shapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(20.dp),
+    extraSmall = RoundedCornerShape(2.dp),
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(6.dp),
+    large = RoundedCornerShape(8.dp),
+    extraLarge = RoundedCornerShape(12.dp),
 )
 
 object AlbionType {
@@ -293,7 +332,7 @@ object AlbionType {
         val ipa get() = TextStyle(fontFamily = Sans, fontSize = 17.sp, fontStyle = FontStyle.Normal, color = Ink.Muted)
         val number = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-1.5).sp)
     val numberSmall = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.8).sp)
-        val index get() = TextStyle(fontFamily = Serif, fontSize = 15.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
+        val index get() = TextStyle(fontFamily = Brand, fontSize = 16.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
 @Composable

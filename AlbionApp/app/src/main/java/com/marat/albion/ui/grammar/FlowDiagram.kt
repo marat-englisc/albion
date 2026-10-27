@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,9 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Redo
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,7 +85,7 @@ private fun TreeView(t: TreeNode) {
                             if (b.label != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
                                     Text(b.label.uppercase(), style = AlbionType.eyebrow.copy(letterSpacing = 1.5.sp), color = Ink.Fg)
-                                    Icon(Icons.Rounded.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(16.dp))
+                                    Icon(AlbionIcons.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(16.dp))
                                 }
                             } else Arrow()
                             TreeView(b.target)
@@ -102,7 +100,7 @@ private fun TreeView(t: TreeNode) {
 @Composable
 private fun Arrow() {
     Box(Modifier.padding(start = 10.dp).height(22.dp), contentAlignment = Alignment.Center) {
-        Icon(Icons.Rounded.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(18.dp))
+        Icon(AlbionIcons.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(18.dp))
     }
 }
 
@@ -122,7 +120,7 @@ private fun NodeBox(node: FlowNode, reference: Boolean) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (reference) {
-            Icon(Icons.AutoMirrored.Rounded.Redo, null, tint = Ink.Faint, modifier = Modifier.size(15.dp))
+            Icon(AlbionIcons.Redo, null, tint = Ink.Faint, modifier = Modifier.size(15.dp))
             Spacer(Modifier.width(8.dp))
         }
         InlineText(

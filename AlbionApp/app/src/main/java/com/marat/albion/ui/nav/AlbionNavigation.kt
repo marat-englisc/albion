@@ -1,5 +1,7 @@
 package com.marat.albion.ui.nav
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
@@ -51,15 +53,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.outlined.AutoStories
-import androidx.compose.material.icons.outlined.Insights
-import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -126,32 +119,29 @@ import com.marat.albion.ui.study.StudyScreen
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.LocalReducedMotion
+import com.marat.albion.ui.theme.LocalFeedback
 
 private data class Tab(val route: TopLevel, val label: String, val icon: ImageVector)
 
 private val tabs = listOf(
-    Tab(HomeRoute, "Карточки", Icons.Outlined.Layers),
-    Tab(GrammarRoute, "Учебник", Icons.AutoMirrored.Outlined.MenuBook),
-    Tab(LibraryRoute, "Чтение", Icons.Outlined.AutoStories),
-    Tab(GamesRoute, "Практика", Icons.Outlined.EditNote),
-    Tab(StatsRoute, "Прогресс", Icons.Outlined.Insights),
+    Tab(HomeRoute, "Карточки", AlbionIcons.Layers),
+    Tab(GrammarRoute, "Учебник", AlbionIcons.MenuBook),
+    Tab(LibraryRoute, "Чтение", AlbionIcons.AutoStories),
+    Tab(GamesRoute, "Практика", AlbionIcons.EditNote),
+    Tab(StatsRoute, "Прогресс", AlbionIcons.Insights),
 )
 
-// Новый экран въезжает справа с лёгким пружинным «доездом», старый отступает в глубину.
-private fun forward(): ContentTransform =
-    (slideInHorizontally(spring(dampingRatio = 0.86f, stiffness = 520f)) { (it * 0.14f).toInt() } +
-        fadeIn(tween(200)) +
-        scaleIn(tween(300, easing = Easing.Emphasized), initialScale = 0.97f)) togetherWith
-        (fadeOut(tween(160)) + scaleOut(tween(300, easing = Easing.Emphasized), targetScale = 0.96f))
-
-private fun backward(): ContentTransform =
-    (fadeIn(tween(220)) + scaleIn(tween(300, easing = Easing.Emphasized), initialScale = 0.96f)) togetherWith
-        (slideOutHorizontally(tween(260, easing = Easing.Emphasized)) { (it * 0.16f).toInt() } +
-            fadeOut(tween(180)) +
-            scaleOut(tween(260, easing = Easing.Emphasized), targetScale = 0.97f))
+// A short page movement and dissolve, without spring or depth effects.
+private fun forward(reduced: Boolean): ContentTransform =
+    (fadeIn(tween(220)) + slideInHorizontally(tween(280, easing = Easing.Standard)) { if (reduced) 0 else it / 22 }) togetherWith fadeOut(tween(160))
+private fun backward(reduced: Boolean): ContentTransform =
+    fadeIn(tween(200)) togetherWith (fadeOut(tween(160)) + slideOutHorizontally(tween(240, easing = Easing.Standard)) { if (reduced) 0 else it / 22 })
 
 @Composable
 fun AlbionNavigation() {
+    val reduced = LocalReducedMotion.current
+    val feedback = LocalFeedback.current
     val stacks = primaryRoutes.associateWith { route -> key(route) { rememberNavBackStack(route) } }
     val selectedIndex = rememberSaveable { mutableIntStateOf(0) }
     val navigator = remember(stacks, selectedIndex) { Navigator(stacks, selectedIndex) }
@@ -196,7 +186,7 @@ fun AlbionNavigation() {
         }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(Ink.Bg)) {
+    BoxWithConstraints(Modifier.fillMaxSize().paperSurface()) {
     // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
     val wide = widthClassOf(maxWidth) != WidthClass.Compact
     // Ещё шире — список и открытая из него страница рядом (учебник, все карточки колоды).
@@ -207,10 +197,10 @@ fun AlbionNavigation() {
         bottomBar = {
             AnimatedVisibility(
                 visible = showBar && !wide,
-                enter = fadeIn(tween(180)) + slideInVertically(tween(220, easing = Easing.Emphasized)) { it },
-                exit = fadeOut(tween(120)) + slideOutVertically(tween(180)) { it },
+                enter = fadeIn(tween(180)) + slideInVertically(tween(220, easing = Easing.Standard)) { if (reduced) 0 else it / 3 },
+                exit = fadeOut(tween(120)) + slideOutVertically(tween(180)) { if (reduced) 0 else it / 3 },
             ) {
-                BottomBar(navigator.selectedTab, navigator::selectTab)
+                BottomBar(navigator.selectedTab) { feedback.selection(); navigator.selectTab(it) }
             }
         },
     ) { padding ->
@@ -219,10 +209,10 @@ fun AlbionNavigation() {
         Row(Modifier.fillMaxSize()) {
             AnimatedVisibility(
                 visible = rail,
-                enter = fadeIn(tween(180)) + slideInHorizontally(tween(220, easing = Easing.Emphasized)) { -it },
-                exit = fadeOut(tween(120)) + slideOutHorizontally(tween(180)) { -it },
+                enter = fadeIn(tween(180)) + slideInHorizontally(tween(220, easing = Easing.Standard)) { if (reduced) 0 else -it / 3 },
+                exit = fadeOut(tween(120)) + slideOutHorizontally(tween(180)) { if (reduced) 0 else -it / 3 },
             ) {
-                SideRail(navigator.selectedTab, navigator::selectTab)
+                SideRail(navigator.selectedTab) { feedback.selection(); navigator.selectTab(it) }
             }
             Box(Modifier.weight(1f).fillMaxHeight()) {
                 NavDisplay(
@@ -232,9 +222,9 @@ fun AlbionNavigation() {
                     modifier = Modifier.padding(bottom).consumeWindowInsets(bottom)
                         // Без нижней панели вкладок разделы сами отступают от системной навигации.
                         .then(if (rail) Modifier.windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)) else Modifier),
-                    transitionSpec = { forward() },
-                    popTransitionSpec = { backward() },
-                    predictivePopTransitionSpec = { backward() },
+                    transitionSpec = { forward(reduced) },
+                    popTransitionSpec = { backward(reduced) },
+                    predictivePopTransitionSpec = { backward(reduced) },
                 )
                 // Прокручиваемый контент не должен просвечивать под статус-баром.
                 Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(Ink.Bg.copy(alpha = 0.94f)))
@@ -271,7 +261,7 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
         label = "railIndicator",
     )
     Row(
-        Modifier.fillMaxHeight().background(Ink.Bg)
+        Modifier.fillMaxHeight().paperSurface()
             .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom)),
     ) {
         Box(Modifier.width(96.dp).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars).padding(top = 24.dp)) {
@@ -321,7 +311,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             val markerWidth = 28.dp.coerceAtMost(tabWidth)
             val indicatorX by animateDpAsState(tabWidth * index + (tabWidth - markerWidth) / 2,
                 tween(220, easing = Easing.Standard), label = "indicator")
-            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(Ink.Accent))
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(Ink.Gold))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val active = i == index
@@ -357,7 +347,7 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             Text("Все разделы", style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp,
                 lineHeight = 16.sp), color = Ink.Muted)
         }
-        Icon(Icons.Rounded.Menu, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
+        Icon(AlbionIcons.Menu, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
     }
     if (open) ModalBottomSheet(
         onDismissRequest = { open = false },
@@ -371,7 +361,7 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Eyebrow("Разделы", Modifier.weight(1f))
                     IconButton(onClick = { open = false }) {
-                        Icon(Icons.Rounded.Close, "Закрыть разделы", tint = Ink.Muted)
+                        Icon(AlbionIcons.Close, "Закрыть разделы", tint = Ink.Muted)
                     }
                 }
                 Column(Modifier.selectableGroup()) {
@@ -388,7 +378,7 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                             Icon(tab.icon, null, tint = if (active) Ink.AccentText else Ink.Muted, modifier = Modifier.size(24.dp))
                             Text(tab.label, modifier = Modifier.weight(1f), style = AlbionType.eyebrow.copy(
                                 letterSpacing = 0.sp, fontSize = 16.sp, lineHeight = 22.sp), color = Ink.Fg)
-                            if (active) Icon(Icons.Rounded.Check, null, tint = Ink.AccentText, modifier = Modifier.size(20.dp))
+                            if (active) Icon(AlbionIcons.Check, null, tint = Ink.AccentText, modifier = Modifier.size(20.dp))
                         }
                     }
                 }

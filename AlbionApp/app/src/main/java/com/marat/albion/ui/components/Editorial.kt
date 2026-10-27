@@ -11,6 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.marat.albion.ui.theme.AlbionType
@@ -26,7 +28,11 @@ fun HeroCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = MaterialTheme.shapes.large
-    Column(modifier.background(color, shape).border(1.dp, Ink.Line, shape).padding(contentPadding), content = content)
+    Column(modifier.background(color, shape).border(0.5.dp, Ink.Line, shape)
+        .drawWithContent {
+            drawContent()
+            drawLine(Ink.Gold.copy(alpha = 0.7f), Offset(20.dp.toPx(), 0f), Offset(52.dp.toPx(), 0f), 1.dp.toPx())
+        }.padding(contentPadding), content = content)
 }
 
 /** Compact metric used across daily study, deck summaries and statistics. */
@@ -39,7 +45,7 @@ fun StatPill(
     tint: Color = Ink.Raised,
     valueColor: Color = if (value == null || value == 0) Ink.Muted else Ink.Fg,
 ) {
-    Column(modifier.background(tint, RoundedCornerShape(10.dp)).padding(horizontal = 14.dp, vertical = 14.dp)) {
+    Column(modifier.background(tint, RoundedCornerShape(4.dp)).padding(horizontal = 14.dp, vertical = 14.dp)) {
         if (value == null) Text("—", style = AlbionType.numberSmall, color = Ink.Faint)
         else AnimatedNumber(value, AlbionType.numberSmall, color = valueColor, suffix = suffix)
         Text(label, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)

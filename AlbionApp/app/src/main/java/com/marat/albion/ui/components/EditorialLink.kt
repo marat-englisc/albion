@@ -2,8 +2,6 @@ package com.marat.albion.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.headingFamily
+import com.marat.albion.ui.theme.LocalFeedback
+import com.marat.albion.ui.theme.pressScale
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
 
 /** A content link with a generous touch area and a fine divider instead of a card. */
 @Composable
@@ -30,10 +33,15 @@ fun EditorialLink(
     eyebrow: String? = null,
     progress: Float? = null,
 ) {
-    Column(modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)) {
+    val feedback = LocalFeedback.current
+    val interaction = remember { MutableInteractionSource() }
+    Column(modifier.fillMaxWidth().pressScale(interaction, 0.995f).clickable(
+        interactionSource = interaction, indication = null, role = Role.Button,
+        onClick = { feedback.selection(); onClick() },
+    )) {
         Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(vertical = 15.dp), verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
-                Icon(icon, null, tint = Ink.Muted, modifier = Modifier.size(22.dp))
+                Icon(icon, null, tint = Ink.GoldText, modifier = Modifier.size(24.dp))
                 Spacer(Modifier.width(16.dp))
             } else if (index != null) {
                 Text(index, style = AlbionType.index.copy(color = Ink.Muted), modifier = Modifier.width(30.dp))
@@ -44,7 +52,7 @@ fun EditorialLink(
                     Eyebrow(eyebrow)
                     Spacer(Modifier.height(5.dp))
                 }
-                Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp, lineHeight = 27.sp),
+                Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(title), fontSize = 24.sp, lineHeight = 29.sp),
                     color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 if (description.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))
@@ -56,7 +64,7 @@ fun EditorialLink(
                 }
             }
             Spacer(Modifier.width(14.dp))
-            Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Muted, modifier = Modifier.size(18.dp))
+            Icon(AlbionIcons.ArrowForward, null, tint = Ink.GoldText, modifier = Modifier.size(18.dp))
         }
         Hairline()
     }

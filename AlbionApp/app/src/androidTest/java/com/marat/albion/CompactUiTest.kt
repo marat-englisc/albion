@@ -46,7 +46,7 @@ class CompactUiTest {
             for (width in listOf(320, 360)) for (scale in listOf(1f, 1.5f, 2f)) {
                 val name = "home-$width-$scale"
                 show(scenario, name, width, scale, dark = scale == 2f) { AlbionNavigation() }
-                val start = awaitNode { it.text?.toString() in listOf("Начать занятие", "Продолжить занятие") }
+                val start = awaitNode { it.text?.toString()?.startsWith("Начать · ") == true }
                 val startBounds = clickableBounds(start)
                 val menu = find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() == "Все разделы" }
                 if (scale == 1f) assertTrue("Обычный шрифт: все пять вкладок должны помещаться ($name)", menu == null)

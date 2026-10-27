@@ -1,5 +1,6 @@
 package com.marat.albion.ui.nav
 
+import com.marat.albion.ui.theme.paperSurface
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -105,7 +106,7 @@ private data class ListDetailScene(
 
 @Composable
 private fun DetailPlaceholder(text: String) {
-    Box(Modifier.fillMaxSize().background(Ink.Bg).padding(32.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().paperSurface().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(text, style = MaterialTheme.typography.bodyLarge, color = Ink.Faint, textAlign = TextAlign.Center)
     }
 }

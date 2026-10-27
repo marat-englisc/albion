@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.paperSurface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -36,7 +37,7 @@ fun GamesScreen(navigator: Navigator) {
         .collectAsStateWithLifecycle(PracticeOptions(count = defaultCount))
 
     LazyColumn(
-        Modifier.fillMaxSize().background(Ink.Bg),
+        Modifier.fillMaxSize().paperSurface(),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item {

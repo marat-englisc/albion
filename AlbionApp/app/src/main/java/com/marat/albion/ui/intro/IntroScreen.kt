@@ -1,5 +1,6 @@
 package com.marat.albion.ui.intro
 
+import com.marat.albion.ui.theme.paperSurface
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -40,6 +41,8 @@ import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Brand
+import com.marat.albion.ui.theme.LocalReducedMotion
+import androidx.compose.ui.text.font.FontStyle
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -53,16 +56,17 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Unit) {
-    val horizon = remember { Animatable(if (full) 0f else 1f) }
-    val chevron = remember { Animatable(if (full) 0f else 1f) }
-    val word = remember { Animatable(if (full) 0f else 1f) }
-    val tagline = remember { Animatable(if (full) 0f else 1f) }
+    val animate = full && !LocalReducedMotion.current
+    val horizon = remember { Animatable(if (animate) 0f else 1f) }
+    val chevron = remember { Animatable(if (animate) 0f else 1f) }
+    val word = remember { Animatable(if (animate) 0f else 1f) }
+    val tagline = remember { Animatable(if (animate) 0f else 1f) }
     var showProgress by remember { mutableStateOf(false) }
     val currentStatus by rememberUpdatedState(status)
     val finish by rememberUpdatedState(onFinished)
 
     LaunchedEffect(Unit) {
-        if (full) coroutineScope {
+        if (animate) coroutineScope {
             launch { horizon.animateTo(1f, tween(320, easing = Easing.Emphasized)) }
             launch { delay(120); chevron.animateTo(1f, tween(360, easing = Easing.Emphasized)) }
             launch { delay(280); word.animateTo(1f, tween(400, easing = Easing.EmphasizedDecelerate)) }
@@ -78,32 +82,35 @@ fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Un
         finish()
     }
 
-    Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AlbionLogo(size = 68.dp, horizon = horizon.value, chevron = chevron.value, color = Ink.AccentText, horizonColor = Ink.Gold)
-            Spacer(Modifier.height(36.dp))
+            AlbionLogo(size = 86.dp, horizon = horizon.value, chevron = chevron.value, color = Ink.AccentText, horizonColor = Ink.Gold)
+            Spacer(Modifier.height(28.dp))
             val w = word.value
             Text(
                 "Albion",
                 style = TextStyle(
                     fontFamily = Brand,
-                    fontSize = 68.sp,
+                    fontSize = 76.sp,
                     fontWeight = FontWeight.Normal,
-                    letterSpacing = (3f - 3f * w).sp,
+                    letterSpacing = (1.2f - 1.2f * w).sp,
                 ),
                 color = Ink.Fg,
                 modifier = Modifier.graphicsLayer {
                     alpha = w
-                    translationY = (1f - w) * 24f
+                    translationY = (1f - w) * 8f
                 },
             )
             Spacer(Modifier.height(14.dp))
             Text(
-                "BRITISH ENGLISH",
-                style = AlbionType.eyebrow.copy(letterSpacing = 4.sp),
+                "THE ENGLISH COMPANION",
+                style = AlbionType.eyebrow.copy(letterSpacing = 2.sp),
                 color = Ink.Muted,
                 modifier = Modifier.graphicsLayer { alpha = tagline.value },
             )
+            Spacer(Modifier.height(40.dp))
+            Text("A little, every day.", style = TextStyle(fontFamily = Brand, fontSize = 23.sp, fontStyle = FontStyle.Italic),
+                color = Ink.Muted, modifier = Modifier.graphicsLayer { alpha = tagline.value })
         }
 
         AnimatedVisibility(

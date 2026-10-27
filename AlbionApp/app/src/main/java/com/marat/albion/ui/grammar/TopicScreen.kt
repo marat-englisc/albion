@@ -1,5 +1,7 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.compose.foundation.background
 import com.marat.albion.ui.theme.pressScale
@@ -8,9 +10,6 @@ import com.marat.albion.data.grammar.MdParagraph
 import com.marat.albion.data.grammar.MdBlock
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
-import androidx.compose.material.icons.rounded.West
-import androidx.compose.material.icons.rounded.East
-import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,12 +30,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.List
-import androidx.compose.material.icons.rounded.Bookmark
-import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -77,7 +70,6 @@ import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.GrammarRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.flow.first
 import com.marat.albion.ui.nav.TopicQuizRoute
@@ -154,11 +146,11 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = navigator::back) {
             if (headingIndex.isNotEmpty()) {
                 Box {
-                    com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.List, "Разделы темы", { tocMenu = true })
+                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Разделы темы", { tocMenu = true })
                     DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }, containerColor = Ink.Raised) {
                         headingIndex.forEach { (index, title) ->
                             DropdownMenuItem(
@@ -173,7 +165,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                 }
             }
             Box {
-                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.TextFields, "Размер текста", { sizeMenu = true })
+                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.TextFields, "Размер текста", { sizeMenu = true })
                 DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(settings.grammarTextScale * 100).toInt()}%")
@@ -188,7 +180,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
             }
             if (topic?.kind == TopicKind.Lesson || topic?.kind == TopicKind.Reference) {
                 com.marat.albion.ui.components.RoundIconButton(
-                    if (progress?.bookmarked == true) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, "Закладка",
+                    if (progress?.bookmarked == true) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка",
                     { scope.launch { c.grammar.toggleBookmark(topicId) } },
                     tint = if (progress?.bookmarked == true) Ink.AccentText else Ink.Fg,
                 )
@@ -309,7 +301,7 @@ private fun TopicFooter(
                     fromQuiz -> "Вернуться к тесту"
                     review != null -> "Повторить полный тест"
                     else -> "Начать проверку"
-                }, onClick = onQuiz, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                }, onClick = onQuiz, trailingIcon = AlbionIcons.ArrowForward)
             }
         }
         if (progress?.quizAt != null) {
@@ -325,7 +317,7 @@ private fun TopicFooter(
                 "Успешные полные тесты увеличивают интервал до 60 дней; менее 70% — повтор через день.",
                 style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
         }
-        GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = Icons.Rounded.Check)
+        GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = AlbionIcons.Check)
         NavArrows(onPrev, onContents, onNext)
     }
 }
@@ -334,12 +326,12 @@ private fun TopicFooter(
 @Composable
 private fun NavArrows(onPrev: (() -> Unit)?, onContents: (() -> Unit)?, onNext: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        RoundArrow(Icons.Rounded.West, "Предыдущая тема", filled = false, onClick = onPrev)
+        RoundArrow(AlbionIcons.West, "Предыдущая тема", filled = false, onClick = onPrev)
         Hairline(Modifier.weight(1f).padding(horizontal = 14.dp))
         if (onContents != null) {
             val interaction = remember { MutableInteractionSource() }
             Icon(
-                Icons.Outlined.GridView,
+                AlbionIcons.GridView,
                 contentDescription = "Оглавление",
                 tint = Ink.Soft,
                 modifier = Modifier.size(44.dp).pressScale(interaction, 0.88f)
@@ -349,7 +341,7 @@ private fun NavArrows(onPrev: (() -> Unit)?, onContents: (() -> Unit)?, onNext: 
             )
             Hairline(Modifier.weight(1f).padding(horizontal = 14.dp))
         }
-        RoundArrow(Icons.Rounded.East, "Следующая тема", filled = true, onClick = onNext)
+        RoundArrow(AlbionIcons.East, "Следующая тема", filled = true, onClick = onNext)
     }
 }
 

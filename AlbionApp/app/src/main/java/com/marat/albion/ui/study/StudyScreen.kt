@@ -1,5 +1,11 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.theme.LocalFeedback
+import com.marat.albion.ui.theme.LocalReducedMotion
+import com.marat.albion.ui.theme.Brand
+
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -42,9 +48,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Undo
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
@@ -61,9 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -109,7 +110,8 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     val state by vm.state.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val audio = rememberCardAudio(c.audio)
-    val haptic = LocalHapticFeedback.current
+    val feedback = LocalFeedback.current
+    val reduced = LocalReducedMotion.current
 
     val current = state.current
     LaunchedEffect(current?.card?.id, state.revealed) {
@@ -121,7 +123,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     }
 
     val rate: (Rating) -> Unit = { rating ->
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        feedback.selection()
         c.audio.stop()
         vm.answer(rating)
     }
@@ -139,7 +141,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     }
 
     Column(
-        Modifier.fillMaxSize().background(Ink.Bg)
+        Modifier.fillMaxSize().paperSurface()
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
@@ -160,18 +162,18 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
                         transitionSpec = {
                             val dir = if (state.lastRating == Rating.Again) -1 else 1
                             (fadeIn(tween(180, delayMillis = 30)) +
-                                scaleIn(tween(240, easing = Easing.Emphasized), initialScale = 0.97f) +
-                                slideInVertically(tween(240, easing = Easing.Emphasized)) { it / 24 }) togetherWith
-                                (slideOutHorizontally(tween(220, easing = Easing.EmphasizedAccelerate)) { dir * it } +
+                                scaleIn(tween(240, easing = Easing.Emphasized), initialScale = if (reduced) 1f else 0.995f) +
+                                slideInVertically(tween(240, easing = Easing.Emphasized)) { if (reduced) 0 else it / 40 }) togetherWith
+                                (slideOutHorizontally(tween(220, easing = Easing.EmphasizedAccelerate)) { if (reduced) 0 else dir * it / 7 } +
                                     fadeOut(tween(160)) +
-                                    scaleOut(tween(220), targetScale = 0.97f))
+                                    scaleOut(tween(220), targetScale = if (reduced) 1f else 0.995f))
                         },
                         label = "card",
                     ) { sc ->
                         val isCurrent = sc.card.id == current.card.id
                         FlipCard(
                             revealed = if (isCurrent) state.revealed else true,
-                            onReveal = vm::reveal,
+                            onReveal = { feedback.reveal(); vm.reveal() },
                             front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
                             back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
                         )
@@ -181,8 +183,8 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
                     AnimatedContent(
                         targetState = state.revealed,
                         transitionSpec = {
-                            (fadeIn(tween(160, delayMillis = 30)) + slideInVertically(tween(200, easing = Easing.Emphasized)) { it / 4 }) togetherWith
-                                (fadeOut(tween(100)) + slideOutVertically(tween(140)) { it / 4 })
+                            (fadeIn(tween(160, delayMillis = 30)) + slideInVertically(tween(200, easing = Easing.Emphasized)) { if (reduced) 0 else it / 12 }) togetherWith
+                                (fadeOut(tween(100)) + slideOutVertically(tween(140)) { if (reduced) 0 else it / 12 })
                         },
                         label = "actions",
                     ) { revealed ->
@@ -204,11 +206,11 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
     val title = deck?.title ?: listOfNotNull("Все колоды", state.current?.let { Deck.byId(it.card.deck)?.title }).joinToString(" · ")
     Column {
         Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.Close, "Закрыть", onClose, spin = 90f)
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, spin = 90f)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
                 Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center, maxLines = 2)
             }
-            com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
         if (state.answerLimit != null) {
             Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -244,8 +246,8 @@ private fun CardStackShadow(remaining: Int) {
             Modifier.fillMaxSize()
                 .padding(horizontal = inset)
                 .offset(y = (k * 8).dp)
-                .border(1.dp, Ink.Line.copy(alpha = 1f - k * 0.3f), RoundedCornerShape(10.dp))
-                .background(Ink.Raised, RoundedCornerShape(10.dp)),
+                .border(1.dp, Ink.Line.copy(alpha = 1f - k * 0.3f), RoundedCornerShape(6.dp))
+                .background(Ink.Raised, RoundedCornerShape(6.dp)),
         )
     }
 }
@@ -258,19 +260,20 @@ private fun FlipCard(
     front: @Composable () -> Unit,
     back: @Composable () -> Unit,
 ) {
+    val reduced = LocalReducedMotion.current
     val rotation by animateFloatAsState(
         targetValue = if (revealed) 180f else 0f,
-        animationSpec = tween(300, easing = Easing.Emphasized),
+        animationSpec = tween(if (reduced) 0 else 380, easing = Easing.Standard),
         label = "flip",
     )
-    val dip = 1f - 0.03f * sin((rotation / 180f) * PI).toFloat()
-    val shape = RoundedCornerShape(10.dp)
+    val dip = 1f - 0.008f * sin((rotation / 180f) * PI).toFloat()
+    val shape = RoundedCornerShape(6.dp)
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
-                rotationY = rotation
+                rotationY = if (reduced) 0f else rotation
                 scaleX = dip; scaleY = dip
                 cameraDistance = 16f * density
             }
@@ -288,7 +291,7 @@ private fun FlipCard(
                 Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
                     style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
             } else {
-                Box(Modifier.fillMaxSize().graphicsLayer { rotationY = 180f }.verticalScroll(rememberScrollState())) { back() }
+                Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }.verticalScroll(rememberScrollState())) { back() }
             }
         }
     }
@@ -326,18 +329,19 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Rating.Easy -> Triple(Ink.AccentSoft, Ink.AccentText, Ink.AccentSoft)
     }
     val interaction = remember { MutableInteractionSource() }
-    val appear = remember { Animatable(0f) }
+    val reduced = LocalReducedMotion.current
+    val appear = remember { Animatable(if (reduced) 1f else 0f) }
     LaunchedEffect(Unit) {
-        delay(index * 20L)
-        appear.animateTo(1f, tween(180, easing = Easing.EmphasizedDecelerate))
+        if (!reduced) delay(index * 20L)
+        appear.animateTo(1f, tween(if (reduced) 0 else 180, easing = Easing.EmphasizedDecelerate))
     }
     Column(
         modifier.fillMaxHeight().heightIn(min = 66.dp)
             .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
             .pressScale(interaction, 0.96f)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(6.dp))
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(10.dp))
+            .border(1.dp, border, RoundedCornerShape(6.dp))
             .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -353,6 +357,8 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
 /** Summary of the completed study session. */
 @Composable
 private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) {
+    val feedback = LocalFeedback.current
+    LaunchedEffect(Unit) { if (state.answered > 0) feedback.complete() }
     Box(Modifier.fillMaxSize()) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp),
@@ -362,7 +368,7 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
 
         com.marat.albion.ui.components.AlbionLogo(size = 56.dp, color = Ink.AccentText, horizonColor = Ink.Gold)
         Spacer(Modifier.height(24.dp))
-        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
+        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium.copy(fontFamily = Brand), color = Ink.Fg)
         Spacer(Modifier.height(10.dp))
         Text(
             if (state.answered == 0) "Сейчас в этой колоде нечего повторять."

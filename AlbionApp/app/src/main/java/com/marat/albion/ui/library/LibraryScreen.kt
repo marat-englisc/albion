@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.EmptyState
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -22,10 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -43,7 +41,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -70,6 +67,7 @@ import com.marat.albion.ui.nav.ReaderRoute
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.theme.headingFamily
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
@@ -104,7 +102,7 @@ fun LibraryScreen(navigator: Navigator) {
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp)) {
             item {
                 Box(Modifier.reveal(reveal, 0)) {
@@ -129,7 +127,7 @@ fun LibraryScreen(navigator: Navigator) {
                         PrimaryButton(
                             text = "Продолжить · ${continueBook.book.title}",
                             onClick = { navigator.open(ReaderRoute(continueBook.book.id)) },
-                            trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                            trailingIcon = AlbionIcons.ArrowForward,
 
                             modifier = Modifier,
                         )
@@ -167,7 +165,7 @@ fun LibraryScreen(navigator: Navigator) {
                     }
                     GhostButton(if (importing) "Открываю…" else "Добавить книгу · TXT, EPUB, PDF", onClick = {
                         if (!importing) picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream"))
-                    }, icon = Icons.Rounded.Add)
+                    }, icon = AlbionIcons.Add)
                     importError?.let {
                         Spacer(Modifier.height(10.dp))
                         Text(it, style = MaterialTheme.typography.bodySmall, color = Ink.Fg)
@@ -182,7 +180,7 @@ fun LibraryScreen(navigator: Navigator) {
 
                         if (model == ModelState.Missing || model == ModelState.Failed) {
                             Box(Modifier.size(40.dp).background(Ink.WarmSoft, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
-                                Icon(Icons.Rounded.CloudOff, null, tint = Ink.Warm, modifier = Modifier.size(20.dp))
+                                Icon(AlbionIcons.CloudOff, null, tint = Ink.Warm, modifier = Modifier.size(20.dp))
                             }
                             Spacer(Modifier.width(12.dp))
                         }
@@ -231,10 +229,10 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
     var menu by remember { mutableStateOf(false) }
     Column(modifier.fillMaxWidth().pressScale(interaction, 0.985f).clickable(interaction, indication = null, onClick = onOpen)) {
         Row(Modifier.padding(vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            BookCover(item.book.title, Modifier.size(width = 58.dp, height = 84.dp))
+            BookCover(item.book.title, Modifier.size(width = 64.dp, height = 92.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.book.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(item.book.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(item.book.title)), color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -259,7 +257,7 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
             }
             if (onDelete != null) {
                 Box {
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreHoriz, "Ещё", tint = Ink.Muted) }
+                    IconButton(onClick = { menu = true }) { Icon(AlbionIcons.MoreHoriz, "Ещё", tint = Ink.Muted) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
                         DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete() })
                     }
@@ -276,14 +274,21 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
 
     val (cover, ink) = when (Math.floorMod(title.hashCode(), 3)) {
         0 -> Ink.Accent to Ink.OnAccent
-        1 -> Color(0xFF36473D) to Ink.Ivory
-        else -> Color(0xFF35383C) to Ink.Ivory
+        1 -> Color(0xFF24272B) to Ink.Ivory
+        else -> Color(0xFF861F39) to Ink.Ivory
     }
     androidx.compose.foundation.layout.BoxWithConstraints(
-        modifier.background(cover, RoundedCornerShape(6.dp))
+        modifier.background(cover, RoundedCornerShape(2.dp))
 
-            .drawBehind { drawRect(Ink.Gold.copy(alpha = 0.8f), size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)) }
-            .padding(start = 9.dp, end = 7.dp, top = 7.dp, bottom = 7.dp),
+            .drawBehind {
+                val gold = Color(0xFFC6A66D)
+                drawRect(gold.copy(alpha = 0.55f), size = androidx.compose.ui.geometry.Size(2.dp.toPx(), size.height))
+                val inset = 5.dp.toPx()
+                drawRect(gold.copy(alpha = 0.65f), androidx.compose.ui.geometry.Offset(inset, inset),
+                    androidx.compose.ui.geometry.Size((size.width - 2 * inset).coerceAtLeast(0f), (size.height - 2 * inset).coerceAtLeast(0f)),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(0.5.dp.toPx()))
+            }
+            .padding(start = 10.dp, end = 9.dp, top = 10.dp, bottom = 10.dp),
     ) {
         // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()

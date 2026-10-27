@@ -104,7 +104,7 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable }
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-            awaitNode { it.text?.toString() == "Короткое занятие" }
+            awaitNode { it.text?.toString() == "Время для английского" }
             awaitNode { it.text?.toString()?.startsWith("Начать · ") == true }
         }
     }

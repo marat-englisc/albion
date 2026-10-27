@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -24,16 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckBox
-import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.ReportProblem
-import androidx.compose.material.icons.outlined.Route
-import androidx.compose.material.icons.outlined.TaskAlt
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.FormatQuote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -85,6 +76,7 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.Reading
 import com.marat.albion.ui.theme.Serif
 
 /** Настройки отрисовки: масштаб текста и обработчик вики-ссылок. */
@@ -99,7 +91,7 @@ internal operator fun TextUnit.times(f: Float): TextUnit = (value * f).sp
 @Composable
 private fun bodyStyle(): TextStyle {
     val s = LocalMdEnv.current.scale
-    return MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp * s, lineHeight = 26.sp * s, color = Ink.Text)
+    return MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading, fontSize = 17.sp * s, lineHeight = 29.sp * s, color = Ink.Text)
 }
 
 /** Один верхнеуровневый блок — удобно класть по одному в LazyColumn. */
@@ -246,7 +238,7 @@ private fun ListView(list: MdList, modifier: Modifier) {
                 Box(Modifier.width(if (list.ordered) 30.dp else 20.dp).height(lineHeightDp), contentAlignment = Alignment.CenterStart) {
                     when {
                         item.checked != null -> Icon(
-                            if (item.checked) Icons.Outlined.CheckBox else Icons.Outlined.CheckBoxOutlineBlank,
+                            if (item.checked) AlbionIcons.CheckBox else AlbionIcons.CheckBoxOutlineBlank,
                             null, tint = Ink.Faint, modifier = Modifier.size(18.dp),
                         )
                         list.ordered -> Text("${list.start + index}", style = AlbionType.index.copy(color = Ink.Soft, fontSize = 16.sp * LocalMdEnv.current.scale))
@@ -272,7 +264,7 @@ private fun ListView(list: MdList, modifier: Modifier) {
 @Composable
 private fun TableView(table: MdTable, modifier: Modifier) {
     val scale = LocalMdEnv.current.scale
-    val cellStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp * scale, lineHeight = 20.sp * scale, color = Ink.Text)
+    val cellStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = Reading, fontSize = 14.sp * scale, lineHeight = 22.sp * scale, color = Ink.Text)
     val headStyle = cellStyle.copy(fontWeight = FontWeight.SemiBold, color = Ink.Fg)
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
@@ -383,13 +375,13 @@ private enum class Frame { Box, Rule, Filled, Plain }
 private data class CalloutLook(val icon: ImageVector, val frame: Frame)
 
 private fun look(kind: String): CalloutLook = when (kind) {
-    "abstract", "summary", "tldr" -> CalloutLook(Icons.Outlined.Info, Frame.Box)
-    "tip", "hint" -> CalloutLook(Icons.Outlined.Lightbulb, Frame.Rule)
-    "warning", "caution", "attention", "danger", "error" -> CalloutLook(Icons.Outlined.ReportProblem, Frame.Filled)
-    "success", "check", "done" -> CalloutLook(Icons.Outlined.TaskAlt, Frame.Plain)
-    "example" -> CalloutLook(Icons.Outlined.Route, Frame.Plain)
-    "quote", "cite" -> CalloutLook(Icons.Rounded.FormatQuote, Frame.Rule)
-    else -> CalloutLook(Icons.Outlined.Info, Frame.Rule)
+    "abstract", "summary", "tldr" -> CalloutLook(AlbionIcons.Info, Frame.Box)
+    "tip", "hint" -> CalloutLook(AlbionIcons.Lightbulb, Frame.Rule)
+    "warning", "caution", "attention", "danger", "error" -> CalloutLook(AlbionIcons.ReportProblem, Frame.Filled)
+    "success", "check", "done" -> CalloutLook(AlbionIcons.TaskAlt, Frame.Plain)
+    "example" -> CalloutLook(AlbionIcons.Route, Frame.Plain)
+    "quote", "cite" -> CalloutLook(AlbionIcons.FormatQuote, Frame.Rule)
+    else -> CalloutLook(AlbionIcons.Info, Frame.Rule)
 }
 
 @Composable
@@ -417,7 +409,7 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
                 Icon(l.icon, null, tint = Ink.Fg, modifier = Modifier.size(17.dp))
                 Spacer(Modifier.width(10.dp))
                 InlineText(c.title.uppercase(), Modifier.weight(1f), style = AlbionType.eyebrow.copy(color = Ink.Fg, fontSize = 13.sp * scale))
-                if (c.foldable) Icon(Icons.Rounded.ExpandMore, if (open) "Свернуть" else "Развернуть", tint = Ink.Fg, modifier = Modifier.rotate(arrow))
+                if (c.foldable) Icon(AlbionIcons.ExpandMore, if (open) "Свернуть" else "Развернуть", tint = Ink.Fg, modifier = Modifier.rotate(arrow))
             }
             AnimatedVisibility(
                 open,

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
@@ -20,8 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -192,7 +191,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             when {
-                answered -> PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                answered -> PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
                 typing -> GameAnswerActions(onCheck = { checkTyped() }, onSecondary = { checkTyped(giveUp = true) })
                 else -> Spacer(Modifier.height(1.dp))
             }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.paperSurface
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
@@ -241,7 +242,7 @@ private fun GameFrame(
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },
             )
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
                 AlbionLogo(size = 40.dp, color = Ink.Faint)
             }
             Phase.Summary -> GameSummary(
@@ -255,7 +256,7 @@ private fun GameFrame(
                 scoreLabel = scoreLabel,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(Ink.Bg)
+                Modifier.fillMaxSize().paperSurface()
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })

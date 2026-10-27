@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.draw.clip
@@ -54,17 +56,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.automirrored.outlined.Rule
-import androidx.compose.material.icons.outlined.Mic
-import androidx.compose.material.icons.outlined.RecordVoiceOver
-import androidx.compose.material.icons.outlined.Timeline
-import androidx.compose.material.icons.outlined.ViewWeek
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,6 +87,8 @@ import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.LocalReducedMotion
+import com.marat.albion.ui.theme.LocalFeedback
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 import kotlinx.serialization.Serializable
@@ -169,14 +162,14 @@ enum class Game(
 
     val icon: ImageVector
         get() = when (this) {
-            TYPE_ANSWER -> Icons.Outlined.Keyboard
-            IRREGULAR -> Icons.Outlined.Timeline
-            SHADOWING -> Icons.Outlined.RecordVoiceOver
-            PRONUNCIATION -> Icons.Outlined.Mic
-            GRAMMAR_CHOICE -> Icons.AutoMirrored.Outlined.Rule
-            GRAMMAR_GAP -> Icons.Outlined.EditNote
-            SENTENCE -> Icons.Outlined.ViewWeek
-            TENSES -> Icons.Outlined.History
+            TYPE_ANSWER -> AlbionIcons.Keyboard
+            IRREGULAR -> AlbionIcons.Timeline
+            SHADOWING -> AlbionIcons.RecordVoiceOver
+            PRONUNCIATION -> AlbionIcons.Mic
+            GRAMMAR_CHOICE -> AlbionIcons.Rule
+            GRAMMAR_GAP -> AlbionIcons.EditNote
+            SENTENCE -> AlbionIcons.ViewWeek
+            TENSES -> AlbionIcons.History
         }
 
     /** Как называть единицу занятия: «10 слов», «10 фраз». */
@@ -208,14 +201,14 @@ fun GameSetup(
     onOnlyMistakes: (Boolean) -> Unit = {},
 ) {
     val reveal = rememberReveal()
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
                 "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
         }
         SetupBody(
             start = {
-                PrimaryButton("Начать", onClick = onStart, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                PrimaryButton("Начать", onClick = onStart, trailingIcon = AlbionIcons.ArrowForward,
                     modifier = Modifier.reveal(reveal, 3))
             },
         ) {
@@ -291,7 +284,7 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
     Column(Modifier.padding(vertical = 6.dp).selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         options.forEachIndexed { i, label ->
             val isSel = i == selected
-            val t by animateFloatAsState(if (isSel) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 400f), label = "opt")
+            val t by animateFloatAsState(if (isSel) 1f else 0f, tween(180), label = "opt")
             val interaction = remember { MutableInteractionSource() }
             Row(
                 Modifier.fillMaxWidth()
@@ -324,7 +317,7 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
     Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
         Row(Modifier.fillMaxWidth().padding(start = 10.dp, end = gutter, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             // Кнопка не принимает фокус: клавиатура по «Готово» не должна перескакивать на неё.
-            RoundIconButton(Icons.Rounded.Close, "Закрыть", onClose, Modifier.focusProperties { canFocus = false }, spin = 90f)
+            RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, Modifier.focusProperties { canFocus = false }, spin = 90f)
             Spacer(Modifier.width(6.dp))
             Eyebrow(title, Modifier.weight(1f), color = Ink.Soft, maxLines = 1)
             Spacer(Modifier.width(10.dp))
@@ -336,7 +329,7 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
                 modifier = Modifier.background(Ink.Surface, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }
-        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), height = 8.dp)
+        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), height = 2.dp)
     }
 }
 
@@ -417,14 +410,15 @@ fun GameSummary(
     title: String = game?.title.orEmpty(),
     restartLabel: String = "Ещё раз",
 ) {
+    val feedback = LocalFeedback.current
     val ring = remember { Animatable(0f) }
     val ratio = if (total == 0) 0f else correct.toFloat() / total
-    LaunchedEffect(Unit) { ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
+    LaunchedEffect(Unit) { if (total > 0) feedback.complete(); ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
     val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
-    Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Box(Modifier.fillMaxSize().paperSurface()) {
     Column(
-        Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars)
+        Modifier.fillMaxSize().paperSurface().windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(horizontal = gutter)
             .windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp, top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -472,7 +466,8 @@ fun GameSummary(
                 ratio >= 0.4f -> "Keep going."
                 else -> "Practice makes perfect."
             },
-            style = if (LocalNarrow.current) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall,
+            style = (if (LocalNarrow.current) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall)
+                .copy(fontFamily = if (total == 0) com.marat.albion.ui.theme.Cyrillic else com.marat.albion.ui.theme.Brand),
             color = Ink.Fg,
             textAlign = TextAlign.Center,
             modifier = Modifier.reveal(reveal, 1),
@@ -552,11 +547,12 @@ fun rememberMicAccess(onDenied: () -> Unit = {}): (run: () -> Unit) -> Unit {
 
 /** «Встряхнуть» элемент при неверном ответе: значение [trigger] меняется — элемент дрожит. */
 fun Modifier.shakeOn(trigger: Int): Modifier = composed {
+    val reduced = LocalReducedMotion.current
     val offset = remember { Animatable(0f) }
-    val px = with(LocalDensity.current) { 10.dp.toPx() }
+    val px = with(LocalDensity.current) { 3.dp.toPx() }
     LaunchedEffect(trigger) {
-        if (trigger == 0) return@LaunchedEffect
-        for (k in listOf(1f, -0.8f, 0.6f, -0.4f, 0.2f, 0f)) offset.animateTo(k * px, tween(55))
+        if (trigger == 0 || reduced) return@LaunchedEffect
+        for (k in listOf(1f, -0.5f, 0f)) offset.animateTo(k * px, tween(55))
     }
     graphicsLayer { translationX = offset.value }
 }

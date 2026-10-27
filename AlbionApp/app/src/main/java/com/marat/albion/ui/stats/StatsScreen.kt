@@ -1,5 +1,6 @@
 package com.marat.albion.ui.stats
 
+import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -79,7 +80,7 @@ fun StatsScreen(navigator: Navigator) {
     val reveal = rememberReveal()
 
     Column(
-        Modifier.fillMaxSize().background(Ink.Bg).verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().paperSurface().verticalScroll(rememberScrollState())
             .padding(horizontal = gutter).padding(bottom = 32.dp),
     ) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }

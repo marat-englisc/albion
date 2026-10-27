@@ -1,5 +1,7 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
@@ -33,9 +35,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -113,7 +112,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val audio = rememberCardAudio(c.audio)
     val showRussian by remember { c.settings.settings.map { it.showRussian } }.collectAsStateWithLifecycle(true)
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg).imePadding()) {
+    Column(Modifier.fillMaxSize().paperSurface().imePadding()) {
         TopBar(onBack = navigator::back, title = deck.title)
         SearchField(query, { query = it }, "Поиск по-английски", Modifier.padding(horizontal = gutter))
         Row(
@@ -155,7 +154,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
     val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.Search, null, tint = lerpColor(Ink.Faint, Ink.Fg, active), modifier = Modifier.size(20.dp))
+            Icon(AlbionIcons.Search, null, tint = lerpColor(Ink.Faint, Ink.Fg, active), modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
             Box(Modifier.weight(1f)) {
                 if (value.isEmpty()) Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = Ink.Faint)
@@ -172,7 +171,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
             }
             if (value.isNotEmpty()) {
                 IconButton(onClick = { onChange("") }, modifier = Modifier.size(48.dp)) {
-                    Icon(Icons.Rounded.Clear, "Очистить", tint = Ink.Muted, modifier = Modifier.size(18.dp))
+                    Icon(AlbionIcons.Clear, "Очистить", tint = Ink.Muted, modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -183,7 +182,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
 /** Выбранный фильтр выделяется crimson-заливкой. */
 @Composable
 fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
-    val t by animateFloatAsState(if (selected) 1f else 0f, androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 500f), label = "tab")
+    val t by animateFloatAsState(if (selected) 1f else 0f, androidx.compose.animation.core.tween(180), label = "tab")
     val interaction = remember { MutableInteractionSource() }
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(50)
     Box(
@@ -244,7 +243,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     var removing by remember { mutableStateOf(false) }
     var removeError by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = navigator::back)
         val current = card ?: return@Column
         Column(

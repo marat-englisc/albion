@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -45,10 +46,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -168,50 +165,32 @@ internal fun MicButton(
     label: String? = null,
     size: Dp = 84.dp,
 ) {
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
+    val feedback = com.marat.albion.ui.theme.LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val t = rememberInfiniteTransition(label = "mic")
-    val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "wave")
-    val amp by animateFloatAsState(if (active) level else 0f, spring(stiffness = 400f), label = "amp")
-    val on by animateFloatAsState(if (active) 1f else 0f, tween(240), label = "on")
-    val face = lerpColor(Ink.Accent, Ink.ErrorFill, on)
-    val lip = lerpColor(Ink.AccentDeep, Ink.ErrorDeep, on)
-    val fg = lerpColor(Ink.OnAccent, Ink.OnError, on)
-    val ring = Ink.Error
-    val lipH = 0.dp
-    val sink by animateDpAsState(if (pressed) lipH else 0.dp, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessHigh), label = "sink")
+    val amp by animateFloatAsState(if (active && !reduced) level.coerceIn(0f, 1f) else 0f, tween(160), label = "voiceLevel")
+    val face = if (active) Ink.Accent else Ink.AccentSoft
+    val foreground = if (active) Ink.OnAccent else Ink.AccentText
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(size, size + lipH), contentAlignment = Alignment.TopCenter) {
-            if (active) {
-                // Кольца расходятся за пределы кнопки и не раздувают раскладку.
-                Canvas(Modifier.size(size)) {
-                    for (k in 0..2) {
-                        val p = (wave + k / 3f) % 1f
-                        val r = size.toPx() / 2f * (1f + p * (0.45f + amp * 0.2f))
-                        drawCircle(ring.copy(alpha = (1f - p) * 0.5f), radius = r, style = Stroke(2.dp.toPx()))
-                    }
-                }
+        Box(Modifier.size(size).pressScale(interaction, 0.985f), contentAlignment = Alignment.Center) {
+            if (active) Canvas(Modifier.size(size)) {
+                drawCircle(Ink.Gold.copy(alpha = 0.7f), radius = this.size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.dp.toPx()))
+                if (!reduced) drawArc(Ink.Gold, -90f, 360f * amp, false,
+                    topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
+                    size = androidx.compose.ui.geometry.Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
+                    style = Stroke(1.5.dp.toPx()))
             }
-            Box(
-                Modifier.size(size, size + lipH)
-                    .graphicsLayer { val s = 1f + amp * 0.08f; scaleX = s; scaleY = s }
-                    .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
-                    .drawBehind {
-                        val d = this.size.width
-                        drawCircle(face, radius = d / 2, center = Offset(d / 2, d / 2 + sink.toPx()))
-                    },
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                Box(Modifier.size(size).graphicsLayer { translationY = sink.toPx() }, contentAlignment = Alignment.Center) {
-                    AnimatedContent(targetState = active, transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) }, label = "rec") { rec ->
-                        Icon(if (rec) Icons.Rounded.Stop else Icons.Rounded.Mic, if (rec) "Остановить" else "Говорить", tint = fg, modifier = Modifier.size(size * 0.42f))
-                    }
-                }
+            Box(Modifier.size(size - 12.dp).background(face, CircleShape)
+                .border(0.5.dp, if (active) Ink.Gold else Ink.Line, CircleShape)
+                .clickable(interaction, indication = null, role = Role.Button) { feedback.selection(); onClick() },
+                contentAlignment = Alignment.Center) {
+                Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,
+                    if (active) "Остановить" else "Говорить", tint = foreground, modifier = Modifier.size(size * 0.36f))
             }
         }
         if (label != null) {
             Spacer(Modifier.height(8.dp))
-            Text(label, style = MaterialTheme.typography.labelMedium, color = if (active) Ink.Error else Ink.Soft)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
         }
     }
 }
@@ -315,13 +294,13 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
                 })
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (!done) GhostButton("Ещё попытка · ${3 - attempts}", onClick = ::listen, icon = Icons.Rounded.Mic)
+                    if (!done) GhostButton("Ещё попытка · ${3 - attempts}", onClick = ::listen, icon = AlbionIcons.Mic)
                     PrimaryButton("Дальше", onClick = {
                         checker.reset()
                         val ok = best >= PASS
                         vm.record(ok, Mistake(card.ipa, lastHeard, card.term))
                         vm.next()
-                    }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                    }, trailingIcon = AlbionIcons.ArrowForward)
                 }
             }
         }

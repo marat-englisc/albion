@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -26,13 +28,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.List
-import androidx.compose.material.icons.rounded.Bookmark
-import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,7 +70,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.rounded.BorderColor
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.draw.drawBehind
@@ -103,7 +97,8 @@ import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.theme.Reading
+import com.marat.albion.ui.theme.Brand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
@@ -222,21 +217,21 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     var selectionPage by remember { mutableStateOf(-1) }
 
     val scale = settings.readerTextScale
-    val body = TextStyle(fontFamily = Serif, fontSize = (18 * scale).sp, lineHeight = (29 * scale).sp, color = Ink.Text)
-    val heading = TextStyle(fontFamily = Serif, fontSize = (28 * scale).sp, lineHeight = (34 * scale).sp, color = Ink.Fg)
+    val body = TextStyle(fontFamily = Reading, fontSize = (18 * scale).sp, lineHeight = (29 * scale).sp, color = Ink.Text)
+    val heading = TextStyle(fontFamily = Brand, fontSize = (28 * scale).sp, lineHeight = (34 * scale).sp, color = Ink.Fg)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book
 
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         // На узком экране название не помещается рядом с четырьмя кнопками — глава и так видна внизу.
         TopBar(onBack = navigator::back, title = vm.title.takeUnless { com.marat.albion.ui.components.LocalNarrow.current }) {
-            com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.List, "Оглавление", { showToc = true })
-            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.Bookmarks, "Закладки", { showBookmarks = true })
-            com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.BorderColor, "Выделения и заметки", { showHighlights = true })
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Оглавление", { showToc = true })
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Закладки", { showBookmarks = true })
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.BorderColor, "Выделения и заметки", { showHighlights = true })
             Box {
-                com.marat.albion.ui.components.RoundIconButton(Icons.Rounded.TextFields, "Размер текста", { sizeMenu = true })
+                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.TextFields, "Размер текста", { sizeMenu = true })
                 DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(scale * 100).toInt()}%")
@@ -403,7 +398,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             vm.toggleBookmark(page, next, snippet)
                         }
                     }) {
-                        Icon(if (marked) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, "Закладка", tint = Ink.Fg)
+                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка", tint = Ink.Fg)
                     }
                 }
             }
@@ -727,7 +722,7 @@ private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.co
 private fun SheetRow(primary: String, secondary: String, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(Modifier.padding(vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(primary, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Serif), color = Ink.Fg, modifier = Modifier.weight(1f))
+            Text(primary, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading), color = Ink.Fg, modifier = Modifier.weight(1f))
             Text(secondary, style = AlbionType.index)
         }
         Hairline()
@@ -751,14 +746,14 @@ private fun HighlightRow(h: HighlightEntity, page: Int, chapter: String, onOpen:
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     Box(Modifier.width(2.dp).fillMaxHeight().background(Ink.Fg))
                     Spacer(Modifier.width(10.dp))
-                    Text(h.text, style = TextStyle(fontFamily = Serif, fontSize = 17.sp, lineHeight = 24.sp), color = Ink.Fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                    Text(h.text, style = TextStyle(fontFamily = Reading, fontSize = 17.sp, lineHeight = 24.sp), color = Ink.Fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
                 }
                 if (h.note.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
                     Text(h.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                 }
             }
-            IconButton(onClick = onDelete) { Icon(Icons.Rounded.Close, "Удалить выделение", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Close, "Удалить выделение", tint = Ink.Muted) }
         }
         Hairline()
     }
@@ -773,7 +768,7 @@ private fun BookmarkRow(b: BookmarkEntity, page: Int, chapter: String, onOpen: (
                 Spacer(Modifier.height(6.dp))
                 Text(b.snippet, style = MaterialTheme.typography.bodyMedium, color = Ink.Text, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = onDelete) { Icon(Icons.Rounded.Close, "Удалить закладку", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Close, "Удалить закладку", tint = Ink.Muted) }
         }
         Hairline()
     }

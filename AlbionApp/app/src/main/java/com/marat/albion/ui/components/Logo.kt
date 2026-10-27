@@ -1,27 +1,26 @@
 package com.marat.albion.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.marat.albion.ui.theme.Brand
 import com.marat.albion.ui.theme.Ink
 
-/**
- * Знак Albion: шеврон «Λ» — буква A без перекладины — и линия горизонта,
- * которая проходит сквозь него и выходит за края. Буква и белые скалы
- * над морем одновременно. Координаты в поле 100×100.
- *
- * [horizon] и [chevron] (0…1) позволяют «рисовать» знак при анимации:
- * горизонт растёт от центра, ноги шеврона поднимаются к вершине.
- */
+/** Caslon A inside a printer's frame, shared by the masthead and launch screen. */
 @Composable
 fun AlbionLogo(
     modifier: Modifier = Modifier,
@@ -31,29 +30,18 @@ fun AlbionLogo(
     color: Color = Ink.AccentText,
     horizonColor: Color = Ink.Gold,
 ) {
-    Canvas(modifier.size(size)) {
-        val u = this.size.minDimension / 100f
-        fun p(x: Float, y: Float) = Offset(x * u, y * u)
-
-        val apex = p(50f, 18f)
-        val left = p(22f, 82f)
-        val right = p(78f, 82f)
-        val legWidth = 5.5f * u
-
-        if (chevron >= 1f) {
-            val path = Path().apply {
-                moveTo(left.x, left.y); lineTo(apex.x, apex.y); lineTo(right.x, right.y)
-            }
-            drawPath(path, color, style = Stroke(width = legWidth, join = StrokeJoin.Miter, cap = StrokeCap.Butt, miter = 8f))
-        } else if (chevron > 0f) {
-            val c = chevron.coerceIn(0f, 1f)
-            drawLine(color, left, left + (apex - left) * c, strokeWidth = legWidth, cap = StrokeCap.Butt)
-            drawLine(color, right, right + (apex - right) * c, strokeWidth = legWidth, cap = StrokeCap.Butt)
+    val letterSize = with(LocalDensity.current) { (size * 0.76f).toSp() }
+    Box(modifier.size(size).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val inset = this.size.width * 0.06f
+            drawRect(horizonColor.copy(alpha = 0.7f * horizon.coerceIn(0f, 1f)),
+                Offset(inset, inset), Size(this.size.width - inset * 2, this.size.height - inset * 2), style = Stroke(0.7.dp.toPx()))
+            val span = this.size.width * 0.18f * horizon.coerceIn(0f, 1f)
+            drawLine(horizonColor, Offset(center.x - span, this.size.height * 0.88f),
+                Offset(center.x + span, this.size.height * 0.88f), 1.4.dp.toPx())
         }
-
-        if (horizon > 0f) {
-            val half = 46f * horizon.coerceIn(0f, 1f)
-            drawLine(horizonColor, p(50f - half, 64f), p(50f + half, 64f), strokeWidth = 2.6f * u, cap = StrokeCap.Butt)
-        }
+        Text("A", style = TextStyle(fontFamily = Brand, fontSize = letterSize, lineHeight = letterSize,
+            platformStyle = PlatformTextStyle(includeFontPadding = false)), color = color,
+            modifier = Modifier.graphicsLayer { alpha = chevron.coerceIn(0f, 1f); translationY = this.size.height * 0.035f })
     }
 }

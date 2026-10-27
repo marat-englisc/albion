@@ -1,7 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.components.gutter
 import android.os.SystemClock
@@ -42,10 +43,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -228,7 +225,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
     ) { phase ->
         when (phase) {
             Phase.Setup -> GrammarSetup(vm, total, onBack = navigator::back)
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
                 AlbionLogo(size = 40.dp, color = Ink.Faint)
             }
             Phase.Summary -> GameSummary(
@@ -241,7 +238,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
                 onDone = navigator::back,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(Ink.Bg)
+                Modifier.fillMaxSize().paperSurface()
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })
@@ -286,7 +283,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
         label = "quizPhase",
     ) { phase ->
         when (phase) {
-            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
+            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
                 AlbionLogo(size = 40.dp, color = Ink.Faint)
             }
             Phase.Summary -> GameSummary(
@@ -301,7 +298,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
                 restartLabel = "Пройти ещё раз",
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(Ink.Bg)
+                Modifier.fillMaxSize().paperSurface()
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 GameTopRow(null, vm.index, vm.items.size, onClose = navigator::back, title = quizTitle)
@@ -325,13 +322,13 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
 @Composable
 private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Unit) {
     val reveal = rememberReveal()
-    Column(Modifier.fillMaxSize().background(Ink.Bg)) {
+    Column(Modifier.fillMaxSize().paperSurface()) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
         }
         SetupBody(
             start = if (total == 0) null else ({
-                PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                PrimaryButton("Начать", onClick = { vm.start() }, trailingIcon = AlbionIcons.ArrowForward,
                     modifier = Modifier.reveal(reveal, 3))
             }),
         ) {
@@ -415,11 +412,11 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.AutoMirrored.Outlined.MenuBook, null, tint = Ink.AccentText, modifier = Modifier.size(18.dp))
+                Icon(AlbionIcons.MenuBook, null, tint = Ink.AccentText, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.AccentText)
                 Spacer(Modifier.width(6.dp))
-                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.AccentText, modifier = Modifier.size(16.dp))
+                Icon(AlbionIcons.ArrowForward, null, tint = Ink.AccentText, modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -472,7 +469,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
             }
         }
         AnimatedVisibility(answered, enter = fadeIn(tween(240)) + slideInVertically { it / 2 }) {
-            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward, modifier = Modifier.padding(vertical = 12.dp))
+            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward, modifier = Modifier.padding(vertical = 12.dp))
         }
     }
 }
@@ -534,8 +531,8 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
             modifier = Modifier.weight(1f),
         )
         when (state) {
-            OptionState.Correct -> Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(18.dp))
-            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Error, modifier = Modifier.size(18.dp))
+            OptionState.Correct -> Icon(AlbionIcons.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(18.dp))
+            OptionState.Wrong -> Icon(AlbionIcons.Close, null, tint = Ink.Error, modifier = Modifier.size(18.dp))
             else -> {}
         }
     }
@@ -630,7 +627,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
-                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
             } else {
                 GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
             }

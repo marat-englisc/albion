@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -39,12 +40,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BorderColor
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -161,7 +156,7 @@ fun TranslationSheet(
                     primary = false,
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Rounded.Close, "Закрыть перевод", tint = Ink.Muted)
+                    Icon(AlbionIcons.Close, "Закрыть перевод", tint = Ink.Muted)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -236,7 +231,7 @@ fun TranslationSheet(
                     stateDescription = if (details) "Развёрнуто" else "Свёрнуто"
                 }) {
                     Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = Ink.AccentText)
-                    Icon(Icons.Rounded.ExpandMore, null, tint = Ink.AccentText,
+                    Icon(AlbionIcons.ExpandMore, null, tint = Ink.AccentText,
                         modifier = Modifier.padding(start = 8.dp).rotate(if (details) 180f else 0f))
                 }
                 AnimatedVisibility(details) {
@@ -367,20 +362,20 @@ private fun HighlightSection(
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             when {
                 editing -> {
-                    SmallAction("Сохранить", Icons.Rounded.Check) {
+                    SmallAction("Сохранить", AlbionIcons.Check) {
                         if (highlight != null) onNote(highlight, draft) else { onHighlight(draft); justAdded = true }
                         editing = false
                     }
-                    SmallAction("Отмена", Icons.Rounded.Close) { editing = false; draft = highlight?.note.orEmpty() }
+                    SmallAction("Отмена", AlbionIcons.Close) { editing = false; draft = highlight?.note.orEmpty() }
                 }
                 highlight != null -> {
-                    SmallAction(if (highlight.note.isBlank()) "Добавить заметку" else "Изменить заметку", Icons.Rounded.EditNote) { editing = true }
-                    SmallAction("Убрать", Icons.Rounded.Close) { onDelete(highlight); justAdded = false }
+                    SmallAction(if (highlight.note.isBlank()) "Добавить заметку" else "Изменить заметку", AlbionIcons.EditNote) { editing = true }
+                    SmallAction("Убрать", AlbionIcons.Close) { onDelete(highlight); justAdded = false }
                 }
                 justAdded -> Eyebrow("Выделено", Modifier.padding(vertical = 8.dp))
                 else -> {
-                    SmallAction("Выделить", Icons.Rounded.BorderColor) { onHighlight(""); justAdded = true }
-                    SmallAction("Заметка", Icons.Rounded.EditNote) { editing = true }
+                    SmallAction("Выделить", AlbionIcons.BorderColor) { onHighlight(""); justAdded = true }
+                    SmallAction("Заметка", AlbionIcons.EditNote) { editing = true }
                 }
             }
         }

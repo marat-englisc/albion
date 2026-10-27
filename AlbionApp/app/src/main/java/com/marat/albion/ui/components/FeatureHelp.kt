@@ -3,8 +3,6 @@ package com.marat.albion.ui.components
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +41,7 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         c.appScope.launch { c.settings.markHelpViewed(key) }
     }
 
-    RoundIconButton(Icons.AutoMirrored.Outlined.HelpOutline, "Справка: $title", onClick = { presented = true; expanded = true }, spin = -20f)
+    RoundIconButton(AlbionIcons.HelpOutline, "Справка: $title", onClick = { presented = true; expanded = true }, spin = -20f)
     if (expanded) {
         AlertDialog(
             onDismissRequest = ::dismiss,

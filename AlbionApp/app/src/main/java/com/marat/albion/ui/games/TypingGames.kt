@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.heightIn
@@ -33,10 +34,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -198,7 +195,7 @@ internal fun VerdictLine(verdict: Verdict) {
     val pop = remember { androidx.compose.animation.core.Animatable(0.6f) }
     LaunchedEffect(verdict) {
         pop.snapTo(0.6f)
-        pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.4f, stiffness = 500f))
+        pop.animateTo(1f, androidx.compose.animation.core.tween(180))
     }
     val good = verdict != Verdict.Wrong
     val fg = if (good) Ink.Success else Ink.Error
@@ -208,7 +205,7 @@ internal fun VerdictLine(verdict: Verdict) {
             .padding(horizontal = 12.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(if (good) Icons.Rounded.Check else Icons.Rounded.Close, null, tint = fg, modifier = Modifier.size(16.dp))
+        Icon(if (good) AlbionIcons.Check else AlbionIcons.Close, null, tint = fg, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
         Eyebrow(
             when (verdict) {
@@ -389,7 +386,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
-                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     val hintLabel = if (hints < letters - 1) "Буква" else "Определение"
@@ -511,7 +508,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             label = "actions",
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
-            if (answered) PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+            if (answered) PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
             else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Я не знаю")
         }
     }

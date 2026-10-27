@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -35,10 +36,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -187,10 +184,10 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Top,
             ) {
-                RoundAction(Icons.Rounded.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
+                RoundAction(AlbionIcons.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
                 RecordButton(recording = recording, level = level, onClick = ::toggleRecord, size = micSize)
                 RoundAction(
-                    Icons.Rounded.SlowMotionVideo, "Медленно",
+                    AlbionIcons.SlowMotionVideo, "Медленно",
                     { playOriginal(0.7f, "slow:${card.id}") },
                     enabled = card.audio != null, active = playing == "slow:${card.id}", slot = micSize + MicLip,
                 )
@@ -205,7 +202,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         wave.forEach { v ->
-                            val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.1f) else 0.1f, spring(stiffness = 600f), label = "bar")
+                            val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.1f) else 0.1f, tween(160), label = "bar")
                             Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Error else Ink.LineStrong, CircleShape))
                         }
                     }
@@ -233,7 +230,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
         PrimaryButton(
             "Дальше",
             onClick = ::next,
-            trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+            trailingIcon = AlbionIcons.ArrowForward,
             modifier = Modifier.padding(vertical = 12.dp),
         )
     }

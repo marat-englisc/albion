@@ -1,5 +1,7 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.theme.paperSurface
+import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.compose.ui.text.style.TextAlign
 import com.marat.albion.ui.nav.LocalBesideDetail
@@ -34,11 +36,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Bookmark
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -212,7 +209,7 @@ fun GrammarScreen(navigator: Navigator) {
     val quiz: (Topic) -> Unit = { t -> t.number?.let { navigator.open(TopicQuizRoute(it, t.id, t.title)) } }
 
     LazyColumn(
-        Modifier.fillMaxSize().background(Ink.Bg).imePadding(),
+        Modifier.fillMaxSize().paperSurface().imePadding(),
         state = listState,
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
@@ -268,7 +265,7 @@ fun GrammarScreen(navigator: Navigator) {
                         Spacer(Modifier.height(14.dp))
                         PrimaryButton(nextStep.action,
                             onClick = { if (nextStep.kind == GrammarNextStep.Kind.Read) open(continueTopic) else quiz(continueTopic) },
-                            trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                            trailingIcon = AlbionIcons.ArrowForward)
                         if (nextStep.kind != GrammarNextStep.Kind.Read) TextButton(onClick = { open(continueTopic) }) {
                             Text("Сначала открыть правило", color = Ink.AccentText)
                         }
@@ -327,7 +324,7 @@ fun GrammarScreen(navigator: Navigator) {
                     }) {
                         Text("Как работает повторение", color = Ink.Fg, modifier = Modifier.weight(1f, fill = false))
                         Spacer(Modifier.width(6.dp))
-                        Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Muted,
+                        Icon(AlbionIcons.ExpandMore, null, tint = Ink.Muted,
                             modifier = Modifier.size(18.dp).rotate(if (reviewDetails) 180f else 0f))
                     }
                     AnimatedVisibility(reviewDetails) {
@@ -350,7 +347,7 @@ fun GrammarScreen(navigator: Navigator) {
                     ) {
                         Text("Как заниматься · темы по уровням", style = MaterialTheme.typography.bodyMedium,
                             color = Ink.Soft, modifier = Modifier.weight(1f))
-                        Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null,
+                        Icon(AlbionIcons.ArrowForward, contentDescription = null,
                             tint = Ink.Soft, modifier = Modifier.size(20.dp))
                     }
                 }
@@ -435,7 +432,7 @@ private fun ChapterRow(index: Int, title: String, done: Int, total: Int, open: B
                 Spacer(Modifier.height(4.dp))
                 Text(if (done == total) "Освоено" else "Освоено $done из $total", style = MaterialTheme.typography.bodySmall, color = if (done == total) Ink.Fg else Ink.Muted)
             }
-            Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Muted, modifier = Modifier.rotate(arrow))
+            Icon(AlbionIcons.ExpandMore, null, tint = Ink.Muted, modifier = Modifier.rotate(arrow))
         }
         ThinProgress(done.toFloat() / total.coerceAtLeast(1))
     }
@@ -467,7 +464,7 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
                 }
             }
             if (progress?.bookmarked == true) {
-                Icon(Icons.Rounded.Bookmark, null, tint = Ink.Fg, modifier = Modifier.size(15.dp))
+                Icon(AlbionIcons.Bookmark, null, tint = Ink.Fg, modifier = Modifier.size(15.dp))
                 Spacer(Modifier.width(8.dp))
             }
             LevelBadge(t.level)
@@ -478,7 +475,7 @@ private fun TopicRow(t: Topic, progress: GrammarProgressEntity?, modifier: Modif
                     .border(1.dp, if (mastered) Ink.Fg else Ink.LineStrong, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                if (mastered) Icon(Icons.Rounded.Check, null, tint = Ink.Bg, modifier = Modifier.size(12.dp))
+                if (mastered) Icon(AlbionIcons.Check, null, tint = Ink.Bg, modifier = Modifier.size(12.dp))
             }
         }
         Hairline()

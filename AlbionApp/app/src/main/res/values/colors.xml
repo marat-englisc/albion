@@ -1,4 +1,5 @@
 <resources>
     <color name="ic_background">#861F39</color>
     <color name="app_background">#F6F1E7</color>
+    <color name="logo_ink">#861F39</color>
 </resources>

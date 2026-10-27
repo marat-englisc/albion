@@ -50,9 +50,10 @@ fun rememberReveal(): RevealController = remember { RevealController() }
 
 fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 25, duration: Int = 260): Modifier = composed {
     val delayMs = (index * step).coerceAtMost(160)
-    val skip = remember { controller.elapsed() > delayMs + 150 }
+    val reduced = LocalReducedMotion.current
+    val skip = remember { reduced || controller.elapsed() > delayMs + 150 }
     val progress = remember { Animatable(if (skip) 1f else 0f) }
-    val distance = with(LocalDensity.current) { 12.dp.toPx() }
+    val distance = with(LocalDensity.current) { 7.dp.toPx() }
     LaunchedEffect(Unit) {
         if (!skip) {
             delay((delayMs - controller.elapsed()).coerceAtLeast(0))
@@ -68,9 +69,10 @@ fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 25, d
 
 /** Пружинное «вдавливание» при нажатии. */
 fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.97f): Modifier = composed {
+    val reduced = LocalReducedMotion.current
     val isPressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        if (isPressed) maxOf(pressed, 0.97f) else 1f,
+        if (isPressed && !reduced) maxOf(pressed, 0.985f) else 1f,
         tween(140, easing = Easing.Standard),
         label = "press",
     )
@@ -80,9 +82,10 @@ fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 
 /** Число, которое «набегает» при появлении и плавно меняется дальше. */
 @Composable
 fun AnimatedNumber(value: Int, style: TextStyle, color: Color = Color.Unspecified, suffix: String = "") {
-    var target by remember { mutableStateOf(0) }
+    val reduced = LocalReducedMotion.current
+    var target by remember { mutableStateOf(if (reduced) value else 0) }
     LaunchedEffect(value) { target = value }
-    val shown by animateIntAsState(target, tween(360, easing = Easing.Emphasized), label = "number")
+    val shown by animateIntAsState(target, tween(if (reduced) 0 else 360, easing = Easing.Standard), label = "number")
     Text("$shown$suffix", style = style, color = color)
 }
 
