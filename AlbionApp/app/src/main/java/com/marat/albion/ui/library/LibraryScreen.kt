@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.library.LibraryBook
 import com.marat.albion.data.library.ModelState
+import com.marat.albion.ui.components.CatalogueCard
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
@@ -124,13 +125,10 @@ fun LibraryScreen(navigator: Navigator) {
             if (continueBook != null) {
                 item {
                     Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)) {
-                        PrimaryButton(
-                            text = "Продолжить · ${continueBook.book.title}",
-                            onClick = { navigator.open(ReaderRoute(continueBook.book.id)) },
-                            trailingIcon = AlbionIcons.ArrowForward,
-
-                            modifier = Modifier,
-                        )
+                        CatalogueCard(label = "Reading", title = continueBook.book.title,
+                            description = "Продолжить чтение · ${(continueBook.progress * 100).toInt()}%",
+                            ribbon = true, progress = continueBook.progress,
+                            onClick = { navigator.open(ReaderRoute(continueBook.book.id)) })
                     }
                 }
             }
@@ -282,13 +280,19 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
 
             .drawBehind {
                 val gold = Color(0xFFC6A66D)
-                drawRect(gold.copy(alpha = 0.55f), size = androidx.compose.ui.geometry.Size(2.dp.toPx(), size.height))
-                val inset = 5.dp.toPx()
+                val spine = 7.dp.toPx()
+                drawRect(Color(0xFF66172C), size = androidx.compose.ui.geometry.Size(spine, size.height))
+                for (baseY in listOf(11.dp.toPx(), size.height - 17.dp.toPx())) repeat(3) { i ->
+                    val y = baseY + i * 2.5.dp.toPx()
+                    drawLine(gold, androidx.compose.ui.geometry.Offset(1.5.dp.toPx(), y),
+                        androidx.compose.ui.geometry.Offset(spine - 1.5.dp.toPx(), y), 0.7.dp.toPx())
+                }
+                val inset = 9.dp.toPx()
                 drawRect(gold.copy(alpha = 0.65f), androidx.compose.ui.geometry.Offset(inset, inset),
                     androidx.compose.ui.geometry.Size((size.width - 2 * inset).coerceAtLeast(0f), (size.height - 2 * inset).coerceAtLeast(0f)),
                     style = androidx.compose.ui.graphics.drawscope.Stroke(0.5.dp.toPx()))
             }
-            .padding(start = 10.dp, end = 9.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 13.dp, end = 11.dp, top = 12.dp, bottom = 12.dp),
     ) {
         // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()

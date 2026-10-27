@@ -1,5 +1,7 @@
 package com.marat.albion
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
@@ -11,26 +13,20 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.marat.albion.data.settings.ThemeMode
 import com.marat.albion.ui.intro.IntroScreen
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
 import com.marat.albion.ui.theme.AlbionExperience
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.paletteFor
 import com.marat.albion.ui.theme.initializeTypography
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.launch
@@ -45,31 +41,17 @@ class MainActivity : ComponentActivity() {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         } else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         val container = (application as AlbionApp).container
-        // Тему читаем до первого кадра, чтобы светлая тема не «моргала» тёмной.
         val initial = runBlocking { container.settings.current() }
-        val systemDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-            android.content.res.Configuration.UI_MODE_NIGHT_YES
-        Ink.palette = paletteFor(isDark(initial.themeMode, systemDark))
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Ink.Fg.toArgb()),
+        )
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Ink.Bg.toArgb()))
 
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
-            val dark = isDark(settings.themeMode, isSystemInDarkTheme())
-            val palette = paletteFor(dark)
-
-            // Значки статус-бара и навигации — светлые на тёмной теме, тёмные на светлой.
-            DisposableEffect(palette) {
-                enableEdgeToEdge(
-                    statusBarStyle = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
-                    else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
-                    navigationBarStyle = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
-                    else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
-                )
-                window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(palette.bg.toArgb()))
-                onDispose {}
-            }
-
             CompositionLocalProvider(LocalAppContainer provides container) {
-                AlbionTheme(dark = dark) {
+                AlbionTheme {
                     AlbionExperience(settings) {
                         // Заставка — только при холодном старте; приложение под ней
                         // начинает рисоваться в момент ухода заставки, чтобы каскадные
@@ -100,9 +82,4 @@ class MainActivity : ComponentActivity() {
         (application as AlbionApp).container.audio.stop()
     }
 
-    private fun isDark(mode: ThemeMode, systemDark: Boolean) = when (mode) {
-        ThemeMode.DARK -> true
-        ThemeMode.LIGHT -> false
-        ThemeMode.SYSTEM -> systemDark
-    }
 }

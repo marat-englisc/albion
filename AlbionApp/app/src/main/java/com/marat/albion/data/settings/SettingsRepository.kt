@@ -20,10 +20,6 @@ enum class NewCardOrder(val title: String) {
     LEVEL("По уровню CEFR"), FILE("Как в таблице"), RANDOM("Случайно")
 }
 
-enum class ThemeMode(val title: String) {
-    DARK("Тёмная"), LIGHT("Светлая"), SYSTEM("Как в системе")
-}
-
 data class Settings(
     val desiredRetention: Float = 0.9f,
     val newPerDay: Int = 20,
@@ -39,7 +35,6 @@ data class Settings(
     /** Час, с которого начинается новый учебный день (как в Anki). */
     val dayStartHour: Int = 4,
     val lastGrammarTopic: String? = null,
-    val themeMode: ThemeMode = ThemeMode.DARK,
     /** Полная заставка показывается один раз; последующие запуски — короткие. */
     val introSeen: Boolean = false,
     /** Показывать русское значение на обороте карточек. */
@@ -86,7 +81,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val lastTopic = stringPreferencesKey("last_grammar_topic")
         val contentVersion = stringPreferencesKey("content_version")
         val dictionaryVersion = intPreferencesKey("dictionary_version")
-        val themeMode = stringPreferencesKey("theme_mode")
         val introSeen = booleanPreferencesKey("intro_seen")
         val showRussian = booleanPreferencesKey("show_russian")
         val dailyGoal = intPreferencesKey("daily_goal")
@@ -122,7 +116,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             grammarTextScale = p[Keys.grammarScale] ?: 1.0f,
             dayStartHour = p[Keys.dayStart] ?: 4,
             lastGrammarTopic = p[Keys.lastTopic],
-            themeMode = p[Keys.themeMode]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.DARK,
             introSeen = p[Keys.introSeen] ?: false,
             showRussian = p[Keys.showRussian] ?: true,
             dailyGoal = p[Keys.dailyGoal] ?: 30,
@@ -183,7 +176,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
     suspend fun setGrammarTextScale(v: Float) = edit { it[Keys.grammarScale] = v }
     suspend fun setDayStartHour(v: Int) = edit { it[Keys.dayStart] = v }
     suspend fun setLastGrammarTopic(v: String) = edit { it[Keys.lastTopic] = v }
-    suspend fun setThemeMode(v: ThemeMode) = edit { it[Keys.themeMode] = v.name }
     suspend fun setInterfaceSounds(v: Boolean) = edit { it[Keys.interfaceSounds] = v }
     suspend fun setHapticsEnabled(v: Boolean) = edit { it[Keys.hapticsEnabled] = v }
     suspend fun setReduceMotion(v: Boolean) = edit { it[Keys.reduceMotion] = v }

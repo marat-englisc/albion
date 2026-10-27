@@ -1,30 +1,11 @@
 package com.marat.albion.ui.settings
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import com.marat.albion.ui.theme.paperSurface
-import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.animation.core.tween
 
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.style.TextAlign
-import com.marat.albion.ui.components.lerpColor
-import com.marat.albion.ui.theme.Palette
-import com.marat.albion.ui.theme.pressScale
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -51,11 +31,9 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -65,9 +43,8 @@ import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
-import com.marat.albion.data.settings.ThemeMode
 
-import com.marat.albion.ui.components.AlbionLogo
+import com.marat.albion.ui.components.AccessionStamp
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinSlider
@@ -75,7 +52,6 @@ import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.paletteFor
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
@@ -100,23 +76,6 @@ fun SettingsScreen(onBack: () -> Unit) {
 
             Box(Modifier.fillMaxWidth().reveal(reveal, 0)) {
                 ScreenHeader("Настройки", includeStatusBarInsets = false)
-            }
-
-            Column(Modifier.reveal(reveal, 1)) {
-                SectionHeader("Оформление", Modifier.padding(top = 16.dp))
-                Column(Modifier.padding(vertical = 14.dp)) {
-                    Text("Тема", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                    Spacer(Modifier.height(12.dp))
-                    Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        ThemeMode.entries.forEach { mode ->
-                            ThemeTile(mode, s.themeMode == mode, Modifier.weight(1f)) { scope.launch { repo.setThemeMode(mode) } }
-                        }
-                    }
-                Text("Светлая — тёплая бумага, тёмная — глубокий графит. Бордовые акценты и тонкие золотые детали.",
-                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
-                        modifier = Modifier.padding(top = 12.dp))
-                }
-                Hairline()
             }
 
             Column(Modifier.reveal(reveal, 2)) {
@@ -219,7 +178,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
 
             Column(Modifier.fillMaxWidth().padding(top = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                AlbionLogo(size = 28.dp, color = Ink.Faint)
+                AccessionStamp("001")
                 Spacer(Modifier.height(10.dp))
                 Eyebrow("Albion 1.0 · FSRS-6", color = Ink.Faint)
             }
@@ -236,65 +195,6 @@ fun SettingsScreen(onBack: () -> Unit) {
             },
             dismissButton = { TextButton(onClick = { confirmGrammarReset = false }) { Text("Отмена", color = Ink.Muted) } },
         )
-    }
-}
-
-/**
- * Плитка темы — маленькое превью экрана в её цветах: строки текста, пилюля прогресса и кнопка.
- * «Как в системе» показывает обе половины. Выбранная тема получает crimson-рамку.
- */
-@Composable
-private fun ThemeTile(mode: ThemeMode, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val lift by animateFloatAsState(if (selected) 1f else 0f, tween(180), label = "tile")
-    val shape = RoundedCornerShape(12.dp)
-    Column(
-        modifier
-            .pressScale(interaction, 0.95f)
-            .selectable(selected = selected, role = Role.RadioButton, interactionSource = interaction, indication = null, onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            Modifier.fillMaxWidth().height(96.dp)
-                .border(if (selected) 2.dp else 1.dp, lerpColor(Ink.LineStrong, Ink.Accent, lift), shape)
-                .padding(4.dp)
-                .clip(RoundedCornerShape(16.dp)),
-        ) {
-            when (mode) {
-                ThemeMode.LIGHT -> ThemePreview(paletteFor(false), Modifier.fillMaxSize())
-                ThemeMode.DARK -> ThemePreview(paletteFor(true), Modifier.fillMaxSize())
-                ThemeMode.SYSTEM -> Row(Modifier.fillMaxSize()) {
-                    ThemePreview(paletteFor(false), Modifier.weight(1f).fillMaxHeight())
-                    ThemePreview(paletteFor(true), Modifier.weight(1f).fillMaxHeight())
-                }
-            }
-            if (lift > 0.01f) {
-                Box(
-                    Modifier.align(Alignment.TopEnd).padding(6.dp).size(20.dp)
-                        .graphicsLayer { scaleX = lift; scaleY = lift }
-                        .background(Ink.Accent, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) { Icon(AlbionIcons.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(14.dp)) }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(mode.title, style = MaterialTheme.typography.labelLarge, color = if (selected) Ink.Fg else Ink.Muted, textAlign = TextAlign.Center)
-    }
-}
-
-/** Миниатюра экрана в цветах [p]. */
-@Composable
-private fun ThemePreview(p: Palette, modifier: Modifier) {
-    Canvas(modifier.background(p.bg)) {
-        val u = size.width / 10f
-        val r = CornerRadius(u * 0.5f)
-        drawRoundRect(p.fg, Offset(u, u * 1.2f), Size(u * 4.5f, u * 0.9f), r)
-        drawRoundRect(p.muted, Offset(u, u * 2.6f), Size(u * 6.5f, u * 0.55f), r)
-        drawRoundRect(p.raised, Offset(u, u * 3.8f), Size(size.width - u * 2, u * 2.4f), CornerRadius(u))
-        drawRoundRect(p.high, Offset(u * 1.6f, u * 4.6f), Size(size.width - u * 3.2f, u * 0.6f), r)
-        drawRoundRect(p.accent, Offset(u * 1.6f, u * 4.6f), Size((size.width - u * 3.2f) * 0.6f, u * 0.6f), r)
-        drawRoundRect(p.accent, Offset(u, size.height - u * 2.4f), Size(size.width - u * 2, u * 1.4f), r)
-        drawCircle(p.gold, u * 0.45f, Offset(size.width - u * 1.6f, u * 1.6f))
     }
 }
 

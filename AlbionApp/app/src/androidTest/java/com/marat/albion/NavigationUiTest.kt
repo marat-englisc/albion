@@ -73,7 +73,7 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "articles" }
             clickDescription("Настройки")
-            awaitNode { it.text?.toString() == "Тема" }
+            awaitNode { it.text?.toString() == "ЗВУК И ОЩУЩЕНИЯ" }
             clickDescription("Назад")
             awaitNode { it.isEditable && it.text?.toString() == "articles" }
         }

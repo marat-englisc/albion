@@ -115,10 +115,13 @@ fun HomeScreen(navigator: Navigator) {
                 Hairline(color = Ink.Gold.copy(alpha = 0.65f))
             }
             if (!compact) item {
-                Column(Modifier.padding(top = 24.dp, bottom = 20.dp).reveal(reveal, 0)) {
-                    Text(date.replaceFirstChar { it.uppercase() }, style = AlbionType.eyebrow.copy(letterSpacing = 0.8.sp), color = Ink.Muted)
-                    Spacer(Modifier.height(7.dp))
-                    Text(greeting(), style = TextStyle(fontFamily = Brand, fontSize = 36.sp, lineHeight = 42.sp), color = Ink.Fg)
+                Row(Modifier.fillMaxWidth().padding(top = 22.dp, bottom = 20.dp).reveal(reveal, 0), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(date.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                        Spacer(Modifier.height(8.dp))
+                        Text(greeting(), style = TextStyle(fontFamily = Brand, fontSize = 32.sp, lineHeight = 37.sp), color = Ink.Fg)
+                    }
+                    LondonPostmark(Modifier.width(102.dp))
                 }
             } else item { Spacer(Modifier.height(16.dp)) }
             item {
@@ -157,16 +160,16 @@ fun HomeScreen(navigator: Navigator) {
                     }
                 }
             }
-            item { SectionHeader("Ваш маршрут", trailing = "I") }
+            item { Spacer(Modifier.height(8.dp)) }
             item { ReadingBlock(navigator) }
             item {
                 val topic = state.continueTopic
                 val step = state.grammarStep
-                EditorialLink(
+                CatalogueCard(
                     title = topic?.title ?: "Открыть учебник",
                     description = topic?.let { listOfNotNull(step?.label, it.number?.let { n -> "Урок $n" }, it.level).joinToString(" · ") }
                         ?: "Короткие уроки и проверка знаний",
-                    eyebrow = "Учебник", icon = AlbionIcons.MenuBook,
+                    label = "Grammar",
                     onClick = {
                         if (topic != null && step != null && step.kind != GrammarNextStep.Kind.Read && topic.number != null)
                             navigator.open(TopicQuizRoute(topic.number, topic.id, topic.title))
@@ -195,7 +198,7 @@ fun HomeScreen(navigator: Navigator) {
             }
             item {
                 Column(Modifier.fillMaxWidth().padding(top = 32.dp, bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.width(28.dp).height(1.dp).background(Ink.Gold))
+                    FolioDivider(label = "ALBION · LONDON")
                     Spacer(Modifier.height(15.dp))
                     Text("A little, every day.", style = TextStyle(fontFamily = Brand, fontSize = 25.sp, fontStyle = FontStyle.Italic), color = Ink.Muted)
                     Spacer(Modifier.height(5.dp))
@@ -222,9 +225,7 @@ private fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, co
     val ivory = Ink.Ivory
     // The four identity colours stay exact in both themes.
     val crimson = androidx.compose.ui.graphics.Color(0xFF861F39)
-    val shape = RoundedCornerShape(6.dp)
-    Column(modifier.fillMaxWidth().background(crimson, shape).border(0.5.dp, Ink.Gold.copy(alpha = 0.5f), shape)
-        .padding(if (compact) 16.dp else 22.dp)) {
+    BoundVolume(modifier.fillMaxWidth(), compact = compact) {
         if (!compact) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("THE DAILY RITUAL", style = AlbionType.eyebrow.copy(letterSpacing = 2.sp), color = ivory.copy(alpha = 0.8f), modifier = Modifier.weight(1f))
@@ -232,7 +233,7 @@ private fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, co
             }
             Spacer(Modifier.height(14.dp))
         }
-        Text("Время для английского", style = TextStyle(fontFamily = Cyrillic, fontSize = if (compact) 27.sp else 32.sp,
+        Text("Время для английского", style = TextStyle(fontFamily = Cyrillic, fontSize = if (compact) 26.sp else 31.sp,
             lineHeight = if (compact) 30.sp else 36.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium), color = ivory)
         if (!state.loaded || available > 0) {
             Spacer(Modifier.height(if (compact) 10.dp else 16.dp))
@@ -276,10 +277,11 @@ private fun ReadingBlock(navigator: Navigator) {
     val c = LocalAppContainer.current
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(emptyList())
     val current = books.firstOrNull { it.lastRead != null && it.progress < 0.999f }
-    EditorialLink(
-        title = current?.book?.title ?: "Открыть библиотеку",
-        description = current?.let { "Продолжить чтение · ${(it.progress * 100).toInt()}%" } ?: "Книги с переводом касанием",
-        eyebrow = "Чтение", icon = AlbionIcons.AutoStories,
+    CatalogueCard(
+        label = "Reading", title = current?.book?.title ?: "Открыть библиотеку",
+        description = if (current != null) "Продолжить чтение · ${(current.progress * 100).toInt()}%" else "Книги с переводом касанием",
+        ribbon = true, progress = current?.progress,
+        modifier = Modifier.padding(bottom = 16.dp),
         onClick = { if (current != null) navigator.open(ReaderRoute(current.book.id)) else navigator.switchTab(LibraryRoute) },
     )
 }

@@ -9,7 +9,7 @@ import kotlin.random.Random
 /** Static, cached paper fibres. Never animated and never placed over glyphs. */
 fun Modifier.paperSurface(color: Color? = null): Modifier {
     val base = color ?: Ink.Bg
-    val grain = if (Ink.palette.isDark) Color.White.copy(alpha = 0.018f) else Color(0xFF655038).copy(alpha = 0.045f)
+    val grain = Color(0xFF655038).copy(alpha = 0.055f)
     return drawWithCache {
         val random = Random(86139)
         val count = ((size.width * size.height) / 1900f).toInt().coerceIn(0, 2600)

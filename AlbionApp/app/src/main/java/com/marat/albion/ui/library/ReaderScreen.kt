@@ -1,8 +1,22 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.style.TextAlign
+import com.marat.albion.ui.components.FolioDivider
+import com.marat.albion.ui.components.RibbonBookmark
+import com.marat.albion.ui.components.romanNumeral
+import com.marat.albion.ui.theme.headingFamily
+import com.marat.albion.ui.theme.LocalReducedMotion
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +33,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -29,6 +45,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,12 +60,10 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +73,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -93,12 +107,10 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.ThinSlider
-import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Reading
-import com.marat.albion.ui.theme.Brand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
@@ -109,7 +121,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 /** Высота нижней строки читалки (вместе с разделительной линией). */
-private val FOOTER_HEIGHT = 61.dp
+private val FOOTER_HEIGHT = 77.dp
 
 /** Выделение на странице: блок и диапазон символов внутри абзаца. */
 data class Selection(val block: Int, val start: Int, val end: Int, val isWord: Boolean)
@@ -218,21 +230,28 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
 
     val scale = settings.readerTextScale
     val body = TextStyle(fontFamily = Reading, fontSize = (18 * scale).sp, lineHeight = (29 * scale).sp, color = Ink.Text)
-    val heading = TextStyle(fontFamily = Brand, fontSize = (28 * scale).sp, lineHeight = (34 * scale).sp, color = Ink.Fg)
+    val heading = TextStyle(fontFamily = headingFamily(vm.title), fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = Ink.Fg, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book
+    val reduced = LocalReducedMotion.current
 
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().paperSurface()) {
-        // На узком экране название не помещается рядом с четырьмя кнопками — глава и так видна внизу.
-        TopBar(onBack = navigator::back, title = vm.title.takeUnless { com.marat.albion.ui.components.LocalNarrow.current }) {
+        Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back)
+            Text("ALBION / THE READING ROOM", style = AlbionType.eyebrow.copy(fontSize = 10.sp, lineHeight = 16.sp, letterSpacing = 1.sp),
+                color = Ink.Muted, textAlign = TextAlign.Center, maxLines = 2, modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Оглавление", { showToc = true })
-            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Закладки", { showBookmarks = true })
-            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.BorderColor, "Выделения и заметки", { showHighlights = true })
             Box {
-                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.TextFields, "Размер текста", { sizeMenu = true })
+                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню чтения", { sizeMenu = true })
                 DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
+                    DropdownMenuItem(text = { Text("Закладки") }, leadingIcon = { Icon(AlbionIcons.Bookmarks, null) },
+                        onClick = { sizeMenu = false; showBookmarks = true })
+                    DropdownMenuItem(text = { Text("Выделения и заметки") }, leadingIcon = { Icon(AlbionIcons.BorderColor, null) },
+                        onClick = { sizeMenu = false; showHighlights = true })
+                    Hairline()
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(scale * 100).toInt()}%")
                         ThinSlider(
@@ -261,6 +280,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
         }
 
+        Hairline(color = Ink.Gold.copy(alpha = 0.65f))
+
         if (!vm.loaded || book == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (vm.loaded) Text("Книга не найдена", color = Ink.Muted) else AlbionLogo(size = 36.dp, color = Ink.Faint)
@@ -280,13 +301,17 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             val footerPx = with(density) { FOOTER_HEIGHT.roundToPx() } + navInset
             val heightPx = with(density) { (maxHeight - padV * 2).roundToPx() } - footerPx
             val gapPx = with(density) { (12 * scale).dp.roundToPx() }
-            val headingGapPx = with(density) { (28 * scale).dp.roundToPx() }
-            val key = "$widthPx:$heightPx:$scale:$columns"
+            val headingGapPx = with(density) { (24 * scale).dp.roundToPx() }
+            val headingDecoration = 42.dp
+            val decorationPx = with(density) { headingDecoration.roundToPx() }
+            val dropCaps = maxWidth / columns >= 360.dp && density.fontScale <= 1.3f && scale <= 1.2f
+            val key = "reading-room-initial-v2:$widthPx:$heightPx:$scale:$columns:$dropCaps:${density.fontScale}"
 
             LaunchedEffect(key, book) {
                 if (vm.pagesKey == key && vm.pages.isNotEmpty()) return@LaunchedEffect
                 val list = withContext(Dispatchers.Default) {
-                    Paginator.paginate(book, measurer, widthPx, heightPx, body, heading, gapPx, headingGapPx)
+                    Paginator.paginate(book, measurer, widthPx.coerceAtLeast(1), heightPx.coerceAtLeast(1), body, heading, gapPx, headingGapPx,
+                        edition = true, dropCaps = dropCaps, headingDecoration = decorationPx)
                 }
                 vm.setPages(key, list)
             }
@@ -319,7 +344,11 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             // Переход по оглавлению/закладке.
             var jumpTo by remember { mutableStateOf<BookPosition?>(null) }
             LaunchedEffect(jumpTo) {
-                jumpTo?.let { pager.animateScrollToPage(Paginator.pageOf(pages, it) / columns); jumpTo = null }
+                jumpTo?.let {
+                    val target = Paginator.pageOf(pages, it) / columns
+                    if (reduced) pager.scrollToPage(target) else pager.animateScrollToPage(target)
+                    jumpTo = null
+                }
             }
 
             Column(Modifier.fillMaxSize()) {
@@ -334,9 +363,9 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             val offset = pager.currentPageOffsetFraction + (pager.currentPage - index)
                             // Уходящая страница слегка уменьшается и тускнеет — ощущение глубины.
                             val f = abs(offset).coerceIn(0f, 1f)
-                            val s = 1f - 0.06f * f
+                            val s = if (reduced) 1f else 1f - 0.012f * f
                             scaleX = s; scaleY = s
-                            alpha = 1f - 0.5f * f
+                            alpha = if (reduced) 1f else 1f - 0.22f * f
                         }.padding(horizontal = padH, vertical = padV),
                     ) {
                         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(columnGap)) {
@@ -350,7 +379,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                                         body = body,
                                         heading = heading,
                                         gap = (12 * scale).dp,
-                                        headingGap = (28 * scale).dp,
+                                        headingGap = (24 * scale).dp,
+                                        headingDecoration = headingDecoration, dropCaps = dropCaps,
                                         selection = if (selectionPage == pageIndex) selection else null,
                                         onSelect = { sel -> selectionPage = pageIndex; selection = sel },
                                         highlights = highlights,
@@ -371,14 +401,15 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     val p = BookPosition(b.chapter, b.paragraph, b.offset)
                     p >= current.start && (next == null || p < next.start)
                 }
-                Hairline()
+                FolioDivider(Modifier.height(16.dp))
+                Hairline(color = Ink.Gold.copy(alpha = 0.65f))
                 Row(
-                    Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).height(FOOTER_HEIGHT - 1.dp).padding(start = 24.dp, end = 8.dp),
+                    Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).height(FOOTER_HEIGHT - 17.dp).padding(start = 24.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            current?.let { book.chapters[it.blocks.first().chapter].title }.orEmpty(),
+                            current?.let { "ALBION / LONDON / %03d".format(it.blocks.first().chapter + 1) }.orEmpty(),
                             style = AlbionType.eyebrow.copy(letterSpacing = 1.sp),
                             color = Ink.Muted,
                             maxLines = 1,
@@ -389,7 +420,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     }
                     Spacer(Modifier.width(14.dp))
                     val pageLabel = if (lastPage > firstPage) "${firstPage + 1}–${lastPage + 1}" else "${firstPage + 1}"
-                    Text("$pageLabel / ${pages.size}", style = AlbionType.index.copy(color = Ink.Soft))
+                    Text("$pageLabel / ${pages.size}", style = MaterialTheme.typography.bodySmall.copy(color = Ink.Soft))
                     IconButton(onClick = {
                         current?.let { page ->
                             val snippet = page.blocks.firstOrNull { !it.isHeading }?.let { b ->
@@ -398,7 +429,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             vm.toggleBookmark(page, next, snippet)
                         }
                     }) {
-                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка", tint = Ink.Fg)
+                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка", tint = Ink.Accent)
                     }
                 }
             }
@@ -528,6 +559,8 @@ private fun PageView(
     heading: TextStyle,
     gap: androidx.compose.ui.unit.Dp,
     headingGap: androidx.compose.ui.unit.Dp,
+    headingDecoration: androidx.compose.ui.unit.Dp,
+    dropCaps: Boolean,
     selection: Selection?,
     onSelect: (Selection?) -> Unit,
     highlights: List<HighlightEntity>,
@@ -536,7 +569,15 @@ private fun PageView(
     Column(Modifier.fillMaxWidth()) {
         page.blocks.forEachIndexed { i, block ->
             if (block.isHeading) {
-                Text(book.chapters[block.chapter].title, style = heading, modifier = Modifier.fillMaxWidth())
+                Box(Modifier.fillMaxWidth()) {
+                    Column(Modifier.fillMaxWidth()) {
+                        Box(Modifier.fillMaxWidth().height(headingDecoration), contentAlignment = Alignment.Center) {
+                            FolioDivider(label = romanNumeral(block.chapter + 1))
+                        }
+                        Text(readingChapterTitle(book.chapters[block.chapter].title), style = heading, modifier = Modifier.fillMaxWidth())
+                    }
+                    RibbonBookmark(Modifier.align(Alignment.TopEnd))
+                }
                 Spacer(Modifier.height(headingGap))
             } else {
                 if (i > 0 && !page.blocks[i - 1].isHeading) Spacer(Modifier.height(gap))
@@ -550,6 +591,7 @@ private fun PageView(
                 SelectableParagraph(
                     text = text,
                     style = body,
+                    dropCap = dropCaps && block.paragraph == 0 && block.start == 0,
                     selection = selection?.takeIf { it.block == i },
                     onSelect = { range, isWord -> onSelect(range?.let { Selection(i, it.first, it.last + 1, isWord) }) },
                     highlights = marked,
@@ -568,6 +610,7 @@ private fun PageView(
 private fun SelectableParagraph(
     text: String,
     style: TextStyle,
+    dropCap: Boolean = false,
     selection: Selection?,
     onSelect: (IntRange?, Boolean) -> Unit,
     highlights: List<IntRange> = emptyList(),
@@ -580,7 +623,6 @@ private fun SelectableParagraph(
     // и отрисовка должна обновиться сама.
     val highlightRanges by rememberUpdatedState(highlights)
     val markRanges by rememberUpdatedState(marks)
-    var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     var dragRange by remember { mutableStateOf<IntRange?>(null) }
     val shown = dragRange ?: selection?.let { it.start until it.end }
 
@@ -595,73 +637,100 @@ private fun SelectableParagraph(
         }
     }
 
-    Text(
-        annotated,
-        style = style,
-        onTextLayout = { layout = it },
-        modifier = Modifier.fillMaxWidth().drawBehind {
-            val l = layout ?: return@drawBehind
-            // Выделения — мягкий маркер под текстом.
-            highlightRanges.forEach { r -> drawPath(l.getPathForRange(r.first, r.last + 1), marker) }
-            // Слова из карточек — пунктир под строкой.
-            val gap = with(density) { 3.dp.toPx() }
-            val stroke = with(density) { 1.3.dp.toPx() }
-            val dash = PathEffect.dashPathEffect(floatArrayOf(stroke * 2, stroke * 2))
-            markRanges.forEach { r ->
-                val s = r.first
-                val e = r.last + 1
-                val firstLine = l.getLineForOffset(s)
-                val lastLine = l.getLineForOffset((e - 1).coerceAtLeast(s))
-                for (line in firstLine..lastLine) {
-                    val x1 = if (line == firstLine) l.getHorizontalPosition(s, usePrimaryDirection = true) else l.getLineLeft(line)
-                    val end = if (line == lastLine) l.getHorizontalPosition(e, usePrimaryDirection = true) else l.getLineRight(line)
-                    val x2 = if (end <= x1) l.getLineRight(line) else end
-                    val y = l.getLineBaseline(line) + gap
-                    drawLine(dots, Offset(x1, y), Offset(x2, y), strokeWidth = stroke, pathEffect = dash)
-                }
-            }
-        }.pointerInput(text) {
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                var timedOut = false
-                val up = try {
-                    withTimeout(viewConfiguration.longPressTimeoutMillis) { waitForUpOrCancellation() }
-                } catch (e: PointerEventTimeoutCancellationException) {
-                    timedOut = true
-                    null
-                }
-                val l = layout ?: return@awaitEachGesture
-                if (!timedOut) {
-                    // Короткое касание; null — жест забрал пейджер (листание).
-                    if (up != null) {
-                        val o = l.getOffsetForPosition(up.position)
-                        onSelect(wordAt(text, o), true)
-                    }
-                    return@awaitEachGesture
-                }
-                // Долгое нажатие: предложение или протягивание.
-                val anchor = l.getOffsetForPosition(down.position)
-                val anchorWord = wordAt(text, anchor)
-                dragRange = sentenceAt(text, anchor)
-                var moved = false
-                while (true) {
-                    val event = awaitPointerEvent()
-                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                    if (!change.pressed) break
-                    change.consume()
-                    if ((change.position - down.position).getDistance() > viewConfiguration.touchSlop) moved = true
-                    if (moved && anchorWord != null) {
-                        val cur = wordAt(text, l.getOffsetForPosition(change.position)) ?: continue
-                        dragRange = minOf(anchorWord.first, cur.first)..maxOf(anchorWord.last, cur.last)
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val width = constraints.maxWidth
+        val layout = remember(annotated, style, width, dropCap) { measureEditionParagraph(measurer, annotated, style, width, dropCap) }
+        val currentLayout by rememberUpdatedState(layout)
+        Canvas(Modifier.fillMaxWidth().height(with(density) { layout.height.toDp() })
+            .semantics { this.text = AnnotatedString(text) }
+            .drawBehind {
+                fun androidx.compose.ui.graphics.drawscope.DrawScope.drawMarkers(part: EditionTextPart) {
+                    val from = part.start
+                    val until = from + part.layout.layoutInput.text.length
+                    translate(part.origin.x, part.origin.y) {
+                        highlightRanges.forEach { range ->
+                            val first = maxOf(range.first, from); val end = minOf(range.last + 1, until)
+                            if (end > first) drawPath(part.layout.getPathForRange(first-from, end-from), marker)
+                        }
+                        val offsetY = 3.dp.toPx()
+                        val stroke = 1.3.dp.toPx()
+                        val dash = PathEffect.dashPathEffect(floatArrayOf(stroke * 2, stroke * 2))
+                        markRanges.forEach { range ->
+                            val first = maxOf(range.first, from); val end = minOf(range.last + 1, until)
+                            if (end > first) {
+                                val firstLine = part.layout.getLineForOffset(first-from)
+                                val lastLine = part.layout.getLineForOffset(end-from-1)
+                                for (line in firstLine..lastLine) {
+                                    val x1 = if (line == firstLine) part.layout.getHorizontalPosition(first-from, true) else part.layout.getLineLeft(line)
+                                    val endX = if (line == lastLine) part.layout.getHorizontalPosition(end-from, true) else part.layout.getLineRight(line)
+                                    val x2 = if (endX <= x1) part.layout.getLineRight(line) else endX
+                                    val y = part.layout.getLineBaseline(line) + offsetY
+                                    drawLine(dots, Offset(x1,y), Offset(x2,y), stroke, pathEffect = dash)
+                                }
+                            }
+                        }
                     }
                 }
-                val result = dragRange
-                dragRange = null
-                val isWord = result != null && anchorWord != null && result == anchorWord
-                onSelect(result, isWord)
+                layout.parts.forEach { part ->
+                    val frame = layout.initialFrame
+                    if (part.start == 0 && frame != null) {
+                        clipRect(frame.left, frame.top, frame.right, frame.bottom) { drawMarkers(part) }
+                    } else drawMarkers(part)
+                }
+            }.pointerInput(text) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var timedOut = false
+                    val up = try {
+                        withTimeout(viewConfiguration.longPressTimeoutMillis) { waitForUpOrCancellation() }
+                    } catch (e: PointerEventTimeoutCancellationException) {
+                        timedOut = true
+                        null
+                    }
+                    val l = currentLayout
+                    if (!timedOut) {
+                        // Короткое касание; null — жест забрал пейджер (листание).
+                        if (up != null) {
+                            val o = l.offsetAt(up.position)
+                            onSelect(wordAt(text, o), true)
+                        }
+                        return@awaitEachGesture
+                    }
+                    // Долгое нажатие: предложение или протягивание.
+                    val anchor = l.offsetAt(down.position)
+                    val anchorWord = wordAt(text, anchor)
+                    dragRange = sentenceAt(text, anchor)
+                    var moved = false
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        if (!change.pressed) break
+                        change.consume()
+                        if ((change.position - down.position).getDistance() > viewConfiguration.touchSlop) moved = true
+                        if (moved && anchorWord != null) {
+                            val cur = wordAt(text, l.offsetAt(change.position)) ?: continue
+                            dragRange = minOf(anchorWord.first, cur.first)..maxOf(anchorWord.last, cur.last)
+                        }
+                    }
+                    val result = dragRange
+                    dragRange = null
+                    val isWord = result != null && anchorWord != null && result == anchorWord
+                    onSelect(result, isWord)
+                }
+            },
+        ) {
+            layout.parts.forEach { part ->
+                val frame = layout.initialFrame
+                if (part.start == 0 && frame != null) {
+                    clipRect(frame.left, frame.top, frame.right, frame.bottom) {
+                        drawText(part.layout, topLeft = part.origin)
+                    }
+                } else drawText(part.layout, topLeft = part.origin)
             }
-        },
-    )
+            layout.initialFrame?.let { drawInitialOrnament(it) }
+        }
+    }
 }
 
 private fun isWordChar(c: Char) = c.isLetterOrDigit() || c == '\'' || c == '’' || c == '-'

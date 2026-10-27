@@ -5,20 +5,10 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Font
@@ -30,7 +20,6 @@ import com.marat.albion.R
 
 @Immutable
 data class Palette(
-    val isDark: Boolean,
     val bg: Color,
     val raised: Color,
     val surface: Color,
@@ -71,8 +60,7 @@ data class Palette(
 
 /** Modern British Elegance — warm paper, crimson, antique gold and charcoal. */
 val LightPalette = Palette(
-    isDark = false,
-    bg = Color(0xFFF6F1E7), raised = Color(0xFFFFFDFC), surface = Color(0xFFF0EBE2),
+    bg = Color(0xFFF6F1E7), raised = Color(0xFFFBF8F1), surface = Color(0xFFF0EBE2),
     elevated = Color(0xFFF0EBE2), high = Color(0xFFEEE8DE),
     line = Color(0xFFD8D1C5), lineStrong = Color(0xFFB9AFA0),
     fg = Color(0xFF24272B), text = Color(0xFF24272B), soft = Color(0xFF575149),
@@ -88,51 +76,8 @@ val LightPalette = Palette(
     ivory = Color(0xFFF6F1E7), shadow = Color(0xFF24272B),
 )
 
-val DarkPalette = Palette(
-    isDark = true,
-    bg = Color(0xFF24272B), raised = Color(0xFF2E3238), surface = Color(0xFF2E3238),
-    elevated = Color(0xFF383D44), high = Color(0xFF383D44),
-    line = Color(0xFF444A52), lineStrong = Color(0xFF686D73),
-    fg = Color(0xFFF6F1E7), text = Color(0xFFF6F1E7), soft = Color(0xFFD8D1C5),
-    muted = Color(0xFFC8C1B6), faint = Color(0xFFC8C1B6), code = Color(0xFF2E3238),
-    success = Color(0xFF6E8B74), successText = Color(0xFFA9C7B0), successSoft = Color(0xFF303E35),
-    accent = Color(0xFFA02A47), accentText = Color(0xFFF6F1E7),
-    onAccent = Color(0xFFF6F1E7), accentDeep = Color(0xFFB33455), accentSoft = Color(0xFF432E37),
-    error = Color(0xFFC96A6A), errorText = Color(0xFFFFB5AE),
-    onError = Color(0xFF000000), errorDeep = Color(0xFFB75B5B), errorSoft = Color(0xFF493234),
-    warm = Color(0xFFD2A85A), warmText = Color(0xFFE4BF7B),
-    onWarm = Color(0xFF24272B), warmDeep = Color(0xFFBD934A), warmSoft = Color(0xFF423B2F),
-    gold = Color(0xFFC6A66D), goldText = Color(0xFFD8B980), goldSoft = Color(0xFF3C372F),
-    ivory = Color(0xFFF6F1E7), shadow = Color(0xFF000000),
-)
-
-fun paletteFor(dark: Boolean): Palette = if (dark) DarkPalette else LightPalette
-
-fun lerpPalette(a: Palette, b: Palette, t: Float): Palette {
-    if (t <= 0f) return a
-    if (t >= 1f) return b
-    fun c(x: Color, y: Color) = lerp(x, y, t)
-    return Palette(
-        isDark = if (t < 0.5f) a.isDark else b.isDark,
-        bg = c(a.bg, b.bg), raised = c(a.raised, b.raised), surface = c(a.surface, b.surface),
-        elevated = c(a.elevated, b.elevated), high = c(a.high, b.high),
-        line = c(a.line, b.line), lineStrong = c(a.lineStrong, b.lineStrong),
-        fg = c(a.fg, b.fg), text = c(a.text, b.text), soft = c(a.soft, b.soft),
-        muted = c(a.muted, b.muted), faint = c(a.faint, b.faint), code = c(a.code, b.code),
-        success = c(a.success, b.success), successText = c(a.successText, b.successText), successSoft = c(a.successSoft, b.successSoft),
-        accent = c(a.accent, b.accent), accentText = c(a.accentText, b.accentText), onAccent = c(a.onAccent, b.onAccent),
-        accentDeep = c(a.accentDeep, b.accentDeep), accentSoft = c(a.accentSoft, b.accentSoft),
-        error = c(a.error, b.error), errorText = c(a.errorText, b.errorText), onError = c(a.onError, b.onError),
-        errorDeep = c(a.errorDeep, b.errorDeep), errorSoft = c(a.errorSoft, b.errorSoft),
-        warm = c(a.warm, b.warm), warmText = c(a.warmText, b.warmText), onWarm = c(a.onWarm, b.onWarm),
-        warmDeep = c(a.warmDeep, b.warmDeep), warmSoft = c(a.warmSoft, b.warmSoft),
-        gold = c(a.gold, b.gold), goldText = c(a.goldText, b.goldText), goldSoft = c(a.goldSoft, b.goldSoft), ivory = c(a.ivory, b.ivory), shadow = c(a.shadow, b.shadow),
-    )
-}
-
 object Ink {
-    var palette by mutableStateOf(DarkPalette)
-        internal set
+    val palette = LightPalette
 
     val Bg get() = palette.bg
     val Raised get() = palette.raised
@@ -212,6 +157,7 @@ var Serif: FontFamily = Cyrillic
 
 /** Caslon for Latin, Cormorant for Cyrillic, Inter for symbols and IPA. */
 internal fun initializeTypography(resources: android.content.res.Resources) {
+    InitialFonts.initialize(resources)
     if (android.os.Build.VERSION.SDK_INT >= 29) {
         fun family(regular: Int, italic: Int, variable: Boolean = false): android.graphics.fonts.FontFamily {
             val builder = android.graphics.fonts.FontFamily.Builder(
@@ -258,10 +204,10 @@ val Sans = FontFamily(
 )
 
 private fun schemeOf(p: Palette): ColorScheme {
-    val base = if (p.isDark) darkColorScheme() else lightColorScheme()
+    val base = lightColorScheme()
     return base.copy(
         primary = p.accentText,
-        onPrimary = if (p.isDark) p.bg else p.onAccent,
+        onPrimary = p.onAccent,
         primaryContainer = p.accentSoft,
         onPrimaryContainer = p.fg,
         secondary = p.goldText,
@@ -294,7 +240,7 @@ private fun schemeOf(p: Palette): ColorScheme {
         onErrorContainer = p.errorText,
         inverseSurface = p.fg,
         inverseOnSurface = p.bg,
-        inversePrimary = if (p.isDark) LightPalette.accent else DarkPalette.accent,
+        inversePrimary = p.accentSoft,
         scrim = Color.Black,
     )
 }
@@ -335,24 +281,8 @@ object AlbionType {
         val index get() = TextStyle(fontFamily = Brand, fontSize = 16.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
+/** Albion has one permanent ivory Reading Room appearance, independent of system night mode. */
 @Composable
-fun AlbionTheme(dark: Boolean = true, content: @Composable () -> Unit) {
-    val palette = animatedPalette(paletteFor(dark))
-    SideEffect { if (Ink.palette != palette) Ink.palette = palette }
-    MaterialTheme(colorScheme = schemeOf(palette), typography = typography, shapes = shapes, content = content)
-}
-
-@Composable
-private fun animatedPalette(target: Palette): Palette {
-    var from by remember { mutableStateOf(target) }
-    var to by remember { mutableStateOf(target) }
-    val t = remember { Animatable(1f) }
-    LaunchedEffect(target) {
-        if (target == to) return@LaunchedEffect
-        from = lerpPalette(from, to, t.value)
-        to = target
-        t.snapTo(0f)
-        t.animateTo(1f, tween(520, easing = Easing.Standard))
-    }
-    return lerpPalette(from, to, t.value)
+fun AlbionTheme(content: @Composable () -> Unit) {
+    MaterialTheme(colorScheme = schemeOf(LightPalette), typography = typography, shapes = shapes, content = content)
 }

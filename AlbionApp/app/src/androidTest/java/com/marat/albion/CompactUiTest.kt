@@ -132,7 +132,7 @@ class CompactUiTest {
                 CompositionLocalProvider(LocalAppContainer provides container,
                     LocalDensity provides Density(density, scale)) {
                     key(name) {
-                        AlbionTheme(dark) {
+                        AlbionTheme {
                             Box(Modifier.fillMaxSize().background(Ink.Bg)) {
                                 Box(Modifier.width(width.dp).height(640.dp)) { content() }
                             }

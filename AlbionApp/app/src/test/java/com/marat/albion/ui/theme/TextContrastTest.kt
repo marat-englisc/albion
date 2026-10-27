@@ -13,19 +13,19 @@ class TextContrastTest {
     }
 
     @Test fun textRemainsReadableOnEveryThemeSurface() {
-        for (palette in listOf(DarkPalette, LightPalette)) {
+        for (palette in listOf(LightPalette)) {
             val backgrounds = listOf(palette.bg, palette.raised, palette.surface, palette.elevated, palette.high)
             val foregrounds = listOf(palette.fg, palette.text, palette.soft, palette.muted, palette.faint,
                 palette.successText, palette.accentText, palette.errorText, palette.goldText)
             for (background in backgrounds) for (foreground in foregrounds) {
                 val c = contrast(foreground, background)
-                assertTrue("${palette.isDark}: $foreground on $background has contrast $c", c >= 4.5f)
+                assertTrue("$foreground on $background has contrast $c", c >= 4.5f)
             }
         }
     }
 
     @Test fun accentFillsKeepTheirLabelsReadable() {
-        for (palette in listOf(DarkPalette, LightPalette)) {
+        for (palette in listOf(LightPalette)) {
             val pairs = listOf(
                 palette.onAccent to palette.accent,
                 palette.onAccent to palette.accentDeep,
@@ -50,13 +50,13 @@ class TextContrastTest {
             )
             for ((foreground, background) in pairs) {
                 val c = contrast(foreground, background)
-                assertTrue("${palette.isDark}: $foreground on $background has contrast $c", c >= 4.5f)
+                assertTrue("$foreground on $background has contrast $c", c >= 4.5f)
             }
         }
     }
 
     @Test fun successLabelsRemainReadableOnFeedbackCards() {
-        for (palette in listOf(DarkPalette, LightPalette)) {
+        for (palette in listOf(LightPalette)) {
             for (background in listOf(palette.raised, palette.surface, palette.successSoft)) {
                 val c = contrast(palette.successText, background)
                 assertTrue("Success label on $background has contrast $c", c >= 4.5f)

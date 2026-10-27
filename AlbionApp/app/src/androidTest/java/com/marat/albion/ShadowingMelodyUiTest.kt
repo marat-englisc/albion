@@ -98,7 +98,7 @@ class ShadowingMelodyUiTest {
             activity.setContent {
                 val density = LocalDensity.current
                 CompositionLocalProvider(LocalDensity provides Density(density.density, scale)) {
-                    AlbionTheme(dark = dark) {
+                    AlbionTheme {
                         Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.TopCenter) {
                             // 320 dp экран, 24 dp внешние отступы и 18 dp внутри карточки.
                             Column(Modifier.width(320.dp).padding(horizontal = 42.dp, vertical = 40.dp),

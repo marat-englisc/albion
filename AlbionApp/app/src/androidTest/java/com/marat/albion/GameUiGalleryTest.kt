@@ -86,7 +86,7 @@ class GameUiGalleryTest {
                 val density = LocalDensity.current.density
                 CompositionLocalProvider(LocalDensity provides Density(density, scale)) {
                     key(name) {
-                        AlbionTheme(dark) {
+                        AlbionTheme {
                             Box(Modifier.fillMaxSize().background(Ink.Bg)) {
                                 MeasureNarrow(Modifier.width(width.dp).height(760.dp)) { content() }
                             }

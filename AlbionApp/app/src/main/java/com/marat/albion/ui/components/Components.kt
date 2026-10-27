@@ -91,14 +91,12 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String
     BoxWithConstraints(modifier.fillMaxWidth().padding(top = 18.dp, bottom = 8.dp)) {
         val compact = naturalWidth > maxWidth
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(width = 18.dp, height = 1.dp).background(Ink.Gold))
-            Spacer(Modifier.width(10.dp))
             if (compact) {
                 Eyebrow(title, Modifier.weight(1f), color = Ink.Soft)
             } else {
-                Eyebrow(title, color = Ink.Soft)
-                Spacer(Modifier.width(14.dp))
-                Box(Modifier.weight(1f).height(1.dp).background(Ink.Line, CircleShape))
+                CatalogueTab(title)
+                Spacer(Modifier.width(12.dp))
+                Box(Modifier.weight(1f).height(0.5.dp).background(Ink.Line))
             }
             if (trailing != null) {
                 Spacer(Modifier.width(12.dp))
@@ -200,8 +198,7 @@ fun Panel(
 }
 
 fun Modifier.softShadow(shape: androidx.compose.ui.graphics.Shape, elevation: Dp = 2.dp): Modifier =
-    if (Ink.palette.isDark) this
-    else shadow(elevation, shape, ambientColor = Ink.Shadow.copy(alpha = 0.18f), spotColor = Ink.Shadow.copy(alpha = 0.18f))
+    shadow(elevation, shape, ambientColor = Ink.Shadow.copy(alpha = 0.18f), spotColor = Ink.Shadow.copy(alpha = 0.18f))
 
 enum class ButtonTone { Accent, Warm, Error }
 

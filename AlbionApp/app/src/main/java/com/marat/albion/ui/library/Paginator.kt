@@ -1,6 +1,7 @@
 package com.marat.albion.ui.library
 
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import com.marat.albion.data.library.BookContent
@@ -32,6 +33,9 @@ object Paginator {
         heading: TextStyle,
         paragraphGap: Int,
         headingGap: Int,
+        edition: Boolean = false,
+        dropCaps: Boolean = false,
+        headingDecoration: Int = 0,
     ): List<Page> {
         val pages = ArrayList<Page>()
         val constraints = Constraints(maxWidth = width)
@@ -46,7 +50,8 @@ object Paginator {
                 used = 0
             }
 
-            val titleHeight = measurer.measure(chapter.title, heading, constraints = constraints).size.height + headingGap
+            val titleHeight = measurer.measure(if (edition) readingChapterTitle(chapter.title) else chapter.title, heading,
+                constraints = constraints).size.height + headingGap + headingDecoration
             blocks += PageBlock(ci, -1, 0, chapter.title.length)
             used = titleHeight
 
@@ -56,20 +61,20 @@ object Paginator {
                     val gap = if (blocks.isEmpty() || blocks.last().isHeading) 0 else paragraphGap
                     val remaining = height - used - gap
                     val text = paragraph.substring(start)
-                    val layout = measurer.measure(text, body, constraints = constraints)
-                    if (layout.size.height <= remaining) {
+                    val layout = measureEditionParagraph(measurer, AnnotatedString(text), body, width, dropCaps && pi == 0 && start == 0)
+                    if (layout.height <= remaining) {
                         blocks += PageBlock(ci, pi, start, paragraph.length)
-                        used += gap + layout.size.height
+                        used += gap + layout.height
                         break
                     }
-                    var lastLine = -1
-                    for (line in 0 until layout.lineCount) {
-                        if (layout.getLineBottom(line) <= remaining) lastLine = line else break
+                    var fitting = layout.offsetThatFits(remaining)
+                    if (fitting <= 0) {
+                        if (blocks.isEmpty()) {
+                            // Very large fonts still make progress, without repeatedly creating an empty page.
+                            fitting = measurer.measure(text, body, constraints = constraints).getLineEnd(0, visibleEnd = false)
+                        } else { newPage(); continue }
                     }
-                    if (lastLine < 0) {
-                        if (blocks.isEmpty()) lastLine = 0 else { newPage(); continue }
-                    }
-                    val split = (start + layout.getLineEnd(lastLine, visibleEnd = false)).coerceAtMost(paragraph.length)
+                    val split = (start + fitting).coerceAtMost(paragraph.length)
                     if (split <= start) { newPage(); continue }
                     blocks += PageBlock(ci, pi, start, split)
                     newPage()
