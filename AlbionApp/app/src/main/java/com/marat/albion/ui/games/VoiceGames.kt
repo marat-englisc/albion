@@ -76,7 +76,7 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
-import com.marat.albion.ui.components.AudioButton
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
@@ -114,9 +114,9 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
     }
 }
 
-/** Круглая кнопка воспроизведения с подписью снизу. */
+/** Framed playback control with a label aligned to the recording control. */
 @Composable
-internal fun RoundAction(
+internal fun PlaybackAction(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
@@ -132,9 +132,8 @@ internal fun RoundAction(
         Box(Modifier.height(slot), contentAlignment = Alignment.Center) {
         Box(
             Modifier.size(size).pressScale(interaction, 0.9f)
-                .softShadow(CircleShape, 4.dp)
-                .background(lerpColor(Ink.Raised, Ink.Accent, on), CircleShape)
-                .border(1.5.dp, if (!enabled) Ink.Line else lerpColor(Ink.LineStrong, Ink.Accent, on), CircleShape)
+                .background(lerpColor(Ink.Raised, Ink.Accent, on), RoundedCornerShape(3.dp))
+                .border(.75.dp, if (!enabled) Ink.Line else lerpColor(Ink.Gold, Ink.Accent, on), RoundedCornerShape(3.dp))
                 .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -174,14 +173,12 @@ internal fun MicButton(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(size).pressScale(interaction, 0.985f), contentAlignment = Alignment.Center) {
             if (active) Canvas(Modifier.size(size)) {
-                drawCircle(Ink.Gold.copy(alpha = 0.7f), radius = this.size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.dp.toPx()))
-                if (!reduced) drawArc(Ink.Gold, -90f, 360f * amp, false,
-                    topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
-                    size = androidx.compose.ui.geometry.Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
-                    style = Stroke(1.5.dp.toPx()))
+                drawRect(Ink.Gold.copy(alpha = .7f), style = Stroke(.65.dp.toPx()))
+                if (!reduced) drawLine(Ink.Gold, Offset(7.dp.toPx(), this.size.height - 3.dp.toPx()),
+                    Offset(7.dp.toPx() + (this.size.width - 14.dp.toPx()) * amp, this.size.height - 3.dp.toPx()), 2.dp.toPx())
             }
-            Box(Modifier.size(size - 12.dp).background(face, CircleShape)
-                .border(0.5.dp, if (active) Ink.Gold else Ink.Line, CircleShape)
+            Box(Modifier.size(size - 12.dp).background(face, RoundedCornerShape(3.dp))
+                .border(.75.dp, if (active) Ink.Gold else Ink.Gold.copy(alpha = .7f), RoundedCornerShape(3.dp))
                 .clickable(interaction, indication = null, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,
@@ -252,7 +249,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TermBlock(card, showMeaning = false) {
-                AudioButton(
+                PracticeAudioButton(
                     playing = playing == "term:${card.id}",
                     onClick = { c.audio.play(deck, card.audio, card.term, "term:${card.id}") },
                     size = 40.dp,

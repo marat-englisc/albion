@@ -46,7 +46,7 @@ internal fun paneOf(route: NavKey): Pane? = when (route) {
 internal fun paneMetadata(route: NavKey): Map<String, Any> = when (paneOf(route)) {
     Pane.List -> mapOf(
         PANE_KEY to Pane.List,
-        PLACEHOLDER_KEY to if (route is BrowseRoute) "Выберите карточку в списке" else "Выберите тему в оглавлении",
+            PLACEHOLDER_KEY to if (route is BrowseRoute) "Выберите карточку в списке" else "Выберите урок на маршруте",
     )
     Pane.Detail -> mapOf(PANE_KEY to Pane.Detail)
     null -> emptyMap()

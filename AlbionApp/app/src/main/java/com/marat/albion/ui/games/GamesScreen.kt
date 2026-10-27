@@ -41,7 +41,7 @@ fun GamesScreen(navigator: Navigator) {
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item {
-            ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
+            ScreenHeader("Практика", eyebrow = "The Practice Room", compact = true, trailing = {
                 Row {
                     FeatureHelp("practice", "Как заниматься",
                         "Выберите навык, затем колоду или уровень и длину занятия. Параметры каждого упражнения сохраняются.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в дневной цели и статистике; расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
@@ -50,25 +50,19 @@ fun GamesScreen(navigator: Navigator) {
             })
         }
         item {
-            HeroCard(Modifier.fillMaxWidth().padding(bottom = 12.dp).clickable(role = Role.Button) { navigator.open(GameRoute(featured)) }, contentPadding = PaddingValues(18.dp)) {
-                Eyebrow(if (lastGame != null) "Последнее упражнение" else "Для начала")
-                Spacer(Modifier.height(9.dp))
-                Text(featured.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
-                Spacer(Modifier.height(6.dp))
-                val scope = if (featured.isGrammar) options.level.ifEmpty { "Все уровни" }
+            val scope = if (featured.isGrammar) options.level.ifEmpty { "Все уровни" }
                     else (featured.decks.firstOrNull { it.id == options.deckId } ?: featured.decks.first()).title
                 val length = if (options.count == Int.MAX_VALUE) "вся колода" else "до ${options.count} заданий"
                 val details = listOfNotNull(scope.takeUnless { it == featured.title }, length).joinToString(" · ")
-                Text(if (lastGame != null) details else "Вспомните знакомые слова и проверьте себя письменно.",
-                    style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                Spacer(Modifier.height(16.dp))
-                PrimaryButton(if (lastGame != null) "Повторить занятие" else "Выбрать параметры", { navigator.open(GameRoute(featured)) })
-            }
+                CatalogueCard(if (lastGame != null) "Продолжить практику" else "Первое занятие", featured.title,
+                    if (lastGame != null) details else "Вспомните слово и запишите ответ",
+                    onClick = { navigator.open(GameRoute(featured)) }, ribbon = true,
+                    modifier = Modifier.padding(top = 14.dp, bottom = 12.dp))
         }
         practiceGroups.forEach { (title, games) ->
             item(key = title) { SectionHeader(title, Modifier.padding(top = 10.dp)) }
             items(games, key = { it.name }) { game ->
-                EditorialLink(game.title, game.tagline, { navigator.open(GameRoute(game)) }, icon = game.icon)
+                PracticeModeCard(game, lastGame == game) { navigator.open(GameRoute(game)) }
             }
         }
     }

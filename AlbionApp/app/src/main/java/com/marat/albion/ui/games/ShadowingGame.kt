@@ -64,6 +64,8 @@ import com.marat.albion.data.audio.ShadowReport
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.ui.components.Eyebrow
+import com.marat.albion.ui.components.romanNumeral
+import com.marat.albion.ui.theme.Brand
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.theme.AlbionType
@@ -179,14 +181,14 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             TermBlock(card)
 
             val micSize = if (LocalNarrow.current) 76.dp else 84.dp
-            Row(
+            FlowRow(
                 Modifier.fillMaxWidth().padding(vertical = 18.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Top,
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                RoundAction(AlbionIcons.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
+                PlaybackAction(AlbionIcons.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
                 RecordButton(recording = recording, level = level, onClick = ::toggleRecord, size = micSize)
-                RoundAction(
+                PlaybackAction(
                     AlbionIcons.SlowMotionVideo, "Медленно",
                     { playOriginal(0.7f, "slow:${card.id}") },
                     enabled = card.audio != null, active = playing == "slow:${card.id}", slot = micSize + MicLip,
@@ -273,11 +275,11 @@ private fun ShadowSteps() {
     ) {
         listOf("Послушайте", "Повторите", "Сравните").forEachIndexed { i, step ->
             Row(
-                Modifier.background(Ink.Surface, CircleShape).padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 4.dp),
+                Modifier.border(.65.dp, Ink.Line, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(Modifier.size(22.dp).background(Ink.AccentSoft, CircleShape), contentAlignment = Alignment.Center) {
-                    Text("${i + 1}", style = MaterialTheme.typography.labelMedium, color = Ink.AccentText)
+                Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+                    Text(romanNumeral(i + 1), style = MaterialTheme.typography.labelMedium.copy(fontFamily = Brand), color = Ink.GoldText)
                 }
                 Spacer(Modifier.width(6.dp))
                 Text(step, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
@@ -290,20 +292,19 @@ private fun ShadowSteps() {
 @Composable
 internal fun ReportCard(r: ShadowReport) {
     val good = r.overall >= PASS
-    val shape = MaterialTheme.shapes.extraLarge
+    val shape = RoundedCornerShape(3.dp)
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
-            .softShadow(shape)
             .background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Процент — в цветном «камешке»: синий, если похоже, красный — если ещё нет.
+            // Result label uses the same square corners as the exercise sheet.
             Box(
-                Modifier.background(if (good) Ink.AccentSoft else Ink.ErrorSoft, RoundedCornerShape(18.dp))
+                Modifier.background(if (good) Ink.GoldSoft else Ink.ErrorSoft, RoundedCornerShape(2.dp))
                     .padding(horizontal = 12.dp, vertical = 4.dp),
             ) {
-                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.Success else Ink.Error, suffix = "%")
+                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.AccentText else Ink.Error, suffix = "%")
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
@@ -354,7 +355,7 @@ internal fun ReportCard(r: ShadowReport) {
     }
 }
 
-/** Шкала разбора: подпись, проценты и полоса — синие, если похоже, оранжевые — если пока нет. */
+/** Result scales use crimson and muted gold, with explicit numeric values. */
 @Composable
 private fun Scale(label: String, value: Int, note: String?) {
     Column(Modifier.padding(vertical = 5.dp)) {
@@ -371,6 +372,6 @@ private fun Scale(label: String, value: Int, note: String?) {
             Text("$value%", style = AlbionType.index.copy(color = Ink.Fg))
         }
         Spacer(Modifier.height(6.dp))
-        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.Gold, height = 8.dp)
+        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.GoldText, height = 3.dp)
     }
 }

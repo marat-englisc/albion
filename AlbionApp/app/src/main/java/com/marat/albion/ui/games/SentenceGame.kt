@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -54,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.Verdict
-import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.PrimaryButton
@@ -187,7 +187,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                                 modifier = Modifier.weight(1f),
                             )
                             Spacer(Modifier.width(12.dp))
-                            AudioButton(
+                            PracticeAudioButton(
                                 playing = audio.playingKey == speakKey,
                                 onClick = { c.audio.speak(puzzle.original, speakKey) },
                                 size = 40.dp,
@@ -248,14 +248,15 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
         TileStyle.Correct -> Ink.Success
         TileStyle.Wrong -> Ink.Error
     }
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(2.dp)
     Box(
         Modifier
-            .pressScale(interaction, 0.9f)
+            .widthIn(min = 48.dp).heightIn(min = 48.dp)
+            .pressScale(interaction, 0.99f)
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clickable(interaction, indication = null, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
-            .padding(horizontal = if (LocalNarrow.current) 10.dp else 12.dp, vertical = 9.dp),
+            .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {
         Text(
             text,

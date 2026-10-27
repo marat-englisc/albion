@@ -82,7 +82,6 @@ import com.marat.albion.data.games.Verdict
 import com.marat.albion.data.grammar.TopicKind
 import com.marat.albion.data.grammar.GrammarPrompt
 import com.marat.albion.data.grammar.GrammarQuizSession
-import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
@@ -216,11 +215,12 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
     val total by remember(vm.kind) { c.study.observeGrammarTaskCount(vm.kind) }.collectAsStateWithLifecycle(-1)
     val openRule: (Int) -> Unit = { n -> vm.topicIds[n]?.let { navigator.open(TopicRoute(it)) } }
 
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
 
     AnimatedContent(
         targetState = vm.phase,
-        transitionSpec = { fadeIn(tween(320, delayMillis = 60)) togetherWith fadeOut(tween(180)) },
+        transitionSpec = { practiceTransition(reduced) },
         label = "phase",
     ) { phase ->
         when (phase) {
@@ -244,10 +244,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
                 GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })
                 AnimatedContent(
                     targetState = vm.index,
-                    transitionSpec = {
-                        (slideInHorizontally(tween(460, easing = Easing.Emphasized)) { it / 3 } + fadeIn(tween(300, delayMillis = 80))) togetherWith
-                            (slideOutHorizontally(tween(380, easing = Easing.EmphasizedAccelerate)) { -it / 3 } + fadeOut(tween(200)))
-                    },
+                    transitionSpec = { practiceTransition(reduced) },
                     modifier = Modifier.weight(1f),
                     label = "task",
                 ) { i ->
@@ -275,11 +272,12 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
     val openRule: (Int) -> Unit = { n ->
         vm.topicIds[n]?.let { navigator.open(TopicRoute(it, fromQuiz = true)) }
     }
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val quizTitle = if (vm.retryingMistakes) "Повтор ошибок · тема $topic" else "Проверь себя · тема $topic"
 
     AnimatedContent(
         targetState = vm.phase,
-        transitionSpec = { fadeIn(tween(320, delayMillis = 60)) togetherWith fadeOut(tween(180)) },
+        transitionSpec = { practiceTransition(reduced) },
         label = "quizPhase",
     ) { phase ->
         when (phase) {
@@ -304,10 +302,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
                 GameTopRow(null, vm.index, vm.items.size, onClose = navigator::back, title = quizTitle)
                 AnimatedContent(
                     targetState = vm.index,
-                    transitionSpec = {
-                        (slideInHorizontally(tween(460, easing = Easing.Emphasized)) { it / 3 } + fadeIn(tween(300, delayMillis = 80))) togetherWith
-                            (slideOutHorizontally(tween(380, easing = Easing.EmphasizedAccelerate)) { -it / 3 } + fadeOut(tween(200)))
-                    },
+                    transitionSpec = { practiceTransition(reduced) },
                     modifier = Modifier.weight(1f),
                     label = "quizTask",
                 ) { i ->
@@ -335,7 +330,7 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
             GameSetupHeader(vm.game!!, Modifier.reveal(reveal, 0)) {
                 if (total == 0) {
                     Text(
-                        "Заданий пока нет. Они берутся из collections/grammar_tasks.xlsx — пересоберите приложение с материалами.",
+                        "Для этого упражнения пока нет заданий. Попробуйте другой режим практики.",
                         style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, modifier = Modifier.padding(top = 10.dp),
                     )
                     return@GameSetupHeader
@@ -343,13 +338,13 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
                 Column(Modifier.reveal(reveal, 1)) {
                     SectionHeader("Уровень", Modifier.padding(top = 0.dp), trailing = "$total")
                     ChipFlow {
-                        LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv; vm.saveOptions() } }
+                        LEVELS.forEach { lv -> PracticeOption(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv; vm.saveOptions() } }
                     }
                 }
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Длина", Modifier.padding(top = 4.dp))
                     ChipFlow {
-                        listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n; vm.saveOptions() } }
+                        listOf(10, 20, 30).forEach { n -> PracticeOption("$n заданий", vm.count == n) { vm.count = n; vm.saveOptions() } }
                     }
                 }
             }
@@ -404,17 +399,18 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
         task.topic?.let { n ->
 
             Row(
-                Modifier.padding(top = 10.dp).heightIn(min = 44.dp).clip(CircleShape)
+                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(3.dp))
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
                     .focusProperties { canFocus = false }
                     .clickable { openRule(n) }
-                    .background(Ink.AccentSoft, CircleShape)
+                    .background(Ink.Raised, RoundedCornerShape(3.dp))
+                    .border(.65.dp, Ink.Gold, RoundedCornerShape(3.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(AlbionIcons.MenuBook, null, tint = Ink.AccentText, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.AccentText)
+                Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.AccentText, modifier = Modifier.weight(1f))
                 Spacer(Modifier.width(6.dp))
                 Icon(AlbionIcons.ArrowForward, null, tint = Ink.AccentText, modifier = Modifier.size(16.dp))
             }
@@ -476,7 +472,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
 
 internal enum class OptionState { Idle, Correct, Wrong, Dim }
 
-/** Вариант ответа: верный заливается синим и подпрыгивает, неверный выбранный — красным и зачёркивается. */
+/** An answer slip with a readable check/cross and a restrained state change. */
 @Composable
 internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
@@ -506,21 +502,22 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
         },
         tween(260), label = "border",
     )
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val pop = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(state) {
-        if (state == OptionState.Correct) {
-            pop.snapTo(0.94f)
+        if (state == OptionState.Correct && !reduced) {
+            pop.snapTo(0.99f)
             pop.animateTo(1f, androidx.compose.animation.core.tween(180))
         }
     }
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(3.dp)
     Row(
         Modifier.fillMaxWidth().heightIn(min = 56.dp)
             .graphicsLayer { scaleX = pop.value; scaleY = pop.value }
             .pressScale(interaction, 0.97f)
             .background(bg, shape)
-            .border(if (state == OptionState.Idle) 1.dp else 2.dp, border, shape)
-            .clickable(interaction, indication = null, onClick = onClick)
+            .border(if (state == OptionState.Idle) .65.dp else 1.dp, border, shape)
+            .clickable(interaction, indication = null, enabled = state == OptionState.Idle, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -531,7 +528,7 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
             modifier = Modifier.weight(1f),
         )
         when (state) {
-            OptionState.Correct -> Icon(AlbionIcons.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(18.dp))
+            OptionState.Correct -> Icon(AlbionIcons.Check, null, tint = Ink.Success, modifier = Modifier.size(18.dp))
             OptionState.Wrong -> Icon(AlbionIcons.Close, null, tint = Ink.Error, modifier = Modifier.size(18.dp))
             else -> {}
         }

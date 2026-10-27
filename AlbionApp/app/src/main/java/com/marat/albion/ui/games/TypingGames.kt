@@ -75,7 +75,6 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
-import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
@@ -106,7 +105,7 @@ internal fun AnswerField(
     var focused by remember { mutableStateOf(false) }
     val on by animateFloatAsState(if (focused) 1f else 0f, tween(220), label = "focus")
     val narrow = LocalNarrow.current
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(3.dp)
     val border = when {
         struck -> Ink.Error
         else -> lerpColor(Ink.LineStrong, Ink.Accent, on)
@@ -136,7 +135,7 @@ internal fun AnswerField(
             Box(
                 Modifier.fillMaxWidth()
                     .background(if (struck) Ink.ErrorSoft else Ink.Raised, shape)
-                    .border(if (on > 0.5f || struck) 2.dp else 1.5.dp, border, shape)
+                    .border(if (on > 0.5f || struck) 1.dp else .65.dp, border, shape)
                     .heightIn(min = 60.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center,
@@ -189,20 +188,15 @@ private fun skeleton(term: String, revealed: Int): String {
 private fun hintLetters(term: String) =
     term.split(' ').filterNot { AnswerCheck.isPlaceholder(it) }.sumOf { w -> w.count { it.isLetter() } }
 
-/** Вердикт — пилюля, которая выпрыгивает пружиной: синяя для верного, красная для ошибки. */
+/** Rectangular proof mark; text and an icon explain the result independently of colour. */
 @Composable
 internal fun VerdictLine(verdict: Verdict) {
-    val pop = remember { androidx.compose.animation.core.Animatable(0.6f) }
-    LaunchedEffect(verdict) {
-        pop.snapTo(0.6f)
-        pop.animateTo(1f, androidx.compose.animation.core.tween(180))
-    }
     val good = verdict != Verdict.Wrong
     val fg = if (good) Ink.Success else Ink.Error
     Row(
-        Modifier.graphicsLayer { scaleX = pop.value; scaleY = pop.value; alpha = ((pop.value - 0.6f) / 0.4f).coerceIn(0f, 1f) }
-            .background(if (good) Ink.AccentSoft else Ink.ErrorSoft, RoundedCornerShape(50))
-            .padding(horizontal = 12.dp, vertical = 5.dp),
+        Modifier.background(if (good) Ink.SuccessSoft else Ink.ErrorSoft, RoundedCornerShape(2.dp))
+            .border(.65.dp, fg.copy(alpha = .4f), RoundedCornerShape(2.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(if (good) AlbionIcons.Check else AlbionIcons.Close, null, tint = fg, modifier = Modifier.size(16.dp))
@@ -310,7 +304,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 18.sp, letterSpacing = 1.sp),
                         color = Ink.Soft,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.background(Ink.Surface, RoundedCornerShape(12.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.background(Ink.Surface, RoundedCornerShape(2.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -348,7 +342,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                             Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
                             Spacer(Modifier.width(12.dp))
                         }
-                        AudioButton(
+                        PracticeAudioButton(
                             playing = audio.playingKey == "term:${card.id}",
                             onClick = { audio.play(deck, card.audio, card.term, "term:${card.id}") },
                             size = 40.dp,
@@ -462,7 +456,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
                         Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
                         Spacer(Modifier.width(12.dp))
                     }
-                    AudioButton(
+                    PracticeAudioButton(
                         playing = audio.playingKey == "term:${card.id}",
                         onClick = { audio.play(Deck.IRREGULAR, card.audio, card.term, "term:${card.id}") },
                         size = 40.dp,
@@ -558,9 +552,10 @@ private fun FormInput(
                             if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
                             style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
                             color = Ink.Fg,
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         Spacer(Modifier.width(4.dp))
-                        AudioButton(playing = playingKey == "$keyPrefix:$i", onClick = { onPlay(i) }, size = 32.dp, primary = false)
+                        PracticeAudioButton(playing = playingKey == "$keyPrefix:$i", onClick = { onPlay(i) }, size = 32.dp, primary = false)
                     }
                 }
             }

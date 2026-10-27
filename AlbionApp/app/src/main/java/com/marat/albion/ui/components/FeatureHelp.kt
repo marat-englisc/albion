@@ -46,7 +46,7 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         AlertDialog(
             onDismissRequest = ::dismiss,
             containerColor = Ink.Raised,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
             title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
             text = {
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,

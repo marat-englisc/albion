@@ -52,7 +52,6 @@ import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.TenseTask
 import com.marat.albion.data.games.Verdict
-import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
@@ -173,7 +172,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(forms(task, data), style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(10.dp))
-                            AudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
+                            PracticeAudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
                         }
                         answerVariant?.ipa?.takeIf { it.isNotBlank() }?.let {
                             Spacer(Modifier.height(4.dp))

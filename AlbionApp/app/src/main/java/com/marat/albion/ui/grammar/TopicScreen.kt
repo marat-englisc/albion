@@ -3,6 +3,8 @@ package com.marat.albion.ui.grammar
 import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
+import com.marat.albion.ui.components.CatalogueTab
+import com.marat.albion.ui.theme.headingFamily
 import androidx.compose.foundation.background
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.data.grammar.MdRule
@@ -241,27 +243,27 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
 private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier, prerequisites: List<Topic>) {
     Column(modifier.padding(top = 8.dp, bottom = 6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow(
+            CatalogueTab(
                 when (topic?.kind) {
                     TopicKind.Reference -> "Справочник"
                     TopicKind.Contents -> "О курсе"
                     TopicKind.Sources -> "Источники"
-                    else -> "Тема ${topic?.number ?: ""}"
+                    else -> "Урок %03d".format(topic?.number ?: 0)
                 },
-                color = Ink.Soft,
             )
             Spacer(Modifier.width(12.dp))
             LevelBadge(topic?.level)
         }
         Spacer(Modifier.height(14.dp))
-        Text((doc.title ?: topic?.title.orEmpty()).removePrefix("Справочник — "), style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+        val title = (doc.title ?: topic?.title.orEmpty()).removePrefix("Справочник — ")
+        Text(title, style = MaterialTheme.typography.headlineLarge.copy(fontFamily = headingFamily(title)), color = Ink.Fg)
         if (prerequisites.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
             InlineText("Сначала: " + prerequisites.joinToString(" · ") { "[[${it.id}|${it.number}. ${it.title}]]" },
                 style = MaterialTheme.typography.bodySmall.copy(color = Ink.Muted))
         }
         Spacer(Modifier.height(16.dp))
-        Hairline()
+        Hairline(color = Ink.Gold.copy(alpha = .65f))
     }
 }
 

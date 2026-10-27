@@ -161,7 +161,7 @@ class NavigationUiTest {
                 assertEquals(2, saved.quizTotal)
                 assertTrue(saved.reviewAt!! > System.currentTimeMillis())
                 click(scrollToNode { it.text?.toString() == "Готово" })
-                awaitNode { it.text?.toString() == "Нет тем к повторению с выбранными фильтрами." }
+                awaitNode { it.text?.toString() == "Все повторения выполнены" }
             }
         } finally {
             c.database.grammarTasks().delete(tasks.map { it.id })

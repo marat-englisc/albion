@@ -75,7 +75,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.marat.albion.data.content.Deck
-import com.marat.albion.ui.browse.TextTab
+import com.marat.albion.ui.components.CatalogueTab
+import com.marat.albion.ui.components.FolioDivider
+import com.marat.albion.ui.components.romanNumeral
+import com.marat.albion.ui.theme.headingFamily
+import com.marat.albion.ui.theme.Brand
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
@@ -223,7 +227,7 @@ fun GameSetup(
                     Column(Modifier.reveal(reveal, 1)) {
                         SectionHeader("Режим", Modifier.padding(top = 8.dp))
                         ChipFlow {
-                            game.modes.forEachIndexed { i, m -> TextTab(m, mode == i) { onMode(i) } }
+                            game.modes.forEachIndexed { i, m -> PracticeOption(m, mode == i) { onMode(i) } }
                         }
                     }
                 }
@@ -231,15 +235,15 @@ fun GameSetup(
                     Column(Modifier.reveal(reveal, 2)) {
                         SectionHeader("Ошибки", Modifier.padding(top = 4.dp), trailing = "%02d".format(mistakes))
                         ChipFlow {
-                            TextTab("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
-                            TextTab("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
+                            PracticeOption("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
+                            PracticeOption("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
                         }
                     }
                 }
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Длина", Modifier.padding(top = 4.dp))
                     ChipFlow {
-                        counts.forEach { n -> TextTab(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
+                        counts.forEach { n -> PracticeOption(if (n == Int.MAX_VALUE) "Все" else "$n ${game.unit}", count == n) { onCount(n) } }
                     }
                 }
             }
@@ -259,6 +263,7 @@ internal fun ColumnScope.SetupBody(start: (@Composable () -> Unit)?, content: @C
         content = content,
     )
     if (start != null) {
+        com.marat.albion.ui.components.Hairline(color = Ink.Gold.copy(alpha = .65f))
         Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(top = 4.dp, bottom = 16.dp)) {
             start()
         }
@@ -278,7 +283,7 @@ internal fun ChipFlow(content: @Composable () -> Unit) {
     ) { content() }
 }
 
-/** Варианты в столбик: выбранный — на мягкой синей плашке с отметкой. */
+/** Catalogue entries: rectangular choices with an explicit selection mark. */
 @Composable
 private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
     Column(Modifier.padding(vertical = 6.dp).selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -289,17 +294,17 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
             Row(
                 Modifier.fillMaxWidth()
                     .pressScale(interaction, 0.97f)
-                    .background(Ink.Surface, RoundedCornerShape(8.dp))
-                    .border(1.dp, if (isSel) Ink.AccentText else Ink.Line, RoundedCornerShape(8.dp))
+                    .background(if (isSel) Ink.AccentSoft else Ink.Raised, RoundedCornerShape(2.dp))
+                    .border(.75.dp, if (isSel) Ink.AccentText else Ink.Line, RoundedCornerShape(2.dp))
                     .selectable(isSel, interactionSource = interaction, indication = null, role = Role.RadioButton) { onSelect(i) }
                     .heightIn(min = 52.dp)
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    Modifier.size(22.dp).border(2.dp, lerpColor(Ink.LineStrong, Ink.Accent, t), CircleShape).padding(5.dp)
-                        .graphicsLayer { scaleX = t; scaleY = t }.background(Ink.Accent, CircleShape),
-                )
+                    Modifier.size(20.dp).border(.75.dp, if (isSel) Ink.Accent else Ink.LineStrong, RoundedCornerShape(1.dp)),
+                    contentAlignment = Alignment.Center,
+                ) { if (isSel) androidx.compose.material3.Icon(AlbionIcons.Check, null, tint = Ink.Accent, modifier = Modifier.size(14.dp)) }
                 Spacer(Modifier.width(14.dp))
                 Text(
                     label,
@@ -317,8 +322,8 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
     Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
         Row(Modifier.fillMaxWidth().padding(start = 10.dp, end = gutter, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             // Кнопка не принимает фокус: клавиатура по «Готово» не должна перескакивать на неё.
-            RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, Modifier.focusProperties { canFocus = false }, spin = 90f)
-            Spacer(Modifier.width(6.dp))
+            PracticeIconButton(AlbionIcons.Close, "Закрыть", onClose, Modifier.focusProperties { canFocus = false })
+            Spacer(Modifier.width(12.dp))
             Eyebrow(title, Modifier.weight(1f), color = Ink.Soft, maxLines = 1)
             Spacer(Modifier.width(10.dp))
             // Счётчик — маленькая «фишка», как счётчики секций.
@@ -326,10 +331,10 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
                 "${(index + 1).coerceAtMost(total)} / $total",
                 style = AlbionType.index.copy(color = Ink.Soft),
                 maxLines = 1,
-                modifier = Modifier.background(Ink.Surface, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
+                modifier = Modifier.border(.65.dp, Ink.LineStrong, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 6.dp),
             )
         }
-        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), height = 2.dp)
+        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), color = Ink.GoldText, height = 1.dp)
     }
 }
 
@@ -386,13 +391,14 @@ data class Mistake(val prompt: String, val answer: String, val correct: String)
 @Composable
 internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
-        Eyebrow("Упражнение · %02d".format(game.ordinal + 1), color = Ink.GoldText)
+        Text(game.editionTitle, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Brand), color = Ink.GoldText)
         Spacer(Modifier.height(12.dp))
-        Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+        Text(game.title, style = MaterialTheme.typography.headlineLarge.copy(fontFamily = headingFamily(game.title)), color = Ink.Fg)
         Spacer(Modifier.height(10.dp))
         Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
         Spacer(Modifier.height(24.dp))
-        HeroCard(Modifier.fillMaxWidth(), contentPadding = PaddingValues(20.dp), content = options)
+        CatalogueTab("Параметры · ${romanNumeral(game.editionNumber)}", Modifier.padding(start = 7.dp))
+        PracticeSheet(Modifier.fillMaxWidth(), content = options)
     }
 }
 
@@ -411,9 +417,10 @@ fun GameSummary(
     restartLabel: String = "Ещё раз",
 ) {
     val feedback = LocalFeedback.current
+    val reduced = LocalReducedMotion.current
     val ring = remember { Animatable(0f) }
     val ratio = if (total == 0) 0f else correct.toFloat() / total
-    LaunchedEffect(Unit) { if (total > 0) feedback.complete(); ring.animateTo(ratio, tween(400, easing = Easing.Emphasized)) }
+    LaunchedEffect(Unit) { if (total > 0) feedback.complete(); ring.animateTo(ratio, tween(if (reduced) 0 else 400, easing = Easing.Emphasized)) }
     val reveal = rememberReveal()
     val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
     Box(Modifier.fillMaxSize().paperSurface()) {
@@ -425,6 +432,8 @@ fun GameSummary(
     ) {
 
         Eyebrow("Итоги практики", color = Ink.GoldText)
+        Spacer(Modifier.height(12.dp))
+        FolioDivider(label = game?.let { romanNumeral(it.editionNumber) } ?: "ALBION")
         Spacer(Modifier.height(24.dp))
         BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val ringSize = minOf(176.dp * fontScale, maxWidth)
@@ -488,19 +497,19 @@ fun GameSummary(
                 Column(Modifier.padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     mistakes.forEach { m ->
                         Row(
-                            Modifier.fillMaxWidth().background(Ink.Raised, MaterialTheme.shapes.medium)
-                                .border(1.dp, Ink.Line, MaterialTheme.shapes.medium)
+                            Modifier.fillMaxWidth().background(Ink.Raised, RoundedCornerShape(3.dp))
+                                .border(.65.dp, Ink.Line, RoundedCornerShape(3.dp))
                                 .height(IntrinsicSize.Min)
                                 .padding(end = 14.dp, top = 12.dp, bottom = 12.dp),
                         ) {
                             // Тёплая «закладка» слева — ошибка, к которой вернёмся.
-                            Box(Modifier.padding(start = 8.dp, end = 12.dp).width(4.dp).fillMaxHeight().background(Ink.Gold.copy(alpha = 0.7f), CircleShape))
+                            Box(Modifier.padding(start = 8.dp, end = 12.dp).width(2.dp).fillMaxHeight().background(Ink.Gold.copy(alpha = 0.7f)))
                             Column(Modifier.weight(1f)) {
                                 if (m.prompt.isNotBlank()) {
                                     Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                                     Spacer(Modifier.height(2.dp))
                                 }
-                                Text(m.correct, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                                Text(m.correct, style = MaterialTheme.typography.titleLarge, color = Ink.Fg)
                                 if (m.answer.isNotBlank()) {
                                     Spacer(Modifier.height(2.dp))
                                     Text(
@@ -569,7 +578,7 @@ internal fun TaskCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val pad = if (LocalNarrow.current) 16.dp else 20.dp
-    HeroCard(modifier.fillMaxWidth(), contentPadding = PaddingValues(pad)) {
+    PracticeSheet(modifier.fillMaxWidth(), padding = pad) {
         Column(
             Modifier.fillMaxWidth(),
             horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
@@ -588,7 +597,7 @@ internal fun NoteCard(
     tone: NoteTone = NoteTone.Neutral,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = MaterialTheme.shapes.large
+    val shape = RoundedCornerShape(3.dp)
     val bg = when (tone) {
         NoteTone.Neutral -> Ink.Surface
         NoteTone.Good -> Ink.SuccessSoft
@@ -596,7 +605,7 @@ internal fun NoteCard(
     }
     Column(
         modifier.fillMaxWidth().clip(shape).background(bg)
-            .then(if (tone == NoteTone.Neutral) Modifier.border(1.dp, Ink.Line, shape) else Modifier)
+            .border(.65.dp, if (tone == NoteTone.Neutral) Ink.Line else if (tone == NoteTone.Good) Ink.Success.copy(alpha = .4f) else Ink.Error.copy(alpha = .4f), shape)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         content = content,
     )
