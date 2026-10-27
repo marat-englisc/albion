@@ -9,7 +9,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -62,7 +60,6 @@ import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 
 /**
  * Тренажёр времён: пример с пропуском вместо формы неправильного глагола.
@@ -110,7 +107,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard(Modifier.shakeOn(shake)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = Ink.Accent)
+                    Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = Ink.AccentText)
                     LevelBadge(card.level)
                 }
                 Spacer(Modifier.height(14.dp))
@@ -170,12 +167,12 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                     }
                     Spacer(Modifier.height(14.dp))
                     NoteCard {
-                        Eyebrow(task.formLabel, color = Ink.Accent)
+                        Eyebrow(task.formLabel, color = Ink.AccentText)
                         Spacer(Modifier.height(8.dp))
                         Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
                         Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(forms(task, data), style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
+                            Text(forms(task, data), style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(10.dp))
                             AudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
                         }

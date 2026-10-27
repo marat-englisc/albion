@@ -25,8 +25,21 @@ data class GameTotals(val game: String, val correct: Int, val wrong: Int) {
     val accuracy get() = if (answers == 0) null else correct.toFloat() / answers
 }
 
+data class PracticeNeed(val game: String, val deck: String, val count: Int, val lastSeen: Long)
+
 @Dao
 interface GameActivityDao {
+    /** Current lexical mistakes only; solved mistakes and missing audio are excluded. */
+    @Query("""
+        SELECT g.game, c.deck, COUNT(DISTINCT LOWER(c.term)) AS count, MAX(g.last_seen) AS lastSeen
+        FROM game_card_stats g JOIN cards c ON c.id = g.card_id
+        WHERE g.wrong > 0 AND g.streak < :clearAfter
+          AND g.game IN ('TYPE_ANSWER', 'IRREGULAR', 'PRONUNCIATION', 'SHADOWING')
+          AND (g.game NOT IN ('PRONUNCIATION', 'SHADOWING') OR c.audio IS NOT NULL)
+        GROUP BY g.game, c.deck
+    """)
+    fun observePracticeNeeds(clearAfter: Int = GameStats.CLEAR_AFTER): Flow<List<PracticeNeed>>
+
     @Insert
     suspend fun insert(answer: GameAnswerLogEntity)
 

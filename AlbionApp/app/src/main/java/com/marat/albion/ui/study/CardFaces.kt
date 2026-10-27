@@ -1,6 +1,5 @@
 package com.marat.albion.ui.study
 
-import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -127,8 +126,6 @@ fun CardBack(
     audio: CardAudio,
     modifier: Modifier = Modifier,
     showRussian: Boolean = true,
-    /** Финн держится за линию между транскрипцией и значением (в занятии). */
-    peek: Boolean = false,
 ) {
     val reveal = rememberReveal()
     var i = 0
@@ -141,11 +138,8 @@ fun CardBack(
         }
 
         Spacer(Modifier.height(18.dp))
-        // У неправильных глаголов над линией таблица форм — там Финну места нет.
-        Hairline(
-            Modifier.reveal(reveal, ++i, step = 70)
-                .then(if (peek && irregular == null) Modifier.peekingFinn(at = 0.86f, height = 44.dp, delayMs = 450) else Modifier)
-        )
+
+        Hairline(Modifier.reveal(reveal, ++i, step = 70))
         Spacer(Modifier.height(16.dp))
 
         if (card.meaningEn.isNotBlank()) {

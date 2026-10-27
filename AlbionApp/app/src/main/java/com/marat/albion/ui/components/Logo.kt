@@ -28,7 +28,8 @@ fun AlbionLogo(
     size: Dp = 32.dp,
     horizon: Float = 1f,
     chevron: Float = 1f,
-    color: Color = Ink.Fg,
+    color: Color = Ink.AccentText,
+    horizonColor: Color = Ink.Gold,
 ) {
     Canvas(modifier.size(size)) {
         val u = this.size.minDimension / 100f
@@ -37,7 +38,7 @@ fun AlbionLogo(
         val apex = p(50f, 18f)
         val left = p(22f, 82f)
         val right = p(78f, 82f)
-        val legWidth = 7.5f * u
+        val legWidth = 5.5f * u
 
         if (chevron >= 1f) {
             val path = Path().apply {
@@ -52,7 +53,7 @@ fun AlbionLogo(
 
         if (horizon > 0f) {
             val half = 46f * horizon.coerceIn(0f, 1f)
-            drawLine(color, p(50f - half, 64f), p(50f + half, 64f), strokeWidth = 2.6f * u, cap = StrokeCap.Butt)
+            drawLine(horizonColor, p(50f - half, 64f), p(50f + half, 64f), strokeWidth = 2.6f * u, cap = StrokeCap.Butt)
         }
     }
 }

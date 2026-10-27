@@ -39,7 +39,7 @@ import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
+import com.marat.albion.ui.theme.Brand
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -80,16 +80,16 @@ fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Un
 
     Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AlbionLogo(size = 112.dp, horizon = horizon.value, chevron = chevron.value)
+            AlbionLogo(size = 68.dp, horizon = horizon.value, chevron = chevron.value, color = Ink.AccentText, horizonColor = Ink.Gold)
             Spacer(Modifier.height(36.dp))
             val w = word.value
             Text(
-                "ALBION",
+                "Albion",
                 style = TextStyle(
-                    fontFamily = Serif,
-                    fontSize = 30.sp,
+                    fontFamily = Brand,
+                    fontSize = 68.sp,
                     fontWeight = FontWeight.Normal,
-                    letterSpacing = (22f - 12f * w).sp,
+                    letterSpacing = (3f - 3f * w).sp,
                 ),
                 color = Ink.Fg,
                 modifier = Modifier.graphicsLayer {

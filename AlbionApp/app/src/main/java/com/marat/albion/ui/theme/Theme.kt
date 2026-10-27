@@ -28,15 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.R
 
-/**
- * Набор тонов одной темы. Палитра выведена из Финна: кремовое оперение, тёмно-графитовая спинка,
- * зелёный вязаный шарф с бежевой полоской и оранжевый клюв. Иерархия текста строится яркостью,
- * акцент (шарф) отмечает действие и успех, тёплый (клюв) — ошибки, серию и праздники.
- */
 @Immutable
 data class Palette(
     val isDark: Boolean,
-    /** Фон («бумага»). */
     val bg: Color,
     val raised: Color,
     val surface: Color,
@@ -44,7 +38,6 @@ data class Palette(
     val high: Color,
     val line: Color,
     val lineStrong: Color,
-    /** Самый контрастный цвет («чернила»). */
     val fg: Color,
     val text: Color,
     val soft: Color,
@@ -52,59 +45,69 @@ data class Palette(
     val faint: Color,
     val code: Color,
     val success: Color,
-    /** Шарф Финна — главное действие, выбор, прогресс. */
+    val successText: Color,
+    val successSoft: Color,
     val accent: Color,
+    val accentText: Color,
     val onAccent: Color,
-    /** Нижняя «кромка» объёмных кнопок. */
     val accentDeep: Color,
-    /** Мягкая заливка выбранного и карточек с акцентом. */
     val accentSoft: Color,
-    /** Клюв — ошибки, серия, предупреждения; читается как текст. */
+    val error: Color,
+    val errorText: Color,
+    val onError: Color,
+    val errorDeep: Color,
+    val errorSoft: Color,
     val warm: Color,
+    val warmText: Color,
     val onWarm: Color,
     val warmDeep: Color,
     val warmSoft: Color,
-    /** Чистый оранжевый клюва — только для декора: конфетти, огонёк серии. */
-    val beak: Color,
-    /** Бежевая полоска шарфа — блики и праздничные искры. */
-    val stripe: Color,
-    /** Тень под карточками. */
+    val gold: Color,
+    val goldText: Color,
+    val goldSoft: Color,
+    val ivory: Color,
     val shadow: Color,
 )
 
-/** Светлая тема — «утро у моря»: кремовая бумага, графитовые чернила, зелёный шарф. */
+/** Modern British Elegance — warm paper, crimson, antique gold and charcoal. */
 val LightPalette = Palette(
     isDark = false,
-    bg = Color(0xFFFBF6EE), raised = Color(0xFFFFFDF8), surface = Color(0xFFF6EFE3),
-    elevated = Color(0xFFEFE6D6), high = Color(0xFFE7DCC8),
-    line = Color(0xFFEADFCC), lineStrong = Color(0xFFD5C6AD),
-    fg = Color(0xFF272325), text = Color(0xFF2E2A2C), soft = Color(0xFF4A4345),
-    muted = Color(0xFF5F5658), faint = Color(0xFF655B5D), code = Color(0xFFF3EADB),
-    success = Color(0xFF2C6249),
-    accent = Color(0xFF2C6249), onAccent = Color(0xFFFFFDF7), accentDeep = Color(0xFF1C4232), accentSoft = Color(0xFFDDEBDF),
-    warm = Color(0xFF9C4217), onWarm = Color(0xFFFFFDF7), warmDeep = Color(0xFF6E2C0C), warmSoft = Color(0xFFFBE4D4),
-    beak = Color(0xFFEE7A3F), stripe = Color(0xFFE6CC94),
-    shadow = Color(0xFF6B4F2A),
+    bg = Color(0xFFF6F1E7), raised = Color(0xFFFFFDFC), surface = Color(0xFFF0EBE2),
+    elevated = Color(0xFFF0EBE2), high = Color(0xFFEEE8DE),
+    line = Color(0xFFD8D1C5), lineStrong = Color(0xFFB9AFA0),
+    fg = Color(0xFF24272B), text = Color(0xFF24272B), soft = Color(0xFF575149),
+    muted = Color(0xFF6E675F), faint = Color(0xFF6E675F), code = Color(0xFFF0EBE2),
+    success = Color(0xFF4F6B57), successText = Color(0xFF3D5945), successSoft = Color(0xFFE6EDE5),
+    accent = Color(0xFF861F39), accentText = Color(0xFF861F39),
+    onAccent = Color(0xFFF6F1E7), accentDeep = Color(0xFF6E192F), accentSoft = Color(0xFFF4E5E7),
+    error = Color(0xFFA13A3A), errorText = Color(0xFF963131),
+    onError = Color(0xFFFFFDFC), errorDeep = Color(0xFF852C2C), errorSoft = Color(0xFFF6E5E2),
+    warm = Color(0xFFB98A3D), warmText = Color(0xFF79571F),
+    onWarm = Color(0xFF24272B), warmDeep = Color(0xFFC3974A), warmSoft = Color(0xFFF0E6D3),
+    gold = Color(0xFFC6A66D), goldText = Color(0xFF765A2C), goldSoft = Color(0xFFF2EAD9),
+    ivory = Color(0xFFF6F1E7), shadow = Color(0xFF24272B),
 )
 
-/** Тёмная тема — «ночной фьорд»: глубокая сине-зелёная вода, кремовый текст, светящийся шарф. */
 val DarkPalette = Palette(
     isDark = true,
-    bg = Color(0xFF111917), raised = Color(0xFF16201D), surface = Color(0xFF1A2522),
-    elevated = Color(0xFF212E2A), high = Color(0xFF283733),
-    line = Color(0xFF26332F), lineStrong = Color(0xFF3B4C47),
-    fg = Color(0xFFF7F0E4), text = Color(0xFFEEE7DB), soft = Color(0xFFD3CBBE),
-    muted = Color(0xFFB3AB9E), faint = Color(0xFFA8A094), code = Color(0xFF1E2A27),
-    success = Color(0xFF86CFA4),
-    accent = Color(0xFF86CFA4), onAccent = Color(0xFF0E1A14), accentDeep = Color(0xFF4C8D69), accentSoft = Color(0xFF1D362B),
-    warm = Color(0xFFF49A68), onWarm = Color(0xFF1A0F08), warmDeep = Color(0xFFB8653A), warmSoft = Color(0xFF3A261A),
-    beak = Color(0xFFF08A52), stripe = Color(0xFFE9D3A1),
-    shadow = Color(0xFF000000),
+    bg = Color(0xFF24272B), raised = Color(0xFF2E3238), surface = Color(0xFF2E3238),
+    elevated = Color(0xFF383D44), high = Color(0xFF383D44),
+    line = Color(0xFF444A52), lineStrong = Color(0xFF686D73),
+    fg = Color(0xFFF6F1E7), text = Color(0xFFF6F1E7), soft = Color(0xFFD8D1C5),
+    muted = Color(0xFFC8C1B6), faint = Color(0xFFC8C1B6), code = Color(0xFF2E3238),
+    success = Color(0xFF6E8B74), successText = Color(0xFFA9C7B0), successSoft = Color(0xFF303E35),
+    accent = Color(0xFFA02A47), accentText = Color(0xFFF6F1E7),
+    onAccent = Color(0xFFF6F1E7), accentDeep = Color(0xFFB33455), accentSoft = Color(0xFF432E37),
+    error = Color(0xFFC96A6A), errorText = Color(0xFFFFB5AE),
+    onError = Color(0xFF000000), errorDeep = Color(0xFFB75B5B), errorSoft = Color(0xFF493234),
+    warm = Color(0xFFD2A85A), warmText = Color(0xFFE4BF7B),
+    onWarm = Color(0xFF24272B), warmDeep = Color(0xFFBD934A), warmSoft = Color(0xFF423B2F),
+    gold = Color(0xFFC6A66D), goldText = Color(0xFFD8B980), goldSoft = Color(0xFF3C372F),
+    ivory = Color(0xFFF6F1E7), shadow = Color(0xFF000000),
 )
 
 fun paletteFor(dark: Boolean): Palette = if (dark) DarkPalette else LightPalette
 
-/** Промежуточная палитра — для плавной смены темы. */
 fun lerpPalette(a: Palette, b: Palette, t: Float): Palette {
     if (t <= 0f) return a
     if (t >= 1f) return b
@@ -116,20 +119,17 @@ fun lerpPalette(a: Palette, b: Palette, t: Float): Palette {
         line = c(a.line, b.line), lineStrong = c(a.lineStrong, b.lineStrong),
         fg = c(a.fg, b.fg), text = c(a.text, b.text), soft = c(a.soft, b.soft),
         muted = c(a.muted, b.muted), faint = c(a.faint, b.faint), code = c(a.code, b.code),
-        success = c(a.success, b.success),
-        accent = c(a.accent, b.accent), onAccent = c(a.onAccent, b.onAccent),
+        success = c(a.success, b.success), successText = c(a.successText, b.successText), successSoft = c(a.successSoft, b.successSoft),
+        accent = c(a.accent, b.accent), accentText = c(a.accentText, b.accentText), onAccent = c(a.onAccent, b.onAccent),
         accentDeep = c(a.accentDeep, b.accentDeep), accentSoft = c(a.accentSoft, b.accentSoft),
-        warm = c(a.warm, b.warm), onWarm = c(a.onWarm, b.onWarm),
+        error = c(a.error, b.error), errorText = c(a.errorText, b.errorText), onError = c(a.onError, b.onError),
+        errorDeep = c(a.errorDeep, b.errorDeep), errorSoft = c(a.errorSoft, b.errorSoft),
+        warm = c(a.warm, b.warm), warmText = c(a.warmText, b.warmText), onWarm = c(a.onWarm, b.onWarm),
         warmDeep = c(a.warmDeep, b.warmDeep), warmSoft = c(a.warmSoft, b.warmSoft),
-        beak = c(a.beak, b.beak), stripe = c(a.stripe, b.stripe), shadow = c(a.shadow, b.shadow),
+        gold = c(a.gold, b.gold), goldText = c(a.goldText, b.goldText), goldSoft = c(a.goldSoft, b.goldSoft), ivory = c(a.ivory, b.ivory), shadow = c(a.shadow, b.shadow),
     )
 }
 
-/**
- * Текущая палитра Albion.
- * Значения читаются из snapshot-состояния, поэтому при смене темы
- * всё, что их использует (композиция и отрисовка), обновляется само.
- */
 object Ink {
     var palette by mutableStateOf(DarkPalette)
         internal set
@@ -148,52 +148,94 @@ object Ink {
     val Muted get() = palette.muted
     val Faint get() = palette.faint
     val Code get() = palette.code
-    val Success get() = palette.success
+    val Success get() = palette.successText
+    val SuccessFill get() = palette.success
+    val SuccessSoft get() = palette.successSoft
 
     val Accent get() = palette.accent
+    val AccentText get() = palette.accentText
     val OnAccent get() = palette.onAccent
     val AccentDeep get() = palette.accentDeep
     val AccentSoft get() = palette.accentSoft
-    val Warm get() = palette.warm
+    val Error get() = palette.errorText
+    val ErrorFill get() = palette.error
+    val OnError get() = palette.onError
+    val ErrorDeep get() = palette.errorDeep
+    val ErrorSoft get() = palette.errorSoft
+    val Warm get() = palette.warmText
+    val WarmFill get() = palette.warm
     val OnWarm get() = palette.onWarm
     val WarmDeep get() = palette.warmDeep
     val WarmSoft get() = palette.warmSoft
-    val Beak get() = palette.beak
-    val Stripe get() = palette.stripe
+    val Gold get() = palette.gold
+    val GoldText get() = palette.goldText
+    val GoldSoft get() = palette.goldSoft
+    val Ivory get() = palette.ivory
     val Shadow get() = palette.shadow
 }
 
-/** Антиква — для заголовков, терминов и цифр; гротеск — для интерфейса. */
-val Serif = FontFamily(
-    Font(R.font.noto_serif_regular),
-    Font(R.font.noto_serif_italic, style = FontStyle.Italic),
+// Libre Baskerville covers Latin; the bundled Noto serif provides Cyrillic/IPA.
+// Adobe Caslon Pro is reserved for the wordmark and brand phrases.
+val Brand = FontFamily(
+    Font(R.font.adobe_caslon_pro_regular, weight = FontWeight.Normal),
+    Font(R.font.adobe_caslon_pro_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+    Font(R.font.adobe_caslon_pro_semibold, weight = FontWeight.SemiBold),
+    Font(R.font.adobe_caslon_pro_semibold_italic, weight = FontWeight.SemiBold, style = FontStyle.Italic),
+    Font(R.font.adobe_caslon_pro_bold, weight = FontWeight.Bold),
+    Font(R.font.adobe_caslon_pro_bold_italic, weight = FontWeight.Bold, style = FontStyle.Italic),
+)
+var Serif = FontFamily(Font(R.font.libre_baskerville), Font(R.font.libre_baskerville_italic, style = FontStyle.Italic))
+    private set
+
+/** Explicit Cyrillic and IPA fallback keeps Russian lesson titles in a serif. */
+internal fun initializeTypography(resources: android.content.res.Resources) {
+    if (android.os.Build.VERSION.SDK_INT >= 29) {
+        fun family(regular: Int, italic: Int) = android.graphics.fonts.FontFamily.Builder(
+            android.graphics.fonts.Font.Builder(resources, regular).setWeight(400)
+                .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_UPRIGHT).build(),
+        ).addFont(android.graphics.fonts.Font.Builder(resources, italic).setWeight(400)
+            .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_ITALIC).build()).build()
+        val typeface = android.graphics.Typeface.CustomFallbackBuilder(
+            family(R.font.libre_baskerville, R.font.libre_baskerville_italic),
+        ).addCustomFallback(family(R.font.noto_serif_regular, R.font.noto_serif_italic))
+            .setSystemFallback("serif").build()
+        Serif = FontFamily(typeface)
+    }
+}
+
+@OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+private fun inter(weight: FontWeight, italic: Boolean = false) = Font(
+    if (italic) R.font.inter_italic_variable else R.font.inter_variable,
+    weight = weight,
+    style = if (italic) FontStyle.Italic else FontStyle.Normal,
+    variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(
+        androidx.compose.ui.text.font.FontVariation.weight(weight.weight),
+        androidx.compose.ui.text.font.FontVariation.Setting("opsz", 18f),
+    ),
 )
 val Sans = FontFamily(
-    Font(R.font.noto_sans_light, weight = FontWeight.Light),
-    Font(R.font.noto_sans_regular),
-    Font(R.font.noto_sans_medium, weight = FontWeight.Medium),
-    Font(R.font.noto_sans_semibold, weight = FontWeight.SemiBold),
-    Font(R.font.noto_sans_italic, style = FontStyle.Italic),
+    inter(FontWeight.Light), inter(FontWeight.Normal), inter(FontWeight.Medium),
+    inter(FontWeight.SemiBold), inter(FontWeight.Bold), inter(FontWeight.Normal, italic = true),
 )
 
 private fun schemeOf(p: Palette): ColorScheme {
     val base = if (p.isDark) darkColorScheme() else lightColorScheme()
     return base.copy(
-        primary = p.accent,
-        onPrimary = p.onAccent,
+        primary = p.accentText,
+        onPrimary = if (p.isDark) p.bg else p.onAccent,
         primaryContainer = p.accentSoft,
         onPrimaryContainer = p.fg,
-        secondary = p.soft,
+        secondary = p.goldText,
         onSecondary = p.bg,
         secondaryContainer = p.elevated,
         onSecondaryContainer = p.fg,
-        tertiary = p.muted,
+        tertiary = p.successText,
         onTertiary = p.bg,
-        tertiaryContainer = p.elevated,
-        onTertiaryContainer = p.fg,
+        tertiaryContainer = p.surface,
+        onTertiaryContainer = p.successText,
         background = p.bg,
         onBackground = p.text,
-        surface = p.bg,
+        surface = p.raised,
         onSurface = p.text,
         surfaceVariant = p.elevated,
         onSurfaceVariant = p.muted,
@@ -206,20 +248,21 @@ private fun schemeOf(p: Palette): ColorScheme {
         surfaceDim = p.bg,
         outline = p.lineStrong,
         outlineVariant = p.line,
-        error = p.warm,
-        onError = p.onWarm,
-        errorContainer = p.warmSoft,
-        onErrorContainer = p.fg,
+        surfaceTint = p.accent,
+        error = p.errorText,
+        onError = p.onError,
+        errorContainer = p.errorSoft,
+        onErrorContainer = p.errorText,
         inverseSurface = p.fg,
         inverseOnSurface = p.bg,
-        inversePrimary = p.bg,
+        inversePrimary = if (p.isDark) LightPalette.accent else DarkPalette.accent,
         scrim = Color.Black,
     )
 }
 
 private val base = Typography()
 
-private val typography = Typography(
+private val typography get() = Typography(
     displayLarge = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 56.sp, lineHeight = 60.sp, letterSpacing = (-1.5).sp),
     displayMedium = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 44.sp, lineHeight = 50.sp, letterSpacing = (-1).sp),
     displaySmall = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp),
@@ -237,31 +280,22 @@ private val typography = Typography(
     bodySmall = base.bodySmall.copy(fontFamily = Sans, fontSize = 14.sp, lineHeight = 21.sp),
 )
 
-/** Мягкие, «галечные» скругления — как у игрушки, а не у таблицы. */
 private val shapes = Shapes(
-    extraSmall = RoundedCornerShape(8.dp),
-    small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(18.dp),
-    large = RoundedCornerShape(22.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+    extraSmall = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(20.dp),
 )
 
 object AlbionType {
-    /** Мелкие заглавные с широкой разрядкой — подписи секций. */
-    val eyebrow = TextStyle(fontFamily = Sans, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.8.sp)
-    /** Транскрипция. */
-    val ipa get() = TextStyle(fontFamily = Serif, fontSize = 18.sp, fontStyle = FontStyle.Italic, color = Ink.Muted)
-    /** Крупные цифры статистики — тонкий гротеск. */
-    val number = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-1.5).sp)
+        val eyebrow = TextStyle(fontFamily = Sans, fontSize = 11.sp, lineHeight = 17.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.6.sp)
+        val ipa get() = TextStyle(fontFamily = Sans, fontSize = 17.sp, fontStyle = FontStyle.Normal, color = Ink.Muted)
+        val number = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-1.5).sp)
     val numberSmall = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.8).sp)
-    /** Порядковые номера «01», «02». */
-    val index get() = TextStyle(fontFamily = Serif, fontSize = 15.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
+        val index get() = TextStyle(fontFamily = Serif, fontSize = 15.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
-/**
- * Палитра переключается целиком (при смешивании светлой и тёмной тем текст сливался с фоном),
- * но не скачком: цвета перетекают за полсекунды, как будто над фьордом сменилось освещение.
- */
 @Composable
 fun AlbionTheme(dark: Boolean = true, content: @Composable () -> Unit) {
     val palette = animatedPalette(paletteFor(dark))

@@ -1,10 +1,7 @@
 package com.marat.albion.ui.grammar
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.ui.text.style.TextAlign
-import com.marat.albion.ui.components.Mascot
-import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.nav.LocalBesideDetail
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
@@ -71,6 +68,8 @@ import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.db.GrammarProgressEntity
 import com.marat.albion.data.grammar.GrammarBook
 import com.marat.albion.data.grammar.GrammarLearningPath
+import com.marat.albion.data.grammar.GrammarNextStep
+import com.marat.albion.ui.components.HeroCard
 import com.marat.albion.data.grammar.GrammarSearch
 import com.marat.albion.data.grammar.GrammarReview
 import com.marat.albion.data.grammar.Topic
@@ -110,6 +109,7 @@ data class GrammarHomeState(
     val progress: Map<String, GrammarProgressEntity> = emptyMap(),
     val lastTopic: String? = null,
     val reviews: List<GrammarReview.Item> = emptyList(),
+    val quizTopics: Set<Int> = emptySet(),
 )
 
 class GrammarViewModel(c: AppContainer) : ViewModel() {
@@ -120,7 +120,7 @@ class GrammarViewModel(c: AppContainer) : ViewModel() {
         c.grammar.observeQuizTopics(),
     ) { book, progress, s, quizTopics ->
         val byId = progress.associateBy { it.topicId }
-        GrammarHomeState(false, book, byId, s.lastGrammarTopic, GrammarReview.scheduled(book, byId, quizTopics.toSet()))
+        GrammarHomeState(false, book, byId, s.lastGrammarTopic, GrammarReview.scheduled(book, byId, quizTopics.toSet()), quizTopics.toSet())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GrammarHomeState())
 }
 
@@ -147,13 +147,13 @@ fun GrammarScreen(navigator: Navigator) {
     val lessons = book.lessons
     val readCount = lessons.count { state.progress[it.id]?.readAt != null }
     val masteredCount = lessons.count { state.progress[it.id]?.masteredAt != null }
-    val recommendation = GrammarLearningPath.recommend(book.topics,
-        state.progress.filterValues { it.masteredAt != null }.keys, level, state.lastTopic)
+    val now = grammarReviewTime()
+    val nextStep = GrammarNextStep.recommend(book, state.progress, state.quizTopics, now, level, state.lastTopic)
+    val recommendation = nextStep?.topic
     LaunchedEffect(book, recommendation?.id) {
         if (openChapters.isEmpty()) book.chapters.firstOrNull { chapter -> chapter.topics.any { it.id == recommendation?.id } }
             ?.let { openChapters = listOf(it.title) }
     }
-    val now = grammarReviewTime()
     val due = state.reviews.takeWhile { it.dueAt <= now }
     val dueIds = due.map { it.topic.id }.toSet()
     val filtering = query.isNotBlank() || level != null || bookmarksOnly || reviewsOnly
@@ -225,7 +225,7 @@ fun GrammarScreen(navigator: Navigator) {
         if (!state.loading && lessons.isEmpty()) {
             item {
                 Panel(Modifier.padding(top = 24.dp)) {
-                    EmptyState("Учебник ещё не добавлен", "Темы берутся из папки grammar. Включите albion.bundleContent=true и пересоберите приложение.", mascot = Finn.EMPTY_LIBRARY)
+                    EmptyState("Учебник ещё не добавлен", "Темы берутся из папки grammar. Включите albion.bundleContent=true и пересоберите приложение.")
                 }
             }
             return@LazyColumn
@@ -256,17 +256,23 @@ fun GrammarScreen(navigator: Navigator) {
                 Text("Прочитано: $readCount из ${lessons.size}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
                     modifier = Modifier.padding(top = 6.dp))
 
-                val continueTopic = recommendation
-                if (continueTopic != null) {
+                if (nextStep != null) {
+                    val continueTopic = nextStep.topic
                     Spacer(Modifier.height(12.dp))
-                    Text(if (continueTopic.id == state.lastTopic) "Продолжить урок" else "Следующий шаг",
-                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(bottom = 6.dp))
-                    PrimaryButton(
-                        text = "${continueTopic.number}. ${continueTopic.title}",
-                        onClick = { open(continueTopic) },
-                        trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                        modifier = Modifier.peekingFinn(at = 0.88f, height = 50.dp),
-                    )
+                    HeroCard(contentPadding = PaddingValues(18.dp)) {
+                        Eyebrow("Следующий шаг · ${nextStep.label}")
+                        Spacer(Modifier.height(9.dp))
+                        Text("${continueTopic.number}. ${continueTopic.title}", style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                        Spacer(Modifier.height(8.dp))
+                        Text(nextStep.reason, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                        Spacer(Modifier.height(14.dp))
+                        PrimaryButton(nextStep.action,
+                            onClick = { if (nextStep.kind == GrammarNextStep.Kind.Read) open(continueTopic) else quiz(continueTopic) },
+                            trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                        if (nextStep.kind != GrammarNextStep.Kind.Read) TextButton(onClick = { open(continueTopic) }) {
+                            Text("Сначала открыть правило", color = Ink.AccentText)
+                        }
+                    }
                 }
             }
         }
@@ -293,10 +299,10 @@ fun GrammarScreen(navigator: Navigator) {
                     when {
                         due.isNotEmpty() -> {
                             val first = due.first().topic
-                            PrimaryButton("Повторить: ${first.number}. ${first.title}", onClick = { quiz(first) },
-                                trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward)
+                            Text("${due.size} ${com.marat.albion.ui.library.pluralRu(due.size, "тема", "темы", "тем")} ждут повторения.",
+                                style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                TextButton(onClick = { open(first) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.Accent) }
+                                TextButton(onClick = { open(first) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.AccentText) }
                                 TextButton(onClick = {
                                     reviewsOnly = true; query = ""; level = null; bookmarksOnly = false
                                 }, modifier = Modifier.weight(1f)) { Text("Очередь (${due.size})", color = Ink.Fg) }
@@ -308,7 +314,7 @@ fun GrammarScreen(navigator: Navigator) {
                             Text("${next.topic.number}. ${next.topic.title}",
                                 style = MaterialTheme.typography.bodyMedium, color = Ink.Muted,
                                 modifier = Modifier.padding(top = 8.dp))
-                            TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.Accent) }
+                            TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.AccentText) }
                         }
                         else -> {
                             Text("Пройдите тест в конце темы — здесь появится её ближайшее повторение.",
@@ -387,8 +393,6 @@ fun GrammarScreen(navigator: Navigator) {
             }
             if (found.isEmpty()) item {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Всё повторено — Финн отдыхает с чаем; ничего не нашлось — ищет с лупой.
-                    Mascot(if (reviewsOnly) Finn.ALL_DONE else Finn.NO_RESULTS, 120.dp, Modifier.padding(top = 12.dp))
                     Text(if (reviewsOnly) "Нет тем к повторению с выбранными фильтрами." else "Темы не найдены.",
                         style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center,
                         modifier = Modifier.padding(vertical = 16.dp))

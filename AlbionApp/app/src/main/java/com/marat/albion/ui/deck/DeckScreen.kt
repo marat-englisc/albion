@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import com.marat.albion.ui.components.StatPill
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +25,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,7 +42,6 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.repo.DeckSummary
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
@@ -54,8 +50,6 @@ import com.marat.albion.ui.nav.BrowseRoute
 import com.marat.albion.ui.nav.LibraryRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.StudyRoute
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
@@ -113,17 +107,15 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                     valueColor = if (summary.due == 0) Ink.Faint else Ink.Warm)
                 StatPill(summary.newAvailable, "новых сегодня", Modifier.weight(1f).fillMaxHeight(), tint = Ink.AccentSoft)
             }
-            // Над кнопкой выглядывает Финн — оставляем ему место, чтобы не заслонить подписи.
-            Spacer(Modifier.height(if (summary.toStudy > 0) 52.dp else 28.dp))
+
+            Spacer(Modifier.height(24.dp))
             PrimaryButton(
                 text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
                 onClick = { navigator.open(StudyRoute(deck)) },
                 enabled = summary.toStudy > 0,
                 trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                // Финн машет из-за кнопки — занятие ждёт.
-                modifier = Modifier.reveal(reveal, 2).then(
-                    if (summary.toStudy > 0) Modifier.peekingFinn(at = 0.86f, height = 54.dp) else Modifier
-                ),
+
+                modifier = Modifier.reveal(reveal, 2),
             )
             Spacer(Modifier.height(12.dp))
             GhostButton(

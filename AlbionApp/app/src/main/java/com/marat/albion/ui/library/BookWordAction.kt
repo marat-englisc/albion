@@ -4,8 +4,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
-import com.marat.albion.ui.components.Mascot
-import com.marat.albion.ui.components.Finn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -57,44 +55,63 @@ internal fun BookWordAction(
     source: BookWordSource,
     example: String,
     onOpenDeck: () -> Unit,
+    suggestedTerm: String,
+    suggestedMeaning: String?,
+    onSaved: (SavedBookWord) -> Unit,
 ) {
     val c = LocalAppContainer.current
-    val exact = cards.firstOrNull { BookWordsRepository.key(it.term) == BookWordsRepository.key(text) }
-    val term = exact?.term ?: entries.firstOrNull()?.headword ?: cards.firstOrNull()?.term ?: text
+    val scope = rememberCoroutineScope()
+    val term = suggestedTerm
     val matching = cards.filter { BookWordsRepository.key(it.term) == BookWordsRepository.key(term) }
     val prototype = matching.firstOrNull { it.deck == Deck.WORDS.id } ?: matching.firstOrNull()
-    val meanings = (matching.map { it.meaningRu } + entries.filter {
+    val meanings = (listOfNotNull(suggestedMeaning) + matching.map { it.meaningRu } + entries.filter {
         BookWordsRepository.key(it.headword) == BookWordsRepository.key(term)
     }.flatMap { it.senses } + listOfNotNull(translation)).filter { it.isNotBlank() }
         .distinctBy(BookWordsRepository::key)
     val existing by remember(term) { c.bookWords.observeTerm(term) }.collectAsStateWithLifecycle(emptyList())
     var editing by remember(text) { mutableStateOf(false) }
-    var saved by remember(text) { mutableStateOf<SavedBookWord?>(null) }
+    var saving by remember(text) { mutableStateOf(false) }
+    var error by remember(text) { mutableStateOf<String?>(null) }
+    val meaning = suggestedMeaning?.takeIf { it.isNotBlank() && it.length <= 2000 }
+    val alreadySaved = meaning != null && existing.any {
+        BookWordsRepository.key(it.meaningRu).trimEnd('.', '!', '?', ';') == BookWordsRepository.key(meaning).trimEnd('.', '!', '?', ';')
+    }
+    val quickSave = meaning != null && term.isNotBlank() && term.length <= 200 && example.length <= 4000
 
     Column(Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(14.dp))
         PrimaryButton(
-            if (existing.isEmpty()) "В «Слова из книг»" else "Добавить другое значение",
-            onClick = { editing = true }, icon = Icons.Rounded.Add,
-        )
-        saved?.let { result ->
-            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                // Финн убирает новое слово в свою тетрадь.
-                if (result.added) {
-                    Mascot(Finn.WORD_SAVED, 64.dp)
-                    Spacer(Modifier.width(10.dp))
+            when { saving -> "Сохраняю…"; alreadySaved -> "Открыть «Слова из книг»"; quickSave -> "Сохранить слово"; else -> "Указать перевод" },
+            onClick = {
+                when {
+                    alreadySaved -> onOpenDeck()
+                    !quickSave -> editing = true
+                    else -> {
+                        saving = true; error = null
+                        scope.launch {
+                            try {
+                                onSaved(c.bookWords.add(bookWordDraft(term, requireNotNull(meaning), example, source, prototype)))
+                            } catch (e: CancellationException) { throw e }
+                            catch (e: Exception) { error = "Не удалось сохранить слово. Попробуйте ещё раз." }
+                            finally { saving = false }
+                        }
+                    }
                 }
-                Text(if (result.added) "Добавлено: ${result.card.term}" else "Это слово с таким переводом уже есть в колоде.",
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            }, icon = Icons.Rounded.Add, enabled = !saving,
+        )
+        Text(if (alreadySaved) "Это значение уже сохранено." else "В «Слова из книг» · $term",
+            style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 8.dp))
+        error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Ink.Error, modifier = Modifier.padding(top = 8.dp)) }
+        Column(Modifier.fillMaxWidth()) {
+            TextButton(onClick = { editing = true }, enabled = !saving) {
+                Text(if (alreadySaved) "Другое значение" else "Изменить перед сохранением", color = Ink.AccentText)
             }
-        }
-        if (existing.isNotEmpty() || saved != null) {
-            TextButton(onClick = onOpenDeck) { Text("Открыть «Слова из книг»", color = Ink.Accent) }
+            if (existing.isNotEmpty() && !alreadySaved) TextButton(onClick = onOpenDeck) { Text("В колоду", color = Ink.AccentText) }
         }
     }
     if (editing) {
         BookWordEditor(term, meanings, prototype, source, example,
-            onDismiss = { editing = false }, onSaved = { saved = it; editing = false })
+            onDismiss = { editing = false }, onSaved = { editing = false; onSaved(it) })
     }
 }
 
@@ -130,7 +147,7 @@ private fun BookWordEditor(
                     enabled = !saving, modifier = Modifier.fillMaxWidth(), isError = meaning.length > 2000)
                 if (meanings.size > 1) {
                     Box {
-                        TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = Ink.Accent) }
+                        TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = Ink.AccentText) }
                         DropdownMenu(choices, onDismissRequest = { choices = false }, containerColor = Ink.Raised) {
                             meanings.forEach { option ->
                                 DropdownMenuItem(text = { Text(option, maxLines = 4, overflow = TextOverflow.Ellipsis) },
@@ -158,13 +175,7 @@ private fun BookWordEditor(
                 error = null
                 scope.launch {
                     try {
-                        val sameTerm = prototype != null && BookWordsRepository.key(term) == BookWordsRepository.key(prototype.term)
-                        val sameMeaning = sameTerm && BookWordsRepository.key(meaning) == BookWordsRepository.key(prototype.meaningRu)
-                        onSaved(c.bookWords.add(BookWordDraft(term, meaning, example, source,
-                            ipa = if (sameTerm) prototype.ipa else "",
-                            pos = if (sameTerm) prototype.pos else "word",
-                            meaningEn = if (sameMeaning) prototype.meaningEn else "",
-                            level = if (sameTerm) prototype.level else null)))
+                        onSaved(c.bookWords.add(bookWordDraft(term, meaning, example, source, prototype)))
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
@@ -177,4 +188,12 @@ private fun BookWordEditor(
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text("Отмена", color = Ink.Muted) } },
     )
+}
+
+private fun bookWordDraft(term: String, meaning: String, example: String, source: BookWordSource, prototype: CardEntity?): BookWordDraft {
+    val sameTerm = prototype != null && BookWordsRepository.key(term) == BookWordsRepository.key(prototype.term)
+    val sameMeaning = sameTerm && BookWordsRepository.key(meaning) == BookWordsRepository.key(prototype.meaningRu)
+    return BookWordDraft(term, meaning, example, source,
+        ipa = if (sameTerm) prototype.ipa else "", pos = if (sameTerm) prototype.pos else "word",
+        meaningEn = if (sameMeaning) prototype.meaningEn else "", level = if (sameTerm) prototype.level else null)
 }

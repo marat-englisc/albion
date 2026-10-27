@@ -5,11 +5,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -46,7 +44,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,11 +58,9 @@ import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 import com.marat.albion.ui.theme.pressScale
 
 /**
@@ -115,7 +110,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard {
-            Eyebrow("Соберите предложение", color = Ink.Accent)
+            Eyebrow("Соберите предложение", color = Ink.AccentText)
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Chip(card.term, Modifier.weight(1f, fill = false))
@@ -188,7 +183,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 puzzle.original,
-                                style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
+                                style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
                                 color = Ink.Fg,
                                 modifier = Modifier.weight(1f),
                             )
@@ -222,8 +217,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
 
 private enum class TileStyle { Idle, Placed, Ghost, Correct, Wrong }
 
-private val TileText = TextStyle(fontFamily = Serif, fontSize = 19.sp, lineHeight = 24.sp)
-private val TileTextNarrow = TextStyle(fontFamily = Serif, fontSize = 17.sp, lineHeight = 22.sp)
+private val TileText = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 19.sp, lineHeight = 24.sp)
+private val TileTextNarrow = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 17.sp, lineHeight = 22.sp)
 
 /** Плашка со словом. Ghost — пустое место, откуда слово уже взято. */
 @Composable
@@ -231,9 +226,9 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.Accent
+            TileStyle.Correct -> Ink.SuccessSoft
             TileStyle.Placed -> Ink.AccentSoft
-            TileStyle.Wrong -> Ink.WarmSoft
+            TileStyle.Wrong -> Ink.ErrorSoft
             TileStyle.Ghost -> Ink.Surface
             TileStyle.Idle -> Ink.Raised
         },
@@ -241,8 +236,8 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     )
     val fg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.OnAccent
-            TileStyle.Wrong -> Ink.Warm
+            TileStyle.Correct -> Ink.Success
+            TileStyle.Wrong -> Ink.Error
             else -> Ink.Fg
         },
         tween(240), label = "tileFg",
@@ -251,18 +246,13 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
         TileStyle.Idle -> Ink.LineStrong
         TileStyle.Placed -> Ink.Accent
         TileStyle.Ghost -> Ink.Line
-        TileStyle.Correct -> Ink.AccentDeep
-        TileStyle.Wrong -> Ink.Warm
+        TileStyle.Correct -> Ink.Success
+        TileStyle.Wrong -> Ink.Error
     }
-    // Плитка — маленькая фишка с кромкой снизу, как в настольной игре.
     val shape = RoundedCornerShape(12.dp)
     Box(
         Modifier
             .pressScale(interaction, 0.9f)
-            .then(if (style == TileStyle.Ghost) Modifier else Modifier.drawBehind {
-                drawRoundRect(border, topLeft = androidx.compose.ui.geometry.Offset(0f, 3.dp.toPx()), size = size,
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()))
-            })
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clickable(interaction, indication = null, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)

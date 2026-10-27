@@ -99,6 +99,7 @@ fun TranslationSheet(
     bookSource: BookWordSource? = null,
     bookExample: String = "",
     onOpenBookWords: () -> Unit = {},
+    onBookWordSaved: (com.marat.albion.data.library.SavedBookWord) -> Unit = {},
 ) {
     val c = LocalAppContainer.current
     val audio = rememberCardAudio(c.audio)
@@ -200,7 +201,7 @@ fun TranslationSheet(
                             else if (model == ModelState.Downloading) "Загружается перевод предложений…" else "Перевожу…",
                             style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
-                            color = Ink.Accent, trackColor = Ink.Line)
+                            color = Ink.AccentText, trackColor = Ink.Line)
                     }
                     is TranslationResult.Failed -> Text(r.message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                     else -> Text("Перевод не найден. Значение можно указать при сохранении.",
@@ -217,7 +218,10 @@ fun TranslationSheet(
                 Spacer(Modifier.height(16.dp))
                 Hairline()
                 if (bookSource != null) {
-                    BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords)
+                    BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
+                        suggestedTerm = if (dictionaryMeaning != null) requireNotNull(firstEntry).headword
+                            else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
+                        suggestedMeaning = meaning, onSaved = onBookWordSaved)
                 }
                 if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
             }
@@ -231,8 +235,8 @@ fun TranslationSheet(
                 TextButton(onClick = { details = !details }, modifier = Modifier.fillMaxWidth().semantics {
                     stateDescription = if (details) "Развёрнуто" else "Свёрнуто"
                 }) {
-                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = Ink.Accent)
-                    Icon(Icons.Rounded.ExpandMore, null, tint = Ink.Accent,
+                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = Ink.AccentText)
+                    Icon(Icons.Rounded.ExpandMore, null, tint = Ink.AccentText,
                         modifier = Modifier.padding(start = 8.dp).rotate(if (details) 180f else 0f))
                 }
                 AnimatedVisibility(details) {

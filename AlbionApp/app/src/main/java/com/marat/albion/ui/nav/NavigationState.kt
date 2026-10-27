@@ -17,12 +17,12 @@ sealed interface TopLevel : NavKey
 
 @Serializable data class DeckRoute(val deck: Deck) : NavKey
 /** [deck] = null — общее занятие по всем колодам. */
-@Serializable data class StudyRoute(val deck: Deck? = null) : NavKey
+@Serializable data class StudyRoute(val deck: Deck? = null, val answerLimit: Int? = null) : NavKey
 @Serializable data class BrowseRoute(val deck: Deck) : NavKey
 @Serializable data class CardRoute(val cardId: String) : NavKey
 @Serializable data class TopicRoute(val topicId: String, val fromQuiz: Boolean = false) : NavKey
 @Serializable data class TopicQuizRoute(val topic: Int, val topicId: String, val title: String) : NavKey
-@Serializable data class GameRoute(val game: Game) : NavKey
+@Serializable data class GameRoute(val game: Game, val deck: Deck? = null, val onlyMistakes: Boolean = false, val count: Int? = null) : NavKey
 @Serializable data class ReaderRoute(val bookId: String) : NavKey
 
 internal val primaryRoutes = listOf(HomeRoute, GrammarRoute, LibraryRoute, GamesRoute, StatsRoute)

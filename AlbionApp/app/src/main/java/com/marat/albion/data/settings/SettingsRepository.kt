@@ -60,9 +60,13 @@ data class Settings(
     val readerTextScale: Float = 1.0f,
     /** Подчёркивать в книгах слова из начатых карточек. */
     val readerMarkWords: Boolean = true,
+    val shortSessionAnswers: Int = 10,
 )
 
-class SettingsRepository(private val context: Context) {
+data class PracticeOptions(val deckId: String? = null, val count: Int = 10, val mode: Int = 0, val level: String = "")
+
+class SettingsRepository internal constructor(private val store: DataStore<Preferences>) {
+    constructor(context: Context) : this(context.dataStore)
 
     private object Keys {
         val retention = floatPreferencesKey("desired_retention")
@@ -94,9 +98,11 @@ class SettingsRepository(private val context: Context) {
         val readerScale = floatPreferencesKey("reader_text_scale")
         val readerMarkWords = booleanPreferencesKey("reader_mark_words")
         val viewedHelp = stringSetPreferencesKey("viewed_help")
+        val shortSessionAnswers = intPreferencesKey("short_session_answers")
+        val lastPractice = stringPreferencesKey("last_practice")
     }
 
-    val settings: Flow<Settings> = context.dataStore.data.map { p ->
+    val settings: Flow<Settings> = store.data.map { p ->
         Settings(
             desiredRetention = p[Keys.retention] ?: 0.9f,
             newPerDay = p[Keys.newPerDay] ?: 20,
@@ -124,10 +130,33 @@ class SettingsRepository(private val context: Context) {
             fsrsImprovement = p[Keys.fsrsImprovement] ?: 0f,
             readerTextScale = p[Keys.readerScale] ?: 1.0f,
             readerMarkWords = p[Keys.readerMarkWords] ?: true,
+            shortSessionAnswers = (p[Keys.shortSessionAnswers] ?: 10).takeIf { it in listOf(5, 10, 20) } ?: 10,
         )
     }
 
-    val viewedHelp: Flow<Set<String>> = context.dataStore.data.map { it[Keys.viewedHelp].orEmpty() }
+    val viewedHelp: Flow<Set<String>> = store.data.map { it[Keys.viewedHelp].orEmpty() }
+
+    val lastPractice: Flow<String?> = store.data.map { it[Keys.lastPractice] }
+
+    fun practiceOptions(game: String, defaultCount: Int = 10): Flow<PracticeOptions> = store.data.map { p ->
+        PracticeOptions(
+            p[stringPreferencesKey("practice_${game}_deck")],
+            p[intPreferencesKey("practice_${game}_count")] ?: defaultCount,
+            p[intPreferencesKey("practice_${game}_mode")] ?: 0,
+            p[stringPreferencesKey("practice_${game}_level")].orEmpty(),
+        )
+    }
+
+    suspend fun savePracticeOptions(game: String, options: PracticeOptions, markAsLast: Boolean = true) = edit { p ->
+        val deckKey = stringPreferencesKey("practice_${game}_deck")
+        if (options.deckId == null) p.remove(deckKey) else p[deckKey] = options.deckId
+        p[intPreferencesKey("practice_${game}_count")] = options.count
+        p[intPreferencesKey("practice_${game}_mode")] = options.mode
+        p[stringPreferencesKey("practice_${game}_level")] = options.level
+        if (markAsLast) p[Keys.lastPractice] = game
+    }
+
+    suspend fun setShortSessionAnswers(count: Int) = edit { it[Keys.shortSessionAnswers] = count.takeIf { n -> n in listOf(5, 10, 20) } ?: 10 }
 
     suspend fun markHelpViewed(key: String) = edit { it[Keys.viewedHelp] = it[Keys.viewedHelp].orEmpty() + key }
 
@@ -185,12 +214,12 @@ class SettingsRepository(private val context: Context) {
         return applied
     }
 
-    suspend fun contentVersion(): String? = context.dataStore.data.first()[Keys.contentVersion]
+    suspend fun contentVersion(): String? = store.data.first()[Keys.contentVersion]
     suspend fun setContentVersion(v: String) = edit { it[Keys.contentVersion] = v }
-    suspend fun dictionaryVersion(): Int = context.dataStore.data.first()[Keys.dictionaryVersion] ?: 0
+    suspend fun dictionaryVersion(): Int = store.data.first()[Keys.dictionaryVersion] ?: 0
     suspend fun setDictionaryVersion(v: Int) = edit { it[Keys.dictionaryVersion] = v }
 
     private suspend fun edit(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
-        context.dataStore.edit { block(it) }
+        store.edit { block(it) }
     }
 }

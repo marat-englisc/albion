@@ -56,7 +56,7 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Menu
@@ -133,7 +133,7 @@ private val tabs = listOf(
     Tab(HomeRoute, "Карточки", Icons.Outlined.Layers),
     Tab(GrammarRoute, "Учебник", Icons.AutoMirrored.Outlined.MenuBook),
     Tab(LibraryRoute, "Чтение", Icons.Outlined.AutoStories),
-    Tab(GamesRoute, "Практика", Icons.Outlined.SportsEsports),
+    Tab(GamesRoute, "Практика", Icons.Outlined.EditNote),
     Tab(StatsRoute, "Прогресс", Icons.Outlined.Insights),
 )
 
@@ -165,13 +165,13 @@ fun AlbionNavigation() {
         entry<HomeRoute> { HomeScreen(navigator) }
         entry<GrammarRoute> { GrammarScreen(navigator) }
         entry<GamesRoute> { GamesScreen(navigator) }
-        entry<GameRoute> { GameHost(it.game, navigator) }
+        entry<GameRoute> { GameHost(it.game, navigator, it.deck, it.onlyMistakes, it.count) }
         entry<LibraryRoute> { LibraryScreen(navigator) }
         entry<ReaderRoute> { ReaderScreen(it.bookId, navigator) }
         entry<StatsRoute> { StatsScreen(navigator) }
         entry<SettingsRoute> { SettingsScreen(navigator::back) }
         entry<DeckRoute> { DeckScreen(it.deck, navigator) }
-        entry<StudyRoute> { StudyScreen(it.deck, navigator) }
+        entry<StudyRoute> { StudyScreen(it.deck, navigator, it.answerLimit) }
         entry<BrowseRoute> { BrowseScreen(it.deck, navigator) }
         entry<CardRoute> { CardDetailScreen(it.cardId, navigator) }
         entry<TopicRoute> { TopicScreen(it.topicId, navigator, fromQuiz = it.fromQuiz) }
@@ -253,28 +253,13 @@ private fun maxWidthFor(route: NavKey): Dp = when (route) {
     else -> ReadableWidth
 }
 
-/** Значок вкладки: при выборе подпрыгивает с лёгким «перелётом», как фишка на игровом поле. */
+/** Selected tabs change tone without displacing the icon. */
 @Composable
 private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) {
-    val bounce = remember { Animatable(1f) }
-    LaunchedEffect(selected) {
-        if (selected) {
-            bounce.snapTo(0.78f)
-            bounce.animateTo(1f, spring(dampingRatio = 0.35f, stiffness = 500f))
-        }
-    }
-    val emphasis by animateFloatAsState(if (selected) 1f else 0f, tween(200), label = "tabTint")
-    Icon(
-        icon, description,
-        tint = lerpColor(Ink.Muted, Ink.Accent, emphasis),
-        modifier = Modifier.size(24.dp).graphicsLayer {
-            scaleX = bounce.value; scaleY = bounce.value
-            translationY = (1f - bounce.value) * 18f
-        },
-    )
+    val tone by androidx.compose.animation.animateColorAsState(if (selected) Ink.AccentText else Ink.Muted, tween(180), label = "tabTint")
+    Icon(icon, description, tint = tone, modifier = Modifier.size(23.dp))
 }
 
-/** Боковая панель вкладок для планшета: мягкая «капля» перетекает к выбранной вкладке. */
 @Composable
 private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
@@ -282,7 +267,7 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val itemHeight = 84.dp
     val indicatorY by animateDpAsState(
         itemHeight * index + (itemHeight - 32.dp - 22.dp) / 2,
-        spring(dampingRatio = 0.62f, stiffness = 420f),
+        tween(220, easing = Easing.Standard),
         label = "railIndicator",
     )
     Row(
@@ -291,7 +276,7 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     ) {
         Box(Modifier.width(96.dp).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars).padding(top = 24.dp)) {
             Box(Modifier.offset { IntOffset(((96.dp - 60.dp) / 2).roundToPx(), indicatorY.roundToPx()) }
-                .width(60.dp).height(32.dp).background(Ink.AccentSoft, RoundedCornerShape(16.dp)))
+                .width(60.dp).height(32.dp).background(Ink.Surface, RoundedCornerShape(8.dp)))
             Column(Modifier.fillMaxWidth().selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val isSelected = i == index
@@ -317,58 +302,37 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     }
 }
 
-/**
- * Нижняя панель — плавающая «пилюля» над страницей. За выбранной вкладкой пружинисто
- * перетекает мягкая капля цвета шарфа, значок подпрыгивает.
- */
+/** Quiet full-width navigation, with a fine crimson selection rule. */
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp,
-        fontWeight = FontWeight.SemiBold)
+    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.Medium)
     val textMeasurer = rememberTextMeasurer()
-    val shape = RoundedCornerShape(28.dp)
-    Box(
-        Modifier.background(Ink.Bg).windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 10.dp),
-    ) {
-        BoxWithConstraints(
-            Modifier.fillMaxWidth().softShadow(shape, 10.dp).background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
-        ) {
+    Column(Modifier.background(Ink.Raised).windowInsetsPadding(WindowInsets.navigationBars)) {
+        Hairline()
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
             val tabWidth = maxWidth / tabs.size
-            val availablePx = with(LocalDensity.current) { (tabWidth - 2.dp).roundToPx() }
-            // Полные названия не разрываем внутри слов и не уменьшаем системный шрифт.
+            val availablePx = with(LocalDensity.current) { (tabWidth - 4.dp).roundToPx() }
             val needsMenu = tabs.any { textMeasurer.measure(it.label, labelStyle, softWrap = false).size.width > availablePx }
             if (needsMenu) {
                 NavigationMenu(selected, onSelect)
                 return@BoxWithConstraints
             }
-            val blobWidth = 56.dp.coerceAtMost(tabWidth)
-            val indicatorX by animateDpAsState(
-                tabWidth * index + (tabWidth - blobWidth) / 2,
-                spring(dampingRatio = 0.62f, stiffness = 420f),
-                label = "indicator",
-            )
-            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 8.dp.roundToPx()) }
-                .width(blobWidth).height(32.dp).background(Ink.AccentSoft, RoundedCornerShape(16.dp)))
+            val markerWidth = 28.dp.coerceAtMost(tabWidth)
+            val indicatorX by animateDpAsState(tabWidth * index + (tabWidth - markerWidth) / 2,
+                tween(220, easing = Easing.Standard), label = "indicator")
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(Ink.Accent))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
-                    val isSelected = i == index
-                    val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "tab")
-                    Column(
-                        Modifier.weight(1f).fillMaxHeight().heightIn(min = 68.dp)
-                            .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
-                            // Подпись выше нижних скруглений капсулы, включая экран 320 dp.
-                            .padding(start = 1.dp, end = 1.dp, top = 8.dp, bottom = 20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top,
-                    ) {
-                        Box(Modifier.width(blobWidth).height(32.dp), contentAlignment = Alignment.Center) {
-                            TabIcon(tab.icon, isSelected, null)
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Text(tab.label, style = labelStyle, maxLines = 1, softWrap = false,
-                            textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
+                    val active = i == index
+                    Column(Modifier.weight(1f).fillMaxHeight().heightIn(min = 74.dp)
+                        .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) })
+                        .padding(horizontal = 2.dp, vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        TabIcon(tab.icon, active, null)
+                        Spacer(Modifier.height(7.dp))
+                        Text(tab.label, style = labelStyle.copy(fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium),
+                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = if (active) Ink.AccentText else Ink.Muted)
                     }
                 }
             }
@@ -386,14 +350,14 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 68.dp)
         .clickable(role = Role.Button, onClick = { open = true }).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(current.icon, null, tint = Ink.Accent, modifier = Modifier.size(24.dp))
+        Icon(current.icon, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
         Column(Modifier.weight(1f)) {
             Text(current.label, style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 14.sp,
                 lineHeight = 20.sp, fontWeight = FontWeight.SemiBold), color = Ink.Fg)
             Text("Все разделы", style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp,
                 lineHeight = 16.sp), color = Ink.Muted)
         }
-        Icon(Icons.Rounded.Menu, null, tint = Ink.Accent, modifier = Modifier.size(24.dp))
+        Icon(Icons.Rounded.Menu, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
     }
     if (open) ModalBottomSheet(
         onDismissRequest = { open = false },
@@ -421,10 +385,10 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                             }).padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(tab.icon, null, tint = if (active) Ink.Accent else Ink.Muted, modifier = Modifier.size(24.dp))
+                            Icon(tab.icon, null, tint = if (active) Ink.AccentText else Ink.Muted, modifier = Modifier.size(24.dp))
                             Text(tab.label, modifier = Modifier.weight(1f), style = AlbionType.eyebrow.copy(
                                 letterSpacing = 0.sp, fontSize = 16.sp, lineHeight = 22.sp), color = Ink.Fg)
-                            if (active) Icon(Icons.Rounded.Check, null, tint = Ink.Accent, modifier = Modifier.size(20.dp))
+                            if (active) Icon(Icons.Rounded.Check, null, tint = Ink.AccentText, modifier = Modifier.size(20.dp))
                         }
                     }
                 }

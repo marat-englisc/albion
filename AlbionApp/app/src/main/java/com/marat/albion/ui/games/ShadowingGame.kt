@@ -6,27 +6,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.shape.CircleShape
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -60,9 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,12 +68,10 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -206,7 +196,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 )
             }
 
-            // Волна: живая во время записи — тёплая, как кнопка записи.
+            // Волна: живая во время записи — красная, как кнопка записи.
             AnimatedVisibility(recording || (!hasTake && report == null)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
@@ -216,7 +206,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                     ) {
                         wave.forEach { v ->
                             val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.1f) else 0.1f, spring(stiffness = 600f), label = "bar")
-                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Warm else Ink.LineStrong, CircleShape))
+                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Error else Ink.LineStrong, CircleShape))
                         }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -263,13 +253,13 @@ private fun PlaybackActions(onCompare: () -> Unit, onPlayMine: () -> Unit) {
     }
 }
 
-/** Подсказка-статус под кнопками: обычный текст, тёплый — когда идёт запись или что-то не так. */
+/** Подсказка-статус под кнопками: обычный текст, красный — когда идёт запись или что-то не так. */
 @Composable
 private fun ShadowStatus(text: String, warm: Boolean = false) {
     Text(
         text,
         style = MaterialTheme.typography.bodyMedium,
-        color = if (warm) Ink.Warm else Ink.Soft,
+        color = if (warm) Ink.Error else Ink.Soft,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 8.dp),
     )
@@ -290,7 +280,7 @@ private fun ShadowSteps() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(Modifier.size(22.dp).background(Ink.AccentSoft, CircleShape), contentAlignment = Alignment.Center) {
-                    Text("${i + 1}", style = MaterialTheme.typography.labelMedium, color = Ink.Accent)
+                    Text("${i + 1}", style = MaterialTheme.typography.labelMedium, color = Ink.AccentText)
                 }
                 Spacer(Modifier.width(6.dp))
                 Text(step, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
@@ -311,12 +301,12 @@ internal fun ReportCard(r: ShadowReport) {
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Процент — в цветном «камешке»: зелёный, если похоже, тёплый — если ещё нет.
+            // Процент — в цветном «камешке»: синий, если похоже, красный — если ещё нет.
             Box(
-                Modifier.background(if (good) Ink.AccentSoft else Ink.WarmSoft, RoundedCornerShape(18.dp))
+                Modifier.background(if (good) Ink.AccentSoft else Ink.ErrorSoft, RoundedCornerShape(18.dp))
                     .padding(horizontal = 12.dp, vertical = 4.dp),
             ) {
-                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.Accent else Ink.Warm, suffix = "%")
+                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.Success else Ink.Error, suffix = "%")
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
@@ -327,7 +317,7 @@ internal fun ReportCard(r: ShadowReport) {
                         r.overall >= PASS -> "Неплохо"
                         else -> "Ещё попытка"
                     },
-                    style = TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 26.sp),
+                    style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 22.sp, lineHeight = 26.sp),
                     color = Ink.Fg,
                 )
                 Text("сходство с диктором", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
@@ -354,7 +344,7 @@ internal fun ReportCard(r: ShadowReport) {
             Spacer(Modifier.height(14.dp))
             val tips = r.tips.ifEmpty { listOf("Мелодика, ритм и темп совпадают с диктором. Попробуйте следующее слово.") }
             NoteCard(tone = NoteTone.Neutral) {
-                Eyebrow("Советы", color = Ink.Accent)
+                Eyebrow("Советы", color = Ink.AccentText)
                 Spacer(Modifier.height(4.dp))
                 tips.forEach { tip ->
                     Row(Modifier.padding(vertical = 4.dp)) {
@@ -367,7 +357,7 @@ internal fun ReportCard(r: ShadowReport) {
     }
 }
 
-/** Шкала разбора: подпись, проценты и полоса — зелёная, если похоже, тёплая — если пока нет. */
+/** Шкала разбора: подпись, проценты и полоса — синие, если похоже, оранжевые — если пока нет. */
 @Composable
 private fun Scale(label: String, value: Int, note: String?) {
     Column(Modifier.padding(vertical = 5.dp)) {
@@ -384,6 +374,6 @@ private fun Scale(label: String, value: Int, note: String?) {
             Text("$value%", style = AlbionType.index.copy(color = Ink.Fg))
         }
         Spacer(Modifier.height(6.dp))
-        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.Beak, height = 8.dp)
+        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.Gold, height = 8.dp)
     }
 }

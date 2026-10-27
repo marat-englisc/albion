@@ -1,10 +1,7 @@
 package com.marat.albion.ui.library
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
 import com.marat.albion.ui.components.EmptyState
-import com.marat.albion.ui.components.Mascot
-import com.marat.albion.ui.components.Finn
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -48,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -114,7 +112,7 @@ fun LibraryScreen(navigator: Navigator) {
                         "Библиотека", eyebrow = "Чтение с переводом",
                         trailing = {
                             Row {
-                                FeatureHelp("library", "Как читать", mascot = Finn.READING, text =
+                                FeatureHelp("library", "Как читать", text =
                                     "Коснитесь слова, чтобы увидеть перевод и справку из карточек.\n\nУдерживайте палец на тексте для перевода предложения. Протяните палец, чтобы выбрать любой фрагмент.\n\nВ окне перевода можно выделить текст и добавить заметку. Закладки, заметки и размер текста доступны в панели читалки.\n\nСловарь работает сразу без интернета. Для перевода предложений приложение один раз скачает языковую модель, затем перевод тоже работает офлайн.")
                                 SettingsShortcut(navigator::openSettings)
                             }
@@ -132,8 +130,8 @@ fun LibraryScreen(navigator: Navigator) {
                             text = "Продолжить · ${continueBook.book.title}",
                             onClick = { navigator.open(ReaderRoute(continueBook.book.id)) },
                             trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
-                            // Финн выглядывает из-за кнопки: книга ждёт на том же месте.
-                            modifier = Modifier.peekingFinn(at = 0.86f, height = 56.dp),
+
+                            modifier = Modifier,
                         )
                     }
                 }
@@ -142,7 +140,7 @@ fun LibraryScreen(navigator: Navigator) {
             item { SectionHeader("Книги", Modifier.padding(top = 12.dp).reveal(reveal, 2), trailing = "%02d".format(list.size)) }
             if (books != null && list.isEmpty()) item {
                 EmptyState("Полка пока пустая", "Добавьте книгу в TXT, EPUB или PDF — слова из неё можно сразу переводить и сохранять.",
-                    Modifier.reveal(reveal, 3), mascot = Finn.EMPTY_LIBRARY)
+                    Modifier.reveal(reveal, 3))
             }
             itemsIndexed(list, key = { _, b -> b.book.id }) { i, b ->
                 BookRow(
@@ -155,12 +153,10 @@ fun LibraryScreen(navigator: Navigator) {
 
             item {
                 Column(Modifier.padding(top = 20.dp).reveal(reveal, 4 + list.size)) {
-                    // Пока своих книг нет, Финн с книгами в руках подсказывает, что сюда можно принести свою.
+
                     if (list.isNotEmpty() && list.none { it.book.source == "user" }) {
                         Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            // Финн на экране один: если он уже выглядывает из-за «Продолжить», здесь только текст.
-                            if (continueBook == null) Mascot(Finn.IMPORT_BOOK, 88.dp, delayMs = 200)
-                            Spacer(Modifier.width(12.dp))
+
                             Column(Modifier.weight(1f)) {
                                 Text("Читайте то, что нравится", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
                                 Spacer(Modifier.height(4.dp))
@@ -183,7 +179,7 @@ fun LibraryScreen(navigator: Navigator) {
                 Column(Modifier.padding(top = 8.dp).reveal(reveal, 5 + list.size)) {
                     SectionHeader("Офлайн-перевод")
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Перевод фраз недоступен — Финн «без подключения»; во время загрузки и после неё он не нужен.
+
                         if (model == ModelState.Missing || model == ModelState.Failed) {
                             Box(Modifier.size(40.dp).background(Ink.WarmSoft, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
                                 Icon(Icons.Rounded.CloudOff, null, tint = Ink.Warm, modifier = Modifier.size(20.dp))
@@ -222,7 +218,7 @@ fun LibraryScreen(navigator: Navigator) {
             title = { Text("Удалить книгу?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("«${b.book.title}», закладки, выделения и заметки к ней будут удалены из библиотеки.") },
             confirmButton = {
-                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = Ink.Warm) }
+                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = Ink.Error) }
             },
             dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Отмена", color = Ink.Muted) } },
         )
@@ -277,17 +273,16 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
 /** Типографская обложка: название антиквой на «чернильной» плашке; на маленькой — монограмма. */
 @Composable
 fun BookCover(title: String, modifier: Modifier = Modifier) {
-    // Цвет обложки — от названия: у каждой книги свой, но всегда из палитры Финна.
-    val (cover, ink) = when (Math.floorMod(title.hashCode(), 4)) {
+
+    val (cover, ink) = when (Math.floorMod(title.hashCode(), 3)) {
         0 -> Ink.Accent to Ink.OnAccent
-        1 -> Ink.Warm to Ink.OnWarm
-        2 -> Ink.AccentDeep to Ink.OnAccent
-        else -> Ink.Fg to Ink.Bg
+        1 -> Color(0xFF36473D) to Ink.Ivory
+        else -> Color(0xFF35383C) to Ink.Ivory
     }
     androidx.compose.foundation.layout.BoxWithConstraints(
         modifier.background(cover, RoundedCornerShape(6.dp))
-            // Корешок — полоска как на шарфе Финна.
-            .drawBehind { drawRect(Ink.Stripe.copy(alpha = 0.55f), size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)) }
+
+            .drawBehind { drawRect(Ink.Gold.copy(alpha = 0.8f), size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)) }
             .padding(start = 9.dp, end = 7.dp, top = 7.dp, bottom = 7.dp),
     ) {
         // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.

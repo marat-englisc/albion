@@ -6,11 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,7 +23,7 @@ import kotlinx.coroutines.launch
 
 /** Инструкция один раз при знакомстве с разделом, затем — по кнопке справки. */
 @Composable
-fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = true, mascot: Finn? = null) {
+fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = true) {
     val c = LocalAppContainer.current
     val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
     var expanded by rememberSaveable(key) { mutableStateOf(false) }
@@ -51,9 +48,7 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         AlertDialog(
             onDismissRequest = ::dismiss,
             containerColor = Ink.Raised,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-            // Финн «переходит» со страницы в диалог и показывает, чем здесь занимаются.
-            icon = mascot?.let { { Mascot(it, 104.dp) } },
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
             title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
             text = {
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,

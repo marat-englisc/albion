@@ -1,8 +1,6 @@
 package com.marat.albion.ui.browse
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.Finn
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -126,7 +124,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
         }
         Hairline()
         if (cards.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.", mascot = Finn.NO_RESULTS) }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.") }
         } else {
             val shownCard = (navigator.shownDetail as? CardRoute)?.cardId
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
@@ -182,7 +180,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
     }
 }
 
-/** Фильтр — пилюля: выбранная заливается цветом шарфа с пружинным «щелчком». */
+/** Выбранный фильтр выделяется crimson-заливкой. */
 @Composable
 fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
     val t by animateFloatAsState(if (selected) 1f else 0f, androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 500f), label = "tab")
@@ -254,7 +252,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
                 .padding(horizontal = 20.dp).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) {
             Panel(
-                Modifier.padding(top = 46.dp).peekingFinn(at = 0.86f, height = 52.dp, delayMs = 450),
+                Modifier.padding(top = 20.dp),
                 contentPadding = PaddingValues(0.dp), color = Ink.Surface, borderColor = Ink.LineStrong,
             ) {
                 CardBack(current, c.study.irregular(current), audio, showRussian = settings.showRussian)

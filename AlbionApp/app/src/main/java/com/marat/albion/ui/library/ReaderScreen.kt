@@ -1,9 +1,6 @@
 package com.marat.albion.ui.library
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.PeekFrom
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.FinnPeek
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +40,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -103,6 +105,7 @@ import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.Serif
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -211,6 +214,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     val highlights by vm.highlights.collectAsStateWithLifecycle()
     var showHighlights by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val snackbar = remember { SnackbarHostState() }
     var sizeMenu by remember { mutableStateOf(false) }
     var showToc by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
@@ -224,6 +228,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     val density = LocalDensity.current
     val book = vm.book
 
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         // На узком экране название не помещается рядом с четырьмя кнопками — глава и так видна внизу.
         TopBar(onBack = navigator::back, title = vm.title.takeUnless { com.marat.albion.ui.components.LocalNarrow.current }) {
@@ -323,14 +328,9 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
 
             Column(Modifier.fillMaxSize()) {
-                // Дочитали — Финн выглядывает из угла страницы над нижней строкой.
-                val atEnd = pager.currentPage == spreads - 1 && spreads > 1
                 HorizontalPager(
                     state = pager,
-                    modifier = Modifier.weight(1f).then(
-                        if (atEnd) Modifier.peekingFinn(FinnPeek.CHEER, from = PeekFrom.CornerBottomEnd, height = 64.dp, delayMs = 500)
-                        else Modifier
-                    ),
+                    modifier = Modifier.weight(1f),
                     beyondViewportPageCount = 1,
                 ) { index ->
                     Box(
@@ -465,6 +465,12 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         }
     }
 
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = FOOTER_HEIGHT, start = 12.dp, end = 12.dp)) { data ->
+        Snackbar(data, containerColor = Ink.Fg, contentColor = Ink.Bg, actionColor = Ink.Bg,
+            dismissActionContentColor = Ink.Bg)
+    }
+    }
+
     // Окно перевода для выделенного слова или фрагмента.
     val sel = selection
     val pages = vm.pages
@@ -494,6 +500,25 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                         sentenceAt(paragraph, (absEnd - 1).coerceAtLeast(absStart)).last + 1,
                     ).trim(),
                     onOpenBookWords = { selection = null; navigator.open(DeckRoute(Deck.BOOK_WORDS)) },
+                    onBookWordSaved = { saved ->
+                        selection = null
+                        scope.launch {
+                            snackbar.currentSnackbarData?.dismiss()
+                            val result = snackbar.showSnackbar(
+                                if (saved.added) "«${saved.card.term}» — в «Слова из книг»" else "Это значение уже есть в «Слова из книг».",
+                                actionLabel = if (saved.added) "Отменить" else null,
+                                withDismissAction = true, duration = SnackbarDuration.Long,
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                try {
+                                    if (!c.bookWords.undoAdd(saved)) snackbar.showSnackbar(
+                                        "Отмена уже недоступна. Карточка осталась в колоде.",
+                                        withDismissAction = true, duration = SnackbarDuration.Long)
+                                } catch (e: CancellationException) { throw e }
+                                catch (e: Exception) { snackbar.showSnackbar("Не удалось отменить сохранение. Карточка осталась в колоде.", withDismissAction = true) }
+                            }
+                        }
+                    },
                 )
             }
         }

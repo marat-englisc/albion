@@ -9,14 +9,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import com.marat.albion.ui.components.LevelBadge
-import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -27,7 +25,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -39,7 +36,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,14 +44,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,10 +59,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,16 +68,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.audio.SpeechChecker
 import com.marat.albion.audio.SpeechState
-import com.marat.albion.audio.VoiceRecorder
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
@@ -99,11 +87,8 @@ import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 import com.marat.albion.ui.theme.pressScale
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 /** Термин крупно на карточке задания — общий заголовок голосовых игр. */
 @Composable
@@ -132,7 +117,7 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
     }
 }
 
-/** Круглая кнопка-«камешек» с подписью снизу: светлая с зелёным значком, активная — заливается шарфом. */
+/** Круглая кнопка воспроизведения с подписью снизу. */
 @Composable
 internal fun RoundAction(
     icon: ImageVector,
@@ -158,7 +143,7 @@ internal fun RoundAction(
         ) {
             Icon(
                 icon, label,
-                tint = if (!enabled) Ink.Faint else lerpColor(Ink.Accent, Ink.OnAccent, on),
+                tint = if (!enabled) Ink.Faint else lerpColor(Ink.AccentText, Ink.OnAccent, on),
                 modifier = Modifier.size(size * 0.42f),
             )
         }
@@ -173,8 +158,7 @@ internal fun RoundAction(
 }
 
 /**
- * Большая кнопка микрофона — объёмная «фишка» с кромкой, как главные кнопки. В покое зелёная
- * (шарф: «можно говорить»), во время записи — тёплая, пульсирует в такт голосу и пускает кольца.
+ * Кнопка микрофона. Во время записи меняет цвет и показывает уровень голоса.
  */
 @Composable
 internal fun MicButton(
@@ -190,11 +174,11 @@ internal fun MicButton(
     val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Restart), label = "wave")
     val amp by animateFloatAsState(if (active) level else 0f, spring(stiffness = 400f), label = "amp")
     val on by animateFloatAsState(if (active) 1f else 0f, tween(240), label = "on")
-    val face = lerpColor(Ink.Accent, Ink.Warm, on)
-    val lip = lerpColor(Ink.AccentDeep, Ink.WarmDeep, on)
-    val fg = lerpColor(Ink.OnAccent, Ink.OnWarm, on)
-    val ring = Ink.Warm
-    val lipH = MicLip
+    val face = lerpColor(Ink.Accent, Ink.ErrorFill, on)
+    val lip = lerpColor(Ink.AccentDeep, Ink.ErrorDeep, on)
+    val fg = lerpColor(Ink.OnAccent, Ink.OnError, on)
+    val ring = Ink.Error
+    val lipH = 0.dp
     val sink by animateDpAsState(if (pressed) lipH else 0.dp, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessHigh), label = "sink")
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(size, size + lipH), contentAlignment = Alignment.TopCenter) {
@@ -214,7 +198,6 @@ internal fun MicButton(
                     .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
                     .drawBehind {
                         val d = this.size.width
-                        drawCircle(lip, radius = d / 2, center = Offset(d / 2, d / 2 + lipH.toPx()))
                         drawCircle(face, radius = d / 2, center = Offset(d / 2, d / 2 + sink.toPx()))
                     },
                 contentAlignment = Alignment.TopCenter,
@@ -228,7 +211,7 @@ internal fun MicButton(
         }
         if (label != null) {
             Spacer(Modifier.height(8.dp))
-            Text(label, style = MaterialTheme.typography.labelMedium, color = if (active) Ink.Warm else Ink.Soft)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = if (active) Ink.Error else Ink.Soft)
         }
     }
 }
@@ -242,7 +225,7 @@ internal fun RecordButton(recording: Boolean, level: Float, onClick: () -> Unit,
 }
 
 /** Высота кнопки микрофона вместе с кромкой — для выравнивания соседних кнопок. */
-internal val MicLip = 5.dp
+internal val MicLip = 0.dp
 
 // ------------------------------------------------------------------ произношение
 
@@ -308,7 +291,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
                     micDenied -> Message("Нет доступа к микрофону — разрешите его в настройках телефона.")
                     !checker.isAvailable -> Message("На телефоне нет сервиса распознавания речи. Установите приложение Google и офлайн-пакет английского.")
                     s is SpeechState.Listening -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Eyebrow("Слушаю…", color = Ink.Warm)
+                        Eyebrow("Слушаю…", color = Ink.Error)
                         if (s.partial.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
                             Text("«${s.partial}»", style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
@@ -365,7 +348,7 @@ private fun ScoreView(score: Float, heard: String) {
                     else -> "Ещё раз — пока не узнаётся"
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = if (good) Ink.Accent else Ink.Warm,
+                color = if (good) Ink.Success else Ink.Error,
                 modifier = Modifier.weight(1f),
             )
             Text("${(score * 100).toInt()}%", style = AlbionType.index.copy(color = Ink.Fg))
@@ -373,6 +356,6 @@ private fun ScoreView(score: Float, heard: String) {
         Spacer(Modifier.height(8.dp))
         Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
         Spacer(Modifier.height(10.dp))
-        ThinProgress(score, color = if (good) Ink.Accent else Ink.Beak, track = Ink.Raised, height = 8.dp)
+        ThinProgress(score, color = if (good) Ink.Accent else Ink.Gold, track = Ink.Raised, height = 8.dp)
     }
 }

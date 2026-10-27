@@ -31,12 +31,14 @@ import com.marat.albion.ui.theme.AlbionTheme
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.paletteFor
+import com.marat.albion.ui.theme.initializeTypography
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initializeTypography(resources)
         // Телефон — только вертикально; планшет и раскрытая раскладушка — в любой ориентации.
         // Размер пересчитывается при каждом пересоздании, в том числе после складывания.
         requestedOrientation = if (resources.configuration.smallestScreenWidthDp < 600) {

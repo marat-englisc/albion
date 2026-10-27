@@ -39,9 +39,9 @@ import kotlin.math.ceil
 internal fun MelodyChart(report: ShadowReport) {
     val original = remember(report) { preparePitchContour(report.originalPitch, report.originalEnergy) }
     val mine = remember(report) { preparePitchContour(report.minePitch, report.mineEnergy) }
-    // Диктор — сплошная линия цвета шарфа, вы — тёплый пунктир цвета клюва.
+
     val fg = Ink.Accent
-    val muted = Ink.Beak
+    val muted = Ink.Gold
     val grid = Ink.Line
     val center = Ink.LineStrong
     val band = Ink.Surface
@@ -135,7 +135,7 @@ internal fun MelodyChart(report: ShadowReport) {
 
 @Composable
 private fun MelodyLegend(dashed: Boolean, label: String) {
-    val color = if (dashed) Ink.Beak else Ink.Accent
+    val color = if (dashed) Ink.Gold else Ink.Accent
     Row(
         Modifier.background(Ink.Surface, RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,

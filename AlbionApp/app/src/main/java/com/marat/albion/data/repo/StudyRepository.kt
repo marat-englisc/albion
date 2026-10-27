@@ -302,6 +302,8 @@ class StudyRepository(
 
     fun observeGameMistakes(deck: Deck, game: String, withAudio: Boolean = false) = cards.observeGameMistakes(deck.id, game, withAudio)
 
+    fun observePracticeNeeds() = games.observePracticeNeeds()
+
     /** Запоминает ответ в игре: ошибка ставит слово в начало следующих игр, два верных подряд — снимают. */
     suspend fun recordGame(
         cardId: String, game: String, ok: Boolean, durationMs: Long = 0,

@@ -76,12 +76,7 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.AlbionLogo
-import com.marat.albion.ui.components.Finn
-import com.marat.albion.ui.components.Mascot
-import com.marat.albion.ui.components.ConfettiBurst
-import com.marat.albion.ui.components.SpeechBubble
 import com.marat.albion.ui.components.StatPill
-import com.marat.albion.ui.components.Tail
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
@@ -108,9 +103,9 @@ fun rememberCardAudio(player: AudioPlayer): CardAudio {
 }
 
 @Composable
-fun StudyScreen(deck: Deck?, navigator: Navigator) {
+fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     val c = LocalAppContainer.current
-    val vm = viewModel(key = "study-${deck?.id ?: "all"}") { StudyViewModel(c.study, deck) }
+    val vm = viewModel(key = "study-${deck?.id ?: "all"}-${answerLimit ?: "full"}") { StudyViewModel(c.study, deck, answerLimit) }
     val state by vm.state.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val audio = rememberCardAudio(c.audio)
@@ -178,7 +173,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator) {
                             revealed = if (isCurrent) state.revealed else true,
                             onReveal = vm::reveal,
                             front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
-                            back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian, peek = true) },
+                            back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
                         )
                     }
                 }
@@ -215,7 +210,12 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
             }
             com.marat.albion.ui.components.RoundIconButton(Icons.AutoMirrored.Rounded.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
-        Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (state.answerLimit != null) {
+            Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = Ink.Fg)
+            }
+        } else Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
             QueueCount(state.learningCount + if (state.current?.fromLearning == true) 1 else 0, "учу", Modifier.weight(1f))
             QueueCount(
@@ -277,7 +277,7 @@ private fun FlipCard(
             .clip(shape)
             .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
         shape = shape,
-        color = Ink.Surface,
+        color = Ink.Raised,
         border = BorderStroke(1.dp, Ink.LineStrong),
     ) {
         Box(Modifier.fillMaxSize()) {
@@ -318,12 +318,12 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) 
 
 @Composable
 private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
-    // «Снова» — тёплый клюв, «Хорошо» — шарф: цвет подсказывает смысл ещё до чтения подписи.
+
     val (bg, fg, border) = when (r) {
-        Rating.Again -> Triple(Ink.WarmSoft, Ink.Warm, Ink.WarmSoft)
+        Rating.Again -> Triple(Ink.ErrorSoft, Ink.Error, Ink.ErrorSoft)
         Rating.Hard -> Triple(Ink.Surface, Ink.Text, Ink.LineStrong)
         Rating.Good -> Triple(Ink.Accent, Ink.OnAccent, Ink.AccentDeep)
-        Rating.Easy -> Triple(Ink.AccentSoft, Ink.Accent, Ink.AccentSoft)
+        Rating.Easy -> Triple(Ink.AccentSoft, Ink.AccentText, Ink.AccentSoft)
     }
     val interaction = remember { MutableInteractionSource() }
     val appear = remember { Animatable(0f) }
@@ -335,9 +335,9 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         modifier.fillMaxHeight().heightIn(min = 66.dp)
             .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
             .pressScale(interaction, 0.96f)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(16.dp))
+            .border(1.dp, border, RoundedCornerShape(10.dp))
             .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -350,37 +350,43 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     }
 }
 
-/** Итог занятия: Финн радуется сделанному (или отдыхает, если повторять было нечего), цифры набегают. */
+/** Summary of the completed study session. */
 @Composable
 private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) {
     Box(Modifier.fillMaxSize()) {
-    if (state.answered > 0) ConfettiBurst(Unit, Modifier.fillMaxSize())
     Column(
-        Modifier.fillMaxSize().padding(28.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // Финн говорит итог сам — и радуется, если его погладить.
-        SpeechBubble(
-            if (state.answered == 0) "Отдыхаем! Повторять пока нечего." else "Ура! ${state.answered} ${answersWord(state.answered)} — отличная работа.",
-            tail = Tail.Bottom, tailAt = 0.5f, delayMs = 500,
-        )
-        Mascot(if (state.answered == 0) Finn.REST else Finn.SESSION_COMPLETE, 176.dp, delayMs = 150)
-        Spacer(Modifier.height(20.dp))
+
+        com.marat.albion.ui.components.AlbionLogo(size = 56.dp, color = Ink.AccentText, horizonColor = Ink.Gold)
+        Spacer(Modifier.height(24.dp))
         Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = Ink.Fg)
         Spacer(Modifier.height(10.dp))
         Text(
-            if (state.answered == 0) "Сейчас в этой колоде нечего повторять." else "Занятие завершено. Следующие карточки FSRS покажет точно в срок.",
+            if (state.answered == 0) "Сейчас в этой колоде нечего повторять."
+            else if (state.answerLimit != null) "Короткое занятие завершено. Прогресс сохранён — к оставшимся карточкам можно вернуться позже."
+            else "Занятие завершено. Следующие карточки FSRS покажет точно в срок.",
             style = MaterialTheme.typography.bodyLarge,
             color = Ink.Muted,
             textAlign = TextAlign.Center,
         )
         if (state.answered > 0) {
             Spacer(Modifier.height(28.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatPill(state.answered, "ответов", Modifier.weight(1f))
-                StatPill((state.answered - state.again) * 100 / state.answered, "вспомнил", Modifier.weight(1f), suffix = "%", tint = Ink.AccentSoft)
-                StatPill((state.elapsedMs / 60000).toInt().coerceAtLeast(1), "минут", Modifier.weight(1f))
+            val metrics = listOf(
+                Triple(state.answered, "ответов", ""),
+                Triple((state.answered - state.again) * 100 / state.answered, "вспомнил", "%"),
+                Triple((state.elapsedMs / 60000).toInt().coerceAtLeast(1), "минут", ""),
+            )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                if (maxWidth < 300.dp || LocalDensity.current.fontScale > 1.2f) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        metrics.forEach { (value, label, suffix) -> StatPill(value, label, Modifier.fillMaxWidth(), suffix) }
+                    }
+                } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    metrics.forEach { (value, label, suffix) -> StatPill(value, label, Modifier.weight(1f), suffix) }
+                }
             }
         }
         if (state.learningCount > 0) {

@@ -19,11 +19,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,7 +52,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -85,20 +82,17 @@ import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.study.rememberCardAudio
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 
 // ------------------------------------------------------------------ поле ввода
 
 /**
- * Крупное поле ввода антиквой, без автокоррекции: мягкая «лунка» с рамкой, которая при фокусе
- * наливается цветом шарфа. Подсказка видна, пока поле не в фокусе, — курсор не наезжает на неё.
+ * Поле ответа без автокоррекции. Рамка выделяет фокус; подсказка не перекрывает курсор.
  */
 @Composable
 internal fun AnswerField(
@@ -117,7 +111,7 @@ internal fun AnswerField(
     val narrow = LocalNarrow.current
     val shape = RoundedCornerShape(18.dp)
     val border = when {
-        struck -> Ink.Warm
+        struck -> Ink.Error
         else -> lerpColor(Ink.LineStrong, Ink.Accent, on)
     }
     BasicTextField(
@@ -126,13 +120,13 @@ internal fun AnswerField(
         enabled = enabled,
         singleLine = true,
         textStyle = TextStyle(
-            fontFamily = Serif,
+            fontFamily = com.marat.albion.ui.theme.Sans,
             fontSize = if (narrow) 24.sp else 28.sp,
-            color = if (struck) Ink.Warm else Ink.Fg,
+            color = if (struck) Ink.Error else Ink.Fg,
             textAlign = TextAlign.Center,
             textDecoration = if (struck) TextDecoration.LineThrough else null,
         ),
-        cursorBrush = SolidColor(Ink.Accent),
+        cursorBrush = SolidColor(Ink.AccentText),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
             autoCorrectEnabled = false,
@@ -144,7 +138,7 @@ internal fun AnswerField(
         decorationBox = { inner ->
             Box(
                 Modifier.fillMaxWidth()
-                    .background(if (struck) Ink.WarmSoft else Ink.Raised, shape)
+                    .background(if (struck) Ink.ErrorSoft else Ink.Raised, shape)
                     .border(if (on > 0.5f || struck) 2.dp else 1.5.dp, border, shape)
                     .heightIn(min = 60.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
@@ -153,7 +147,7 @@ internal fun AnswerField(
                 if (value.isEmpty() && !focused) {
                     Text(
                         placeholder,
-                        style = TextStyle(fontFamily = Serif, fontSize = if (narrow) 20.sp else 22.sp, color = Ink.Faint),
+                        style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (narrow) 20.sp else 22.sp, color = Ink.Faint),
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -170,7 +164,7 @@ internal fun annotateMistakes(correct: String, answer: String): AnnotatedString 
     val mask = AnswerCheck.mistakeMask(answer, correct)
     return buildAnnotatedString {
         correct.forEachIndexed { i, ch ->
-            if (mask[i]) withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = Ink.Warm)) { append(ch) } else append(ch)
+            if (mask[i]) withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = Ink.Error)) { append(ch) } else append(ch)
         }
     }
 }
@@ -198,7 +192,7 @@ private fun skeleton(term: String, revealed: Int): String {
 private fun hintLetters(term: String) =
     term.split(' ').filterNot { AnswerCheck.isPlaceholder(it) }.sumOf { w -> w.count { it.isLetter() } }
 
-/** Вердикт — пилюля, которая выпрыгивает пружиной: зелёная для верного, тёплая для ошибки. */
+/** Вердикт — пилюля, которая выпрыгивает пружиной: синяя для верного, красная для ошибки. */
 @Composable
 internal fun VerdictLine(verdict: Verdict) {
     val pop = remember { androidx.compose.animation.core.Animatable(0.6f) }
@@ -207,10 +201,10 @@ internal fun VerdictLine(verdict: Verdict) {
         pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.4f, stiffness = 500f))
     }
     val good = verdict != Verdict.Wrong
-    val fg = if (good) Ink.Accent else Ink.Warm
+    val fg = if (good) Ink.Success else Ink.Error
     Row(
         Modifier.graphicsLayer { scaleX = pop.value; scaleY = pop.value; alpha = ((pop.value - 0.6f) / 0.4f).coerceIn(0f, 1f) }
-            .background(if (good) Ink.AccentSoft else Ink.WarmSoft, RoundedCornerShape(50))
+            .background(if (good) Ink.AccentSoft else Ink.ErrorSoft, RoundedCornerShape(50))
             .padding(horizontal = 12.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -229,13 +223,13 @@ internal fun VerdictLine(verdict: Verdict) {
 
 // ------------------------------------------------------------------ ввод ответа
 
-/** Разбор ошибки: введённый вариант зачёркнут, правильное слово — крупно, на тёплой плашке. */
+/** Разбор ошибки: введённый вариант зачёркнут, правильное слово — крупно, на красноватой плашке. */
 @Composable
 private fun WrongAnswerFeedback(answer: String, correct: String) {
     NoteCard(Modifier.semantics { liveRegion = LiveRegionMode.Polite }, tone = NoteTone.Bad) {
         VerdictLine(Verdict.Wrong)
         Spacer(Modifier.height(12.dp))
-        Eyebrow("Ваш ответ", color = Ink.Warm)
+        Eyebrow("Ваш ответ", color = Ink.Error)
         Spacer(Modifier.height(2.dp))
         Text(
             answer.ifBlank { "Ответ не дан" },
@@ -245,7 +239,7 @@ private fun WrongAnswerFeedback(answer: String, correct: String) {
             color = Ink.Soft,
         )
         Spacer(Modifier.height(10.dp))
-        Eyebrow("Правильный ответ", color = Ink.Warm)
+        Eyebrow("Правильный ответ", color = Ink.AccentText)
         Spacer(Modifier.height(2.dp))
         Text(correct, style = termStyle(correct, 34).copy(textAlign = TextAlign.Start), color = Ink.Fg)
     }
@@ -316,7 +310,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                     // Скелет слова — на мягкой плашке, открытые подсказкой буквы проступают на ней.
                     Text(
                         skeleton(card.term, hints),
-                        style = TextStyle(fontFamily = Serif, fontSize = 18.sp, letterSpacing = 1.sp),
+                        style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 18.sp, letterSpacing = 1.sp),
                         color = Ink.Soft,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.background(Ink.Surface, RoundedCornerShape(12.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
@@ -460,7 +454,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
         ) {
             TaskCard(centered = true) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Eyebrow("V1 · Infinitive", color = Ink.Accent)
+                    Eyebrow("V1 · Infinitive", color = Ink.AccentText)
                     LevelBadge(card.level)
                 }
                 Spacer(Modifier.height(10.dp))
@@ -565,7 +559,7 @@ private fun FormInput(
                         if (i > 0) Text("/", color = Ink.Faint, modifier = Modifier.padding(end = 10.dp))
                         Text(
                             if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
-                            style = TextStyle(fontFamily = Serif, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
+                            style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
                             color = Ink.Fg,
                         )
                         Spacer(Modifier.width(4.dp))

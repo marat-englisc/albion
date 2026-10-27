@@ -1,7 +1,6 @@
 package com.marat.albion.ui.grammar
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
 import androidx.compose.foundation.background
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.data.grammar.MdRule
@@ -191,7 +190,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                 com.marat.albion.ui.components.RoundIconButton(
                     if (progress?.bookmarked == true) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder, "Закладка",
                     { scope.launch { c.grammar.toggleBookmark(topicId) } },
-                    tint = if (progress?.bookmarked == true) Ink.Accent else Ink.Fg,
+                    tint = if (progress?.bookmarked == true) Ink.AccentText else Ink.Fg,
                 )
             }
         }
@@ -294,8 +293,7 @@ private fun TopicFooter(
         if (hasQuiz) {
             Column(
                 Modifier.fillMaxWidth()
-                    // Финн задумчиво выглядывает из-за блока с тестом.
-                    .peekingFinn(at = 0.86f, height = 56.dp)
+
                     .border(1.dp, Ink.LineStrong, RoundedCornerShape(12.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверь себя", color = Ink.Soft)

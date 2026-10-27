@@ -1,99 +1,74 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.LocalNarrow
-import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.PeekFrom
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.FinnPeek
-import com.marat.albion.ui.components.Finn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.marat.albion.ui.components.Panel
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.marat.albion.ui.theme.Serif
-import com.marat.albion.ui.components.Hairline
-import com.marat.albion.ui.components.FeatureHelp
-import com.marat.albion.ui.components.ScreenHeader
-import com.marat.albion.ui.components.SettingsShortcut
-import com.marat.albion.ui.components.SectionHeader
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marat.albion.LocalAppContainer
+import com.marat.albion.data.settings.PracticeOptions
+import com.marat.albion.ui.components.*
 import com.marat.albion.ui.nav.GameRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.pressScale
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
+
+private val practiceGroups = listOf(
+    "Словарный запас" to listOf(Game.TYPE_ANSWER, Game.IRREGULAR),
+    "Грамматика" to listOf(Game.GRAMMAR_CHOICE, Game.GRAMMAR_GAP, Game.SENTENCE, Game.TENSES),
+    "Речь и слух" to listOf(Game.PRONUNCIATION, Game.SHADOWING),
+)
 
 @Composable
 fun GamesScreen(navigator: Navigator) {
-    val reveal = rememberReveal()
+    val settings = LocalAppContainer.current.settings
+    val lastName by settings.lastPractice.collectAsStateWithLifecycle(null)
+    val lastGame = Game.entries.firstOrNull { it.name == lastName }
+    val featured = lastGame ?: Game.TYPE_ANSWER
+    val defaultCount = if (featured == Game.IRREGULAR) 20 else 10
+    val options by remember(featured) { settings.practiceOptions(featured.name, defaultCount) }
+        .collectAsStateWithLifecycle(PracticeOptions(count = defaultCount))
+
     LazyColumn(
         Modifier.fillMaxSize().background(Ink.Bg),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item {
-            // Финн заглядывает в «Практику» из-за правого края экрана, на уровне заголовка.
-            Box(Modifier.fillMaxWidth().reveal(reveal, 0)
-                .peekingFinn(FinnPeek.SIDE, from = PeekFrom.InEnd, at = 0.86f, height = 88.dp, outset = gutter)) {
-                ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
-                    Row {
-                        FeatureHelp("practice", "Как заниматься", "Выберите упражнение, колоду или уровень и длину занятия.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в статистике, расписание повторения карточек остаётся прежним.", showOnFirstUse = false, mascot = Finn.HINT)
-                        SettingsShortcut(navigator::openSettings)
-                    }
-                })
+            ScreenHeader("Практика", eyebrow = "Закрепляйте изученное", trailing = {
+                Row {
+                    FeatureHelp("practice", "Как заниматься",
+                        "Выберите навык, затем колоду или уровень и длину занятия. Параметры каждого упражнения сохраняются.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в дневной цели и статистике; расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
+                    SettingsShortcut(navigator::openSettings)
+                }
+            })
+        }
+        item {
+            HeroCard(Modifier.fillMaxWidth().padding(bottom = 12.dp).clickable(role = Role.Button) { navigator.open(GameRoute(featured)) }, contentPadding = PaddingValues(18.dp)) {
+                Eyebrow(if (lastGame != null) "Последнее упражнение" else "Для начала")
+                Spacer(Modifier.height(9.dp))
+                Text(featured.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                Spacer(Modifier.height(6.dp))
+                val scope = if (featured.isGrammar) options.level.ifEmpty { "Все уровни" }
+                    else (featured.decks.firstOrNull { it.id == options.deckId } ?: featured.decks.first()).title
+                val length = if (options.count == Int.MAX_VALUE) "вся колода" else "до ${options.count} заданий"
+                val details = listOfNotNull(scope.takeUnless { it == featured.title }, length).joinToString(" · ")
+                Text(if (lastGame != null) details else "Вспомните знакомые слова и проверьте себя письменно.",
+                    style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                Spacer(Modifier.height(16.dp))
+                PrimaryButton(if (lastGame != null) "Повторить занятие" else "Выбрать параметры", { navigator.open(GameRoute(featured)) })
             }
         }
-        item { SectionHeader("Упражнения", Modifier.padding(top = 8.dp).reveal(reveal, 1), trailing = "%02d".format(Game.entries.size)) }
-        itemsIndexed(Game.entries) { i, game ->
-            GameRow(game, Modifier.reveal(reveal, 2 + i)) { navigator.open(GameRoute(game)) }
-        }
-    }
-}
-
-@Composable
-private fun GameRow(game: Game, modifier: Modifier, onClick: () -> Unit) {
-    // Упражнения чередуют оттенки шарфа и клюва — список читается как игровое поле.
-    val warm = game.ordinal % 2 == 1
-    Panel(modifier.fillMaxWidth().padding(vertical = 5.dp), onClick = onClick, contentPadding = PaddingValues(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.size(48.dp).background(if (warm) Ink.WarmSoft else Ink.AccentSoft, RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center,
-            ) { Icon(game.icon, null, tint = if (warm) Ink.Warm else Ink.Accent, modifier = Modifier.size(24.dp)) }
-            Spacer(Modifier.width(if (LocalNarrow.current) 12.dp else 14.dp))
-            Column(Modifier.weight(1f)) {
-                val narrow = LocalNarrow.current
-                Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = Serif,
-                    fontSize = if (narrow) 18.sp else 20.sp, lineHeight = if (narrow) 23.sp else 26.sp), color = Ink.Fg)
-                Spacer(Modifier.height(2.dp))
-                Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        practiceGroups.forEach { (title, games) ->
+            item(key = title) { SectionHeader(title, Modifier.padding(top = 10.dp)) }
+            items(games, key = { it.name }) { game ->
+                EditorialLink(game.title, game.tagline, { navigator.open(GameRoute(game)) }, icon = game.icon)
             }
-            Spacer(Modifier.width(8.dp))
-            Icon(Icons.Rounded.ChevronRight, null, tint = Ink.Faint)
         }
     }
 }

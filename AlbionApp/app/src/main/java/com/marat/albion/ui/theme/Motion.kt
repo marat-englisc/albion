@@ -70,8 +70,8 @@ fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 25, d
 fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.97f): Modifier = composed {
     val isPressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        if (isPressed) pressed else 1f,
-        spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        if (isPressed) maxOf(pressed, 0.97f) else 1f,
+        tween(140, easing = Easing.Standard),
         label = "press",
     )
     graphicsLayer { scaleX = scale; scaleY = scale }

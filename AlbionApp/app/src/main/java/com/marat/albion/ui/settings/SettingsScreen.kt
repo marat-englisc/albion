@@ -1,9 +1,8 @@
 package com.marat.albion.ui.settings
 
+import androidx.compose.animation.core.tween
+
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.PeekFrom
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.FinnPeek
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -98,8 +97,8 @@ fun SettingsScreen(onBack: () -> Unit) {
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
                 .padding(horizontal = gutter).padding(bottom = 32.dp),
         ) {
-            // Финн свисает вниз головой рядом с заголовком — настройки «вверх дном».
-            Box(Modifier.fillMaxWidth().reveal(reveal, 0).peekingFinn(FinnPeek.HELLO, from = PeekFrom.Ceiling, at = 0.86f, height = 50.dp)) {
+
+            Box(Modifier.fillMaxWidth().reveal(reveal, 0)) {
                 ScreenHeader("Настройки", includeStatusBarInsets = false)
             }
 
@@ -113,7 +112,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                             ThemeTile(mode, s.themeMode == mode, Modifier.weight(1f)) { scope.launch { repo.setThemeMode(mode) } }
                         }
                     }
-                    Text("Светлая — утро у моря, тёмная — ночной фьорд. Цвета взяты у Финна: шарф, клюв и оперение.",
+                Text("Светлая — тёплая бумага, тёмная — глубокий графит. Бордовые акценты и тонкие золотые детали.",
                         style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
                         modifier = Modifier.padding(top = 12.dp))
                 }
@@ -221,7 +220,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             title = { Text("Сбросить прогресс учебника?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("Отметки «изучено» и закладки будут удалены.") },
             confirmButton = {
-                TextButton(onClick = { confirmGrammarReset = false; scope.launch { c.grammar.resetProgress() } }) { Text("Сбросить", color = Ink.Warm) }
+                TextButton(onClick = { confirmGrammarReset = false; scope.launch { c.grammar.resetProgress() } }) { Text("Сбросить", color = Ink.Error) }
             },
             dismissButton = { TextButton(onClick = { confirmGrammarReset = false }) { Text("Отмена", color = Ink.Muted) } },
         )
@@ -230,23 +229,22 @@ fun SettingsScreen(onBack: () -> Unit) {
 
 /**
  * Плитка темы — маленькое превью экрана в её цветах: строки текста, пилюля прогресса и кнопка.
- * «Как в системе» показывает обе половины. Выбранная приподнимается и получает зелёную рамку.
+ * «Как в системе» показывает обе половины. Выбранная тема получает crimson-рамку.
  */
 @Composable
 private fun ThemeTile(mode: ThemeMode, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
-    val lift by animateFloatAsState(if (selected) 1f else 0f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMediumLow), label = "tile")
-    val shape = RoundedCornerShape(20.dp)
+    val lift by animateFloatAsState(if (selected) 1f else 0f, tween(180), label = "tile")
+    val shape = RoundedCornerShape(12.dp)
     Column(
         modifier
-            .graphicsLayer { translationY = -lift * 4.dp.toPx() }
             .pressScale(interaction, 0.95f)
             .selectable(selected = selected, role = Role.RadioButton, interactionSource = interaction, indication = null, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             Modifier.fillMaxWidth().height(96.dp)
-                .border(if (selected) 2.5.dp else 1.dp, lerpColor(Ink.LineStrong, Ink.Accent, lift), shape)
+                .border(if (selected) 2.dp else 1.dp, lerpColor(Ink.LineStrong, Ink.Accent, lift), shape)
                 .padding(4.dp)
                 .clip(RoundedCornerShape(16.dp)),
         ) {
@@ -280,12 +278,11 @@ private fun ThemePreview(p: Palette, modifier: Modifier) {
         val r = CornerRadius(u * 0.5f)
         drawRoundRect(p.fg, Offset(u, u * 1.2f), Size(u * 4.5f, u * 0.9f), r)
         drawRoundRect(p.muted, Offset(u, u * 2.6f), Size(u * 6.5f, u * 0.55f), r)
-        drawRoundRect(p.accentSoft, Offset(u, u * 3.8f), Size(size.width - u * 2, u * 2.4f), CornerRadius(u))
+        drawRoundRect(p.raised, Offset(u, u * 3.8f), Size(size.width - u * 2, u * 2.4f), CornerRadius(u))
         drawRoundRect(p.high, Offset(u * 1.6f, u * 4.6f), Size(size.width - u * 3.2f, u * 0.6f), r)
         drawRoundRect(p.accent, Offset(u * 1.6f, u * 4.6f), Size((size.width - u * 3.2f) * 0.6f, u * 0.6f), r)
-        drawRoundRect(p.accentDeep, Offset(u, size.height - u * 2.1f), Size(size.width - u * 2, u * 1.4f), r)
         drawRoundRect(p.accent, Offset(u, size.height - u * 2.4f), Size(size.width - u * 2, u * 1.4f), r)
-        drawCircle(p.beak, u * 0.45f, Offset(size.width - u * 1.6f, u * 1.6f))
+        drawCircle(p.gold, u * 0.45f, Offset(size.width - u * 1.6f, u * 1.6f))
     }
 }
 
@@ -331,7 +328,7 @@ internal fun SliderSetting(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
             Text(
-                value, style = MaterialTheme.typography.titleMedium, color = Ink.Accent,
+                value, style = MaterialTheme.typography.titleMedium, color = Ink.AccentText,
                 modifier = Modifier.background(Ink.AccentSoft, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }

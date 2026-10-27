@@ -4,7 +4,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
@@ -22,7 +21,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,15 +67,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -92,10 +87,8 @@ import com.marat.albion.data.grammar.GrammarPrompt
 import com.marat.albion.data.grammar.GrammarQuizSession
 import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.AlbionLogo
-import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
-import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
@@ -104,11 +97,13 @@ import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import com.marat.albion.data.settings.PracticeOptions
 
 private val LEVELS = listOf("", "A1", "A2", "B1", "B2", "C1")
 
@@ -123,7 +118,7 @@ class GrammarGameViewModel(
     private val topicId: String? = null,
 ) : ViewModel() {
     val kind = if (game == Game.GRAMMAR_GAP) "input" else "choice"
-    var phase by mutableStateOf(Phase.Setup)
+    var phase by mutableStateOf(Phase.Loading)
         private set
     var level by mutableStateOf("")
     var count by mutableIntStateOf(10)
@@ -148,11 +143,20 @@ class GrammarGameViewModel(
             topicIds = c.grammar.book().topics
                 .filter { it.kind == TopicKind.Lesson && it.number != null }
                 .associate { it.number!! to it.id }
+            if (topic == null) {
+                game?.let {
+                    val saved = c.settings.practiceOptions(it.name).first()
+                    level = saved.level.takeIf { lv -> lv in LEVELS }.orEmpty()
+                    count = saved.count.takeIf { n -> n in listOf(10, 20, 30) } ?: 10
+                }
+                phase = Phase.Setup
+            }
         }
         if (topic != null) start()
     }
 
     fun start(retry: List<GrammarTaskEntity>? = null) {
+        if (retry == null) saveOptions(markAsLast = true)
         phase = Phase.Loading
         viewModelScope.launch {
             val pool = retry?.shuffled() ?: if (topic != null) c.study.topicPool(topic) else c.study.grammarPool(kind, level, count)
@@ -169,6 +173,12 @@ class GrammarGameViewModel(
     }
 
     fun retryMistakes() = start(missed.toList())
+
+    fun saveOptions(markAsLast: Boolean = false) {
+        if (topic != null || game == null) return
+        val options = PracticeOptions(count = count, level = level)
+        c.appScope.launch(Dispatchers.Main.immediate) { c.settings.savePracticeOptions(game.name, options, markAsLast) }
+    }
 
     private val shuffled = HashMap<String, List<String>>()
 
@@ -317,7 +327,7 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
     val reveal = rememberReveal()
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = onBack) {
-            FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description, mascot = vm.game.mascot)
+            FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
         }
         SetupBody(
             start = if (total == 0) null else ({
@@ -336,13 +346,13 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
                 Column(Modifier.reveal(reveal, 1)) {
                     SectionHeader("Уровень", Modifier.padding(top = 0.dp), trailing = "$total")
                     ChipFlow {
-                        LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv } }
+                        LEVELS.forEach { lv -> TextTab(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv; vm.saveOptions() } }
                     }
                 }
                 Column(Modifier.reveal(reveal, 2)) {
                     SectionHeader("Длина", Modifier.padding(top = 4.dp))
                     ChipFlow {
-                        listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n } }
+                        listOf(10, 20, 30).forEach { n -> TextTab("$n заданий", vm.count == n) { vm.count = n; vm.saveOptions() } }
                     }
                 }
             }
@@ -377,7 +387,7 @@ internal fun promptWithGap(prompt: String, filled: String?): AnnotatedString = b
 private fun TaskHeader(task: GrammarTaskEntity) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "),
-            Modifier.weight(1f, fill = false), color = Ink.Accent, maxLines = 2)
+            Modifier.weight(1f, fill = false), color = Ink.AccentText, maxLines = 2)
         Spacer(Modifier.width(10.dp))
         LevelBadge(task.level)
     }
@@ -389,13 +399,13 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
         if (task.explanation.isNotBlank()) {
             NoteCard {
-                Eyebrow("Почему так", color = Ink.Accent)
+                Eyebrow("Почему так", color = Ink.AccentText)
                 Spacer(Modifier.height(6.dp))
                 Text(task.explanation, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
             }
         }
         task.topic?.let { n ->
-            // Ссылка на правило — мягкая «пилюля» цвета шарфа, как остальные действия.
+
             Row(
                 Modifier.padding(top = 10.dp).heightIn(min = 44.dp).clip(CircleShape)
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
@@ -405,11 +415,11 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.AutoMirrored.Outlined.MenuBook, null, tint = Ink.Accent, modifier = Modifier.size(18.dp))
+                Icon(Icons.AutoMirrored.Outlined.MenuBook, null, tint = Ink.AccentText, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.Accent)
+                Text("Правило · тема $n", style = MaterialTheme.typography.labelLarge, color = Ink.AccentText)
                 Spacer(Modifier.width(6.dp))
-                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.Accent, modifier = Modifier.size(16.dp))
+                Icon(Icons.AutoMirrored.Rounded.ArrowForward, null, tint = Ink.AccentText, modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -469,22 +479,22 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
 
 internal enum class OptionState { Idle, Correct, Wrong, Dim }
 
-/** Вариант ответа: верный заливается зелёным и подпрыгивает, неверный выбранный — тёплым и зачёркивается. */
+/** Вариант ответа: верный заливается синим и подпрыгивает, неверный выбранный — красным и зачёркивается. */
 @Composable
 internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> Ink.Accent
-            OptionState.Wrong -> Ink.WarmSoft
+            OptionState.Correct -> Ink.SuccessSoft
+            OptionState.Wrong -> Ink.ErrorSoft
             else -> Ink.Raised
         },
         tween(260), label = "bg",
     )
     val fg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> Ink.OnAccent
-            OptionState.Wrong -> Ink.Warm
+            OptionState.Correct -> Ink.Success
+            OptionState.Wrong -> Ink.Error
             OptionState.Dim -> Ink.Faint
             OptionState.Idle -> Ink.Text
         },
@@ -492,8 +502,8 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
     )
     val border by animateColorAsState(
         when (state) {
-            OptionState.Correct -> Ink.AccentDeep
-            OptionState.Wrong -> Ink.Warm
+            OptionState.Correct -> Ink.Success
+            OptionState.Wrong -> Ink.Error
             OptionState.Dim -> Ink.Line
             OptionState.Idle -> Ink.LineStrong
         },
@@ -503,7 +513,7 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
     LaunchedEffect(state) {
         if (state == OptionState.Correct) {
             pop.snapTo(0.94f)
-            pop.animateTo(1f, androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 600f))
+            pop.animateTo(1f, androidx.compose.animation.core.tween(180))
         }
     }
     val shape = RoundedCornerShape(16.dp)
@@ -525,7 +535,7 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
         )
         when (state) {
             OptionState.Correct -> Icon(Icons.Rounded.Check, null, tint = Ink.OnAccent, modifier = Modifier.size(18.dp))
-            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Warm, modifier = Modifier.size(18.dp))
+            OptionState.Wrong -> Icon(Icons.Rounded.Close, null, tint = Ink.Error, modifier = Modifier.size(18.dp))
             else -> {}
         }
     }

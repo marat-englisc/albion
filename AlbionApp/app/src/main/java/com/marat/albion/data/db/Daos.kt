@@ -120,6 +120,14 @@ interface CardDao {
     @Query("SELECT * FROM game_card_stats WHERE card_id = :cardId AND game = :game")
     suspend fun gameStat(cardId: String, game: String): GameCardStatEntity?
 
+    @Query("""
+        SELECT EXISTS(SELECT 1 FROM review_state WHERE card_id = :cardId)
+            OR EXISTS(SELECT 1 FROM review_log WHERE card_id = :cardId)
+            OR EXISTS(SELECT 1 FROM game_card_stats WHERE card_id = :cardId)
+            OR EXISTS(SELECT 1 FROM game_answer_log WHERE item_id = :cardId)
+    """)
+    suspend fun hasLearningActivity(cardId: String): Boolean
+
     @Upsert
     suspend fun upsertGameStat(stat: GameCardStatEntity)
 }

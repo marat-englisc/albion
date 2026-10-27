@@ -42,18 +42,24 @@ data class StudyState(
     /** Последняя оценка — от неё зависит, куда «улетает» карточка. */
     val lastRating: Rating? = null,
     val error: String? = null,
+    /** A short session counts every saved answer, including learning repeats. */
+    val answerLimit: Int? = null,
+    val targetAnswers: Int = 0,
 ) {
     val remaining get() = newCount + learningCount + reviewCount
-    val progress get() = if (answered + remaining == 0) 0f else answered.toFloat() / (answered + remaining)
+    val limitReached get() = answerLimit != null && answered >= answerLimit
+    val progress get() = if (answerLimit != null) {
+        if (targetAnswers == 0) 0f else (answered.toFloat() / targetAnswers).coerceIn(0f, 1f)
+    } else if (answered + remaining == 0) 0f else answered.toFloat() / (answered + remaining)
 }
 
 /**
  * Сессия повторения одной колоды или, при [deck] = null, всех колод сразу. Очередь как в Anki: учебные шаги (1 и 10 минут),
  * подошедшие по времени, идут первыми; новые карточки равномерно вкраплены в повторения.
  */
-class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?) : ViewModel() {
+class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?, answerLimit: Int? = null) : ViewModel() {
 
-    private val _state = MutableStateFlow(StudyState())
+    private val _state = MutableStateFlow(StudyState(answerLimit = answerLimit?.coerceIn(1, 100)))
     val state: StateFlow<StudyState> = _state.asStateFlow()
 
     private val learning = mutableListOf<Pair<CardEntity, Long>>() // карточка → когда показать
@@ -73,6 +79,7 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?)
             q.learning.forEach { card -> learning += card to repo.memory(card.id).due }
             reviews.addAll(q.reviews)
             news.addAll(q.news.filter { n -> learning.none { it.first.id == n.id } })
+            _state.update { it.copy(targetAnswers = it.answerLimit ?: (q.learning.size + q.reviews.size + q.news.size)) }
             showNext()
         }
     }
@@ -165,6 +172,15 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?)
     }
 
     private suspend fun showNext() {
+        if (_state.value.limitReached) {
+            answering = false
+            _state.update { it.copy(
+                loading = false, current = null, finished = true, canUndo = undoStack.isNotEmpty(),
+                newCount = news.size, learningCount = learning.size, reviewCount = reviews.size,
+                elapsedMs = System.currentTimeMillis() - sessionStart,
+            ) }
+            return
+        }
         val now = System.currentTimeMillis()
         learning.sortBy { it.second }
         val dueLearning = learning.firstOrNull()?.takeIf { it.second <= now }

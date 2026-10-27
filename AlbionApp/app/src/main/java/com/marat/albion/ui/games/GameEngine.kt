@@ -38,6 +38,7 @@ import com.marat.albion.AppContainer
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.settings.PracticeOptions
 import com.marat.albion.data.games.SentencePuzzle
 import com.marat.albion.data.games.TenseDrill
 import com.marat.albion.data.games.TenseTask
@@ -46,12 +47,16 @@ import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 
 enum class Phase { Setup, Loading, Playing, Summary }
 
 /** Общее состояние мини-игры: настройка → вопросы → итог. На FSRS не влияет. */
-class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
-    var phase by mutableStateOf(Phase.Setup)
+class GameViewModel(private val c: AppContainer, val game: Game,
+    private val initialDeck: Deck? = null, private val focusMistakes: Boolean = false, private val initialCount: Int? = null,
+) : ViewModel() {
+    var phase by mutableStateOf(Phase.Loading)
         private set
     var deck by mutableStateOf(game.decks.first())
     var count by mutableIntStateOf(if (game == Game.IRREGULAR) 20 else 10)
@@ -74,7 +79,27 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
     private var answered = false
     private var questionStartedAt = 0L
 
+    init {
+        viewModelScope.launch {
+            val saved = c.settings.practiceOptions(game.name, defaultCount = count).first()
+            deck = game.decks.firstOrNull { it.id == saved.deckId } ?: game.decks.first()
+            val counts = if (game == Game.IRREGULAR) listOf(10, 20, Int.MAX_VALUE) else listOf(10, 20, 30)
+            count = saved.count.takeIf { it in counts } ?: 10
+            mode = saved.mode.coerceIn(0, (game.modes.size - 1).coerceAtLeast(0))
+            initialDeck?.takeIf { it in game.decks }?.let { deck = it }
+            initialCount?.takeIf { it in counts }?.let { count = it }
+            onlyMistakes = focusMistakes
+            phase = Phase.Setup
+        }
+    }
+
+    fun saveOptions(markAsLast: Boolean = false) {
+        val options = PracticeOptions(deckId = deck.id, count = count, mode = mode)
+        c.appScope.launch(Dispatchers.Main.immediate) { c.settings.savePracticeOptions(game.name, options, markAsLast) }
+    }
+
     fun start(retry: List<CardEntity>? = null) {
+        if (retry == null) saveOptions(markAsLast = true)
         phase = Phase.Loading
         // Новая игра — новые примеры; повтор ошибок — те же задания.
         if (retry == null) { tenses.clear(); tenseOptions.clear(); puzzles.clear(); shuffledTokens.clear() }
@@ -160,13 +185,15 @@ class GameViewModel(private val c: AppContainer, val game: Game) : ViewModel() {
 }
 
 @Composable
-fun GameHost(game: Game, navigator: Navigator) {
+fun GameHost(game: Game, navigator: Navigator, initialDeck: Deck? = null, onlyMistakes: Boolean = false, initialCount: Int? = null) {
     if (game.isGrammar) {
         GrammarGameHost(game, navigator)
         return
     }
     val c = LocalAppContainer.current
-    val vm = viewModel(key = "game-${game.name}") { GameViewModel(c, game) }
+    val vm = viewModel(key = "game-${game.name}-${initialDeck?.id}-$onlyMistakes-$initialCount") {
+        GameViewModel(c, game, initialDeck, onlyMistakes, initialCount)
+    }
     when (game) {
         Game.TYPE_ANSWER -> GameFrame(vm, navigator) { card -> TypeAnswerRound(vm, card) }
         Game.IRREGULAR -> GameFrame(vm, navigator, counts = listOf(10, 20, Int.MAX_VALUE)) { card -> IrregularRound(vm, card) }
@@ -189,7 +216,7 @@ private fun GameFrame(
     round: @Composable (CardEntity) -> Unit,
 ) {
     BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
-    val mistakeCount by remember(vm.deck) { vm.observeMistakes(vm.deck) }.collectAsStateWithLifecycle(0)
+    val mistakeCount by remember(vm.deck) { vm.observeMistakes(vm.deck) }.collectAsStateWithLifecycle(-1)
     // Ошибок не осталось — режим «только ошибки» выключаем сам.
     LaunchedEffect(mistakeCount) { if (mistakeCount == 0) vm.onlyMistakes = false }
 
@@ -203,13 +230,13 @@ private fun GameFrame(
                 game = vm.game,
                 deck = vm.deck,
                 count = vm.count,
-                onDeck = { vm.deck = it },
-                onCount = { vm.count = it },
+                onDeck = { vm.deck = it; vm.saveOptions() },
+                onCount = { vm.count = it; vm.saveOptions() },
                 onStart = { vm.start() },
                 onBack = navigator::back,
                 counts = counts,
                 mode = vm.mode,
-                onMode = { vm.mode = it },
+                onMode = { vm.mode = it; vm.saveOptions() },
                 mistakes = mistakeCount,
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },

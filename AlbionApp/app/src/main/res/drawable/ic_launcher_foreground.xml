@@ -7,14 +7,14 @@
     android:viewportHeight="108">
     <path
         android:pathData="M38.32,71.92 L54,36.08 L69.68,71.92"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4.2"
+        android:strokeColor="#F6F1E7"
+        android:strokeWidth="3.1"
         android:strokeLineJoin="miter"
         android:strokeMiterLimit="8"
         android:strokeLineCap="butt" />
     <path
         android:pathData="M28.24,61.84 L79.76,61.84"
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="#C6A66D"
         android:strokeWidth="1.6"
         android:strokeLineCap="butt" />
 </vector>

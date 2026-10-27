@@ -1,11 +1,6 @@
 package com.marat.albion.ui.stats
 
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.PeekFrom
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.FinnPeek
-import com.marat.albion.ui.components.Mascot
-import com.marat.albion.ui.components.Finn
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -47,6 +42,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.marat.albion.ui.components.HeroCard
+import com.marat.albion.ui.components.PrimaryButton
+import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.DayCount
@@ -60,7 +59,6 @@ import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.library.pluralRu
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.components.FinnLedge
 import com.marat.albion.ui.components.StatPill
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
@@ -76,6 +74,8 @@ import java.util.Locale
 fun StatsScreen(navigator: Navigator) {
     val c = LocalAppContainer.current
     val stats by remember { c.study.observeStats() }.collectAsStateWithLifecycle(null)
+    val adviceVm = viewModel { StudyAdviceViewModel(c) }
+    val advice by adviceVm.advice.collectAsStateWithLifecycle()
     val reveal = rememberReveal()
 
     Column(
@@ -85,31 +85,42 @@ fun StatsScreen(navigator: Navigator) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: return@Column
 
-        // Финн на экране один: в обычный день он выглядывает из-за края рядом с цифрами,
+        advice?.let { next ->
+            HeroCard(Modifier.fillMaxWidth().padding(top = 12.dp), contentPadding = PaddingValues(18.dp)) {
+                Eyebrow("Следующее занятие")
+                Spacer(Modifier.height(9.dp))
+                Text(next.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                Spacer(Modifier.height(8.dp))
+                Text(next.reason, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Spacer(Modifier.height(14.dp))
+                PrimaryButton(next.action, onClick = { navigator.open(next.destination) })
+            }
+        }
+
         // в день рекорда — стоит на карточке достижения.
         val milestone = streakMilestone(s.streak)
-        // Финн держится за верхний край плашек справа — над ними, а не поверх цифр и подписей.
+
         Column(Modifier.padding(top = if (milestone == null) 28.dp else 16.dp).reveal(reveal, 1)
-            .then(if (milestone == null) Modifier.peekingFinn(at = 0.86f, height = 56.dp, delayMs = 500) else Modifier)) {
+            ) {
             if (milestone != null) {
-                FinnLedge(
-                    pose = Finn.MILESTONE,
-                    line = milestone.first,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                    finnSize = 104.dp,
-                    contentPadding = PaddingValues(18.dp),
-                ) {
-                    Text(milestone.second, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                Panel(Modifier.padding(bottom = 16.dp), color = Ink.GoldSoft) {
+                    Eyebrow("Достижение", color = Ink.GoldText)
+                    Spacer(Modifier.height(8.dp))
+                    Text(milestone.first, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                    Spacer(Modifier.height(8.dp))
+                    Text(milestone.second, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatPill(s.streak, "дней подряд", Modifier.weight(1f), tint = Ink.WarmSoft, valueColor = if (s.streak == 0) Ink.Faint else Ink.Warm)
-                StatPill(s.answersToday, "ответов сегодня", Modifier.weight(1f), tint = Ink.AccentSoft)
+                Tile(s.streak, "дней подряд", Modifier.weight(1f))
+                Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
+            Hairline()
+            Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatPill(s.retention?.let { (it * 100).toInt() }, "удержание FSRS за 30 дней", Modifier.weight(1f), suffix = "%")
-                StatPill((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
+                Tile(s.retention?.let { (it * 100).toInt() }, "вспомнили при повторении · 30 дней", Modifier.weight(1f), suffix = "%")
+                Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
             }
         }
 
@@ -239,7 +250,7 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
                 val color = when {
                     v == 0 -> Ink.Line
                     forecast && i == selected -> Ink.Warm
-                    forecast -> Ink.Beak.copy(alpha = 0.55f)
+                    forecast -> Ink.Gold.copy(alpha = 0.55f)
                     i == selected -> Ink.Accent
                     else -> Ink.Accent.copy(alpha = 0.55f)
                 }
@@ -272,7 +283,7 @@ private fun DeckBreakdown(s: Stats) {
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)).background(Ink.High)) {
                     val total = c.total.coerceAtLeast(1).toFloat()
-                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Beak))
+                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Gold))
                     if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(Ink.Accent.copy(alpha = 0.5f)))
                     if (c.mature > 0) Box(Modifier.weight(c.mature / total).fillMaxHeight().background(Ink.Accent))
                     val rest = (c.total - c.started) / total
@@ -280,7 +291,7 @@ private fun DeckBreakdown(s: Stats) {
                 }
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Legend(Ink.Beak, "Учу ${c.learning}")
+                    Legend(Ink.Gold, "Учу ${c.learning}")
                     Legend(Ink.Accent.copy(alpha = 0.5f), "Повтор $young")
                     Legend(Ink.Accent, "Выучено ${c.mature}")
                     Legend(Ink.High, "Новые ${(c.total - c.started).coerceAtLeast(0)}")

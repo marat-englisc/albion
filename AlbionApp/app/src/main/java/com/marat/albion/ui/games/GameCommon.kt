@@ -8,18 +8,16 @@ import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.components.HeroCard
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.RoundIconButton
-import com.marat.albion.ui.theme.Serif
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.peekingFinn
-import com.marat.albion.ui.components.Mascot
 import com.marat.albion.ui.components.ButtonTone
-import com.marat.albion.ui.components.ConfettiBurst
-import com.marat.albion.ui.components.FinnLedge
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.theme.pressScale
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CircleShape
@@ -27,8 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.zIndex
-import com.marat.albion.ui.components.Finn
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -38,7 +34,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,8 +65,6 @@ import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.outlined.ViewWeek
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -95,7 +88,6 @@ import com.marat.albion.ui.browse.TextTab
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
@@ -219,8 +211,7 @@ fun GameSetup(
     Column(Modifier.fillMaxSize().background(Ink.Bg)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
-                "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.",
-                mascot = game.mascot)
+                "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
         }
         SetupBody(
             start = {
@@ -294,10 +285,10 @@ internal fun ChipFlow(content: @Composable () -> Unit) {
     ) { content() }
 }
 
-/** Варианты в столбик: выбранный — на мягкой зелёной плашке с отметкой. */
+/** Варианты в столбик: выбранный — на мягкой синей плашке с отметкой. */
 @Composable
 private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
-    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(Modifier.padding(vertical = 6.dp).selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         options.forEachIndexed { i, label ->
             val isSel = i == selected
             val t by animateFloatAsState(if (isSel) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 400f), label = "opt")
@@ -305,8 +296,9 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
             Row(
                 Modifier.fillMaxWidth()
                     .pressScale(interaction, 0.97f)
-                    .background(lerpColor(Ink.Surface, Ink.AccentSoft, t), RoundedCornerShape(16.dp))
-                    .clickable(interaction, indication = null) { onSelect(i) }
+                    .background(Ink.Surface, RoundedCornerShape(8.dp))
+                    .border(1.dp, if (isSel) Ink.AccentText else Ink.Line, RoundedCornerShape(8.dp))
+                    .selectable(isSel, interactionSource = interaction, indication = null, role = Role.RadioButton) { onSelect(i) }
                     .heightIn(min = 52.dp)
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -318,10 +310,7 @@ private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> 
                 Spacer(Modifier.width(14.dp))
                 Text(
                     label,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = if (LocalNarrow.current) 18.sp else 20.sp,
-                        lineHeight = if (LocalNarrow.current) 24.sp else 26.sp,
-                    ),
+                    style = MaterialTheme.typography.titleMedium,
                     color = lerpColor(Ink.Soft, Ink.Fg, t),
                 )
             }
@@ -400,37 +389,18 @@ internal fun ButtonPair(
 
 data class Mistake(val prompt: String, val answer: String, val correct: String)
 
-/** Поза Финна для упражнения: пишет, слушает, говорит в микрофон, раскладывает слова. */
-val Game.mascot: Finn get() = when (this) {
-    Game.TYPE_ANSWER -> Finn.WRITING
-    Game.IRREGULAR -> Finn.FLASHCARDS
-    Game.SHADOWING -> Finn.LISTENING
-    Game.PRONUNCIATION -> Finn.SPEAKING
-    Game.GRAMMAR_CHOICE -> Finn.GRAMMAR
-    Game.GRAMMAR_GAP -> Finn.WRITING
-    Game.SENTENCE -> Finn.SENTENCE_BUILDER
-    Game.TENSES -> Finn.THINKING
-}
-
-/**
- * Шапка настройки упражнения: название слева, Финн в позе упражнения стоит на карточке
- * с параметрами и коротко говорит, чем займёмся.
- */
+/** Editorial exercise introduction and configuration. */
 @Composable
 internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options: @Composable ColumnScope.() -> Unit) {
-    FinnLedge(
-        pose = game.mascot,
-        line = game.tagline,
-        modifier = modifier.fillMaxWidth().padding(top = 4.dp),
-        delayMs = 120,
-        contentPadding = PaddingValues(start = 18.dp, end = 18.dp, top = 6.dp, bottom = 14.dp),
-        header = {
-            Eyebrow("Упражнение · %02d".format(game.ordinal + 1), color = Ink.Accent)
-            Spacer(Modifier.height(6.dp))
-            Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
-        },
-        content = options,
-    )
+    Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
+        Eyebrow("Упражнение · %02d".format(game.ordinal + 1), color = Ink.GoldText)
+        Spacer(Modifier.height(12.dp))
+        Text(game.title, style = MaterialTheme.typography.headlineLarge, color = Ink.Fg)
+        Spacer(Modifier.height(10.dp))
+        Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+        Spacer(Modifier.height(24.dp))
+        HeroCard(Modifier.fillMaxWidth(), contentPadding = PaddingValues(20.dp), content = options)
+    }
 }
 
 /** Итог: кольцо результата прорисовывается, проценты набегают. */
@@ -453,34 +423,23 @@ fun GameSummary(
     val reveal = rememberReveal()
     val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
     Box(Modifier.fillMaxSize().background(Ink.Bg)) {
-    // Хороший результат — салют цветами Финна поверх итога.
-    if (total > 0 && ratio >= 0.8f) ConfettiBurst(Unit, Modifier.fillMaxSize().zIndex(1f))
     Column(
         Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(horizontal = gutter)
             .windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp, top = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Финн стоит рядом с результатом и реагирует на него.
-        val pose = when {
-            total == 0 -> Finn.THINKING
-            ratio >= 1f -> Finn.MILESTONE
-            ratio >= 0.8f -> Finn.CORRECT
-            ratio >= 0.5f -> Finn.SESSION_COMPLETE
-            else -> Finn.TRY_AGAIN
-        }
+
+        Eyebrow("Итоги практики", color = Ink.GoldText)
+        Spacer(Modifier.height(24.dp))
         BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        // Кольцо растёт с системным шрифтом, Финн уступает ему место на узком экране.
-        val finnSize = if (maxWidth < 300.dp) 96.dp else 128.dp
-        val ringSize = minOf(150.dp * fontScale, maxWidth - finnSize - 8.dp)
-        Row(verticalAlignment = Alignment.Bottom) {
-            Mascot(pose, finnSize, Modifier.reveal(reveal, 0), delayMs = 260)
-            Spacer(Modifier.width(8.dp))
+        val ringSize = minOf(176.dp * fontScale, maxWidth)
+        Row(verticalAlignment = Alignment.CenterVertically) {
             val track = Ink.High
-            val arc = if (ratio >= 0.5f) Ink.Accent else Ink.Beak
+            val arc = if (ratio >= 0.5f) Ink.Accent else Ink.Gold
             Box(Modifier.size(ringSize).reveal(reveal, 0), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
-                    val w = 10.dp.toPx()
+                    val w = 4.dp.toPx()
                     drawCircle(track, radius = size.minDimension / 2 - w / 2, style = Stroke(w))
                     drawArc(
                         arc, -90f, 360f * ring.value, false,
@@ -523,7 +482,7 @@ fun GameSummary(
 
         if (mistakes.isNotEmpty()) {
             Column(Modifier.fillMaxWidth().reveal(reveal, 3)) {
-                // Ошибки — тёплым цветом клюва: заметно, но не тревожно.
+
                 SectionHeader("Ошибки", Modifier.padding(top = 20.dp), trailing = "%02d".format(mistakes.size))
                 Text(
                     "Сохранены — в следующем занятии эти слова попадутся первыми.",
@@ -540,7 +499,7 @@ fun GameSummary(
                                 .padding(end = 14.dp, top = 12.dp, bottom = 12.dp),
                         ) {
                             // Тёплая «закладка» слева — ошибка, к которой вернёмся.
-                            Box(Modifier.padding(start = 8.dp, end = 12.dp).width(4.dp).fillMaxHeight().background(Ink.Beak.copy(alpha = 0.7f), CircleShape))
+                            Box(Modifier.padding(start = 8.dp, end = 12.dp).width(4.dp).fillMaxHeight().background(Ink.Gold.copy(alpha = 0.7f), CircleShape))
                             Column(Modifier.weight(1f)) {
                                 if (m.prompt.isNotBlank()) {
                                     Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
@@ -552,7 +511,7 @@ fun GameSummary(
                                     Text(
                                         m.answer,
                                         style = MaterialTheme.typography.bodyMedium.copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough),
-                                        color = Ink.Warm,
+                                        color = Ink.Error,
                                     )
                                 }
                             }
@@ -564,7 +523,7 @@ fun GameSummary(
 
         Spacer(Modifier.height(32.dp))
         Column(Modifier.reveal(reveal, 4), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (onRetryMistakes != null && mistakes.isNotEmpty()) PrimaryButton("Повторить ошибки", onClick = onRetryMistakes, tone = ButtonTone.Warm)
+            if (onRetryMistakes != null && mistakes.isNotEmpty()) PrimaryButton("Повторить ошибки", onClick = onRetryMistakes, tone = ButtonTone.Error)
             if (onRetryMistakes != null && mistakes.isNotEmpty()) GhostButton(restartLabel, onClick = onRestart)
             else PrimaryButton(restartLabel, onClick = onRestart)
             GhostButton("Готово", onClick = onDone)
@@ -605,8 +564,7 @@ fun Modifier.shakeOn(trigger: Int): Modifier = composed {
 // ------------------------------------------------------------------ общие элементы раунда
 
 /**
- * Карточка задания: то, на что нужно ответить, лежит на мягкой карточке с градиентом шарфа —
- * как карточки на главной и в занятии. Поля ужимаются на узком экране.
+ * Нейтральная карточка задания. Поля уменьшаются на узком экране.
  */
 @Composable
 internal fun TaskCard(
@@ -637,8 +595,8 @@ internal fun NoteCard(
     val shape = MaterialTheme.shapes.large
     val bg = when (tone) {
         NoteTone.Neutral -> Ink.Surface
-        NoteTone.Good -> Ink.AccentSoft
-        NoteTone.Bad -> Ink.WarmSoft
+        NoteTone.Good -> Ink.SuccessSoft
+        NoteTone.Bad -> Ink.ErrorSoft
     }
     Column(
         modifier.fillMaxWidth().clip(shape).background(bg)
@@ -650,8 +608,8 @@ internal fun NoteCard(
 
 /** Текст задания антиквой: на узком экране чуть мельче, чтобы предложение не превращалось в столбик. */
 internal val promptStyle: TextStyle
-    @Composable get() = if (LocalNarrow.current) TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 31.sp)
-    else TextStyle(fontFamily = Serif, fontSize = 26.sp, lineHeight = 36.sp)
+    @Composable get() = if (LocalNarrow.current) TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 22.sp, lineHeight = 31.sp)
+    else TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 26.sp, lineHeight = 36.sp)
 
 /** Крупный термин (слово, ответ): размер зависит от длины и ширины экрана. */
 @Composable
@@ -661,5 +619,5 @@ internal fun termStyle(text: String, max: Int = 48): TextStyle {
         text.length <= 20 -> max * 4 / 5
         else -> max * 5 / 8
     }.let { if (LocalNarrow.current) it * 5 / 6 else it }
-    return TextStyle(fontFamily = Serif, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
+    return TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
 }

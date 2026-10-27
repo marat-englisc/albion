@@ -95,7 +95,7 @@ class NavigationUiTest {
     @Test fun lessonSurvivesSwitchAndReselectReturnsToSectionRoot() {
         ActivityScenario.launch(MainActivity::class.java).use {
             clickText("Учебник")
-            click(awaitNode { it.text?.toString()?.matches(Regex("\\d+\\. .+")) == true })
+            click(awaitNode { it.text?.toString() in setOf("Читать урок", "Сначала открыть правило") })
             awaitNode { it.contentDescription?.toString() == "Размер текста" }
             clickText("Чтение")
             dismissFeatureHelp()
@@ -104,7 +104,8 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable }
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-            awaitNode { it.text?.toString() == "ALBION" }
+            awaitNode { it.text?.toString() == "Короткое занятие" }
+            awaitNode { it.text?.toString()?.startsWith("Начать · ") == true }
         }
     }
 
@@ -131,14 +132,14 @@ class NavigationUiTest {
                 c.grammar.observeQuizTopics().first().toSet()).any { it.topic.id == topic.id && it.dueAt < System.currentTimeMillis() })
             ActivityScenario.launch(MainActivity::class.java).use {
                 clickText("Учебник")
-                activate(awaitNode { it.text?.toString()?.startsWith("К ПОВТОРЕНИЮ (") == true })
+                activate(scrollToNode { it.text?.toString()?.startsWith("Очередь (") == true })
                 awaitNode { it.text?.toString()?.startsWith("НАЙДЕНО:") == true }
                 setSearch("142")
                 // После ввода запроса под темой появляется фрагмент правила и кнопка сдвигается вниз:
                 // нажимаем через специальные возможности, а не по координатам, которые могли устареть.
                 activate(scrollToNode { it.text?.toString() == "Повторить тему 142" })
                 clickText("He")
-                click(scrollToNode { it.text?.toString() == "Правило · тема 142  →" })
+                click(scrollToNode { it.text?.toString() == "Правило · тема 142" })
                 awaitNode { it.contentDescription?.toString() == "Размер текста" }
                 instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
                 instrumentation.waitForIdleSync()
