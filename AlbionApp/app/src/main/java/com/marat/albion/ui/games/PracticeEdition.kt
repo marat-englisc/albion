@@ -81,7 +81,7 @@ internal fun PracticeOption(label: String, selected: Boolean, onClick: () -> Uni
     Box(Modifier.widthIn(min = 64.dp).heightIn(min = 48.dp).pressScale(interaction, .99f)
         .background(if (selected) Ink.AccentSoft else Ink.Raised, shape)
         .border(if (selected) 1.dp else .65.dp, if (selected) Ink.Accent else Ink.LineStrong, shape)
-        .selectable(selected, interactionSource = interaction, indication = null, role = Role.RadioButton) {
+        .selectable(selected, interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.RadioButton) {
             feedback.selection(); onClick()
         }.padding(horizontal = 14.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
         Text(label, style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp), color = if (selected) Ink.AccentText else Ink.Soft)
@@ -99,7 +99,7 @@ internal fun PracticeIconButton(
     Box(modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, .99f)
         .background(if (active) Ink.Accent else Ink.Raised, shape)
         .border(.65.dp, if (active) Ink.Accent else Ink.LineStrong, shape)
-        .clickable(interaction, indication = null, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
+        .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
         contentAlignment = Alignment.Center) {
         Icon(icon, label, tint = if (!enabled) Ink.Faint else if (active) Ink.OnAccent else Ink.AccentText,
             modifier = Modifier.size(21.dp))
@@ -108,7 +108,7 @@ internal fun PracticeIconButton(
 
 @Composable
 internal fun PracticeAudioButton(playing: Boolean, onClick: () -> Unit, size: Dp = 48.dp, primary: Boolean = true) {
-    PracticeIconButton(AlbionIcons.VolumeUp, "Озвучить", onClick, size = size, active = playing)
+    com.marat.albion.ui.components.AudioButton(playing, onClick, size = size.coerceAtLeast(48.dp), primary = primary)
 }
 
 @Composable
@@ -116,19 +116,16 @@ internal fun PracticeModeCard(game: Game, last: Boolean, onClick: () -> Unit) {
     val feedback = LocalFeedback.current
     Row(Modifier.fillMaxWidth().padding(bottom = 10.dp).background(Ink.Raised, RoundedCornerShape(3.dp))
         .border(.65.dp, Ink.Line, RoundedCornerShape(3.dp)).clickable(role = Role.Button) { feedback.selection(); onClick() }
-        .padding(start = 14.dp, end = 15.dp, top = 17.dp, bottom = 17.dp), verticalAlignment = Alignment.Top) {
+        .padding(start = 14.dp, end = 15.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.Top) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(36.dp)) {
             Icon(game.icon, null, tint = Ink.GoldText, modifier = Modifier.size(23.dp))
-            Spacer(Modifier.height(9.dp))
-            Text(romanNumeral(game.editionNumber), style = MaterialTheme.typography.labelSmall.copy(fontFamily = Brand), color = Ink.Muted)
+
         }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
-            Text(game.editionTitle, style = MaterialTheme.typography.titleMedium.copy(fontFamily = Brand, fontSize = 19.sp, lineHeight = 23.sp), color = Ink.GoldText)
-            Spacer(Modifier.height(5.dp))
-            Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(game.title), fontSize = 25.sp, lineHeight = 29.sp), color = Ink.Fg)
-            Spacer(Modifier.height(6.dp))
+            Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(game.title)), color = Ink.Fg)
             Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+
         }
         Spacer(Modifier.width(10.dp))
         if (last) RibbonBookmark(width = 9.dp, height = 24.dp)

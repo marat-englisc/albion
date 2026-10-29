@@ -1,5 +1,8 @@
 package com.marat.albion.ui.stats
 
+import androidx.compose.ui.platform.LocalDensity
+
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.gutter
 import androidx.compose.animation.core.Animatable
@@ -84,7 +87,44 @@ fun StatsScreen(navigator: Navigator) {
             .padding(horizontal = gutter).padding(bottom = 32.dp),
     ) {
         Box(Modifier.reveal(reveal, 0)) { ScreenHeader("Прогресс", eyebrow = "Карточки и практика", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
-        val s = stats ?: return@Column
+        val s = stats ?: run { com.marat.albion.ui.components.LoadingState("Собираем прогресс"); return@Column }
+
+
+        // в день рекорда — стоит на карточке достижения.
+        val milestone = streakMilestone(s.streak)
+
+        Column(Modifier.padding(top = 12.dp).reveal(reveal, 1)
+            ) {
+            if (milestone != null) {
+                Panel(Modifier.padding(bottom = 16.dp), color = Ink.GoldSoft) {
+                    Eyebrow("Достижение", color = Ink.GoldText)
+                    Spacer(Modifier.height(8.dp))
+                    Text(milestone.first, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                    Spacer(Modifier.height(8.dp))
+                    Text(milestone.second, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tile(s.streak, "серия дней", Modifier.weight(1f))
+                Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(16.dp))
+            Hairline()
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tile(s.retention?.let { (it * 100).toInt() }, "вспомнили при повторении · 30 дней", Modifier.weight(1f), suffix = "%")
+                Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
+            }
+        }
+
+        if (s.retention == null) Text("Удержание появится после повторений изученных карточек.",
+            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        Column(Modifier.reveal(reveal, 2)) {
+            SectionHeader("Активность · 30 дней", trailing = "Σ ${days(s.daily, s.today - 29, s.today).sum()}")
+            BarChart(days(s.daily, s.today - 29, s.today), startDay = s.today - 29)
+            Text("Ответы в карточках и упражнениях", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                modifier = Modifier.padding(top = 8.dp))
+        }
 
         advice?.let { next ->
             HeroCard(Modifier.fillMaxWidth().padding(top = 12.dp), contentPadding = PaddingValues(18.dp)) {
@@ -98,40 +138,6 @@ fun StatsScreen(navigator: Navigator) {
             }
         }
 
-        // в день рекорда — стоит на карточке достижения.
-        val milestone = streakMilestone(s.streak)
-
-        Column(Modifier.padding(top = if (milestone == null) 28.dp else 16.dp).reveal(reveal, 1)
-            ) {
-            if (milestone != null) {
-                Panel(Modifier.padding(bottom = 16.dp), color = Ink.GoldSoft) {
-                    Eyebrow("Достижение", color = Ink.GoldText)
-                    Spacer(Modifier.height(8.dp))
-                    Text(milestone.first, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
-                    Spacer(Modifier.height(8.dp))
-                    Text(milestone.second, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
-                }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Tile(s.streak, "дней подряд", Modifier.weight(1f))
-                Tile(s.answersToday, "ответов сегодня", Modifier.weight(1f))
-            }
-            Spacer(Modifier.height(16.dp))
-            Hairline()
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Tile(s.retention?.let { (it * 100).toInt() }, "вспомнили при повторении · 30 дней", Modifier.weight(1f), suffix = "%")
-                Tile((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f))
-            }
-        }
-
-        Column(Modifier.reveal(reveal, 2)) {
-            SectionHeader("Активность · 30 дней", trailing = "Σ ${days(s.daily, s.today - 29, s.today).sum()}")
-            BarChart(days(s.daily, s.today - 29, s.today), startDay = s.today - 29)
-            Text("Ответы в карточках и упражнениях", style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
-                modifier = Modifier.padding(top = 8.dp))
-        }
-
         Column(Modifier.reveal(reveal, 3)) {
             GameBreakdown(s)
         }
@@ -139,6 +145,7 @@ fun StatsScreen(navigator: Navigator) {
         Column(Modifier.reveal(reveal, 4)) {
             SectionHeader("Прогноз", trailing = "14 дн")
             BarChart(days(s.forecast, s.today, s.today + 13), startDay = s.today, forecast = true)
+            Text("Карточки с уже назначенной датой повторения. Новые ответы могут изменить прогноз.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         }
 
         Column(Modifier.reveal(reveal, 5)) {
@@ -158,15 +165,17 @@ fun StatsScreen(navigator: Navigator) {
 
 @Composable
 private fun GameBreakdown(s: Stats) {
-    SectionHeader("Практика", trailing = "${s.totalGameAnswers} ${pluralRu(s.totalGameAnswers, "ответ", "ответа", "ответов")}")
+    SectionHeader("Практика · за всё время", trailing = "${s.totalGameAnswers} ${pluralRu(s.totalGameAnswers, "ответ", "ответа", "ответов")}")
     Spacer(Modifier.height(12.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         StatPill(s.gameAnswersToday, "ответов сегодня", Modifier.weight(1f))
-        StatPill(s.gameAccuracy?.let { (it * 100).toInt() }, "верных ответов", Modifier.weight(1f), suffix = "%", tint = Ink.AccentSoft)
+        StatPill(s.gameAccuracy?.let { (it * 100).toInt() }, "точность · всё время", Modifier.weight(1f), suffix = "%", tint = Ink.AccentSoft)
     }
     Spacer(Modifier.height(18.dp))
     val totals = s.games.associateBy { it.game }
-    Game.entries.forEach { game ->
+    var showAll by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val used = Game.entries.filter { (totals[it.name]?.answers ?: 0) > 0 }
+    (if (showAll) Game.entries.toList() else used).forEach { game ->
         val result = totals[game.name]
         Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
             Text(game.title, style = MaterialTheme.typography.titleSmall, color = Ink.Text)
@@ -179,8 +188,9 @@ private fun GameBreakdown(s: Stats) {
         }
         Hairline()
     }
+    androidx.compose.material3.TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Только мои упражнения" else "Все упражнения") }
     Text(
-        "Здесь учтены упражнения и проверки тем.",
+        "Здесь учтены упражнения и проверки тем за всё время.",
         style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 12.dp),
     )
 }
@@ -221,9 +231,10 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
     val formatter = remember { DateTimeFormatter.ofPattern("d MMMM", Locale.forLanguageTag("ru")) }
     val date = LocalDate.ofEpochDay(startDay + selected).format(formatter)
     val selectionLabel = "$date · ${values[selected]} ${if (forecast) "к повторению" else pluralRu(values[selected], "ответ", "ответа", "ответов") }"
-    val grow = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        grow.animateTo(1f, tween(300, easing = Easing.Emphasized))
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
+    val grow = remember { Animatable(if (reduced) 1f else 0f) }
+    LaunchedEffect(reduced) {
+        grow.animateTo(1f, tween(if (reduced) 0 else 300, easing = Easing.Emphasized))
     }
     Text(selectionLabel, style = MaterialTheme.typography.titleSmall, color = Ink.Fg)
     Spacer(Modifier.height(8.dp))
@@ -236,6 +247,12 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
                     CustomAccessibilityAction("Предыдущий день") { selectedIndex = (selected - 1).coerceAtLeast(0); true },
                     CustomAccessibilityAction("Следующий день") { selectedIndex = (selected + 1).coerceAtMost(values.lastIndex); true },
                 )
+            }
+            .pointerInput(values) {
+                detectHorizontalDragGestures { change, _ ->
+                    change.consume()
+                    selectedIndex = (change.position.x / size.width * values.size).toInt().coerceIn(values.indices)
+                }
             }
             .pointerInput(values) {
                 detectTapGestures { offset ->
@@ -251,7 +268,7 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
                 val color = when {
                     v == 0 -> Ink.Line
                     forecast && i == selected -> Ink.Warm
-                    forecast -> Ink.Gold.copy(alpha = 0.55f)
+                    forecast -> Ink.GoldText.copy(alpha = 0.8f)
                     i == selected -> Ink.Accent
                     else -> Ink.Accent.copy(alpha = 0.55f)
                 }
@@ -260,6 +277,12 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
         }
     }
     Spacer(Modifier.height(8.dp))
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        (if (LocalDensity.current.fontScale > 1.3f) listOf(0, values.lastIndex) else (values.indices.step(7).toList() + values.lastIndex).distinct()).forEach { index ->
+            Text(LocalDate.ofEpochDay(startDay + index).format(DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("ru"))),
+                style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+        }
+    }
     Row {
         Text(if (forecast) "сегодня" else "29 дней назад", style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
         Text("макс. $max", style = MaterialTheme.typography.labelSmall, color = Ink.Faint, modifier = Modifier.weight(1f))
@@ -281,10 +304,12 @@ private fun DeckBreakdown(s: Stats) {
                     Text(deck.title, style = MaterialTheme.typography.titleSmall, color = Ink.Text, modifier = Modifier.weight(1f))
                     Text("${c.started} / ${c.total}", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
                 }
+                Text(if (c.started < c.total) "Начато ${c.started} карточек · следующий рубеж ${minOf(c.total, (c.started / 10 + 1) * 10)}" else "Начата вся коллекция · ${c.started} карточек",
+                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)).background(Ink.High)) {
                     val total = c.total.coerceAtLeast(1).toFloat()
-                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.Gold))
+                    if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(Ink.GoldText))
                     if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(Ink.Accent.copy(alpha = 0.5f)))
                     if (c.mature > 0) Box(Modifier.weight(c.mature / total).fillMaxHeight().background(Ink.Accent))
                     val rest = (c.total - c.started) / total
@@ -292,7 +317,7 @@ private fun DeckBreakdown(s: Stats) {
                 }
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Legend(Ink.Gold, "Учу ${c.learning}")
+                    Legend(Ink.GoldText, "Учу ${c.learning}")
                     Legend(Ink.Accent.copy(alpha = 0.5f), "Повтор $young")
                     Legend(Ink.Accent, "Выучено ${c.mature}")
                     Legend(Ink.High, "Новые ${(c.total - c.started).coerceAtLeast(0)}")

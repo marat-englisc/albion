@@ -73,7 +73,7 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "articles" }
             clickDescription("Настройки")
-            awaitNode { it.text?.toString() == "ЗВУК И ОЩУЩЕНИЯ" }
+            awaitNode { it.text?.toString() == "Занятия и цель" }
             clickDescription("Назад")
             awaitNode { it.isEditable && it.text?.toString() == "articles" }
         }
@@ -104,8 +104,8 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable }
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-            awaitNode { it.text?.toString() == "Время для английского" }
-            awaitNode { it.text?.toString()?.startsWith("Начать · ") == true }
+            awaitNode { it.text?.toString() == "На сегодня" }
+            awaitNode { it.text?.toString()?.equals("Начать") == true }
         }
     }
 
@@ -133,7 +133,7 @@ class NavigationUiTest {
             ActivityScenario.launch(MainActivity::class.java).use {
                 clickText("Учебник")
                 activate(scrollToNode { it.text?.toString()?.startsWith("Очередь (") == true })
-                awaitNode { it.text?.toString()?.startsWith("НАЙДЕНО:") == true }
+                awaitNode { it.text?.toString()?.startsWith("К повторению:", ignoreCase = true) == true }
                 setSearch("142")
                 // После ввода запроса под темой появляется фрагмент правила и кнопка сдвигается вниз:
                 // нажимаем через специальные возможности, а не по координатам, которые могли устареть.

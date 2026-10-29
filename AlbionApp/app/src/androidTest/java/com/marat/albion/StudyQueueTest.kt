@@ -84,7 +84,7 @@ class StudyQueueTest {
     }
 
     @Test
-    fun allDecksQueueMatchesPerDeckQueuesAndKeepsSiblingsPerDeck() = runBlocking {
+    fun allDecksQueueMatchesPerDeckQueuesAndKeepsCollectionsSeparate() = runBlocking {
         // Одинаковый термин в разных колодах — не сиблинги: оба значения доступны сегодня.
         scheduled(card("w1", "run"))
         scheduled(card("v1", "run").copy(deck = Deck.IRREGULAR.id))
@@ -99,7 +99,7 @@ class StudyQueueTest {
     }
 
     @Test
-    fun answeringOneMeaningHidesItsDueSiblingsUntilTomorrowAndUndoRestoresThem() = runBlocking {
+    fun answeringAWordSchedulesAllMeaningsTogetherAndUndoRestoresTheSharedSchedule() = runBlocking {
         val first = card("first", "take off")
         val second = card("second", " TAKE OFF ")
         scheduled(first)
@@ -110,7 +110,9 @@ class StudyQueueTest {
         assertAvailable(due = 0, news = 0)
         assertEquals(0, repo.todayStatus(now).second)
         assertNotNull(db.reviews().state(second.id))
-        assertEquals(listOf(second.id), repo.buildQueue(Deck.WORDS, now + Fsrs.DAY).reviews.map { it.id })
+        assertTrue(repo.buildQueue(Deck.WORDS, now + Fsrs.DAY).reviews.isEmpty())
+        val due = repo.memory(first.id).due
+        assertEquals(listOf(first.id), repo.buildQueue(Deck.WORDS, due).reviews.map { it.id })
 
         repo.undo(logId)
         assertAvailable(due = 1, news = 0)
@@ -129,15 +131,16 @@ class StudyQueueTest {
         repo.answer(other, Rating.Easy, 100, now)
         assertAvailable(due = 0, news = 0)
         assertNull(db.reviews().state(second.id))
-        assertEquals(1, summary().total - summary().started)
+        assertEquals(2, summary().total)
+        assertEquals(0, summary().total - summary().started)
     }
 
     @Test
     fun learningStepsRemainAvailableEvenWhenTheirTermWasAnsweredAndDailyLimitsAreReached() = runBlocking {
         val learning = card("learning", "take off")
-        db.cards().upsert(listOf(learning, card("new-sibling", "take off")))
+        db.cards().upsert(listOf(learning, card("new-sibling", "take off", position = 1)))
         repo.answer(learning, Rating.Good, 100, now)
-        scheduled(card("due-sibling", "take off"))
+        scheduled(card("due-sibling", "take off", position = 2))
         scheduled(card("soon"), CardState.LEARNING, now + 19 * Fsrs.MINUTE)
         scheduled(card("later"), CardState.RELEARNING, now + 21 * Fsrs.MINUTE)
         settings.setNewPerDay(0)

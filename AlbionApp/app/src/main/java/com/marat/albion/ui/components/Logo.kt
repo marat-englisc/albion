@@ -40,7 +40,7 @@ fun AlbionLogo(
             drawLine(horizonColor, Offset(center.x - span, this.size.height * 0.88f),
                 Offset(center.x + span, this.size.height * 0.88f), 1.4.dp.toPx())
         }
-        Text("A", style = TextStyle(fontFamily = Brand, fontSize = letterSize, lineHeight = letterSize,
+        Text("A", style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Brand, fontSize = letterSize, lineHeight = letterSize,
             platformStyle = PlatformTextStyle(includeFontPadding = false)), color = color,
             modifier = Modifier.graphicsLayer { alpha = chevron.coerceIn(0f, 1f); translationY = this.size.height * 0.035f })
     }

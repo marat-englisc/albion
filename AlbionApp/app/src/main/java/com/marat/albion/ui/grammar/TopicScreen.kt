@@ -115,6 +115,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         blocks.withIndex().filter { (it.value as? MdHeading)?.level == 2 }.map { it.index to (it.value as MdHeading).text }
     }
     val reveal = rememberReveal()
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
 
     val env = remember(settings.grammarTextScale, book) {
         MdEnv(settings.grammarTextScale) { target ->
@@ -159,7 +160,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                                 text = { Text(title, color = Ink.Text) },
                                 onClick = {
                                     tocMenu = false
-                                    scope.launch { listState.animateScrollToItem(index + 1) }
+                                    scope.launch { if (reduced) listState.scrollToItem(index + 1) else listState.animateScrollToItem(index + 1) }
                                 },
                             )
                         }
@@ -281,6 +282,8 @@ private fun TopicFooter(
     Column(Modifier.padding(top = 28.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
         val read = progress?.readAt != null
         val mastered = progress?.masteredAt != null
+        Text("Чтение ${if (read) "✓" else "○"}  →  Проверка ${if (progress?.quizAt != null) "✓" else "○"}  →  Освоение ${if (mastered) "✓" else "○"}",
+            style = MaterialTheme.typography.bodySmall, color = Ink.Soft)
         val hasQuiz = quizCount > 0 && onQuiz != null
         val review = GrammarReview.plan(progress)
         val now = grammarReviewTime()
@@ -288,7 +291,7 @@ private fun TopicFooter(
             Column(
                 Modifier.fillMaxWidth()
 
-                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(12.dp)).padding(20.dp),
+                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(8.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверь себя", color = Ink.Soft)
                 Spacer(Modifier.height(10.dp))
@@ -338,7 +341,7 @@ private fun NavArrows(onPrev: (() -> Unit)?, onContents: (() -> Unit)?, onNext: 
                 tint = Ink.Soft,
                 modifier = Modifier.size(44.dp).pressScale(interaction, 0.88f)
                     .clip(CircleShape)
-                    .clickable(interactionSource = interaction, indication = null, onClick = onContents)
+                    .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onContents)
                     .padding(12.dp),
             )
             Hairline(Modifier.weight(1f).padding(horizontal = 14.dp))
@@ -357,7 +360,7 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
             .clip(CircleShape)
             .background(if (filled && enabled) Ink.Fg else Ink.Bg)
             .border(1.dp, if (enabled) (if (filled) Ink.Fg else Ink.LineStrong) else Ink.Line, CircleShape)
-            .clickable(interactionSource = interaction, indication = null, enabled = enabled) { onClick?.invoke() },
+            .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled) { onClick?.invoke() },
         contentAlignment = Alignment.Center,
     ) {
         Icon(

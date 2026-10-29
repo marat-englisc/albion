@@ -39,6 +39,7 @@ data class Settings(
     val introSeen: Boolean = false,
     /** Показывать русское значение на обороте карточек. */
     val showRussian: Boolean = true,
+    val browseShowRussian: Boolean = true,
     /** Дневная цель — ответов в день по всем колодам. */
     val dailyGoal: Int = 30,
     val reminderEnabled: Boolean = false,
@@ -53,6 +54,8 @@ data class Settings(
     val fsrsImprovement: Float = 0f,
     /** Масштаб текста в читалке. */
     val readerTextScale: Float = 1.0f,
+    val readerLineSpacing: Float = 1.0f,
+    val readerMargin: Int = 26,
     /** Подчёркивать в книгах слова из начатых карточек. */
     val readerMarkWords: Boolean = true,
     val shortSessionAnswers: Int = 10,
@@ -83,6 +86,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val dictionaryVersion = intPreferencesKey("dictionary_version")
         val introSeen = booleanPreferencesKey("intro_seen")
         val showRussian = booleanPreferencesKey("show_russian")
+        val browseRussian = booleanPreferencesKey("browse_show_russian")
         val dailyGoal = intPreferencesKey("daily_goal")
         val reminderEnabled = booleanPreferencesKey("reminder_enabled")
         val reminderHour = intPreferencesKey("reminder_hour")
@@ -93,6 +97,8 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val fsrsReviews = intPreferencesKey("fsrs_reviews")
         val fsrsImprovement = floatPreferencesKey("fsrs_improvement")
         val readerScale = floatPreferencesKey("reader_text_scale")
+        val readerSpacing = floatPreferencesKey("reader_line_spacing")
+        val readerMargin = intPreferencesKey("reader_margin")
         val readerMarkWords = booleanPreferencesKey("reader_mark_words")
         val viewedHelp = stringSetPreferencesKey("viewed_help")
         val shortSessionAnswers = intPreferencesKey("short_session_answers")
@@ -118,6 +124,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             lastGrammarTopic = p[Keys.lastTopic],
             introSeen = p[Keys.introSeen] ?: false,
             showRussian = p[Keys.showRussian] ?: true,
+            browseShowRussian = p[Keys.browseRussian] ?: true,
             dailyGoal = p[Keys.dailyGoal] ?: 30,
             reminderEnabled = p[Keys.reminderEnabled] ?: false,
             reminderHour = p[Keys.reminderHour] ?: 19,
@@ -128,6 +135,8 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             fsrsReviews = p[Keys.fsrsReviews] ?: 0,
             fsrsImprovement = p[Keys.fsrsImprovement] ?: 0f,
             readerTextScale = p[Keys.readerScale] ?: 1.0f,
+            readerLineSpacing = (p[Keys.readerSpacing] ?: 1.0f).coerceIn(0.85f, 1.3f),
+            readerMargin = (p[Keys.readerMargin] ?: 26).coerceIn(16, 40),
             readerMarkWords = p[Keys.readerMarkWords] ?: true,
             interfaceSounds = p[Keys.interfaceSounds] ?: true,
             hapticsEnabled = p[Keys.hapticsEnabled] ?: true,
@@ -181,12 +190,15 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
     suspend fun setReduceMotion(v: Boolean) = edit { it[Keys.reduceMotion] = v }
     suspend fun markIntroSeen() = edit { it[Keys.introSeen] = true }
     suspend fun setShowRussian(v: Boolean) = edit { it[Keys.showRussian] = v }
+    suspend fun setBrowseShowRussian(v: Boolean) = edit { it[Keys.browseRussian] = v }
     suspend fun setDailyGoal(v: Int) = edit { it[Keys.dailyGoal] = v }
     suspend fun setReminderEnabled(v: Boolean) = edit { it[Keys.reminderEnabled] = v }
     suspend fun setReminderTime(hour: Int, minute: Int) = edit { it[Keys.reminderHour] = hour; it[Keys.reminderMinute] = minute }
     suspend fun setReminderOnlyIfNeeded(v: Boolean) = edit { it[Keys.reminderOnlyIfNeeded] = v }
 
     suspend fun setReaderTextScale(v: Float) = edit { it[Keys.readerScale] = v }
+    suspend fun setReaderLineSpacing(v: Float) = edit { it[Keys.readerSpacing] = v.coerceIn(0.85f, 1.3f) }
+    suspend fun setReaderMargin(v: Int) = edit { it[Keys.readerMargin] = v.coerceIn(16, 40) }
     suspend fun setReaderMarkWords(v: Boolean) = edit { it[Keys.readerMarkWords] = v }
 
     suspend fun setFsrsParams(params: String?, reviews: Int, improvement: Float) = edit {

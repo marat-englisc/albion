@@ -1,7 +1,7 @@
 package com.marat.albion.ui.library
 
 import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -84,6 +89,7 @@ private sealed interface TranslationResult {
 fun TranslationSheet(
     text: String,
     isWord: Boolean,
+    selectionControls: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     /** Выделение, которого касается фрагмент; null — ещё не выделено. */
     highlight: HighlightEntity? = null,
@@ -97,6 +103,7 @@ fun TranslationSheet(
     onBookWordSaved: (com.marat.albion.data.library.SavedBookWord) -> Unit = {},
 ) {
     val c = LocalAppContainer.current
+    val scope = rememberCoroutineScope()
     val audio = rememberCardAudio(c.audio)
     val model by c.translator.model.collectAsStateWithLifecycle()
     var result by remember(text) { mutableStateOf<TranslationResult>(TranslationResult.Loading) }
@@ -105,7 +112,10 @@ fun TranslationSheet(
     var glosses by remember(text) { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var details by rememberSaveable(text) { mutableStateOf(false) }
 
-    LaunchedEffect(text) {
+    var retry by remember(text) { mutableStateOf(0) }
+    var chosen by remember(text) { mutableStateOf(0) }
+    var choiceMenu by remember { mutableStateOf(false) }
+    LaunchedEffect(text, retry, model) {
         if (isWord) {
             cards = c.library.lookup(text)
             entries = c.dictionary.lookup(text)
@@ -127,17 +137,18 @@ fun TranslationSheet(
         }
         result = runCatching { c.translator.translate(text) }.fold(
             onSuccess = { TranslationResult.Done(it) },
-            onFailure = { TranslationResult.Failed(it.message ?: "Ошибка перевода") },
+            onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it; TranslationResult.Failed("Не удалось получить перевод. Проверьте загрузку модели и повторите попытку.") },
         )
     }
 
     ModalBottomSheet(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = Ink.Raised,
         contentColor = Ink.Text,
-        scrimColor = Ink.Bg.copy(alpha = 0.4f),
-        dragHandle = { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) },
+        scrimColor = Ink.Fg.copy(alpha = 0.32f),
     ) {
         Column(
             Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
@@ -162,12 +173,24 @@ fun TranslationSheet(
             Spacer(Modifier.height(10.dp))
             Text(
                 text,
-                style = TextStyle(fontFamily = Serif, fontSize = if (isWord) 34.sp else 20.sp, lineHeight = if (isWord) 40.sp else 29.sp),
+                style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = if (isWord) 34.sp else 20.sp, lineHeight = if (isWord) 40.sp else 29.sp),
                 color = Ink.Fg,
             )
             val dictionary = entries.orEmpty()
-            val firstEntry = dictionary.firstOrNull { entry -> entry.senses.any { it.isNotBlank() } }
-            val dictionaryMeaning = firstEntry?.senses?.firstOrNull { it.isNotBlank() }
+            selectionControls?.invoke()
+            val options = dictionary.flatMap { entry -> entry.senses.filter { it.isNotBlank() }.map { entry to it } }
+                .distinctBy { it.first.headword.lowercase() to it.second.lowercase() }
+            val selected = options.getOrNull(chosen) ?: options.firstOrNull()
+            val firstEntry = selected?.first
+            val dictionaryMeaning = selected?.second
+            if (options.size > 1) Box {
+                TextButton(onClick = { choiceMenu = true }) { Text("Выбрать значение · ${options.size}", color = Ink.AccentText) }
+                DropdownMenu(choiceMenu, { choiceMenu = false }, containerColor = Ink.Raised) {
+                    options.forEachIndexed { i, option -> DropdownMenuItem(text = {
+                        Text("${if (chosen == i) "✓ " else ""}${option.first.headword} · ${option.first.posLabel} — ${option.second}")
+                    }, onClick = { chosen = i; choiceMenu = false }) }
+                }
+            }
             val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu
             val automatic = (result as? TranslationResult.Done)?.text?.takeIf { it.isNotBlank() }
             val ipa = cards.firstOrNull { it.ipa.isNotBlank() }?.ipa
@@ -182,7 +205,7 @@ fun TranslationSheet(
             val meaning = dictionaryMeaning ?: cardMeaning ?: automatic
             Spacer(Modifier.height(12.dp))
             if (meaning != null) {
-                Text(meaning, style = TextStyle(fontFamily = Serif, fontSize = 22.sp, lineHeight = 30.sp), color = Ink.Text)
+                Text(meaning, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 22.sp, lineHeight = 30.sp), color = Ink.Text)
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
@@ -198,10 +221,14 @@ fun TranslationSheet(
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                             color = Ink.AccentText, trackColor = Ink.Line)
                     }
-                    is TranslationResult.Failed -> Text(r.message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    is TranslationResult.Failed -> {
+                        com.marat.albion.ui.components.FieldError(r.message)
+                        TextButton(onClick = { result = TranslationResult.Loading; retry++ }) { Text("Повторить перевод") }
+                    }
                     else -> Text("Перевод не найден. Значение можно указать при сохранении.",
                         style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                 }
+                if (model == ModelState.Missing || model == ModelState.Failed) TextButton(onClick = { scope.launch { c.translator.ensureModel() } }) { Text("Загрузить перевод предложений") }
                 if (glosses.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Eyebrow("Перевод по словам")
@@ -263,7 +290,7 @@ private fun WordGlosses(glosses: List<Pair<String, String>>) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 8.dp)) {
         glosses.forEach { (word, meaning) ->
             Column {
-                Text(word, style = TextStyle(fontFamily = Serif, fontSize = 17.sp), color = Ink.Fg)
+                Text(word, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 17.sp), color = Ink.Fg)
                 Text(meaning, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
             }
         }
@@ -274,7 +301,7 @@ private fun WordGlosses(glosses: List<Pair<String, String>>) {
 private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (showHeadword) Text(entry.headword, style = TextStyle(fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
+            if (showHeadword) Text(entry.headword, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
             if (entry.posLabel.isNotEmpty()) Chip(entry.posLabel)
         }
         Spacer(Modifier.height(6.dp))
@@ -289,9 +316,9 @@ private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
 
 @Composable
 private fun DictionaryEntry(card: CardEntity) {
-    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(8.dp)).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(card.term, style = TextStyle(fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
+            Text(card.term, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
             Spacer(Modifier.width(10.dp))
             if (card.ipa.isNotBlank()) Text(card.ipa, style = AlbionType.ipa.copy(fontSize = 15.sp))
             Spacer(Modifier.weight(1f))
@@ -302,14 +329,8 @@ private fun DictionaryEntry(card: CardEntity) {
             Chip(card.pos)
             Chip(Deck.byId(card.deck)?.title ?: card.deck)
         }
-        if (card.meaningRu.isNotBlank()) {
-            Spacer(Modifier.height(8.dp))
-            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
-        }
-        if (card.meaningEn.isNotBlank()) {
-            Spacer(Modifier.height(4.dp))
-            Text(card.meaningEn, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-        }
+        Spacer(Modifier.height(12.dp))
+        com.marat.albion.ui.components.WordMeanings(card, showRussian = true, showDefinitions = true)
     }
 }
 
@@ -334,10 +355,10 @@ private fun HighlightSection(
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         if (highlight != null) {
-            Column(Modifier.fillMaxWidth().background(Ink.Fg.copy(alpha = 0.06f), RoundedCornerShape(12.dp)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(Ink.Fg.copy(alpha = 0.06f), RoundedCornerShape(8.dp)).padding(14.dp)) {
                 Eyebrow("Выделено")
                 Spacer(Modifier.height(6.dp))
-                Text(highlight.text, style = TextStyle(fontFamily = Serif, fontSize = 16.sp, lineHeight = 23.sp), color = Ink.Text, maxLines = 4)
+                Text(highlight.text, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 16.sp, lineHeight = 23.sp), color = Ink.Text, maxLines = 4)
                 if (highlight.note.isNotBlank() && !editing) {
                     Spacer(Modifier.height(8.dp))
                     Text(highlight.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
@@ -349,7 +370,7 @@ private fun HighlightSection(
             OutlinedTextField(
                 value = draft,
                 onValueChange = { draft = it },
-                placeholder = { Text("Ваша заметка", color = Ink.Faint) },
+                label = { Text("Ваша заметка") },
                 modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 minLines = 2,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -370,7 +391,7 @@ private fun HighlightSection(
                 }
                 highlight != null -> {
                     SmallAction(if (highlight.note.isBlank()) "Добавить заметку" else "Изменить заметку", AlbionIcons.EditNote) { editing = true }
-                    SmallAction("Убрать", AlbionIcons.Close) { onDelete(highlight); justAdded = false }
+                    SmallAction("Удалить выделение", AlbionIcons.Delete) { onDelete(highlight); justAdded = false }
                 }
                 justAdded -> Eyebrow("Выделено", Modifier.padding(vertical = 8.dp))
                 else -> {
@@ -385,7 +406,7 @@ private fun HighlightSection(
 @Composable
 private fun SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        Modifier.border(1.dp, Ink.LineStrong, RoundedCornerShape(20.dp)).clickable(onClick = onClick)
+        Modifier.border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).clickable(onClick = onClick)
             .heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

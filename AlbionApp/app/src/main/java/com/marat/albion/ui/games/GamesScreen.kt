@@ -28,6 +28,7 @@ private val practiceGroups = listOf(
 
 @Composable
 fun GamesScreen(navigator: Navigator) {
+    var group by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(-1) }
     val settings = LocalAppContainer.current.settings
     val lastName by settings.lastPractice.collectAsStateWithLifecycle(null)
     val lastGame = Game.entries.firstOrNull { it.name == lastName }
@@ -54,12 +55,19 @@ fun GamesScreen(navigator: Navigator) {
                     else (featured.decks.firstOrNull { it.id == options.deckId } ?: featured.decks.first()).title
                 val length = if (options.count == Int.MAX_VALUE) "вся колода" else "до ${options.count} заданий"
                 val details = listOfNotNull(scope.takeUnless { it == featured.title }, length).joinToString(" · ")
-                CatalogueCard(if (lastGame != null) "Продолжить практику" else "Первое занятие", featured.title,
+                CatalogueCard(if (lastGame != null) "Последнее упражнение" else "Первое занятие", featured.title,
                     if (lastGame != null) details else "Вспомните слово и запишите ответ",
                     onClick = { navigator.open(GameRoute(featured)) }, ribbon = true,
                     modifier = Modifier.padding(top = 14.dp, bottom = 12.dp))
         }
-        practiceGroups.forEach { (title, games) ->
+        item {
+            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("Все", "Слова", "Грамматика", "Речь").forEachIndexed { i, label ->
+                    com.marat.albion.ui.browse.TextTab(label, group == i - 1) { group = i - 1 }
+                }
+            }
+        }
+        practiceGroups.filterIndexed { i, _ -> group == -1 || group == i }.forEach { (title, games) ->
             item(key = title) { SectionHeader(title, Modifier.padding(top = 10.dp)) }
             items(games, key = { it.name }) { game ->
                 PracticeModeCard(game, lastGame == game) { navigator.open(GameRoute(game)) }

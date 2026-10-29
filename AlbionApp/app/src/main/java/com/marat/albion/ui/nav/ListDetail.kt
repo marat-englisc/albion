@@ -1,7 +1,7 @@
 package com.marat.albion.ui.nav
 
 import com.marat.albion.ui.theme.paperSurface
-import androidx.compose.animation.AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut

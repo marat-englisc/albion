@@ -1,7 +1,7 @@
 package com.marat.albion.ui.grammar
 
 import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -124,7 +124,7 @@ private fun Heading(h: MdHeading, modifier: Modifier) {
         1, 2 -> Column(modifier.padding(top = 14.dp, bottom = 2.dp)) {
             Box(Modifier.width(24.dp).height(1.dp).background(Ink.Fg))
             Spacer(Modifier.height(14.dp))
-            InlineText(h.text, style = TextStyle(fontFamily = Serif, fontSize = 22.sp * scale, lineHeight = 28.sp * scale, color = Ink.Fg, letterSpacing = (-0.3).sp))
+            InlineText(h.text, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 22.sp * scale, lineHeight = 28.sp * scale, color = Ink.Fg, letterSpacing = (-0.3).sp))
         }
         3 -> InlineText(h.text.uppercase(), modifier.padding(top = 10.dp), style = AlbionType.eyebrow.copy(color = Ink.Soft, fontSize = 13.sp * scale))
         else -> InlineText(h.text, modifier.padding(top = 4.dp), style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp * scale, color = Ink.Fg))
@@ -311,7 +311,7 @@ private fun TableView(table: MdTable, modifier: Modifier) {
             TableAsCards(table, headStyle, cellStyle)
         } else {
             val widths = layout.map { with(density) { it.toDp() } }
-            Column(Modifier.border(1.dp, Ink.Line, RoundedCornerShape(12.dp))) {
+            Column(Modifier.border(1.dp, Ink.Line, RoundedCornerShape(8.dp))) {
                 TableRow(table.header, widths, headStyle, Ink.Elevated, cellPadding)
                 table.rows.forEachIndexed { r, row ->
                     Hairline()
@@ -343,13 +343,13 @@ private fun TableAsCards(table: MdTable, headStyle: TextStyle, cellStyle: TextSt
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         table.rows.forEach { row ->
             Column(
-                Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 val title = row.firstOrNull().orEmpty()
                 if (title.isNotBlank()) {
                     if (table.header.firstOrNull().orEmpty().isNotBlank()) InlineText(table.header[0], style = labelStyle)
-                    InlineText(title, style = headStyle.copy(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = headStyle.fontSize * 1.2f))
+                    InlineText(title, style = headStyle.copy(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = headStyle.fontSize * 1.2f))
                 }
                 for (c in 1 until table.header.size) {
                     val value = row.getOrElse(c) { "" }
@@ -388,9 +388,9 @@ private fun look(kind: String): CalloutLook = when (kind) {
 private fun CalloutView(c: MdCallout, modifier: Modifier) {
     val l = look(c.kind)
     var open by rememberSaveable(c.title, c.kind) { mutableStateOf(c.initiallyExpanded) }
-    val arrow by animateFloatAsState(if (open) 180f else 0f, tween(320, easing = Easing.Emphasized), label = "chevron")
+    val arrow by animateFloatAsState(if (open) 180f else 0f, tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 320, easing = Easing.Emphasized), label = "chevron")
     val scale = LocalMdEnv.current.scale
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(8.dp)
     val container = when (l.frame) {
         Frame.Box -> modifier.fillMaxWidth().clip(shape).background(Ink.Raised).border(1.dp, Ink.Fg.copy(alpha = 0.85f), shape)
         Frame.Filled -> modifier.fillMaxWidth().clip(shape).background(Ink.Elevated)
@@ -433,8 +433,8 @@ private fun QuoteView(q: MdQuote, modifier: Modifier) {
 
 @Composable
 private fun CodeView(code: MdCode, modifier: Modifier) {
-    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Ink.Code).padding(14.dp)) {
-        Text(code.code, style = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = Ink.Text))
+    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Ink.Code).padding(14.dp)) {
+        Text(code.code, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = Ink.Text))
     }
 }
 

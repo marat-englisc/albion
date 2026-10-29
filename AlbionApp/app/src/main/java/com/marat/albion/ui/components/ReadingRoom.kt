@@ -130,7 +130,7 @@ fun CatalogueTab(label: String, modifier: Modifier = Modifier) {
         }
         onDrawBehind { drawPath(shape, fill); drawPath(shape, line, style = Stroke(0.6.dp.toPx())) }
     }.padding(start = 12.dp, end = 23.dp, top = 6.dp, bottom = 5.dp),
-        style = AlbionType.eyebrow.copy(fontSize = 10.sp, letterSpacing = 1.8.sp), color = Ink.Soft)
+        style = AlbionType.eyebrow.copy(fontSize = 12.sp, letterSpacing = 0.6.sp), color = Ink.Soft)
 }
 
 @Composable
@@ -142,22 +142,23 @@ fun CatalogueCard(
     modifier: Modifier = Modifier,
     ribbon: Boolean = false,
     progress: Float? = null,
+    compact: Boolean = false,
 ) {
     val feedback = LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     Column(modifier.fillMaxWidth().pressScale(interaction, 0.995f).clickable(
-        interactionSource = interaction, indication = null, role = Role.Button,
+        interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button,
         onClick = { feedback.selection(); onClick() },
     )) {
         CatalogueTab(label, Modifier.padding(start = 8.dp))
         Box(Modifier.fillMaxWidth().background(Ink.Raised, RoundedCornerShape(3.dp))
             .border(0.6.dp, Ink.Line, RoundedCornerShape(3.dp))) {
             if (ribbon) RibbonBookmark(Modifier.align(Alignment.TopEnd).padding(end = 18.dp))
-            Column(Modifier.fillMaxWidth().padding(start = 17.dp, end = if (ribbon) 42.dp else 17.dp, top = 17.dp, bottom = 17.dp)) {
+            Column(Modifier.fillMaxWidth().padding(start = 17.dp, end = if (ribbon) 42.dp else 17.dp, top = if (compact) 12.dp else 17.dp, bottom = if (compact) 12.dp else 17.dp)) {
                 Text(description, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                 Spacer(Modifier.height(7.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(title), fontSize = 25.sp, lineHeight = 30.sp),
+                    Text(title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(title), fontSize = if (compact) 21.sp else 25.sp, lineHeight = if (compact) 25.sp else 30.sp),
                         color = Ink.Fg, modifier = Modifier.weight(1f))
                     Spacer(Modifier.width(14.dp))
                     Icon(AlbionIcons.ArrowForward, null, tint = Ink.Fg, modifier = Modifier.size(19.dp))
@@ -175,7 +176,7 @@ fun FolioDivider(modifier: Modifier = Modifier, label: String? = null) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
         Box(Modifier.width(30.dp).height(0.5.dp).background(Ink.Gold))
         Spacer(Modifier.width(15.dp))
-        if (label != null) Text(label, style = MaterialTheme.typography.labelMedium.copy(fontFamily = Brand, fontWeight = FontWeight.Normal), color = Ink.GoldText)
+        if (label != null) Text(label, style = MaterialTheme.typography.labelMedium.copy(fontFamily = Brand, fontWeight = FontWeight.SemiBold), color = Ink.GoldText)
         else Canvas(Modifier.size(36.dp, 8.dp).clearAndSetSemantics {}) {
             repeat(3) { i ->
                 val x = (6 + i * 12).dp.toPx(); val y = size.height / 2; val r = 2.dp.toPx()
@@ -189,7 +190,7 @@ fun FolioDivider(modifier: Modifier = Modifier, label: String? = null) {
 
 @Composable
 fun AccessionStamp(number: String, modifier: Modifier = Modifier) {
-    Text("ALBION\nLONDON\n$number", modifier.border(0.5.dp, Ink.LineStrong).padding(horizontal = 10.dp, vertical = 6.dp),
+    Text("ALBION\nLONDON\n$number", modifier.clearAndSetSemantics {}.border(0.5.dp, Ink.LineStrong).padding(horizontal = 10.dp, vertical = 6.dp),
         style = AlbionType.eyebrow.copy(fontSize = 9.sp, lineHeight = 14.sp, letterSpacing = 1.5.sp),
         color = Ink.Muted, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 }

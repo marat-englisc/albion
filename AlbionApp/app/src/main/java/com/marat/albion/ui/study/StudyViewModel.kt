@@ -8,7 +8,6 @@ import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.fsrs.CardState
 import com.marat.albion.data.fsrs.Fsrs
 import com.marat.albion.data.fsrs.Rating
-import com.marat.albion.data.repo.Siblings
 import com.marat.albion.data.repo.StudyRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -119,11 +118,6 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?,
             if (memory.state == CardState.LEARNING || memory.state == CardState.RELEARNING) {
                 learning += current.card to memory.due
             }
-            // Другие значения этого слова в той же колоде сегодня больше не показываем (сиблинги).
-            val term = Siblings.key(current.card)
-            fun isSibling(c: CardEntity) = c.deck == current.card.deck && Siblings.key(c) == term && c.id != current.card.id
-            news.removeAll(::isSibling)
-            reviews.removeAll(::isSibling)
             _state.update {
                 it.copy(
                     answered = it.answered + 1,

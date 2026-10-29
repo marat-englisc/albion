@@ -25,6 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.marat.albion.ui.components.MeasureNarrow
 import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.games.GameHost
+
 import com.marat.albion.ui.games.editionTitle
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.primaryRoutes
@@ -105,7 +106,7 @@ class PracticeDesignTest {
                 val density = instrumentation.targetContext.resources.displayMetrics.density
                 assertTrue("Start escaped the viewport ($name)", bounds.bottom <= 741 * density)
                 capture("$name-header")
-                val count = scrollTo { it.text?.toString() == if (game.isGrammar || game == Game.TENSES) "10 заданий" else "10 слов" }
+                val count = scrollTo { it.text?.toString() == "10 ${game.unit}" }
                 assertMinimumTarget(count, "$name length")
                 if (!target(count).isSelected && !target(count).isChecked) activate(count)
                 capture("$name-options")
@@ -154,7 +155,12 @@ class PracticeDesignTest {
         repeat(35) {
             if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
             val root = instrumentation.uiAutomation.rootInActiveWindow
-            find(root, predicate)?.let { return it }
+            find(root, predicate)?.let { node ->
+                // Accessibility clips a partly scrolled choice to the visible part of the viewport.
+                val visible = Rect().also(target(node)::getBoundsInScreen)
+                val density = instrumentation.targetContext.resources.displayMetrics.density
+                if (visible.height() / density >= 48f && visible.width() / density >= 48f) return node
+            }
             val bounds = Rect().also { root?.getBoundsInScreen(it) }
             val time = SystemClock.uptimeMillis()
             for (step in 0..15) {

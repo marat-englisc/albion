@@ -1,10 +1,29 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
+import com.marat.albion.ui.components.SheetHeader
+import com.marat.albion.ui.components.LoadingState
+import com.marat.albion.ui.components.PrimaryButton
+import com.marat.albion.ui.settings.SliderSetting
+import com.marat.albion.ui.settings.SwitchSetting
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
+import androidx.compose.foundation.border
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.graphics.drawscope.translate
@@ -140,6 +159,15 @@ class ReaderViewModel(private val c: AppContainer, val bookId: String) : ViewMod
     var loaded by mutableStateOf(false)
         private set
 
+    var error by mutableStateOf<String?>(null)
+        private set
+    fun dismissError() { error = null }
+    private fun write(block: suspend () -> Unit) { viewModelScope.launch {
+        try { block() }
+        catch (e: CancellationException) { throw e }
+        catch (_: Exception) { error = "Не удалось сохранить изменения. Попробуйте ещё раз." }
+    } }
+
     val bookmarks = c.library.observeBookmarks(bookId).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val highlights = c.library.observeHighlights(bookId).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -165,11 +193,11 @@ class ReaderViewModel(private val c: AppContainer, val bookId: String) : ViewMod
     }
 
     fun addHighlight(chapter: Int, paragraph: Int, start: Int, end: Int, text: String, note: String) {
-        viewModelScope.launch { c.library.addHighlight(bookId, chapter, paragraph, start, end, text, note) }
+        write { c.library.addHighlight(bookId, chapter, paragraph, start, end, text, note) }
     }
 
     fun updateNote(id: Long, note: String) {
-        viewModelScope.launch { c.library.updateHighlightNote(id, note) }
+        write { c.library.updateHighlightNote(id, note) }
     }
 
     fun deleteHighlight(id: Long) {
@@ -178,10 +206,13 @@ class ReaderViewModel(private val c: AppContainer, val bookId: String) : ViewMod
 
     init {
         viewModelScope.launch {
-            title = c.library.book(bookId)?.title.orEmpty()
-            book = c.library.content(bookId)
-            startPosition = c.library.position(bookId) ?: BookPosition(0, 0, 0)
-            loaded = true
+            try {
+                title = c.library.book(bookId)?.title.orEmpty()
+                book = c.library.content(bookId)
+                startPosition = c.library.position(bookId) ?: BookPosition(0, 0, 0)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { error = "Не удалось загрузить книгу. Откройте её из библиотеки заново." }
+            finally { loaded = true }
         }
     }
 
@@ -192,7 +223,7 @@ class ReaderViewModel(private val c: AppContainer, val bookId: String) : ViewMod
 
     fun savePosition(pos: BookPosition, progress: Float) {
         startPosition = pos
-        viewModelScope.launch { c.library.savePosition(bookId, pos, progress) }
+        write { c.library.savePosition(bookId, pos, progress) }
     }
 
     fun toggleBookmark(page: Page, next: Page?, snippet: String) {
@@ -200,7 +231,7 @@ class ReaderViewModel(private val c: AppContainer, val bookId: String) : ViewMod
             val p = BookPosition(b.chapter, b.paragraph, b.offset)
             p >= page.start && (next == null || p < next.start)
         }
-        viewModelScope.launch {
+        write {
             if (existing.isNotEmpty()) existing.forEach { c.library.deleteBookmark(it.id) }
             else c.library.addBookmark(bookId, page.start, snippet)
         }
@@ -222,15 +253,42 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     var showHighlights by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(vm.error) { vm.error?.let { message -> snackbar.showSnackbar(message, withDismissAction = true); vm.dismissError() } }
     var sizeMenu by remember { mutableStateOf(false) }
     var showToc by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
     var selection by remember { mutableStateOf<Selection?>(null) }
     var selectionPage by remember { mutableStateOf(-1) }
 
+    var showAppearance by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var jumpTo by remember { mutableStateOf<BookPosition?>(null) }
+    var returnTo by remember { mutableStateOf<BookPosition?>(null) }
+    val removeHighlight: (HighlightEntity) -> Unit = { h ->
+        showHighlights = false; selection = null
+        scope.launch {
+            try {
+                c.library.deleteHighlight(h.id)
+                snackbar.currentSnackbarData?.dismiss()
+                if (snackbar.showSnackbar("Выделение и заметка удалены", "Отменить", true, SnackbarDuration.Long) == SnackbarResult.ActionPerformed) c.library.restoreHighlight(h)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { snackbar.showSnackbar("Не удалось изменить выделение. Попробуйте снова.", withDismissAction = true) }
+        }
+    }
+    val removeBookmark: (BookmarkEntity) -> Unit = { b ->
+        showBookmarks = false
+        scope.launch {
+            try {
+                c.library.deleteBookmark(b.id)
+                snackbar.currentSnackbarData?.dismiss()
+                if (snackbar.showSnackbar("Закладка удалена", "Отменить", true, SnackbarDuration.Long) == SnackbarResult.ActionPerformed) c.library.restoreBookmark(b)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { snackbar.showSnackbar("Не удалось изменить закладку. Попробуйте снова.", withDismissAction = true) }
+        }
+    }
     val scale = settings.readerTextScale
-    val body = TextStyle(fontFamily = Reading, fontSize = (18 * scale).sp, lineHeight = (29 * scale).sp, color = Ink.Text)
-    val heading = TextStyle(fontFamily = headingFamily(vm.title), fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = Ink.Fg, textAlign = TextAlign.Center)
+    val body = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontFamily = Reading, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = Ink.Text)
+    val heading = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = headingFamily(vm.title), fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = Ink.Fg, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book
@@ -241,7 +299,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back)
-            Text("ALBION / THE READING ROOM", style = AlbionType.eyebrow.copy(fontSize = 10.sp, lineHeight = 16.sp, letterSpacing = 1.sp),
+            Text(vm.title.ifBlank { "Читалка" }, style = MaterialTheme.typography.titleSmall,
                 color = Ink.Muted, textAlign = TextAlign.Center, maxLines = 2, modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Оглавление", { showToc = true })
             Box {
@@ -251,31 +309,11 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                         onClick = { sizeMenu = false; showBookmarks = true })
                     DropdownMenuItem(text = { Text("Выделения и заметки") }, leadingIcon = { Icon(AlbionIcons.BorderColor, null) },
                         onClick = { sizeMenu = false; showHighlights = true })
-                    Hairline()
-                    Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        Eyebrow("Размер текста · ${(scale * 100).toInt()}%")
-                        ThinSlider(
-                            value = scale,
-                            onValueChange = { v -> scope.launch { c.settings.setReaderTextScale(v) } },
-                            valueRange = 0.8f..1.5f,
-                            steps = 13,
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text("Мои слова", style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
-                                Text("пунктир под словами из карточек, которые вы учите", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                            }
-                            Switch(
-                                checked = settings.readerMarkWords,
-                                onCheckedChange = { v -> scope.launch { c.settings.setReaderMarkWords(v) } },
-                                colors = SwitchDefaults.colors(
-                                    checkedTrackColor = Ink.Fg, checkedThumbColor = Ink.Bg,
-                                    uncheckedTrackColor = Ink.Line, uncheckedThumbColor = Ink.Muted, uncheckedBorderColor = Ink.LineStrong,
-                                ),
-                            )
-                        }
-                    }
+                    DropdownMenuItem(text = { Text("Поиск и переход к странице") }, onClick = { sizeMenu = false; showSearch = true })
+                    DropdownMenuItem(text = { Text("Оформление страницы") }, onClick = { sizeMenu = false; showAppearance = true })
+                    if (returnTo != null) DropdownMenuItem(text = { Text("Вернуться к месту чтения") }, onClick = {
+                        sizeMenu = false; jumpTo = returnTo; returnTo = null
+                    })
                 }
             }
         }
@@ -284,13 +322,17 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
 
         if (!vm.loaded || book == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (vm.loaded) Text("Книга не найдена", color = Ink.Muted) else AlbionLogo(size = 36.dp, color = Ink.Faint)
+                if (vm.loaded) Column(Modifier.padding(24.dp)) {
+                    Text("Не удалось открыть книгу", style = MaterialTheme.typography.titleLarge)
+                    Text("Вернитесь в библиотеку и выберите книгу заново. Для своей книги можно повторить импорт.")
+                    TextButton(onClick = navigator::back) { Text("В библиотеку") }
+                } else LoadingState("Открываю книгу")
             }
             return@Column
         }
 
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-            val padH = 26.dp
+            val padH = settings.readerMargin.dp
             val padV = 20.dp
             // Широкий горизонтальный экран — разворот из двух страниц, как в бумажной книге.
             val columns = if (maxWidth >= 840.dp && maxWidth > maxHeight) 2 else 1
@@ -305,7 +347,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             val headingDecoration = 42.dp
             val decorationPx = with(density) { headingDecoration.roundToPx() }
             val dropCaps = maxWidth / columns >= 360.dp && density.fontScale <= 1.3f && scale <= 1.2f
-            val key = "reading-room-initial-v2:$widthPx:$heightPx:$scale:$columns:$dropCaps:${density.fontScale}"
+            val key = "reading-room-initial-v2:$widthPx:$heightPx:$scale:${settings.readerLineSpacing}:${settings.readerMargin}:$columns:$dropCaps:${density.fontScale}"
 
             LaunchedEffect(key, book) {
                 if (vm.pagesKey == key && vm.pages.isNotEmpty()) return@LaunchedEffect
@@ -319,9 +361,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             val pages = vm.pages
             if (pages.isEmpty() || vm.pagesKey != key) {
                 Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    AlbionLogo(size = 36.dp, color = Ink.Faint)
-                    Spacer(Modifier.height(14.dp))
-                    Eyebrow("Готовлю страницы")
+                    LoadingState("Готовлю страницы")
                 }
                 return@BoxWithConstraints
             }
@@ -342,7 +382,6 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
 
             // Переход по оглавлению/закладке.
-            var jumpTo by remember { mutableStateOf<BookPosition?>(null) }
             LaunchedEffect(jumpTo) {
                 jumpTo?.let {
                     val target = Paginator.pageOf(pages, it) / columns
@@ -409,7 +448,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(
-                            current?.let { "ALBION / LONDON / %03d".format(it.blocks.first().chapter + 1) }.orEmpty(),
+                            current?.let { book.chapters.getOrNull(it.start.chapter)?.title }.orEmpty(),
                             style = AlbionType.eyebrow.copy(letterSpacing = 1.sp),
                             color = Ink.Muted,
                             maxLines = 1,
@@ -420,26 +459,33 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     }
                     Spacer(Modifier.width(14.dp))
                     val pageLabel = if (lastPage > firstPage) "${firstPage + 1}–${lastPage + 1}" else "${firstPage + 1}"
-                    Text("$pageLabel / ${pages.size}", style = MaterialTheme.typography.bodySmall.copy(color = Ink.Soft))
+                    TextButton(onClick = { showSearch = true }) { Text("$pageLabel / ${pages.size}", style = MaterialTheme.typography.bodySmall.copy(color = Ink.Soft)) }
                     IconButton(onClick = {
                         current?.let { page ->
                             val snippet = page.blocks.firstOrNull { !it.isHeading }?.let { b ->
                                 book.chapters[b.chapter].paragraphs[b.paragraph].substring(b.start, b.end)
                             } ?: book.chapters[page.blocks.first().chapter].title
-                            vm.toggleBookmark(page, next, snippet)
+                            val existing = bookmarks.filter { b -> BookPosition(b.chapter, b.paragraph, b.offset) >= page.start && (next == null || BookPosition(b.chapter, b.paragraph, b.offset) < next.start) }
+                            if (existing.isEmpty()) vm.toggleBookmark(page, next, snippet) else existing.forEach(removeBookmark)
                         }
                     }) {
-                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка", tint = Ink.Accent)
+                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, if (marked) "Удалить закладку" else "Добавить закладку", tint = Ink.Accent)
                     }
                 }
             }
 
+            if (showSearch) {
+                ReaderSearchSheet(book, pages, { showSearch = false }) { position ->
+                    returnTo = pages[pager.currentPage * columns].start
+                    jumpTo = position; showSearch = false
+                }
+            }
             if (showToc) {
                 ListSheet(title = "Оглавление", onDismiss = { showToc = false }) {
                     itemsIndexed(book.chapters) { i, ch ->
-                        SheetRow(primary = ch.title, secondary = "Страница ${pages.indexOfFirst { it.blocks.first().chapter == i } + 1}") {
+                        SheetRow(primary = ch.title, secondary = "${if (pages[pager.currentPage * columns].start.chapter == i) "Текущая глава · " else ""}Страница ${pages.indexOfFirst { it.blocks.first().chapter == i } + 1}") {
                             showToc = false
-                            jumpTo = BookPosition(i, 0, 0)
+                            returnTo = pages[pager.currentPage * columns].start; jumpTo = BookPosition(i, 0, 0)
                         }
                     }
                 }
@@ -462,8 +508,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             h,
                             page = Paginator.pageOf(pages, BookPosition(h.chapter, h.paragraph, h.start)) + 1,
                             chapter = book.chapters.getOrNull(h.chapter)?.title.orEmpty(),
-                            onOpen = { showHighlights = false; jumpTo = BookPosition(h.chapter, h.paragraph, h.start) },
-                            onDelete = { vm.deleteHighlight(h.id) },
+                            onOpen = { showHighlights = false; returnTo = pages[pager.currentPage * columns].start; jumpTo = BookPosition(h.chapter, h.paragraph, h.start) },
+                            onDelete = { removeHighlight(h) },
                         )
                     }
                 }
@@ -482,8 +528,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     }
                     itemsIndexed(bookmarks, key = { _, b -> b.id }) { _, b ->
                         BookmarkRow(b, page = Paginator.pageOf(pages, BookPosition(b.chapter, b.paragraph, b.offset)) + 1, chapter = book.chapters.getOrNull(b.chapter)?.title.orEmpty(),
-                            onOpen = { showBookmarks = false; jumpTo = BookPosition(b.chapter, b.paragraph, b.offset) },
-                            onDelete = { vm.deleteBookmark(b.id) },
+                            onOpen = { showBookmarks = false; returnTo = pages[pager.currentPage * columns].start; jumpTo = BookPosition(b.chapter, b.paragraph, b.offset) },
+                            onDelete = { removeBookmark(b) },
                         )
                     }
                 }
@@ -495,6 +541,21 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         Snackbar(data, containerColor = Ink.Fg, contentColor = Ink.Bg, actionColor = Ink.Bg,
             dismissActionContentColor = Ink.Bg)
     }
+    }
+
+    if (showAppearance) ModalBottomSheet(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = { com.marat.albion.ui.components.SheetHandle() },onDismissRequest = { showAppearance = false },
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = Ink.Raised,
+        scrimColor = Ink.Fg.copy(alpha = .32f)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 24.dp, vertical = 12.dp)) {
+            SheetHeader("Оформление страницы", { showAppearance = false })
+            SliderSetting("Размер текста", "${(scale * 100).toInt()}%", null, scale, .8f..1.5f, steps = 13) { v -> scope.launch { c.settings.setReaderTextScale(v) } }
+            SliderSetting("Межстрочный интервал", "${(settings.readerLineSpacing * 100).toInt()}%", null, settings.readerLineSpacing, .85f..1.3f, steps = 8) { v -> scope.launch { c.settings.setReaderLineSpacing(v) } }
+            SliderSetting("Поля страницы", "${settings.readerMargin}", null, settings.readerMargin.toFloat(), 16f..40f, steps = 11) { v -> scope.launch { c.settings.setReaderMargin(v.toInt()) } }
+            SwitchSetting("Подчёркивать слова, которые я учу", settings.readerMarkWords) { v -> scope.launch { c.settings.setReaderMarkWords(v) } }
+            Text("The quiet pleasure of reading. Настройки применяются к книге сразу, место чтения сохраняется.", style = body, modifier = Modifier.padding(vertical = 16.dp))
+        }
     }
 
     // Окно перевода для выделенного слова или фрагмента.
@@ -516,10 +577,35 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     text = text,
                     isWord = sel.isWord,
                     onDismiss = { selection = null },
+                    selectionControls = {
+                        com.marat.albion.ui.components.Disclosure("Уточнить выделение") {
+                            val visible = paragraph.substring(block.start, block.end)
+                            val words = Regex("[\\p{L}\\p{N}'’-]+").findAll(visible).map { it.range }.toList()
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(enabled = sel.start > 0, onClick = {
+                                    words.lastOrNull { it.first < sel.start }?.let { selection = sel.copy(start = it.first, end = it.last + 1, isWord = true) }
+                                }) { Text("← Предыдущее слово") }
+                                TextButton(enabled = sel.end < visible.length, onClick = {
+                                    words.firstOrNull { it.first >= sel.end }?.let { selection = sel.copy(start = it.first, end = it.last + 1, isWord = true) }
+                                }) { Text("Следующее слово →") }
+                                TextButton(onClick = {
+                                    val range = sentenceAt(visible, sel.start)
+                                    selection = sel.copy(start = range.first, end = range.last + 1, isWord = false)
+                                }) { Text("Предложение") }
+                                TextButton(onClick = { selection = sel.copy(start = 0, end = visible.length, isWord = false) }) { Text("Весь фрагмент") }
+                                TextButton(enabled = sel.start > 0, onClick = {
+                                    words.lastOrNull { it.first < sel.start }?.let { selection = sel.copy(start = it.first, isWord = false) }
+                                }) { Text("Расширить влево") }
+                                TextButton(enabled = sel.end < visible.length, onClick = {
+                                    words.firstOrNull { it.last + 1 > sel.end }?.let { selection = sel.copy(end = it.last + 1, isWord = false) }
+                                }) { Text("Расширить вправо") }
+                            }
+                        }
+                    },
                     highlight = existing,
                     onHighlight = { note -> vm.addHighlight(block.chapter, block.paragraph, absStart, absEnd, text, note) },
                     onNote = { h, note -> vm.updateNote(h.id, note) },
-                    onDeleteHighlight = { h -> vm.deleteHighlight(h.id) },
+                    onDeleteHighlight = removeHighlight,
                     bookSource = BookWordSource(bookId, vm.title, book.chapters[block.chapter].title),
                     bookExample = paragraph.substring(
                         sentenceAt(paragraph, absStart).first,
@@ -566,7 +652,7 @@ private fun PageView(
     highlights: List<HighlightEntity>,
     marks: ((Int, Int, String) -> List<IntRange>)?,
 ) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         page.blocks.forEachIndexed { i, block ->
             if (block.isHeading) {
                 Box(Modifier.fillMaxWidth()) {
@@ -624,6 +710,7 @@ private fun SelectableParagraph(
     val highlightRanges by rememberUpdatedState(highlights)
     val markRanges by rememberUpdatedState(marks)
     var dragRange by remember { mutableStateOf<IntRange?>(null) }
+    var keyboardFocused by remember { mutableStateOf(false) }
     val shown = dragRange ?: selection?.let { it.start until it.end }
 
     val annotated: AnnotatedString = remember(text, shown, style.color) {
@@ -643,7 +730,13 @@ private fun SelectableParagraph(
         val layout = remember(annotated, style, width, dropCap) { measureEditionParagraph(measurer, annotated, style, width, dropCap) }
         val currentLayout by rememberUpdatedState(layout)
         Canvas(Modifier.fillMaxWidth().height(with(density) { layout.height.toDp() })
-            .semantics { this.text = AnnotatedString(text) }
+            .semantics {
+                this.text = AnnotatedString(text)
+                onClick("Перевести абзац") { onSelect(text.indices, false); true }
+                customActions = listOf(CustomAccessibilityAction("Выбрать первое слово") {
+                    onSelect(wordAt(text, 0), true); true
+                })
+            }
             .drawBehind {
                 fun androidx.compose.ui.graphics.drawscope.DrawScope.drawMarkers(part: EditionTextPart) {
                     val from = part.start
@@ -678,7 +771,12 @@ private fun SelectableParagraph(
                         clipRect(frame.left, frame.top, frame.right, frame.bottom) { drawMarkers(part) }
                     } else drawMarkers(part)
                 }
-            }.pointerInput(text) {
+            }.then(if (keyboardFocused) Modifier.border(2.dp, Ink.AccentText) else Modifier).onKeyEvent { event ->
+                if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_UP &&
+                    event.nativeKeyEvent.keyCode in listOf(android.view.KeyEvent.KEYCODE_ENTER, android.view.KeyEvent.KEYCODE_DPAD_CENTER)) {
+                    onSelect(text.indices, false); true
+                } else false
+            }.onFocusChanged { keyboardFocused = it.isFocused }.focusable().pointerInput(text) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     var timedOut = false
@@ -775,13 +873,15 @@ fun sentenceAt(text: String, offset: Int): IntRange {
 @Composable
 private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit) {
     ModalBottomSheet(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = Ink.Raised,
-        dragHandle = { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) },
+        scrimColor = Ink.Fg.copy(alpha = .32f),
     ) {
         Column(Modifier.padding(horizontal = gutter).navigationBarsPadding()) {
-            Eyebrow(title, Modifier.padding(vertical = 10.dp))
+            SheetHeader(title, onDismiss)
             LazyColumn(Modifier.fillMaxWidth().padding(bottom = 16.dp), content = content)
         }
     }
@@ -790,9 +890,9 @@ private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.co
 @Composable
 private fun SheetRow(primary: String, secondary: String, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Row(Modifier.padding(vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(primary, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading), color = Ink.Fg, modifier = Modifier.weight(1f))
-            Text(secondary, style = AlbionType.index)
+        Column(Modifier.padding(vertical = 14.dp)) {
+            Text(primary, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading), color = Ink.Fg)
+            Text(secondary, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         }
         Hairline()
     }
@@ -815,14 +915,14 @@ private fun HighlightRow(h: HighlightEntity, page: Int, chapter: String, onOpen:
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     Box(Modifier.width(2.dp).fillMaxHeight().background(Ink.Fg))
                     Spacer(Modifier.width(10.dp))
-                    Text(h.text, style = TextStyle(fontFamily = Reading, fontSize = 17.sp, lineHeight = 24.sp), color = Ink.Fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                    Text(h.text, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = Reading, fontSize = 17.sp, lineHeight = 24.sp), color = Ink.Fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
                 }
                 if (h.note.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
                     Text(h.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
                 }
             }
-            IconButton(onClick = onDelete) { Icon(AlbionIcons.Close, "Удалить выделение", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить выделение", tint = Ink.Muted) }
         }
         Hairline()
     }
@@ -837,8 +937,41 @@ private fun BookmarkRow(b: BookmarkEntity, page: Int, chapter: String, onOpen: (
                 Spacer(Modifier.height(6.dp))
                 Text(b.snippet, style = MaterialTheme.typography.bodyMedium, color = Ink.Text, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = onDelete) { Icon(AlbionIcons.Close, "Удалить закладку", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить закладку", tint = Ink.Muted) }
         }
         Hairline()
+    }
+}
+
+@Composable
+private fun ReaderSearchSheet(book: BookContent, pages: List<Page>, onDismiss: () -> Unit, onJump: (BookPosition) -> Unit) {
+    var query by remember { mutableStateOf("") }
+    var page by remember { mutableStateOf("") }
+    val hits = remember(book, query) {
+        if (query.trim().length < 2) emptyList() else buildList {
+            book.chapters.forEachIndexed { chapter, ch -> ch.paragraphs.forEachIndexed { paragraph, text ->
+                var offset = text.indexOf(query.trim(), ignoreCase = true)
+                while (offset >= 0 && size < 100) {
+                    add(BookPosition(chapter, paragraph, offset) to text.substring((offset - 35).coerceAtLeast(0), (offset + query.trim().length + 100).coerceAtMost(text.length)))
+                    offset = text.indexOf(query.trim(), offset + query.trim().length, ignoreCase = true)
+                }
+            } }
+        }
+    }
+    ListSheet("Поиск и переход", onDismiss) {
+        item {
+            OutlinedTextField(page, { page = it.filter(Char::isDigit).take(6) }, label = { Text("Страница 1–${pages.size}") },
+                singleLine = true, modifier = Modifier.fillMaxWidth(), keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number))
+            TextButton(onClick = { page.toIntOrNull()?.let { pages.getOrNull(it - 1)?.start?.let(onJump) } }, enabled = (page.toIntOrNull() ?: 0) in 1..pages.size) { Text("Перейти к странице") }
+            OutlinedTextField(query, { query = it }, label = { Text("Найти в книге") }, singleLine = true, modifier = Modifier.semantics { contentDescription = "Поиск по тексту книги" }.fillMaxWidth())
+            Text(when { query.trim().length < 2 -> "Введите хотя бы 2 символа"; hits.isEmpty() -> "Совпадений нет. Измените запрос."; hits.size == 100 -> "Первые 100 совпадений — уточните запрос"; else -> "Совпадений: ${hits.size}" }, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(vertical = 12.dp))
+        }
+        itemsIndexed(hits) { _, hit ->
+            Column(Modifier.fillMaxWidth().clickable { onJump(hit.first) }.padding(vertical = 12.dp)) {
+                Text(book.chapters[hit.first.chapter].title, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text(com.marat.albion.ui.components.highlightedQuery(hit.second, query), style = MaterialTheme.typography.bodyLarge)
+                Hairline(Modifier.padding(top = 12.dp))
+            }
+        }
     }
 }

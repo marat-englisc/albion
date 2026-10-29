@@ -32,6 +32,7 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.content.FormVariant
 import com.marat.albion.data.content.IrregularData
 import com.marat.albion.data.db.CardEntity
+import com.marat.albion.data.repo.WordCards
 import com.marat.albion.data.library.BookWordsRepository
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
@@ -40,6 +41,8 @@ import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Ink
+import com.marat.albion.ui.theme.Brand
+import com.marat.albion.ui.theme.headingFamily
 import com.marat.albion.ui.theme.Sans
 import com.marat.albion.ui.theme.rememberReveal
 import com.marat.albion.ui.theme.reveal
@@ -61,35 +64,33 @@ private fun termStyle(term: String, large: Boolean): TextStyle {
         term.length <= 28 -> 34
         else -> 28
     }
-    return TextStyle(fontFamily = Sans, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
+    return TextStyle(fontFamily = headingFamily(term), fontWeight = FontWeight.SemiBold, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TermHeader(card: CardEntity, audio: CardAudio, large: Boolean, showIpa: Boolean = true) {
     val deck = deckOf(card)
     val key = "term:${card.id}"
     Column(horizontalAlignment = if (large) Alignment.CenterHorizontally else Alignment.Start, modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Chip(card.pos)
-            LevelBadge(card.level)
-        }
-        Spacer(Modifier.height(if (large) 28.dp else 16.dp))
         Text(card.term, style = termStyle(card.term, large), textAlign = if (large) TextAlign.Center else TextAlign.Start, color = Ink.Fg)
-        Spacer(Modifier.height(if (large) 14.dp else 10.dp))
+        Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (showIpa && card.ipa.isNotBlank()) {
                 Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
-                Spacer(Modifier.width(14.dp))
+                Spacer(Modifier.width(10.dp))
             }
-            AudioButton(
-                playing = audio.playingKey == key,
-                onClick = { audio.play(deck, card.audio, card.term, key) },
-                size = if (large) 46.dp else 38.dp,
-            )
+            AudioButton(audio.playingKey == key, { audio.play(deck, card.audio, card.term, key) }, size = 48.dp)
+        }
+        Spacer(Modifier.height(8.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            WordCards.members(card).map { it.pos }.filter { it.isNotBlank() }.distinct().forEach { Chip(it) }
+            LevelBadge(card.level)
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, showIpa: Boolean, modifier: Modifier = Modifier) {
     Column(
@@ -98,17 +99,21 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
         verticalArrangement = Arrangement.Center,
     ) {
         TermHeader(card, audio, large = true, showIpa = showIpa)
+        if (card.senses.size > 1) {
+            Spacer(Modifier.height(14.dp))
+            Eyebrow("Все значения · ${card.senses.size}", color = Ink.GoldText)
+        }
         if (irregular != null) {
             Spacer(Modifier.height(36.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, Ink.Line, RoundedCornerShape(3.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = AlbionType.index)
                         Spacer(Modifier.height(2.dp))
-                        Text("?", style = TextStyle(fontFamily = Sans, fontSize = 26.sp), color = Ink.Faint)
+                        Text("?", style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = Sans, fontSize = 26.sp), color = Ink.Faint)
                         Spacer(Modifier.height(2.dp))
                         Eyebrow(form.label, color = Ink.Faint)
                     }
@@ -142,21 +147,18 @@ fun CardBack(
         Hairline(Modifier.reveal(reveal, ++i, step = 70))
         Spacer(Modifier.height(16.dp))
 
-        if (card.meaningEn.isNotBlank()) {
-            Column(Modifier.reveal(reveal, ++i, step = 70)) {
-                Eyebrow("Meaning")
-                Spacer(Modifier.height(8.dp))
-                Text(card.meaningEn, style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
-            }
+        val senses = WordCards.members(card)
+        if (senses.size > 1) {
+            Text("Оцените знание всех ${senses.size} значений", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             Spacer(Modifier.height(12.dp))
-        }
-        if (showRussian && card.meaningRu.isNotBlank()) {
-            Column(Modifier.reveal(reveal, ++i, step = 25)) {
-                Eyebrow("Значение")
-                Spacer(Modifier.height(6.dp))
-                Text(card.meaningRu, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp, lineHeight = 24.sp), color = Ink.Soft)
+            com.marat.albion.ui.components.WordMeanings(card, showRussian)
+            com.marat.albion.ui.components.Disclosure("Определения и примеры · ${senses.size}") {
+                senses.forEachIndexed { index, sense ->
+                    if (index > 0) { Spacer(Modifier.height(16.dp)); Hairline(); Spacer(Modifier.height(12.dp)) }
+                    SenseContent(sense, index, senses.size, audio, showRussian, irregular == null, header = card)
+                }
             }
-        }
+        } else SenseContent(senses.first(), 0, 1, audio, showRussian, irregular == null)
 
         if (irregular != null) {
             irregular.forms.forEachIndexed { fi, form ->
@@ -172,33 +174,64 @@ fun CardBack(
                 Spacer(Modifier.height(22.dp))
                 Column(
                     Modifier.fillMaxWidth().reveal(reveal, ++i, step = 70)
-                        .border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(14.dp),
+                        .border(1.dp, Ink.Line, RoundedCornerShape(3.dp)).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))
                     Text(irregular.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
                 }
             }
-        } else {
-            val examples = listOf(card.example1, card.example2).filter { it.isNotBlank() }
-            if (examples.isNotEmpty()) {
-                Column(Modifier.reveal(reveal, ++i, step = 70)) {
-                    Spacer(Modifier.height(20.dp))
-                    Eyebrow("Examples")
-                    Spacer(Modifier.height(8.dp))
-                    examples.forEach { ExampleLine(it, listOf(card.term)) }
-                }
+        }
+    }
+}
+
+@Composable
+private fun SenseContent(
+    sense: CardEntity, index: Int, total: Int, audio: CardAudio,
+    showRussian: Boolean, showExamples: Boolean, header: CardEntity? = null,
+) {
+    if (total > 1) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("%02d".format(index + 1), style = TextStyle(fontFamily = Brand,
+                fontWeight = FontWeight.SemiBold, fontSize = 24.sp), color = Ink.GoldText)
+            Column(Modifier.weight(1f)) {
+                Text(sense.pos, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
+                if (sense.ipa.isNotBlank() && sense.ipa != header?.ipa) Text(sense.ipa, style = AlbionType.ipa.copy(fontSize = 15.sp))
+            }
+            if (sense.audio != null && sense.audio != header?.audio) {
+                val key = "sense:${sense.id}"
+                AudioButton(audio.playingKey == key,
+                    { audio.play(deckOf(sense), sense.audio, sense.term, key) }, size = 48.dp)
             }
         }
-        val source = remember(card.id, card.extra) { BookWordsRepository.source(card) }
-        if (source != null) {
-            Spacer(Modifier.height(20.dp))
-            Hairline()
-            Spacer(Modifier.height(12.dp))
-            Eyebrow("Из книги")
-            Text(listOf(source.title, source.chapter).filter { it.isNotBlank() }.joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        Spacer(Modifier.height(10.dp))
+    }
+    if (sense.meaningEn.isNotBlank()) {
+        if (total == 1) Eyebrow("Meaning")
+        Spacer(Modifier.height(6.dp))
+        Text(sense.meaningEn, style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
+    }
+    if (showRussian && sense.meaningRu.isNotBlank()) {
+        Spacer(Modifier.height(8.dp))
+        if (total == 1) Eyebrow("Значение")
+        Text(sense.meaningRu, style = MaterialTheme.typography.bodyLarge, color = Ink.Soft)
+    }
+    if (showExamples) {
+        val examples = listOf(sense.example1, sense.example2).filter { it.isNotBlank() }.distinct()
+        if (examples.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            com.marat.albion.ui.components.Disclosure("Примеры · ${examples.size}") {
+                examples.forEach { ExampleLine(it, listOf(sense.term)) }
+            }
         }
+    }
+    val source = remember(sense.id, sense.extra) { BookWordsRepository.source(sense) }
+    if (source != null) {
+        Spacer(Modifier.height(14.dp))
+        Eyebrow("Из книги")
+        Text(listOf(source.title, source.chapter).filter { it.isNotBlank() }.joinToString(" · "),
+            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
     }
 }
 
@@ -220,7 +253,7 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
                         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Column {
-                                Text(v.text, style = TextStyle(fontFamily = Sans, fontSize = 20.sp), color = Ink.Fg)
+                                Text(v.text, style = TextStyle(fontFamily = headingFamily(v.text), fontWeight = FontWeight.SemiBold, fontSize = 24.sp), color = Ink.Fg)
                                 if (v.ipa.isNotBlank()) Text(v.ipa, style = AlbionType.ipa.copy(fontSize = 14.sp))
                             }
                             v.audio.ifEmpty { listOf(null) }.forEachIndexed { k, file ->
@@ -228,7 +261,7 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
                                 AudioButton(
                                     playing = audio.playingKey == key,
                                     onClick = { audio.play(deck, file, v.text, key) },
-                                    size = 32.dp,
+                                    size = 48.dp,
                                     primary = k == 0,
                                 )
                             }

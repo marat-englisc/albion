@@ -7,11 +7,12 @@ import com.marat.albion.data.db.AlbionDatabase
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.db.DayCount
 import com.marat.albion.data.db.DeckCounts
+import com.marat.albion.data.db.GameCardStatEntity
+import com.marat.albion.data.db.PracticeNeed
 import com.marat.albion.data.db.GameAnswerLogEntity
 import com.marat.albion.data.db.GameTotals
 import com.marat.albion.data.db.ReviewLogEntity
 import com.marat.albion.data.db.ReviewStateEntity
-import com.marat.albion.data.db.StudyCandidate
 import com.marat.albion.data.fsrs.CardState
 import com.marat.albion.data.fsrs.Fsrs
 import com.marat.albion.data.fsrs.Memory
@@ -19,6 +20,8 @@ import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.data.settings.SettingsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -53,12 +56,6 @@ data class SessionQueue(
     val learning: List<CardEntity>,
     val reviews: List<CardEntity>,
     val news: List<CardEntity>,
-)
-
-private data class QueuePlan(
-    val learning: List<CardEntity>,
-    val reviews: List<StudyCandidate>,
-    val news: List<StudyCandidate>,
 )
 
 class StudyRepository(
@@ -96,30 +93,44 @@ class StudyRepository(
 
     // ---- главный экран ----
 
+    private data class Vocabulary(val cards: List<CardEntity>, val states: Map<String, ReviewStateEntity>) {
+        fun counts(now: Long): List<DeckCounts> = cards.groupBy { it.deck }.map { (deck, words) ->
+            val memory = words.mapNotNull { WordCards.state(it, states) }
+            DeckCounts(deck, words.size, memory.size,
+                memory.count { it.state == CardState.REVIEW && it.due <= now },
+                memory.count { it.state in listOf(CardState.LEARNING, CardState.RELEARNING) && it.due <= now + LEARN_AHEAD },
+                memory.count { it.state in listOf(CardState.LEARNING, CardState.RELEARNING) },
+                memory.count { it.state == CardState.REVIEW && it.stability >= 21 })
+        }
+    }
+
+    private fun observeVocabulary(): Flow<Vocabulary> =
+        combine(cards.observeAll().map(WordCards::group), reviews.observeStates()) { words, states ->
+            Vocabulary(words, states.associateBy { it.cardId })
+        }.flowOn(Dispatchers.Default)
+
+    private suspend fun vocabulary(deck: Deck? = null) = Vocabulary(
+        WordCards.group(if (deck == null) cards.all() else cards.inDeck(deck.id)),
+        reviews.states().associateBy { it.cardId },
+    )
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeSummaries(): Flow<List<DeckSummary>> =
         combine(minuteTicker, settings.settings) { now, s -> now to s }
             .flatMapLatest { (now, s) ->
                 val since = dayStart(now, s.dayStartHour)
-                combine(cards.observeCounts(now), reviews.observeReviewsSince(since)) { counts, _ -> counts }
-                    .map { counts -> buildSummaries(counts, s, now) }
-            }
+                combine(observeVocabulary(), reviews.observeReviewsSince(since)) { words, _ -> words }
+                    .map { words -> buildSummaries(words, s, now) }
+            }.flowOn(Dispatchers.Default)
 
-    private suspend fun buildSummaries(counts: List<DeckCounts>, s: Settings, now: Long): List<DeckSummary> = db.withTransaction {
-        val byId = counts.associateBy { it.deck }
+    private suspend fun buildSummaries(words: Vocabulary, s: Settings, now: Long): List<DeckSummary> = db.withTransaction {
+        val byId = words.counts(now).associateBy { it.deck }
         Deck.entries.map { deck ->
             val c = byId[deck.id]
             if (c == null) DeckSummary(deck) else {
-                val plan = planQueue(deck, s, now)
-                DeckSummary(
-                    deck = deck,
-                    total = c.total,
-                    started = c.started,
-                    due = plan.reviews.size + plan.learning.size,
-                    learning = c.learning,
-                    mature = c.mature,
-                    newAvailable = plan.news.size,
-                )
+                val plan = planQueue(deck, s, now, words)
+                DeckSummary(deck, c.total, c.started, plan.reviews.size + plan.learning.size,
+                    c.learning, c.mature, plan.news.size)
             }
         }
     }
@@ -128,38 +139,20 @@ class StudyRepository(
 
     suspend fun buildQueue(deck: Deck, now: Long = System.currentTimeMillis()): SessionQueue {
         val s = settings.current()
-        return db.withTransaction {
-            val plan = planQueue(deck, s, now)
-            val selected = (plan.reviews + plan.news).map { it.id }
-                .chunked(500).flatMap { cards.getMany(it) }.associateBy { it.id }
-            SessionQueue(
-                learning = plan.learning,
-                reviews = plan.reviews.map { selected.getValue(it.id) },
-                news = plan.news.map { selected.getValue(it.id) },
-            )
-        }
+        return db.withTransaction { planQueue(deck, s, now, vocabulary(deck)) }
     }
 
-    /**
-     * Общее занятие по всем колодам. Лимиты и сиблинги — по каждой колоде, как в отдельных
-     * занятиях, поэтому числа совпадают со сводкой на главном экране. Повторения перемешаны,
-     * новые чередуются между колодами.
-     */
+    /** Collections retain separate schedules; every meaning within a word is studied together. */
     suspend fun buildQueueAll(now: Long = System.currentTimeMillis()): SessionQueue {
         val s = settings.current()
         return db.withTransaction {
-            val plans = Deck.entries.map { planQueue(it, s, now) }
-            val selected = plans.flatMap { it.reviews + it.news }.map { it.id }
-                .chunked(500).flatMap { cards.getMany(it) }.associateBy { it.id }
-            SessionQueue(
-                learning = plans.flatMap { it.learning },
-                reviews = plans.flatMap { p -> p.reviews.map { selected.getValue(it.id) } }.shuffled(),
-                news = roundRobin(plans.map { p -> p.news.map { selected.getValue(it.id) } }),
-            )
+            val words = vocabulary()
+            val plans = Deck.entries.map { planQueue(it, s, now, words) }
+            SessionQueue(plans.flatMap { it.learning }, plans.flatMap { it.reviews }.shuffled(),
+                roundRobin(plans.map { it.news }))
         }
     }
 
-    /** Берёт по одной карточке из каждой колоды по очереди. */
     private fun <T> roundRobin(lists: List<List<T>>): List<T> {
         val total = lists.sumOf { it.size }
         val result = ArrayList<T>(total)
@@ -171,33 +164,52 @@ class StudyRepository(
         return result
     }
 
-    /** Единый отбор для занятия, счётчиков колод и напоминаний. */
-    private suspend fun planQueue(deck: Deck, s: Settings, now: Long): QueuePlan {
+    /** The same word-level selection drives study, counters and reminders. */
+    private suspend fun planQueue(deck: Deck, s: Settings, now: Long, words: Vocabulary): SessionQueue {
         val since = dayStart(now, s.dayStartHour)
         val newLeft = max(0, s.newPerDay - reviews.countSince(deck.id, CardState.NEW, since))
         val reviewLeft = max(0, s.reviewsPerDay - reviews.countSince(deck.id, CardState.REVIEW, since))
-        val learning = reviews.learningDue(deck.id, now + LEARN_AHEAD)
-        // Лимиты применяем после исключения сиблингов: доступное слово может стоять
-        // после любого числа отложенных значений. Пока читаем только id и термин.
-        val dueReviews = if (reviewLeft > 0) reviews.reviewCandidates(deck.id, now).shuffled() else emptyList()
-        val newCandidates = if (newLeft > 0) cards.newCandidates(
-            deck.id,
-            byLevel = s.newOrder == NewCardOrder.LEVEL,
-            random = s.newOrder == NewCardOrder.RANDOM,
-        ) else emptyList()
-        val answeredToday = reviews.termsAnsweredSince(deck.id, since).map(Siblings::key).toSet()
-        val (picked, fresh) = Siblings.select(
-            learning.map { StudyCandidate(it.id, it.term) }, dueReviews, newCandidates,
-            answeredToday, reviewLeft, newLeft,
-        )
-        return QueuePlan(learning = learning, reviews = picked, news = fresh)
+        val inDeck = words.cards.filter { it.deck == deck.id }
+        fun state(card: CardEntity) = WordCards.state(card, words.states)
+        val learning = inDeck.filter {
+            val m = state(it)
+            m != null && m.state in listOf(CardState.LEARNING, CardState.RELEARNING) && m.due <= now + LEARN_AHEAD
+        }.sortedBy { state(it)!!.due }
+        val due = inDeck.filter {
+            val m = state(it)
+            m != null && m.state == CardState.REVIEW && m.due <= now
+        }.shuffled().take(reviewLeft)
+        val fresh = inDeck.filter { state(it) == null }
+        val ordered = when (s.newOrder) {
+            NewCardOrder.RANDOM -> fresh.shuffled()
+            NewCardOrder.LEVEL -> fresh.sortedWith(compareBy<CardEntity> {
+                listOf("A1", "A2", "B1", "B2", "C1", "C2").indexOf(it.level).takeIf { rank -> rank >= 0 } ?: 6
+            }.thenBy { it.position })
+            else -> fresh.sortedBy { it.position }
+        }
+        return SessionQueue(learning, due, ordered.take(newLeft))
     }
 
-    /** Карточки учебных шагов, которые подойдут в ближайшие [LEARN_AHEAD] мс. */
-    suspend fun learningDue(deck: Deck, now: Long = System.currentTimeMillis()) =
-        reviews.learningDue(deck.id, now + LEARN_AHEAD)
+    suspend fun learningDue(deck: Deck, now: Long = System.currentTimeMillis()): List<CardEntity> =
+        db.withTransaction {
+            val words = vocabulary(deck)
+            words.cards.filter {
+                val m = WordCards.state(it, words.states)
+                m != null && m.state in listOf(CardState.LEARNING, CardState.RELEARNING) && m.due <= now + LEARN_AHEAD
+            }.sortedBy { WordCards.state(it, words.states)!!.due }
+        }
 
-    suspend fun memory(cardId: String): Memory = reviews.state(cardId)?.toMemory() ?: Memory()
+    private suspend fun word(id: String): CardEntity? =
+        cards.wordMembers(id).takeIf { it.isNotEmpty() }?.let(WordCards::combine)
+
+    private suspend fun wordState(card: CardEntity): ReviewStateEntity? {
+        val states = WordCards.members(card).map { it.id }.chunked(500)
+            .flatMap { reviews.statesFor(it) }.associateBy { it.cardId }
+        return WordCards.state(card, states)
+    }
+
+    suspend fun memory(cardId: String): Memory =
+        word(cardId)?.let { wordState(it)?.toMemory() } ?: Memory()
 
     suspend fun scheduler(): Fsrs = schedulerFor(settings.current())
 
@@ -231,7 +243,7 @@ class StudyRepository(
         val s = settings.current()
         val since = dayStart(now, s.dayStartHour)
         // «Ждут повторения» — с учётом дневных лимитов, как на главном экране.
-        val due = buildSummaries(cards.observeCounts(now).first(), s, now).sumOf { it.due }
+        val due = buildSummaries(vocabulary(), s, now).sumOf { it.due }
         return (reviews.countAllSince(since) + games.countAnswersSince(since)) to due
     }
 
@@ -241,7 +253,8 @@ class StudyRepository(
         val fsrs = schedulerFor(s)
         // Чтение прежнего состояния и обе записи — одна атомарная операция.
         return db.withTransaction {
-            val prev = reviews.state(card.id)
+            val combined = word(card.id) ?: card
+            val prev = wordState(combined)
             val before = prev?.toMemory() ?: Memory()
             var next = fsrs.review(before, rating, now)
             if (next.state == CardState.REVIEW) {
@@ -249,10 +262,10 @@ class StudyRepository(
                 val days = max(1, ((next.due - now).toDouble() / Fsrs.DAY).roundToInt())
                 next = next.copy(due = dayStart(now, s.dayStartHour) + days * Fsrs.DAY)
             }
-            reviews.upsertState(next.toEntity(card.id, card.deck))
+            reviews.upsertState(next.toEntity(combined.id, combined.deck))
             val logId = reviews.insertLog(
                 ReviewLogEntity(
-                    cardId = card.id, deck = card.deck, rating = rating.value, reviewedAt = now,
+                    cardId = combined.id, deck = combined.deck, rating = rating.value, reviewedAt = now,
                     stateBefore = before.state, durationMs = durationMs.coerceIn(0, MAX_DURATION),
                     prevStability = prev?.stability, prevDifficulty = prev?.difficulty, prevDue = prev?.due,
                     prevLastReview = prev?.lastReview, prevStep = prev?.step, prevReps = prev?.reps, prevLapses = prev?.lapses,
@@ -278,49 +291,102 @@ class StudyRepository(
             )
         }
         reviews.deleteLog(logId)
-        cards.get(log.cardId)
+        word(log.cardId)
     }
 
     // ---- просмотр ----
 
-    fun browse(deck: Deck, query: String, filter: Int): Flow<List<CardEntity>> =
-        cards.browse(deck.id, query.trim(), filter, System.currentTimeMillis())
+    fun browse(deck: Deck, query: String, filter: Int): Flow<List<CardEntity>> {
+        val term = query.trim()
+        return observeVocabulary().map { words ->
+            words.cards.filter { card ->
+                val state = WordCards.state(card, words.states)
+                card.deck == deck.id && (card.term.contains(term, ignoreCase = true) || WordCards.members(card).any {
+                    it.meaningRu.contains(term, ignoreCase = true) || it.meaningEn.contains(term, ignoreCase = true)
+                }) && when (filter) {
+                    1 -> state == null
+                    2 -> state?.state in listOf(CardState.LEARNING, CardState.RELEARNING)
+                    3 -> state?.state == CardState.REVIEW
+                    4 -> state != null && state.due <= System.currentTimeMillis()
+                    else -> true
+                }
+            }.sortedWith(compareBy<CardEntity> { if (term.isNotEmpty() && it.term.startsWith(term, true)) 0 else 1 }
+                .thenBy(String.CASE_INSENSITIVE_ORDER) { it.term })
+        }.flowOn(Dispatchers.Default)
+    }
 
-    /** Карточки для мини-игр; повторяющиеся термины (разные значения) — по одному. */
-    /**
-     * Карточки для мини-игры: сначала слова, на которых вы ошибались в этой игре, затем начатые,
-     * затем новые. Повторяющиеся термины (разные значения) — по одному.
-     */
+    private fun gameState(card: CardEntity, stats: Map<String, GameCardStatEntity>): GameCardStatEntity? {
+        val members = WordCards.members(card).mapNotNull { stats[it.id] }
+        val latest = members.maxWithOrNull(compareBy<GameCardStatEntity> { it.lastSeen }
+            .thenBy { if (it.cardId == card.id) 1 else 0 }) ?: return null
+        return latest.copy(wrong = members.sumOf { it.wrong })
+    }
+
+    /** Select whole words before applying the requested count, including every translation. */
     suspend fun gamePool(
-        deck: Deck,
-        game: String,
-        count: Int,
-        withAudio: Boolean = false,
-        onlyMistakes: Boolean = false,
-    ): List<CardEntity> =
-        cards.gamePool(deck.id, game, count * 3, withAudio, onlyMistakes).distinctBy { it.term.lowercase() }.take(count)
+        deck: Deck, game: String, count: Int,
+        withAudio: Boolean = false, onlyMistakes: Boolean = false,
+    ): List<CardEntity> = db.withTransaction {
+        val words = vocabulary(deck)
+        val stats = cards.gameStats().filter { it.game == game }.associateBy { it.cardId }
+        words.cards.shuffled().filter {
+            (!withAudio || it.audio != null) && (!onlyMistakes || gameState(it, stats)?.isMistake == true)
+        }.sortedBy {
+            when {
+                gameState(it, stats)?.isMistake == true -> 0
+                WordCards.state(it, words.states) != null -> 1
+                else -> 2
+            }
+        }.take(count)
+    }
 
-    fun observeGameMistakes(deck: Deck, game: String, withAudio: Boolean = false) = cards.observeGameMistakes(deck.id, game, withAudio)
+    fun observeGameMistakes(deck: Deck, game: String, withAudio: Boolean = false): Flow<Int> =
+        combine(cards.observeAll(), cards.observeGameStats()) { rows, allStats ->
+            val stats = allStats.filter { it.game == game }.associateBy { it.cardId }
+            WordCards.group(rows.filter { it.deck == deck.id }).count {
+                (!withAudio || it.audio != null) && gameState(it, stats)?.isMistake == true
+            }
+        }.flowOn(Dispatchers.Default)
 
-    fun observePracticeNeeds() = games.observePracticeNeeds()
+    fun observePracticeNeeds(): Flow<List<PracticeNeed>> =
+        combine(cards.observeAll(), cards.observeGameStats()) { rows, allStats ->
+            val words = WordCards.group(rows)
+            allStats.groupBy { it.game }.filterKeys {
+                it in setOf("TYPE_ANSWER", "IRREGULAR", "PRONUNCIATION", "SHADOWING")
+            }.flatMap { (game, gameStats) ->
+                val stats = gameStats.associateBy { it.cardId }
+                words.filter { card ->
+                    gameState(card, stats)?.isMistake == true &&
+                        (game !in setOf("PRONUNCIATION", "SHADOWING") || card.audio != null)
+                }.groupBy { it.deck }.map { (deck, mistakes) ->
+                    PracticeNeed(game, deck, mistakes.size, mistakes.maxOf { gameState(it, stats)!!.lastSeen })
+                }
+            }
+        }.flowOn(Dispatchers.Default)
 
     /** Запоминает ответ в игре: ошибка ставит слово в начало следующих игр, два верных подряд — снимают. */
     suspend fun recordGame(
         cardId: String, game: String, ok: Boolean, durationMs: Long = 0,
         now: Long = System.currentTimeMillis(),
     ) = db.withTransaction {
-        val old = cards.gameStat(cardId, game)
+        val combined = word(cardId)
+        val targetId = combined?.id ?: cardId
+        val memberIds = combined?.let { WordCards.members(it).map { c -> c.id } } ?: listOf(cardId)
+        val prior = memberIds.mapNotNull { cards.gameStat(it, game) }
+        val schedule = prior.maxWithOrNull(compareBy<com.marat.albion.data.db.GameCardStatEntity> { it.lastSeen }
+            .thenBy { if (it.cardId == targetId) 1 else 0 })
+        val old = cards.gameStat(targetId, game)
         cards.upsertGameStat(
             com.marat.albion.data.db.GameCardStatEntity(
-                cardId = cardId,
+                cardId = targetId,
                 game = game,
                 correct = (old?.correct ?: 0) + if (ok) 1 else 0,
                 wrong = (old?.wrong ?: 0) + if (ok) 0 else 1,
-                streak = if (ok) (old?.streak ?: 0) + 1 else 0,
+                streak = if (ok) (schedule?.streak ?: 0) + 1 else 0,
                 lastSeen = now,
             )
         )
-        games.insert(GameAnswerLogEntity(game = game, itemId = cardId, correct = ok, answeredAt = now,
+        games.insert(GameAnswerLogEntity(game = game, itemId = targetId, correct = ok, answeredAt = now,
             durationMs = durationMs.coerceIn(0, MAX_GAME_DURATION)))
     }
 
@@ -353,15 +419,37 @@ class StudyRepository(
             itemId = taskId, correct = ok, answeredAt = now, durationMs = durationMs.coerceIn(0, MAX_GAME_DURATION)))
     }
 
-    fun observeCard(id: String) = cards.observe(id)
-    fun observeState(id: String) = reviews.observeState(id)
+    fun observeCard(id: String): Flow<CardEntity?> = cards.observeWordMembers(id)
+        .map { it.takeIf { rows -> rows.isNotEmpty() }?.let(WordCards::combine) }
+        .flowOn(Dispatchers.Default)
 
-    suspend fun resetCard(id: String) = reviews.deleteState(id)
+    fun observeState(id: String): Flow<ReviewStateEntity?> =
+        combine(observeCard(id), reviews.observeStates()) { card, states ->
+            card?.let { WordCards.state(it, states.associateBy { s -> s.cardId }) }
+        }.flowOn(Dispatchers.Default)
+
+    suspend fun resetCard(id: String) = db.withTransaction {
+        cards.wordMembers(id).forEach { reviews.deleteState(it.id) }
+    }
     suspend fun resetDeck(deck: Deck) = reviews.resetDeck(deck.id)
 
-    fun irregular(card: CardEntity): IrregularData? =
-        if (card.deck != Deck.IRREGULAR.id) null
-        else card.extra?.let { runCatching { json.decodeFromString(IrregularData.serializer(), it) }.getOrNull() }
+    fun irregular(card: CardEntity): IrregularData? {
+        if (card.deck != Deck.IRREGULAR.id) return null
+        val entries = WordCards.members(card).mapNotNull { row ->
+            row.extra?.let { runCatching { json.decodeFromString(IrregularData.serializer(), it) }.getOrNull() }
+        }
+        val first = entries.firstOrNull() ?: return null
+        if (entries.size == 1) return first
+        return IrregularData(first.forms.map { form ->
+            val matching = entries.flatMap { it.forms }.filter { it.label == form.label }
+            form.copy(
+                variants = matching.flatMap { it.variants }.groupBy { it.text to it.ipa }.values.map { variants ->
+                    variants.first().copy(audio = variants.flatMap { it.audio }.distinct())
+                },
+                examples = matching.flatMap { it.examples }.distinct(),
+            )
+        }, entries.map { it.note }.filter { it.isNotBlank() }.distinct().joinToString("\n"))
+    }
 
     // ---- статистика ----
 
@@ -377,7 +465,12 @@ class StudyRepository(
             combine(reviews.observeDaily(monthAgo, shift), games.observeDaily(monthAgo, shift)) { cards, games ->
                 (cards + games).groupBy { it.day }.map { (day, counts) -> DayCount(day, counts.sumOf { it.count }) }.sortedBy { it.day }
             },
-            reviews.observeForecast(todayStart + 15 * Fsrs.DAY, shift),
+            observeVocabulary().map { words ->
+                words.cards.mapNotNull { WordCards.state(it, words.states) }
+                    .filter { it.due < todayStart + 15 * Fsrs.DAY }
+                    .groupBy { (it.due + shift) / Fsrs.DAY }
+                    .map { (day, states) -> DayCount(day, states.size) }.sortedBy { it.day }
+            },
             combine(reviews.observeActiveDays(shift), games.observeActiveDays(shift)) { cards, games ->
                 (cards + games).distinct().sortedDescending()
             },
@@ -386,7 +479,7 @@ class StudyRepository(
                 reviews.observeTotalReviews(),
                 combine(reviews.observeTimeSince(todayStart), games.observeTimeSince(todayStart)) { cards, games -> cards + games },
                 reviews.observeReviewsSince(todayStart),
-                cards.observeCounts(now),
+                observeVocabulary().map { it.counts(now) },
                 combine(games.observeTotals(), games.observeAnswersSince(todayStart)) { totals, todayCount -> totals to todayCount },
             ) { total, time, todayCount, counts, games -> StatsSummary(total, time, todayCount, counts, games.first, games.second) },
         ) { daily, forecast, activeDays, retention, misc ->

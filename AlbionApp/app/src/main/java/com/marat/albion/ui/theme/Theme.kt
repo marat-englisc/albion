@@ -62,7 +62,7 @@ data class Palette(
 val LightPalette = Palette(
     bg = Color(0xFFF6F1E7), raised = Color(0xFFFBF8F1), surface = Color(0xFFF0EBE2),
     elevated = Color(0xFFF0EBE2), high = Color(0xFFEEE8DE),
-    line = Color(0xFFD8D1C5), lineStrong = Color(0xFFB9AFA0),
+    line = Color(0xFFD8D1C5), lineStrong = Color(0xFF8F8475),
     fg = Color(0xFF24272B), text = Color(0xFF24272B), soft = Color(0xFF575149),
     muted = Color(0xFF6E675F), faint = Color(0xFF6E675F), code = Color(0xFFF0EBE2),
     success = Color(0xFF4F6B57), successText = Color(0xFF3D5945), successSoft = Color(0xFFE6EDE5),
@@ -143,12 +143,15 @@ val Cyrillic = FontFamily(
     editorialFont(R.font.cormorant_garamond_variable, FontWeight.SemiBold),
     editorialFont(R.font.cormorant_garamond_variable, FontWeight.Bold),
     editorialFont(R.font.cormorant_garamond_italic_variable, italic = true),
+    editorialFont(R.font.cormorant_garamond_italic_variable, FontWeight.SemiBold, italic = true),
 )
 val Reading = FontFamily(
     editorialFont(R.font.literata_variable),
+    editorialFont(R.font.literata_variable, FontWeight.Medium),
     editorialFont(R.font.literata_variable, FontWeight.SemiBold),
     editorialFont(R.font.literata_variable, FontWeight.Bold),
     editorialFont(R.font.literata_italic_variable, italic = true),
+    editorialFont(R.font.literata_italic_variable, FontWeight.Medium, italic = true),
     editorialFont(R.font.literata_italic_variable, FontWeight.Bold, italic = true),
 )
 
@@ -159,7 +162,7 @@ var Serif: FontFamily = Cyrillic
 internal fun initializeTypography(resources: android.content.res.Resources) {
     InitialFonts.initialize(resources)
     if (android.os.Build.VERSION.SDK_INT >= 29) {
-        fun family(regular: Int, italic: Int, variable: Boolean = false): android.graphics.fonts.FontFamily {
+        fun family(regular: Int, italic: Int, variable: Boolean = false, semibold: Int? = null, semiboldItalic: Int? = null): android.graphics.fonts.FontFamily {
             val builder = android.graphics.fonts.FontFamily.Builder(
                 android.graphics.fonts.Font.Builder(resources, regular).setWeight(400)
                     .apply { if (variable) setFontVariationSettings("'wght' 400") }.build(),
@@ -167,10 +170,20 @@ internal fun initializeTypography(resources: android.content.res.Resources) {
             builder.addFont(android.graphics.fonts.Font.Builder(resources, italic).setWeight(400)
                 .setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_ITALIC)
                 .apply { if (variable) setFontVariationSettings("'wght' 400") }.build())
+            if (variable || semibold != null) {
+                listOf(500, 600, 700).forEach { weight ->
+                    builder.addFont(android.graphics.fonts.Font.Builder(resources, semibold ?: regular)
+                        .setWeight(weight).apply { if (variable) setFontVariationSettings("'wght' $weight") }.build())
+                    builder.addFont(android.graphics.fonts.Font.Builder(resources, semiboldItalic ?: italic)
+                        .setWeight(weight).setSlant(android.graphics.fonts.FontStyle.FONT_SLANT_ITALIC)
+                        .apply { if (variable) setFontVariationSettings("'wght' $weight") }.build())
+                }
+            }
             return builder.build()
         }
         Serif = FontFamily(android.graphics.Typeface.CustomFallbackBuilder(
-            family(R.font.adobe_caslon_pro_regular, R.font.adobe_caslon_pro_italic),
+            family(R.font.adobe_caslon_pro_regular, R.font.adobe_caslon_pro_italic,
+                semibold = R.font.adobe_caslon_pro_semibold, semiboldItalic = R.font.adobe_caslon_pro_semibold_italic),
         ).addCustomFallback(family(R.font.cormorant_garamond_variable, R.font.cormorant_garamond_italic_variable, true))
             .addCustomFallback(family(R.font.inter_variable, R.font.inter_italic_variable, true))
             .setSystemFallback("serif").build())
@@ -201,6 +214,7 @@ private fun inter(weight: FontWeight, italic: Boolean = false) = Font(
 val Sans = FontFamily(
     inter(FontWeight.Light), inter(FontWeight.Normal), inter(FontWeight.Medium),
     inter(FontWeight.SemiBold), inter(FontWeight.Bold), inter(FontWeight.Normal, italic = true),
+    inter(FontWeight.Medium, italic = true),
 )
 
 private fun schemeOf(p: Palette): ColorScheme {
@@ -248,21 +262,21 @@ private fun schemeOf(p: Palette): ColorScheme {
 private val base = Typography()
 
 private val typography get() = Typography(
-    displayLarge = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 56.sp, lineHeight = 60.sp, letterSpacing = (-1.5).sp),
-    displayMedium = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 44.sp, lineHeight = 50.sp, letterSpacing = (-1).sp),
-    displaySmall = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp),
-    headlineLarge = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp),
-    headlineMedium = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 26.sp, lineHeight = 32.sp, letterSpacing = (-0.3).sp),
-    headlineSmall = TextStyle(fontFamily = Serif, fontWeight = FontWeight.Normal, fontSize = 22.sp, lineHeight = 28.sp),
-    titleLarge = base.titleLarge.copy(fontFamily = Sans, fontWeight = FontWeight.Medium, letterSpacing = (-0.2).sp),
-    titleMedium = base.titleMedium.copy(fontFamily = Sans, fontWeight = FontWeight.Medium),
-    titleSmall = base.titleSmall.copy(fontFamily = Sans, fontWeight = FontWeight.Medium),
-    labelLarge = base.labelLarge.copy(fontFamily = Sans, fontSize = 15.sp, lineHeight = 21.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.2.sp),
-    labelMedium = base.labelMedium.copy(fontFamily = Sans, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.25.sp),
-    labelSmall = base.labelSmall.copy(fontFamily = Sans, fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.3.sp),
-    bodyLarge = base.bodyLarge.copy(fontFamily = Sans, fontSize = 17.sp, lineHeight = 27.sp, letterSpacing = 0.1.sp),
-    bodyMedium = base.bodyMedium.copy(fontFamily = Sans, fontSize = 15.sp, lineHeight = 23.sp),
-    bodySmall = base.bodySmall.copy(fontFamily = Sans, fontSize = 14.sp, lineHeight = 21.sp),
+    displayLarge = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 56.sp, lineHeight = 60.sp, letterSpacing = (-1.5).sp),
+    displayMedium = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 44.sp, lineHeight = 50.sp, letterSpacing = (-1).sp),
+    displaySmall = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp),
+    headlineLarge = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp),
+    headlineMedium = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 26.sp, lineHeight = 32.sp, letterSpacing = (-0.3).sp),
+    headlineSmall = TextStyle(fontFamily = Serif, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 28.sp),
+    titleLarge = base.titleLarge.copy(fontFamily = Sans, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.2).sp),
+    titleMedium = base.titleMedium.copy(fontFamily = Sans, fontWeight = FontWeight.SemiBold),
+    titleSmall = base.titleSmall.copy(fontFamily = Sans, fontWeight = FontWeight.SemiBold),
+    labelLarge = base.labelLarge.copy(fontFamily = Sans, fontSize = 15.sp, lineHeight = 21.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.2.sp),
+    labelMedium = base.labelMedium.copy(fontFamily = Sans, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.25.sp),
+    labelSmall = base.labelSmall.copy(fontFamily = Sans, fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.3.sp),
+    bodyLarge = base.bodyLarge.copy(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 17.sp, lineHeight = 27.sp, letterSpacing = 0.1.sp),
+    bodyMedium = base.bodyMedium.copy(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 23.sp),
+    bodySmall = base.bodySmall.copy(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 21.sp),
 )
 
 private val shapes = Shapes(
@@ -274,11 +288,11 @@ private val shapes = Shapes(
 )
 
 object AlbionType {
-        val eyebrow = TextStyle(fontFamily = Sans, fontSize = 11.sp, lineHeight = 17.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.6.sp)
-        val ipa get() = TextStyle(fontFamily = Sans, fontSize = 17.sp, fontStyle = FontStyle.Normal, color = Ink.Muted)
-        val number = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-1.5).sp)
-    val numberSmall = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Light, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.8).sp)
-        val index get() = TextStyle(fontFamily = Brand, fontSize = 16.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
+        val eyebrow = TextStyle(fontFamily = Sans, fontSize = 12.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.8.sp)
+        val ipa get() = TextStyle(fontFamily = Sans, fontWeight = FontWeight.Medium, fontSize = 17.sp, fontStyle = FontStyle.Normal, color = Ink.Muted)
+        val number = TextStyle(fontFamily = Sans, fontWeight = FontWeight.SemiBold, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-1.5).sp)
+    val numberSmall = TextStyle(fontFamily = Sans, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.8).sp)
+        val index get() = TextStyle(fontFamily = Brand, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, fontStyle = FontStyle.Italic, color = Ink.Faint)
 }
 
 /** Albion has one permanent ivory Reading Room appearance, independent of system night mode. */

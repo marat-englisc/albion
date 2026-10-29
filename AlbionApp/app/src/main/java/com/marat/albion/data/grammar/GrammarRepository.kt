@@ -102,6 +102,9 @@ class GrammarRepository(
 
     suspend fun resetProgress() = dao.clear()
 
+    /** Reading marks are independent of mastery, bookmarks and the review plan. */
+    suspend fun resetReadMarks() = dao.clearReadMarks()
+
     private suspend fun load(): GrammarBook {
         val files = runCatching { assets.list(ContentImporter.GRAMMAR)?.toList() }.getOrNull().orEmpty()
             .filter { it.endsWith(".md") }

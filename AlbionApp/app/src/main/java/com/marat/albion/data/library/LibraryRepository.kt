@@ -184,6 +184,8 @@ class LibraryRepository(
         BookmarkEntity(bookId = id, chapter = pos.chapter, paragraph = pos.paragraph, offset = pos.offset, snippet = snippet.take(160), createdAt = System.currentTimeMillis())
     )
 
+    suspend fun restoreBookmark(bookmark: BookmarkEntity) = dao.insertBookmark(bookmark.copy(id = 0))
+
     suspend fun deleteBookmark(bookmarkId: Long) = dao.deleteBookmark(bookmarkId)
 
     fun observeHighlights(id: String) = dao.observeHighlights(id)
@@ -193,10 +195,18 @@ class LibraryRepository(
 
     suspend fun updateHighlightNote(highlightId: Long, note: String) = dao.updateHighlightNote(highlightId, note.trim())
 
+    suspend fun restoreHighlight(highlight: HighlightEntity) = dao.insertHighlight(highlight.copy(id = 0))
+
     suspend fun deleteHighlight(highlightId: Long) = dao.deleteHighlight(highlightId)
 
     /** Слова из начатых карточек, которые ещё не выучены, — для подсветки в тексте. */
-    fun observeStudiedTerms() = db.lookup().observeStudiedTerms()
+    fun observeStudiedTerms() = combine(db.cards().observeAll(), db.reviews().observeStates()) { rows, states ->
+        val byId = states.associateBy { it.cardId }
+        com.marat.albion.data.repo.WordCards.group(rows).filter { card ->
+            val state = com.marat.albion.data.repo.WordCards.state(card, byId)
+            state != null && !(state.state == 2 && state.stability >= 21)
+        }.map { it.term }.distinct()
+    }
 
     suspend fun delete(id: String) = withContext(Dispatchers.IO) { writes.withLock {
         dao.deleteBook(id)
@@ -213,7 +223,8 @@ class LibraryRepository(
      */
     suspend fun lookup(word: String): List<CardEntity> {
         val candidates = dictionary.candidates(word)
-        return if (candidates.isEmpty()) emptyList() else db.lookup().findByTerms(candidates)
+        return if (candidates.isEmpty()) emptyList() else
+            com.marat.albion.data.repo.WordCards.group(db.lookup().findByTerms(candidates)).take(3)
     }
 
     private fun file(id: String) = File(dir, BookInput.fingerprint(id.toByteArray()) + ".json")

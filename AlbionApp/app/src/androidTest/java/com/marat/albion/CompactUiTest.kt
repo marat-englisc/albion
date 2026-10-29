@@ -38,7 +38,7 @@ import java.io.File
 class CompactUiTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val container get() = (instrumentation.targetContext.applicationContext as AlbionApp).container
-    private val labels = listOf("Карточки", "Учебник", "Чтение", "Практика", "Прогресс")
+    private val labels = listOf("Сегодня", "Учебник", "Чтение", "Практика", "Прогресс")
 
     @Test fun compactHomeKeepsStartVisibleAndTabsKeepTheirTargets(): Unit = runBlocking {
         container.importer.importIfNeeded()
@@ -46,11 +46,11 @@ class CompactUiTest {
             for (width in listOf(320, 360)) for (scale in listOf(1f, 1.5f, 2f)) {
                 val name = "home-$width-$scale"
                 show(scenario, name, width, scale, dark = scale == 2f) { AlbionNavigation() }
-                val start = awaitNode { it.text?.toString()?.startsWith("Начать · ") == true }
+                val start = awaitNode { it.text?.toString()?.equals("Начать") == true }
                 val startBounds = clickableBounds(start)
                 val menu = find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() == "Все разделы" }
                 if (scale == 1f) assertTrue("Обычный шрифт: все пять вкладок должны помещаться ($name)", menu == null)
-                val barTop = if (menu != null) clickableBounds(menu).top else clickableBounds(awaitTab("Карточки")).top
+                val barTop = if (menu != null) clickableBounds(menu).top else clickableBounds(awaitTab("Сегодня")).top
                 assertTrue("Начало занятия должно быть над панелью ($name)", startBounds.bottom <= barTop)
                 capture(name)
                 if (menu != null) {
@@ -96,12 +96,16 @@ class CompactUiTest {
                     assertTrue("Сохранение оказалось выше перевода ($name)", clickableBounds(it).top >= meaning.bottom)
                 }
                 capture(name)
-                val save = scrollToText("В «Слова из книг»")
+                val save = scrollToText("Изменить перед сохранением")
                 activate(save)
                 awaitText("Слово из книги")
                 scrollToText("Пример из книги")
                 capture("translation-editor-$dark-$scale")
-                activate(awaitText("Отмена"))
+                val meaningField = awaitNode { it.isEditable && it.text?.toString() == expected }
+                activate(meaningField)
+                awaitText("Сохранить")
+                capture("translation-editor-keyboard-$dark-$scale")
+                activate(awaitNode { it.contentDescription?.toString() == "Закрыть: Слово из книги" })
                 awaitText("Перевод слова".uppercase())
             }
         }

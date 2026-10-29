@@ -9,7 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -35,11 +35,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initializeTypography(resources)
-        // Телефон — только вертикально; планшет и раскрытая раскладушка — в любой ориентации.
-        // Размер пересчитывается при каждом пересоздании, в том числе после складывания.
-        requestedOrientation = if (resources.configuration.smallestScreenWidthDp < 600) {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        } else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        // Интерфейс адаптируется к повороту телефона, планшета и раскрытой раскладушки.
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         val container = (application as AlbionApp).container
         val initial = runBlocking { container.settings.current() }
         enableEdgeToEdge(

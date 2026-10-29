@@ -5,7 +5,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextOverflow
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -81,13 +81,15 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     var verdict by rememberSaveable(card.id) { mutableStateOf<Verdict?>(null) }
     var hinted by rememberSaveable(card.id) { mutableStateOf(false) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
+    var validation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
     val answer = placed.map { puzzle.tokens[it] }
     val wrong = if (verdict == Verdict.Wrong) puzzle.wrongPositions(answer) else emptySet()
     val speakKey = "sentence:${card.id}"
 
     fun check() {
         if (verdict != null) return
-        if (placed.size < puzzle.tokens.size) { shake++; return }
+        if (placed.size < puzzle.tokens.size) { validation = "Добавьте оставшиеся слова: ${placed.size} из ${puzzle.tokens.size}."; shake++; return }
+        validation = null
         val ok = puzzle.isCorrect(answer)
         verdict = if (ok) Verdict.Correct else Verdict.Wrong
         if (!ok) shake++
@@ -120,9 +122,13 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             }
             Spacer(Modifier.height(18.dp))
 
+            if (verdict == null && placed.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.material3.TextButton(onClick = { placed.removeAt(placed.lastIndex); validation = null }) { Text("Отменить слово") }
+                androidx.compose.material3.TextButton(onClick = { placed.clear(); validation = null }) { Text("Сбросить") }
+            }
             // Ответ: поставленные плашки на линии «тетради».
             Column(
-                Modifier.fillMaxWidth().heightIn(min = 104.dp).shakeOn(shake).animateContentSize(tween(220)),
+                Modifier.fillMaxWidth().heightIn(min = 104.dp).shakeOn(shake).animateContentSize(tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 220)),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 FlowRow(
@@ -130,6 +136,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
+                    if (placed.isEmpty()) Text("Нажимайте слова ниже по порядку. Нажмите слово в ответе, чтобы вернуть его.",
+                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                     placed.forEachIndexed { pos, tokenIndex ->
                         WordTile(
                             text = puzzle.tokens[tokenIndex],
@@ -182,7 +190,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 puzzle.original,
-                                style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
+                                style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
                                 color = Ink.Fg,
                                 modifier = Modifier.weight(1f),
                             )
@@ -199,6 +207,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             }
         }
 
+        com.marat.albion.ui.components.FieldError(validation)
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
@@ -216,8 +225,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
 
 private enum class TileStyle { Idle, Placed, Ghost, Correct, Wrong }
 
-private val TileText = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 19.sp, lineHeight = 24.sp)
-private val TileTextNarrow = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 17.sp, lineHeight = 22.sp)
+private val TileText = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 19.sp, lineHeight = 24.sp)
+private val TileTextNarrow = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 17.sp, lineHeight = 22.sp)
 
 /** Плашка со словом. Ghost — пустое место, откуда слово уже взято. */
 @Composable
@@ -255,7 +264,7 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
             .pressScale(interaction, 0.99f)
             .background(bg, shape)
             .border(1.dp, border, shape)
-            .clickable(interaction, indication = null, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
+            .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {
         Text(

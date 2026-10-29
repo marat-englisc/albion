@@ -20,6 +20,23 @@ import org.junit.runner.RunWith
 class GrammarPersistenceTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
 
+    @Test fun clearingOnlyReadMarksPreservesMasteryQuizBookmarksAndReviewPlan() = runBlocking {
+        val context = instrumentation.targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, AlbionDatabase::class.java).build()
+        try {
+            val repo = GrammarRepository(context.assets, db)
+            repo.markOpened("safe-reset")
+            repo.setRead("safe-reset", true)
+            repo.toggleBookmark("safe-reset")
+            repo.recordQuiz("safe-reset", GrammarQuizResult(9, 10, true))
+            val before = db.grammar().get("safe-reset")!!
+            repo.resetReadMarks()
+            assertEquals(before.copy(readAt = null), db.grammar().get("safe-reset"))
+            repo.resetProgress()
+            assertNull(db.grammar().get("safe-reset"))
+        } finally { db.close() }
+    }
+
     @Test
     fun readingRetryAndBookmarkChangesCannotAwardMastery() = runBlocking {
         val context = instrumentation.targetContext

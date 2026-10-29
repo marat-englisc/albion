@@ -90,7 +90,30 @@ class BookWordsTest {
         val second = words.add(draft.copy(meaning = "буква"))
         assertTrue(second.added)
         assertNotEquals(originalCard.id, second.card.id)
-        assertEquals(2, words.observeTerm("Letter").first().size)
+        assertEquals(1, words.observeTerm("Letter").first().size)
+        assertEquals(2, words.observeTerm("Letter").first().single().senses.size)
+    }
+
+    @Test fun editingMeaningKeepsScheduleAndDoesNotBlockAddingTheOriginalMeaningAgain() = runBlocking {
+        val saved = words.add(draft)
+        study.answer(saved.card, Rating.Good, 500, now)
+        val before = db.reviews().state(saved.card.id)
+        val changed = words.updateMeaning(saved.card.id, "письменное сообщение", "An edited example.")
+        assertEquals(saved.card.id, changed.id)
+        assertEquals(before, db.reviews().state(changed.id))
+        assertEquals(1, db.reviews().countAllSince(0))
+        assertEquals(source, BookWordsRepository.source(changed))
+        assertFalse(words.undoAdd(saved))
+        val duplicate = words.add(draft.copy(meaning = "письменное сообщение"))
+        assertFalse(duplicate.added)
+        assertEquals(changed, duplicate.card)
+        val originalMeaning = words.add(draft)
+        assertTrue(originalMeaning.added)
+        assertNotEquals(changed.id, originalMeaning.card.id)
+        assertNull(db.reviews().state(originalMeaning.card.id))
+        try { words.updateMeaning(originalMeaning.card.id, changed.meaningRu, ""); fail("Duplicate meaning accepted") }
+        catch (_: IllegalArgumentException) { }
+        assertEquals(draft.meaning, db.cards().get(originalMeaning.card.id)!!.meaningRu)
     }
 
     @Test fun simultaneousSavesAndTypographicApostrophesDoNotCreateDuplicates() = runBlocking {

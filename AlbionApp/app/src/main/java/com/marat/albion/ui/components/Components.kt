@@ -155,7 +155,7 @@ fun RoundIconButton(
     val turn by animateFloatAsState(if (pressed && !reduced) spin else 0f, tween(140), label = "turn")
     Box(
         modifier.size(48.dp).pressScale(interaction, 0.96f)
-            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = { feedback.selection(); onClick() }),
+            .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = { feedback.selection(); onClick() }),
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.size(40.dp).background(if (pressed) Ink.Surface else Color.Transparent, CircleShape), contentAlignment = Alignment.Center) {
@@ -304,37 +304,26 @@ fun lerpColor(a: Color, b: Color, t: Float) = androidx.compose.ui.graphics.lerp(
 @Composable
 fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 44.dp, primary: Boolean = true) {
     val interaction = remember { MutableInteractionSource() }
+    val player = com.marat.albion.LocalAppContainer.current.audio
     val accent = Ink.Accent
+    val audioShape = RoundedCornerShape(4.dp)
     Box(
         modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.9f)
-            .clip(CircleShape)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .clip(audioShape)
+            .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button,
+                onClick = { if (playing) player.stop() else onClick() }),
         contentAlignment = Alignment.Center,
     ) {
-        if (playing && !LocalReducedMotion.current) {
-            val t = rememberInfiniteTransition(label = "rings")
-            val wave by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Restart), label = "wave")
-            Canvas(Modifier.size(size)) {
-                for (k in 0..1) {
-                    val p = (wave + k * 0.5f) % 1f
-                    drawCircle(
-                        accent.copy(alpha = (1f - p) * 0.6f),
-                        radius = this.size.minDimension / 2f * (0.75f + p * 0.6f),
-                        style = Stroke(width = 2.dp.toPx()),
-                    )
-                }
-            }
-        }
         Box(
             Modifier.size(size)
-                .clip(CircleShape)
+                .clip(audioShape)
                 .background(if (playing) Ink.Accent else if (primary) Ink.AccentSoft else Color.Transparent)
-                .border(1.dp, if (playing) Ink.Accent else if (primary) Ink.AccentSoft else Ink.LineStrong, CircleShape),
+                .border(1.dp, if (playing) Ink.Accent else if (primary) Ink.AccentSoft else Ink.LineStrong, audioShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                AlbionIcons.VolumeUp,
-                contentDescription = "Озвучить",
+                if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
+                contentDescription = if (playing) "Остановить озвучку" else "Озвучить",
                 tint = if (playing) Ink.OnAccent else Ink.AccentText,
                 modifier = Modifier.size(size * 0.46f),
             )
@@ -398,7 +387,7 @@ fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Icon(AlbionIcons.Inventory2, null, tint = Ink.Gold, modifier = Modifier.size(32.dp))
+
         Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, color = Ink.Fg)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
     }
@@ -411,7 +400,7 @@ fun TopBar(
     actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
 ) {
     Row(
-        Modifier.fillMaxWidth().paperSurface().windowInsetsPadding(WindowInsets.statusBars).height(64.dp).padding(horizontal = 10.dp),
+        Modifier.fillMaxWidth().paperSurface().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 56.dp).padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RoundIconButton(AlbionIcons.ArrowBack, "Назад", onBack)
@@ -443,7 +432,7 @@ fun ThinSlider(
     val interaction = remember { MutableInteractionSource() }
     val dragged by interaction.collectIsDraggedAsState()
     val pressed by interaction.collectIsPressedAsState()
-    val grow by animateFloatAsState(if (dragged || pressed) 1.25f else 1f, tween(180), label = "thumb")
+    val grow by animateFloatAsState(if ((dragged || pressed) && !LocalReducedMotion.current) 1.25f else 1f, tween(180), label = "thumb")
     val colors = androidx.compose.material3.SliderDefaults.colors(
         thumbColor = Ink.Accent,
         activeTrackColor = Ink.Accent,

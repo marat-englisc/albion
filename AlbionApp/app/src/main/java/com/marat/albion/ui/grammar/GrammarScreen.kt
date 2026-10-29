@@ -1,6 +1,8 @@
 package com.marat.albion.ui.grammar
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -64,6 +66,7 @@ class GrammarViewModel(c: AppContainer) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GrammarHomeState())
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun GrammarScreen(navigator: Navigator) {
     val c = LocalAppContainer.current
@@ -74,165 +77,132 @@ fun GrammarScreen(navigator: Navigator) {
     var bookmarksOnly by rememberSaveable { mutableStateOf(false) }
     var reviewsOnly by rememberSaveable { mutableStateOf(false) }
     var reviewDetails by rememberSaveable { mutableStateOf(false) }
-    val reveal = rememberReveal()
-    val listState = rememberLazyListState()
+    var references by rememberSaveable { mutableStateOf(false) }
+    var headerMenu by remember { mutableStateOf(false) }
+    val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+    val shortScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 480
+    val routeState = rememberLazyListState()
+    val searchState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val reduced = LocalReducedMotion.current
-
     val book = state.book
     val now = grammarReviewTime()
     val stages = remember(book) { grammarStages(book) }
     val nextStep = GrammarNextStep.recommend(book, state.progress, state.quizTopics, now, lastId = state.lastTopic)
     val recommendation = nextStep?.topic
     val activeStage = stages.firstOrNull { it.level == level }
-        ?: stages.firstOrNull { it.level == recommendation?.level }
-        ?: stages.firstOrNull { stage -> stage.topics.any { state.progress[it.id]?.masteredAt == null } }
-        ?: stages.lastOrNull()
-    val route = activeStage?.topics.orEmpty()
-    val chapterByTopic = remember(book) {
-        book.chapters.flatMap { chapter -> chapter.topics.map { it.id to chapter.title } }.toMap()
-    }
+        ?: stages.firstOrNull { it.level == recommendation?.level } ?: stages.firstOrNull()
     val due = state.reviews.takeWhile { it.dueAt <= now }
     val filtering = query.isNotBlank() || bookmarksOnly || reviewsOnly
+    val listState = if (filtering) searchState else routeState
     val showNext = !filtering && nextStep != null && recommendation?.level == activeStage?.level
+    val route = activeStage?.topics.orEmpty().filterNot { showNext && it.id == recommendation?.id }
     val q = query.trim().lowercase()
-    // Search and saved/review lists cover the whole book, independent of the stage being explored.
     val found = if (!filtering) emptyList() else (if (reviewsOnly) due.map { it.topic } else book.topics).filter { topic ->
-        (topic.kind == TopicKind.Lesson || topic.kind == TopicKind.Reference) &&
-            GrammarSearch.matches(topic, q) &&
+        (topic.kind == TopicKind.Lesson || topic.kind == TopicKind.Reference) && GrammarSearch.matches(topic, q) &&
             (!bookmarksOnly || state.progress[topic.id]?.bookmarked == true)
     }
     val open: (Topic) -> Unit = { navigator.openDetail(TopicRoute(it.id)) }
-    val quiz: (Topic) -> Unit = { topic ->
-        topic.number?.let { navigator.open(TopicQuizRoute(it, topic.id, topic.title)) }
-    }
+    val quiz: (Topic) -> Unit = { topic -> topic.number?.let { navigator.open(TopicQuizRoute(it, topic.id, topic.title)) } }
     val shownTopic = (navigator.shownDetail as? TopicRoute)?.topicId
     val besideDetail = LocalBesideDetail.current
-
-    fun selectStage(selected: String) {
-        level = selected
-        query = ""
-        bookmarksOnly = false
-        reviewsOnly = false
-    }
-
-    // A shared detail pane follows the topic's stage, including links from another lesson.
     LaunchedEffect(shownTopic, besideDetail, book) {
         if (besideDetail) book.topic(shownTopic.orEmpty())?.takeIf { it.kind == TopicKind.Lesson }?.let { level = it.level }
     }
-    LaunchedEffect(shownTopic, besideDetail, book, filtering, activeStage?.level, showNext, state.reviews.isNotEmpty()) {
-        val id = shownTopic ?: return@LaunchedEffect
-        if (!besideDetail) return@LaunchedEffect
-        val topic = book.topic(id) ?: return@LaunchedEffect
-        if (!filtering && topic.kind == TopicKind.Lesson && topic.level != activeStage?.level) {
-            return@LaunchedEffect
-        }
-        val position = (if (filtering) found else route).indexOfFirst { it.id == id }
-        if (position < 0) return@LaunchedEffect
-        val key = if (filtering) "f-$id" else "route-$id"
-        val visible = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == key }
-        val viewport = listState.layoutInfo.viewportEndOffset
-        if (visible != null && visible.offset >= 0 && visible.offset + visible.size <= viewport) return@LaunchedEffect
-        val preceding = if (filtering) 3 else 4 + (if (showNext) 1 else 0) + (if (state.reviews.isNotEmpty()) 1 else 0)
-        listState.requestScrollToItem(preceding + position, scrollOffset = -viewport / 3)
+    LaunchedEffect(shownTopic, besideDetail, filtering, activeStage?.level) {
+        if (!besideDetail || shownTopic == null) return@LaunchedEffect
+        val key = if (filtering) "f-$shownTopic" else "route-$shownTopic"
+        if (listState.layoutInfo.visibleItemsInfo.any { it.key == key }) return@LaunchedEffect
+        val index = (if (filtering) found else route).indexOfFirst { it.id == shownTopic }
+        if (index >= 0) listState.requestScrollToItem(index + (if (shortScreen) 1 else 0) + if (filtering) 1 else 2 + (if (showNext) 1 else 0) + (if (state.reviews.isNotEmpty()) 1 else 0))
     }
-
-    LazyColumn(
-        Modifier.fillMaxSize().paperSurface().imePadding(), state = listState,
-        contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
-    ) {
-        item(key = "header") {
-            Box(Modifier.reveal(reveal, 0)) {
-                ScreenHeader("Грамматика", eyebrow = "The Grammar Atlas", compact = true,
-                    trailing = { SettingsShortcut(navigator::openSettings) })
+    val searchAndFilters: @Composable () -> Unit = {
+        SearchField(query, { query = it }, "Найти правило или пример…")
+        GrammarViewTabs(if (bookmarksOnly) 1 else if (reviewsOnly) 2 else 0, due.size) { selected ->
+            when (selected) {
+                0 -> { query = ""; bookmarksOnly = false; reviewsOnly = false }
+                1 -> { bookmarksOnly = !bookmarksOnly; reviewsOnly = false }
+                2 -> { reviewsOnly = !reviewsOnly; bookmarksOnly = false }
             }
         }
-        if (state.loading) {
-            item { Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) { AlbionLogo(size = 36.dp, color = Ink.Faint) } }
-            return@LazyColumn
-        }
-        if (book.lessons.isEmpty()) {
-            item { Panel(Modifier.padding(top = 24.dp)) { EmptyState("Учебник ещё не добавлен", "Материалы грамматики пока недоступны.") } }
-            return@LazyColumn
-        }
-        if (!filtering) {
-            item(key = "atlas") {
-                GrammarAtlas(stages, activeStage?.level, state.progress, book.lessons.size,
-                    book.lessons.count { state.progress[it.id]?.masteredAt != null }, ::selectStage)
-            }
-            if (showNext) item(key = "next") {
-                GrammarNextCard(nextStep, onClick = {
-                    if (nextStep.kind == GrammarNextStep.Kind.Read) open(nextStep.topic) else quiz(nextStep.topic)
-                }, onRead = { open(nextStep.topic) })
-            }
-        }
-        item(key = "search") {
-            Column(Modifier.padding(top = 18.dp)) {
-                SearchField(query, { query = it }, "Найти правило или пример…")
-                GrammarViewTabs(if (bookmarksOnly) 1 else if (reviewsOnly) 2 else if (!filtering) 0 else -1, due.size) { selected ->
-                    when (selected) {
-                        0 -> { query = ""; bookmarksOnly = false; reviewsOnly = false }
-                        1 -> { bookmarksOnly = !bookmarksOnly; reviewsOnly = false }
-                        2 -> { reviewsOnly = !reviewsOnly; bookmarksOnly = false }
+    }
+    Column(Modifier.fillMaxSize().paperSurface().imePadding()) {
+        Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                if (!largeText) {
+                    TextButton(onClick = { references = true }) { Text("Справочники") }
+                    SettingsShortcut(navigator::openSettings)
+                } else Box {
+                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true })
+                    androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }, containerColor = Ink.Raised) {
+                        androidx.compose.material3.DropdownMenuItem(text = { Text("Справочники и курс") }, onClick = { headerMenu = false; references = true })
+                        androidx.compose.material3.DropdownMenuItem(text = { Text("Настройки") }, onClick = { headerMenu = false; navigator.openSettings() })
                     }
                 }
             }
+            if (!shortScreen) searchAndFilters()
         }
-        if (filtering) {
-            item(key = "results") { Eyebrow("Найдено: ${found.size}", Modifier.padding(vertical = 12.dp)) }
-            items(found, key = { "f-${it.id}" }) { topic ->
-                GrammarSearchResult(topic, state.progress[topic.id], q, now, topic.id == shownTopic, open)
-                if (reviewsOnly && topic.number in state.quizTopics) {
-                    GhostButton("Повторить тему ${topic.number}", onClick = { quiz(topic) }, modifier = Modifier.padding(start = 36.dp))
-                }
+        LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState,
+            contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 24.dp)) {
+            if (shortScreen) item(key = "search-controls") { searchAndFilters() }
+            if (state.loading) { item { com.marat.albion.ui.components.LoadingState("Открываем учебник") }; return@LazyColumn }
+            if (book.lessons.isEmpty()) {
+                item { EmptyState("Учебник недоступен", "Проверьте учебные материалы в настройках.")
+                    GhostButton("Открыть настройки", navigator::openSettings) }
+                return@LazyColumn
             }
-            if (found.isEmpty()) item {
-                val noBookmarks = bookmarksOnly && book.topics.none { state.progress[it.id]?.bookmarked == true }
-                val noReviews = reviewsOnly && due.isEmpty()
-                EmptyState(if (noReviews) "Все повторения выполнены" else if (noBookmarks) "Пока нет закладок" else "Темы не найдены",
-                    if (noReviews) "Новые темы появятся здесь по плану повторения." else if (noBookmarks) "Сохраните нужное правило кнопкой закладки в уроке." else "Попробуйте другое слово или пример.")
-            }
-        } else {
-            if (state.reviews.isNotEmpty()) item(key = "review") {
-                GrammarReviewCard(state.reviews, due, now, reviewDetails, { reviewDetails = !reviewDetails },
-                    open = open, onQueue = { reviewsOnly = true; bookmarksOnly = false; query = "" })
-            }
-            activeStage?.let { stage ->
-                item(key = "stage-${stage.level}") {
-                    GrammarStageHeading(stage, stages.indexOf(stage), stage.topics.count { state.progress[it.id]?.masteredAt != null },
-                        stage.topics.count { state.progress[it.id]?.readAt != null })
+            if (filtering) {
+                item { Text(if (reviewsOnly) "К повторению: ${found.size}" else if (bookmarksOnly) "Сохранено: ${found.size}" else "Найдено: ${found.size}",
+                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(vertical = 12.dp)) }
+                items(found, key = { "f-${it.id}" }) { topic ->
+                    GrammarSearchResult(topic, state.progress[topic.id], q, now, topic.id == shownTopic, open)
+                    if (reviewsOnly && topic.number in state.quizTopics) GhostButton("Повторить тему ${topic.number}", { quiz(topic) })
                 }
-                itemsIndexed(route, key = { _, topic -> "route-${topic.id}" }) { index, topic ->
-                    GrammarRouteLesson(topic, state.progress[topic.id], current = topic.id == recommendation?.id,
-                        selected = topic.id == shownTopic, first = index == 0, last = index == route.lastIndex,
-                        chapter = chapterByTopic[topic.id], now = now, onClick = { open(topic) })
+                if (found.isEmpty()) item {
+                    val neverScheduled = state.reviews.isEmpty()
+                    EmptyState(if (q.isNotBlank()) "Темы не найдены" else if (reviewsOnly) { if (neverScheduled) "Пока нет тем для повторения" else "Все повторения выполнены" }
+                        else if (bookmarksOnly) "Пока нет закладок" else "Темы не найдены",
+                        if (q.isNotBlank()) "Измените запрос или вернитесь к маршруту." else if (reviewsOnly && neverScheduled) "Прочитайте урок и пройдите проверку — тема получит дату повторения."
+                        else if (reviewsOnly) "Новые темы появятся по плану повторения."
+                        else if (bookmarksOnly) "Сохраните нужное правило кнопкой закладки в уроке." else "Попробуйте другое слово или пример.")
+                    GhostButton("Вернуться к маршруту", { query = ""; bookmarksOnly = false; reviewsOnly = false })
                 }
-                val nextStage = stages.getOrNull(stages.indexOf(stage) + 1)
-                if (nextStage != null) item(key = "next-stage") {
-                    CatalogueCard("Следующий этап", "${nextStage.level} · ${nextStage.title}", nextStage.name, onClick = {
-                        selectStage(nextStage.level)
-                        scope.launch { if (reduced) listState.scrollToItem(1) else listState.animateScrollToItem(1) }
-                    }, modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
-                } else item {
-                    FolioDivider(Modifier.padding(vertical = 22.dp), label = "ALBION")
-                }
-            }
-            if (book.references.isNotEmpty()) {
-                item { SectionHeader("Справочники", trailing = "%02d".format(book.references.size)) }
-                item {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        items(book.references, key = { it.id }) { ref -> ReferenceCard(ref) { open(ref) } }
+            } else {
+                item(key = "atlas") { GrammarAtlas(stages, activeStage?.level, state.progress, book.lessons.size,
+                    book.lessons.count { state.progress[it.id]?.masteredAt != null }) { level = it } }
+                if (showNext && nextStep != null) item(key = "next") { GrammarNextCard(nextStep,
+                    onClick = { if (nextStep.kind == GrammarNextStep.Kind.Read) open(nextStep.topic) else quiz(nextStep.topic) },
+                    onRead = { open(nextStep.topic) }) }
+                if (state.reviews.isNotEmpty()) item(key = "review") { GrammarReviewCard(state.reviews, due, now, reviewDetails,
+                    { reviewDetails = !reviewDetails }, open, { reviewsOnly = true }) }
+                activeStage?.let { stage ->
+                    item(key = "stage-${stage.level}") { GrammarStageHeading(stage, stages.indexOf(stage),
+                        stage.topics.count { state.progress[it.id]?.masteredAt != null }, stage.topics.count { state.progress[it.id]?.readAt != null }) }
+                    itemsIndexed(route, key = { _, topic -> "route-${topic.id}" }) { index, topic ->
+                        GrammarRouteLesson(topic, state.progress[topic.id], topic.id == recommendation?.id, topic.id == shownTopic,
+                            index == 0, index == route.lastIndex, null, now) { open(topic) }
                     }
+                    stages.getOrNull(stages.indexOf(stage) + 1)?.let { next -> item {
+                        GhostButton("Следующий этап · ${next.level}", {
+                            level = next.level
+                            scope.launch { if (reduced) routeState.scrollToItem(0) else routeState.animateScrollToItem(0) }
+                        })
+                    } }
                 }
             }
-            book.topics.firstOrNull { it.kind == TopicKind.Contents }?.let { contents ->
-                item {
-                    Row(Modifier.fillMaxWidth().clickable { open(contents) }.padding(vertical = 22.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Text("Как устроен курс", style = MaterialTheme.typography.bodyMedium, color = Ink.Soft, modifier = Modifier.weight(1f))
-                        Icon(AlbionIcons.ArrowForward, null, tint = Ink.Soft, modifier = Modifier.size(18.dp))
-                    }
-                }
+        }
+    }
+    if (references) androidx.compose.material3.ModalBottomSheet(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = { com.marat.albion.ui.components.SheetHandle() },onDismissRequest = { references = false },
+        containerColor = Ink.Raised, scrimColor = Ink.Fg.copy(alpha = 0.32f),
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = gutter)) {
+            com.marat.albion.ui.components.SheetHeader("Справочники и курс", { references = false })
+            book.topics.filter { it.kind != TopicKind.Lesson }.forEach { topic ->
+                com.marat.albion.ui.components.EditorialLink(topic.title, if (topic.kind == TopicKind.Reference) "Справочник" else "О курсе",
+                    { references = false; open(topic) })
             }
         }
     }
@@ -290,7 +260,7 @@ private fun GrammarSearchResult(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(topic.number?.toString() ?: "§", style = AlbionType.index, modifier = Modifier.width(36.dp))
             Column(Modifier.weight(1f)) {
-                Text(topic.title, style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
+                Text(com.marat.albion.ui.components.highlightedQuery(topic.title, query), style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
                 val status = when { progress?.masteredAt != null -> "Освоено"; progress?.readAt != null -> "Прочитано"; else -> null }
                 if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
                 GrammarReview.plan(progress)?.let { Text("Повторение: ${grammarReviewDate(it.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = Ink.Soft) }
@@ -299,7 +269,7 @@ private fun GrammarSearchResult(
             if (progress?.bookmarked == true) Icon(AlbionIcons.Bookmark, null, tint = Ink.Accent, modifier = Modifier.size(14.dp))
             LevelBadge(topic.level)
         }
-        if (query.isNotBlank()) Text(GrammarSearch.snippet(topic, query), style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+        if (query.isNotBlank()) Text(com.marat.albion.ui.components.highlightedQuery(GrammarSearch.snippet(topic, query), query), style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
             modifier = Modifier.padding(start = 36.dp, top = 7.dp))
         Hairline(Modifier.padding(top = 14.dp))
     }

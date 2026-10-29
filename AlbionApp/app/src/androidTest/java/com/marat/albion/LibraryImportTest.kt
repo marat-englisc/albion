@@ -66,6 +66,25 @@ class LibraryImportTest {
         throw AssertionError("Ожидался отказ импорта")
     }
 
+    @Test fun undoAnnotationDeletionRestoresTextNoteAndBookPosition() = runBlocking {
+        val book = import(source("undo.md", text.toByteArray()))
+        val position = BookPosition(0, 0, 2)
+        library.savePosition(book.id, position, .25f)
+        library.addBookmark(book.id, position, "readable")
+        library.addHighlight(book.id, 0, 0, 2, 10, "readable", "A very important note")
+        val bookmark = library.observeBookmarks(book.id).first().single()
+        val highlight = library.observeHighlights(book.id).first().single()
+        library.deleteBookmark(bookmark.id)
+        library.deleteHighlight(highlight.id)
+        assertTrue(library.observeBookmarks(book.id).first().isEmpty())
+        assertTrue(library.observeHighlights(book.id).first().isEmpty())
+        library.restoreBookmark(bookmark)
+        library.restoreHighlight(highlight)
+        assertEquals(bookmark.copy(id = 0), library.observeBookmarks(book.id).first().single().copy(id = 0))
+        assertEquals(highlight.copy(id = 0), library.observeHighlights(book.id).first().single().copy(id = 0))
+        assertEquals(position, library.position(book.id))
+    }
+
     @Test fun repeatedImportPreservesBookPositionBookmarksAndNotes() = runBlocking {
         val book = import(source("first.md", text.toByteArray()))
         val position = BookPosition(0, 0, 5)

@@ -8,7 +8,7 @@ import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -150,7 +150,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
 
         when {
             state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                AlbionLogo(size = 40.dp, color = Ink.Faint)
+                com.marat.albion.ui.components.LoadingState("Готовим карточки")
             }
             state.finished -> Finished(state, onDone = { navigator.back() }, onUndo = vm::undo)
             current != null -> {
@@ -210,6 +210,8 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
             Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
                 Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center, maxLines = 2)
             }
+            com.marat.albion.ui.components.FeatureHelp("study.ratings", "Как оценить ответ",
+                "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false)
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
         if (state.answerLimit != null) {
@@ -278,7 +280,7 @@ private fun FlipCard(
                 cameraDistance = 16f * density
             }
             .clip(shape)
-            .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReveal),
+            .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = androidx.compose.foundation.LocalIndication.current, onClick = onReveal),
         shape = shape,
         color = Ink.Raised,
         border = BorderStroke(1.dp, Ink.LineStrong),
@@ -291,7 +293,13 @@ private fun FlipCard(
                 Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
                     style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
             } else {
-                Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }.verticalScroll(rememberScrollState())) { back() }
+                val scroll = rememberScrollState()
+                Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }) {
+                    Box(Modifier.fillMaxSize().verticalScroll(scroll).padding(bottom = 28.dp)) { back() }
+                    if (scroll.canScrollForward) Text("Ещё ниже ↓", Modifier.align(Alignment.BottomCenter)
+                        .background(Ink.Raised).padding(horizontal = 16.dp, vertical = 5.dp),
+                        style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                }
             }
         }
     }
@@ -342,7 +350,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
             .clip(RoundedCornerShape(6.dp))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(6.dp))
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onRate(r) }
+            .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -351,6 +359,8 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
             color = if (r == Rating.Good) Ink.OnAccent else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
+        Text(when(r) { Rating.Again -> "Не вспомнил"; Rating.Hard -> "С усилием"; Rating.Good -> "Вспомнил"; Rating.Easy -> "Сразу" },
+            style = MaterialTheme.typography.bodySmall, color = fg, textAlign = TextAlign.Center)
     }
 }
 

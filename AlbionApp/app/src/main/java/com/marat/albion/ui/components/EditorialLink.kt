@@ -36,7 +36,7 @@ fun EditorialLink(
     val feedback = LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     Column(modifier.fillMaxWidth().pressScale(interaction, 0.995f).clickable(
-        interactionSource = interaction, indication = null, role = Role.Button,
+        interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button,
         onClick = { feedback.selection(); onClick() },
     )) {
         Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(vertical = 15.dp), verticalAlignment = Alignment.CenterVertically) {

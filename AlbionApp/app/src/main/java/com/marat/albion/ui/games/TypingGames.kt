@@ -1,13 +1,14 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.semantics.contentDescription
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.heightIn
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -110,12 +111,15 @@ internal fun AnswerField(
         struck -> Ink.Error
         else -> lerpColor(Ink.LineStrong, Ink.Accent, on)
     }
+    Column(modifier.fillMaxWidth()) {
+        Text(placeholder, style = MaterialTheme.typography.labelSmall, color = Ink.Muted,
+            modifier = Modifier.padding(bottom = 6.dp))
     BasicTextField(
         value = value,
         onValueChange = onChange,
         enabled = enabled,
         singleLine = true,
-        textStyle = TextStyle(
+        textStyle = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             fontFamily = com.marat.albion.ui.theme.Sans,
             fontSize = if (narrow) 24.sp else 28.sp,
             color = if (struck) Ink.Error else Ink.Fg,
@@ -130,7 +134,7 @@ internal fun AnswerField(
             imeAction = imeAction,
         ),
         keyboardActions = KeyboardActions(onAny = { onIme() }),
-        modifier = modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { focused = it.isFocused },
+        modifier = Modifier.fillMaxWidth().semantics { contentDescription = placeholder }.focusRequester(focus).onFocusChanged { focused = it.isFocused },
         decorationBox = { inner ->
             Box(
                 Modifier.fillMaxWidth()
@@ -143,7 +147,7 @@ internal fun AnswerField(
                 if (value.isEmpty() && !focused) {
                     Text(
                         placeholder,
-                        style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (narrow) 20.sp else 22.sp, color = Ink.Faint),
+                        style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (narrow) 20.sp else 22.sp, color = Ink.Faint),
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -153,6 +157,7 @@ internal fun AnswerField(
             }
         },
     )
+    }
 }
 
 /** Правильный ответ, где пропущенные или искажённые буквы подчёркнуты. */
@@ -246,6 +251,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
     var hints by rememberSaveable(card.id) { mutableIntStateOf(0) }
     var showEn by rememberSaveable(card.id) { mutableStateOf(false) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
+    var validation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
     val focus = remember(card.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -257,7 +263,8 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
     fun check(giveUp: Boolean = false) {
         if (verdict != null) return
         val v = if (giveUp) Verdict.Wrong else AnswerCheck.checkTerm(input, card.term)
-        if (!giveUp && input.isBlank()) { shake++; return }
+        if (!giveUp && input.isBlank()) { validation = "Введите ответ или выберите «Не знаю»."; shake++; return }
+        validation = null
         verdict = v
         if (v == Verdict.Wrong) shake++
         // Как в «Собери предложение»: ответ с подсказкой не снимает слово из ошибок.
@@ -301,7 +308,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                     // Скелет слова — на мягкой плашке, открытые подсказкой буквы проступают на ней.
                     Text(
                         skeleton(card.term, hints),
-                        style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 18.sp, letterSpacing = 1.sp),
+                        style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 18.sp, letterSpacing = 1.sp),
                         color = Ink.Soft,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.background(Ink.Surface, RoundedCornerShape(2.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
@@ -373,6 +380,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 modifier = Modifier.padding(top = 10.dp).shakeOn(shake),
             )
         }
+        com.marat.albion.ui.components.FieldError(validation)
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
@@ -408,6 +416,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
     var v3 by rememberSaveable(card.id) { mutableStateOf("") }
     var result by rememberSaveable(card.id) { mutableStateOf<Pair<Verdict, Verdict>?>(null) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
+    var validation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
     val focus2 = remember(card.id) { FocusRequester() }
     val focus3 = remember(card.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -420,7 +429,12 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
 
     fun check(giveUp: Boolean = false) {
         if (result != null) return
-        if (!giveUp && v2.isBlank() && v3.isBlank()) { shake++; return }
+        if (!giveUp && (v2.isBlank() || v3.isBlank())) {
+            validation = if (v2.isBlank()) "Заполните Past Simple · V2." else "Заполните Past Participle · V3."
+            if (v2.isBlank()) focus2.requestFocus() else focus3.requestFocus()
+            shake++; return
+        }
+        validation = null
         val r = if (giveUp) Verdict.Wrong to Verdict.Wrong
             else AnswerCheck.checkForm(v2, past.map { it.text }) to AnswerCheck.checkForm(v3, participle.map { it.text })
         result = r
@@ -496,6 +510,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
                 )
             }
         }
+        com.marat.albion.ui.components.FieldError(validation)
         AnimatedContent(
             targetState = result != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },
@@ -550,7 +565,7 @@ private fun FormInput(
                         if (i > 0) Text("/", color = Ink.Faint, modifier = Modifier.padding(end = 10.dp))
                         Text(
                             if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
-                            style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
+                            style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 21.sp else 24.sp),
                             color = Ink.Fg,
                             modifier = Modifier.weight(1f, fill = false),
                         )

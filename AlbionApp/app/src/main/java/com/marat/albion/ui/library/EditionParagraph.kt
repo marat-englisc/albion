@@ -69,6 +69,7 @@ fun measureEditionParagraph(
         textSize = bodySize
     }
     val bounds = AndroidRect()
+    paint.setFontVariationSettings("'wght' ${body.fontWeight?.weight ?: 400}")
     paint.getTextBounds("H", 0, 1, bounds)
     val capTop = (full.firstBaseline + bounds.top).coerceAtLeast(0f)
     val frameBottom = full.getLineBaseline(1)
@@ -76,6 +77,7 @@ fun measureEditionParagraph(
     val frameTop = (capTop - padding).coerceAtLeast(0f)
     val inkHeight = frameBottom - frameTop - padding * 2
     paint.typeface = font.typeface
+    paint.setFontVariationSettings(null)
     paint.textSize = 100f
     val letter = text[0].toString()
     paint.getTextBounds(letter, 0, 1, bounds)

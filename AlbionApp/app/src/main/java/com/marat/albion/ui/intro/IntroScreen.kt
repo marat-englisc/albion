@@ -1,12 +1,18 @@
 package com.marat.albion.ui.intro
 
 import com.marat.albion.ui.theme.paperSurface
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,17 +88,21 @@ fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Un
         finish()
     }
 
-    Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AlbionLogo(size = 86.dp, horizon = horizon.value, chevron = chevron.value, color = Ink.AccentText, horizonColor = Ink.Gold)
+    BoxWithConstraints(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
+        val compact = maxHeight < 480.dp || LocalDensity.current.fontScale > 1.3f
+        val brandSize = if (compact) 40.sp else 76.sp
+        Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars)) {
+        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Column(Modifier.padding(horizontal = 24.dp).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+            AlbionLogo(size = if (compact) 48.dp else 86.dp, horizon = horizon.value, chevron = chevron.value, color = Ink.AccentText, horizonColor = Ink.Gold)
             Spacer(Modifier.height(28.dp))
             val w = word.value
             Text(
                 "Albion",
                 style = TextStyle(
                     fontFamily = Brand,
-                    fontSize = 76.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontSize = brandSize,
+                    fontWeight = FontWeight.SemiBold,
                     letterSpacing = (1.2f - 1.2f * w).sp,
                 ),
                 color = Ink.Fg,
@@ -108,16 +118,17 @@ fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Un
                 color = Ink.Muted,
                 modifier = Modifier.graphicsLayer { alpha = tagline.value },
             )
-            Spacer(Modifier.height(40.dp))
-            Text("A little, every day.", style = TextStyle(fontFamily = Brand, fontSize = 23.sp, fontStyle = FontStyle.Italic),
+            Spacer(Modifier.height(if (compact) 16.dp else 40.dp))
+            Text("A little, every day.", style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Brand, fontSize = 23.sp, fontStyle = FontStyle.Italic),
                 color = Ink.Muted, modifier = Modifier.graphicsLayer { alpha = tagline.value })
         }
 
+        }
         AnimatedVisibility(
             visible = showProgress,
             enter = fadeIn(tween(180)),
             exit = fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 56.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 val s = status
@@ -132,6 +143,7 @@ fun IntroScreen(status: ImportStatus, full: Boolean = true, onFinished: () -> Un
                     color = Ink.Faint,
                 )
             }
+        }
         }
     }
 }

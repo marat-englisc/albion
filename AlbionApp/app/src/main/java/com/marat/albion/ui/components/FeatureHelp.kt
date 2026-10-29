@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 /** Инструкция один раз при знакомстве с разделом, затем — по кнопке справки. */
 @Composable
-fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = true) {
+fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = false) {
     val c = LocalAppContainer.current
     val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
     var expanded by rememberSaveable(key) { mutableStateOf(false) }

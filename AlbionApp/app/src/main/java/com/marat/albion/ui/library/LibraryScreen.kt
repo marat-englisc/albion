@@ -9,6 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +36,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.OutlinedTextField
+import com.marat.albion.ui.components.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -81,10 +91,30 @@ fun LibraryScreen(navigator: Navigator) {
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(null)
     val model by c.translator.model.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val shelfState = rememberLazyListState()
     var importError by remember { mutableStateOf<String?>(null) }
     var importing by remember { mutableStateOf(false) }
     var toDelete by remember { mutableStateOf<LibraryBook?>(null) }
-    val reveal = rememberReveal()
+    var query by rememberSaveable { mutableStateOf("") }
+    var filter by rememberSaveable { mutableStateOf("Все") }
+    var sort by rememberSaveable { mutableStateOf("Недавние") }
+    var filterMenu by remember { mutableStateOf(false) }
+    var sortMenu by remember { mutableStateOf(false) }
+    val list = books.orEmpty()
+    val continueBook = list.firstOrNull { it.lastRead != null && it.progress < 0.999f }
+    val shown = list.filter { b ->
+        (query.isBlank() || b.book.title.contains(query.trim(), true) || b.book.author.contains(query.trim(), true)) && when(filter) {
+            "Не начаты" -> b.lastRead == null
+            "Читаю" -> b.lastRead != null && b.progress < .999f
+            "Прочитаны" -> b.progress >= .999f
+            else -> true
+        }
+    }.let { rows -> when(sort) {
+        "По названию" -> rows.sortedBy { it.book.title.lowercase() }
+        "По прогрессу" -> rows.sortedByDescending { it.progress }
+        else -> rows
+    } }
+
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null && !importing) {
@@ -103,106 +133,68 @@ fun LibraryScreen(navigator: Navigator) {
         }
     }
 
+    val launchPicker = { picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream")) }
     Column(Modifier.fillMaxSize().paperSurface()) {
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp)) {
+        Row(Modifier.fillMaxWidth().windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.statusBars).padding(horizontal = gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Библиотека", Modifier.weight(1f), style = if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium)
+            SettingsShortcut(navigator::openSettings)
+        }
+        LazyColumn(Modifier.fillMaxSize(), state = shelfState, contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp)) {
             item {
-                Box(Modifier.reveal(reveal, 0)) {
-                    ScreenHeader(
-                        "Библиотека", eyebrow = "Чтение с переводом",
-                        trailing = {
-                            Row {
-                                FeatureHelp("library", "Как читать", text =
-                                    "Коснитесь слова, чтобы увидеть перевод и справку из карточек.\n\nУдерживайте палец на тексте для перевода предложения. Протяните палец, чтобы выбрать любой фрагмент.\n\nВ окне перевода можно выделить текст и добавить заметку. Закладки, заметки и размер текста доступны в панели читалки.\n\nСловарь работает сразу без интернета. Для перевода предложений приложение один раз скачает языковую модель, затем перевод тоже работает офлайн.")
-                                SettingsShortcut(navigator::openSettings)
-                            }
-                        },
-                    )
-                }
-            }
-
-            val list = books.orEmpty()
-            val continueBook = list.firstOrNull { it.lastRead != null && it.progress < 0.999f }
-            if (continueBook != null) {
-                item {
-                    Column(Modifier.padding(top = 16.dp).reveal(reveal, 1)) {
-                        CatalogueCard(label = "Reading", title = continueBook.book.title,
-                            description = "Продолжить чтение · ${(continueBook.progress * 100).toInt()}%",
-                            ribbon = true, progress = continueBook.progress,
-                            onClick = { navigator.open(ReaderRoute(continueBook.book.id)) })
-                    }
-                }
-            }
-
-            item { SectionHeader("Книги", Modifier.padding(top = 12.dp).reveal(reveal, 2), trailing = "%02d".format(list.size)) }
-            if (books != null && list.isEmpty()) item {
-                EmptyState("Полка пока пустая", "Добавьте книгу в TXT, EPUB или PDF — слова из неё можно сразу переводить и сохранять.",
-                    Modifier.reveal(reveal, 3))
-            }
-            itemsIndexed(list, key = { _, b -> b.book.id }) { i, b ->
-                BookRow(
-                    item = b,
-                    modifier = Modifier.animateItem().reveal(reveal, 3 + i),
-                    onOpen = { navigator.open(ReaderRoute(b.book.id)) },
-                    onDelete = if (b.book.source == "user") ({ toDelete = b }) else null,
-                )
-            }
-
-            item {
-                Column(Modifier.padding(top = 20.dp).reveal(reveal, 4 + list.size)) {
-
-                    if (list.isNotEmpty() && list.none { it.book.source == "user" }) {
-                        Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-
-                            Column(Modifier.weight(1f)) {
-                                Text("Читайте то, что нравится", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                                Spacer(Modifier.height(4.dp))
-                                Text("Добавьте свою книгу — перевод слов и «Мои слова» работают в ней так же.",
-                                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                PrimaryButton(if (importing) "Открываю книгу…" else "Добавить", onClick = launchPicker, enabled = !importing, icon = AlbionIcons.Add)
+                Text("TXT · EPUB · PDF", style = MaterialTheme.typography.bodySmall,
+                    color = Ink.Muted, modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
+                FieldError(importError)
+                if (importError != null) TextButton(onClick = launchPicker) { Text("Выбрать другой файл") }
+                OutlinedTextField(query, { query = it }, label = { Text("Поиск книги") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box {
+                        TextButton(onClick = { filterMenu = true }) { Text("Статус: $filter ▾") }
+                        DropdownMenu(filterMenu, { filterMenu = false }, containerColor = Ink.Raised) {
+                            listOf("Все", "Не начаты", "Читаю", "Прочитаны").forEach { option ->
+                                DropdownMenuItem(text = { Text(option) }, onClick = { filter = option; filterMenu = false })
                             }
                         }
                     }
-                    GhostButton(if (importing) "Открываю…" else "Добавить книгу · TXT, EPUB, PDF", onClick = {
-                        if (!importing) picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream"))
-                    }, icon = AlbionIcons.Add)
-                    importError?.let {
-                        Spacer(Modifier.height(10.dp))
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = Ink.Fg)
+                    Box {
+                        TextButton(onClick = { sortMenu = true }) { Text("Порядок: $sort ▾") }
+                        DropdownMenu(sortMenu, { sortMenu = false }, containerColor = Ink.Raised) {
+                            listOf("Недавние", "По названию", "По прогрессу").forEach { option ->
+                                DropdownMenuItem(text = { Text(option) }, onClick = { sort = option; sortMenu = false })
+                            }
+                        }
                     }
                 }
             }
-
+            if (books == null) item { LoadingState("Загружаю библиотеку") }
+            if (continueBook != null && query.isBlank() && filter == "Все") item {
+                CatalogueCard(label = "Продолжить", title = continueBook.book.title, compact = true,
+                    description = "Прочитано ${(continueBook.progress * 100).toInt()}%", progress = continueBook.progress,
+                    onClick = { navigator.open(ReaderRoute(continueBook.book.id)) })
+            }
+            val rows = if (query.isBlank() && filter == "Все") shown.filter { it.book.id != continueBook?.book?.id } else shown
+            if (books != null && shown.isEmpty()) item {
+                EmptyState(if (list.isEmpty()) "Полка пока пустая" else "Книги не найдены",
+                    if (list.isEmpty()) "Добавьте книгу: слова из неё можно переводить и сохранять." else "Измените запрос или сбросьте фильтр.")
+                if (list.isNotEmpty()) TextButton(onClick = { query = ""; filter = "Все"; scope.launch { shelfState.scrollToItem(0) } }) { Text("Показать все книги") }
+            }
+            if (rows.isNotEmpty()) item { SectionHeader(if (continueBook != null && query.isBlank() && filter == "Все") "Другие книги" else "Книги", trailing = "${rows.size}") }
+            itemsIndexed(rows, key = { _, b -> b.book.id }) { _, b ->
+                BookRow(b, Modifier, { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
+            }
             item {
-                Column(Modifier.padding(top = 8.dp).reveal(reveal, 5 + list.size)) {
-                    SectionHeader("Офлайн-перевод")
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-
-                        if (model == ModelState.Missing || model == ModelState.Failed) {
-                            Box(Modifier.size(40.dp).background(Ink.WarmSoft, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
-                                Icon(AlbionIcons.CloudOff, null, tint = Ink.Warm, modifier = Modifier.size(20.dp))
-                            }
-                            Spacer(Modifier.width(12.dp))
-                        }
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = when (model) {
-                                ModelState.Ready -> "Слова и предложения готовы к переводу."
-                                ModelState.Downloading -> "Словарь готов · загружается перевод предложений…"
-                                ModelState.Failed -> "Словарь готов · перевод предложений пока недоступен."
-                                else -> "Словарь готов · для загрузки перевода предложений нужен интернет."
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Ink.Muted,
-                        )
-                    }
-                    if (model == ModelState.Failed) {
-                        Text(
-                            "Повторить загрузку  →",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Ink.Fg,
-                            modifier = Modifier.clickable { scope.launch { c.translator.ensureModel() } }.padding(vertical = 12.dp),
-                        )
+                Disclosure("Офлайн-перевод", when(model) {
+                    ModelState.Ready -> "Слова и предложения готовы"
+                    ModelState.Downloading -> "Загружаю перевод предложений…"
+                    else -> "Словарь готов · перевод предложений можно загрузить"
+                }) {
+                    Text("Словарь работает без интернета. Для перевода предложений один раз загрузите языковую модель.", style = MaterialTheme.typography.bodyMedium)
+                    if (model == ModelState.Failed) FieldError("Не удалось загрузить модель. Проверьте интернет и свободное место.")
+                    if (model == ModelState.Missing || model == ModelState.Failed) TextButton(onClick = { scope.launch { c.translator.ensureModel() } }) {
+                        Text(if (model == ModelState.Failed) "Повторить загрузку" else "Загрузить перевод предложений")
                     }
                 }
+                FeatureHelp("library", "Как читать", text = "Коснитесь слова для перевода. Долгое нажатие выбирает предложение, протяжка — фрагмент. В панели перевода можно уточнить выделение и выбрать значение для сохранения. Меню читалки содержит поиск, закладки, заметки и оформление.")
             }
         }
     }
@@ -225,19 +217,19 @@ fun LibraryScreen(navigator: Navigator) {
 private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
     val interaction = remember { MutableInteractionSource() }
     var menu by remember { mutableStateOf(false) }
-    Column(modifier.fillMaxWidth().pressScale(interaction, 0.985f).clickable(interaction, indication = null, onClick = onOpen)) {
+    Column(modifier.fillMaxWidth().pressScale(interaction, 0.985f).clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onOpen)) {
         Row(Modifier.padding(vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             BookCover(item.book.title, Modifier.size(width = 64.dp, height = 92.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.book.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(item.book.title)), color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(item.book.title, style = MaterialTheme.typography.titleLarge.copy(fontFamily = headingFamily(item.book.title)), color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         listOf(item.book.author, "${item.book.chapters} ${pluralRu(item.book.chapters, "глава", "главы", "глав")}").filter { it.isNotBlank() }.joinToString(" · "),
                         style = MaterialTheme.typography.bodySmall,
                         color = Ink.Muted,
-                        maxLines = 1,
+                        maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
@@ -276,7 +268,7 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
         else -> Color(0xFF861F39) to Ink.Ivory
     }
     androidx.compose.foundation.layout.BoxWithConstraints(
-        modifier.background(cover, RoundedCornerShape(2.dp))
+        modifier.clearAndSetSemantics {}.background(cover, RoundedCornerShape(2.dp))
 
             .drawBehind {
                 val gold = Color(0xFFC6A66D)
@@ -302,7 +294,7 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
         val longest = remember(title) { title.split(' ').maxByOrNull { it.length }.orEmpty() }
         val fontSize = remember(title, widthPx, fontScale) {
             (10 downTo 7).firstOrNull { size ->
-                measurer.measure(longest, TextStyle(fontFamily = Serif, fontSize = size.sp)).size.width <= widthPx
+                measurer.measure(longest, TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = size.sp)).size.width <= widthPx
             }
         }
         val small = maxWidth < 44.dp || fontSize == null
@@ -314,16 +306,16 @@ fun BookCover(title: String, modifier: Modifier = Modifier) {
                     .firstOrNull()?.firstOrNull()?.uppercase().orEmpty()
                 val monogramSize = remember(monogram, widthPx, heightPx, fontScale) {
                     (18 downTo 6).firstOrNull { size ->
-                        val measured = measurer.measure(monogram, TextStyle(fontFamily = Serif, fontSize = size.sp))
+                        val measured = measurer.measure(monogram, TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = size.sp))
                         measured.size.width <= widthPx && measured.size.height <= heightPx
                     } ?: 6
                 }
-                Text(monogram, style = TextStyle(fontFamily = Serif, fontSize = monogramSize.sp), color = ink,
+                Text(monogram, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = monogramSize.sp), color = ink,
                     maxLines = 1, softWrap = false)
             } else {
                 Text(
                     title,
-                    style = TextStyle(fontFamily = Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.2f).sp),
+                    style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.2f).sp),
                     color = ink,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,

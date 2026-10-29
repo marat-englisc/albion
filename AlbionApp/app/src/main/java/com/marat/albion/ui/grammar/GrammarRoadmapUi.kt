@@ -11,6 +11,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.selected
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,51 +54,31 @@ internal fun GrammarAtlas(
     total: Int, mastered: Int, onSelect: (String) -> Unit,
 ) {
     val feedback = LocalFeedback.current
-    Column(Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow("Ваш маршрут", Modifier.weight(1f), color = Ink.GoldText)
-            Spacer(Modifier.width(12.dp))
-            Text("$mastered / $total", style = MaterialTheme.typography.labelMedium, color = Ink.Muted)
-        }
-        Spacer(Modifier.height(18.dp))
-        Row(Modifier.fillMaxWidth().drawBehind {
-            val half = size.width / stages.size.coerceAtLeast(1) / 2
-            drawLine(Ink.Gold.copy(alpha = .7f), Offset(half, 26.dp.toPx()),
-                Offset(size.width - half, 26.dp.toPx()), .65.dp.toPx())
-        }) {
-            stages.forEachIndexed { index, stage ->
+    Column(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            stages.forEach { stage ->
                 val done = stage.topics.count { progress[it.id]?.masteredAt != null }
                 val selected = active == stage.level
-                Column(Modifier.weight(1f).selectable(selected, role = Role.Tab, onClick = {
-                    feedback.selection(); onSelect(stage.level)
-                }).semantics { stateDescription = "Освоено $done из ${stage.topics.size} тем" }.padding(vertical = 4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.size(44.dp).background(Ink.Bg, CircleShape).drawBehind {
-                        drawCircle(if (selected) Ink.Accent else Ink.Raised, size.minDimension / 2 - 3.dp.toPx())
-                        drawCircle(if (selected) Ink.Accent else Ink.LineStrong, size.minDimension / 2 - 1.dp.toPx(),
-                            style = Stroke(.65.dp.toPx()))
-                        if (done > 0) drawArc(Ink.Gold, -90f, 360f * done / stage.topics.size, false,
-                            topLeft = Offset(1.dp.toPx(), 1.dp.toPx()), size = size.copy(width = size.width - 2.dp.toPx(), height = size.height - 2.dp.toPx()),
-                            style = Stroke(1.7.dp.toPx(), cap = StrokeCap.Round))
-                    }, contentAlignment = Alignment.Center) {
-                        Text(stage.level, style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
-                            color = if (selected) Ink.OnAccent else Ink.Fg, maxLines = 1, softWrap = false)
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Text(romanNumeral(index + 1), style = AlbionType.index.copy(fontSize = 13.sp),
-                        color = if (selected) Ink.Accent else Ink.Muted, modifier = Modifier.clearAndSetSemantics {})
+                Box(Modifier.weight(1f).heightIn(min = 48.dp)
+                    .background(if (selected) Ink.Accent else Ink.Raised, RoundedCornerShape(4.dp))
+                    .border(1.dp, if (selected) Ink.Accent else Ink.LineStrong, RoundedCornerShape(4.dp))
+                    .selectable(selected, role = Role.Tab, onClick = { feedback.selection(); onSelect(stage.level) })
+                    .semantics { stateDescription = "Освоено $done из ${stage.topics.size} тем" }, contentAlignment = Alignment.Center) {
+                    Text(stage.level, style = MaterialTheme.typography.labelMedium, color = if (selected) Ink.OnAccent else Ink.Fg)
                 }
             }
         }
-        Spacer(Modifier.height(12.dp))
-        ThinProgress(if (total == 0) 0f else mastered.toFloat() / total, color = Ink.GoldText)
+        active?.let { label -> stages.firstOrNull { it.level == label }?.let { stage ->
+            Text("${stage.level} · освоено ${stage.topics.count { progress[it.id]?.masteredAt != null }} из ${stage.topics.size} · всего $mastered из $total",
+                style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 6.dp))
+        } }
     }
 }
 
 @Composable
 internal fun GrammarNextCard(step: GrammarNextStep.Step, onClick: () -> Unit, onRead: () -> Unit) {
-    Column(Modifier.padding(top = 18.dp, bottom = 2.dp)) {
-        CatalogueTab("Следующий шаг · ${step.label}", Modifier.padding(start = 7.dp))
+    Column(Modifier.padding(top = 8.dp, bottom = 2.dp)) {
+        Text("Следующий шаг · ${step.label}", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
         Box(Modifier.fillMaxWidth().background(Ink.Raised, RoundedCornerShape(3.dp))
             .border(.65.dp, Ink.Line, RoundedCornerShape(3.dp))) {
             RibbonBookmark(Modifier.align(Alignment.TopEnd).padding(end = 16.dp), width = 11.dp, height = 25.dp)
@@ -103,7 +86,7 @@ internal fun GrammarNextCard(step: GrammarNextStep.Step, onClick: () -> Unit, on
                 Text("Урок %03d · %s".format(step.topic.number, step.topic.level.orEmpty()),
                     style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
                 Spacer(Modifier.height(8.dp))
-                Text(step.topic.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(step.topic.title), fontSize = 23.sp, lineHeight = 27.sp),
+                Text(step.topic.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(step.topic.title), fontSize = 21.sp, lineHeight = 25.sp),
                     color = Ink.Fg, modifier = Modifier.padding(end = 12.dp))
                 Spacer(Modifier.height(6.dp))
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -124,8 +107,22 @@ internal fun GrammarNextCard(step: GrammarNextStep.Step, onClick: () -> Unit, on
 @Composable
 internal fun GrammarViewTabs(selected: Int, due: Int, onSelect: (Int) -> Unit) {
     val feedback = LocalFeedback.current
+    val labels = listOf("Маршрут", "Закладки", "Повторить · $due")
+    if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) {
+        var open by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+        Box(Modifier.fillMaxWidth()) {
+            TextButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text("${labels[selected]} ▾", Modifier.weight(1f), textAlign = TextAlign.Start)
+            }
+            androidx.compose.material3.DropdownMenu(open, { open = false }, containerColor = Ink.Raised) {
+                labels.forEachIndexed { index, label -> androidx.compose.material3.DropdownMenuItem(text = { Text(label) },
+                    modifier = Modifier.semantics { this.selected = selected == index }, onClick = { open = false; onSelect(index) }) }
+            }
+        }
+        return
+    }
     FlowRow(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        listOf("Маршрут", "Закладки", "Повторить · $due").forEachIndexed { index, label ->
+        labels.forEachIndexed { index, label ->
             Box(Modifier.widthIn(min = 80.dp).heightIn(min = 48.dp).selectable(selected == index, role = Role.Tab,
                 onClick = { feedback.selection(); onSelect(index) }).drawBehind {
                     if (selected == index) drawLine(Ink.Accent, Offset(10.dp.toPx(), size.height - 1.dp.toPx()),
@@ -141,18 +138,9 @@ internal fun GrammarViewTabs(selected: Int, due: Int, onSelect: (Int) -> Unit) {
 
 @Composable
 internal fun GrammarStageHeading(stage: GrammarStage, index: Int, done: Int, read: Int) {
-    Column(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("${romanNumeral(index + 1)} / ${stage.level}", style = AlbionType.index, color = Ink.GoldText)
-            Spacer(Modifier.width(12.dp))
-            Box(Modifier.weight(1f).height(.5.dp).background(Ink.Gold.copy(alpha = .65f)))
-        }
-        Spacer(Modifier.height(12.dp))
-        Text(stage.name, style = MaterialTheme.typography.headlineMedium.copy(fontFamily = Brand, fontSize = 30.sp, lineHeight = 35.sp), color = Ink.Fg)
-        Text(stage.title, style = MaterialTheme.typography.titleMedium.copy(fontFamily = Cyrillic, fontSize = 22.sp, lineHeight = 27.sp), color = Ink.Soft)
-        Spacer(Modifier.height(9.dp))
-        Text("Освоено $done из ${stage.topics.size} · прочитано $read", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-        Spacer(Modifier.height(12.dp))
+    Column(Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 8.dp)) {
+        Text(stage.title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+        Text("Прочитано $read · освоено $done из ${stage.topics.size}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
     }
 }
 
@@ -186,7 +174,7 @@ internal fun GrammarRouteLesson(
             Box(Modifier.size(36.dp).background(if (emphasis) Ink.Accent else if (mastered) Ink.GoldSoft else Ink.Bg, CircleShape)
                 .border(if (emphasis) 1.dp else .65.dp, if (emphasis) Ink.Accent else Ink.Gold, CircleShape), contentAlignment = Alignment.Center) {
                 if (mastered) Icon(AlbionIcons.Check, null, tint = if (emphasis) Ink.OnAccent else Ink.GoldText, modifier = Modifier.size(17.dp))
-                else Text(topic.number.toString(), style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                else Text(topic.number.toString(), style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
                     color = if (emphasis) Ink.OnAccent else Ink.Muted, maxLines = 1, softWrap = false)
             }
         }

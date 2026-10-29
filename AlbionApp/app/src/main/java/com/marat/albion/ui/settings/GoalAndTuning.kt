@@ -4,11 +4,19 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,35 +67,44 @@ fun GoalReminderSection(s: Settings) {
     val scope = rememberCoroutineScope()
     var pickTime by remember { mutableStateOf(false) }
     var denied by remember { mutableStateOf(false) }
+    var canNotify by remember { mutableStateOf(Reminders.canNotify(context)) }
 
     val notifyPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         denied = !granted
+        canNotify = Reminders.canNotify(context)
         if (granted) scope.launch { c.settings.setReminderEnabled(true) }
     }
 
-    SectionHeader("Цель и напоминания")
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        canNotify = Reminders.canNotify(context)
+        if (denied && canNotify) {
+            denied = false
+            scope.launch { c.settings.setReminderEnabled(true) }
+        }
+    }
     SliderSetting(
         "Дневная цель", "${s.dailyGoal} ${plural(s.dailyGoal)}",
         "Ответы в карточках и практике за учебный день. Прогресс виден на главном экране.",
         s.dailyGoal.toFloat(), 10f..200f, 18,
     ) { scope.launch { c.settings.setDailyGoal(((it / 10).roundToInt() * 10).coerceIn(10, 200)) } }
 
-    SwitchSetting("Ежедневное напоминание", s.reminderEnabled) { on ->
+    SwitchSetting("Ежедневное напоминание", s.reminderEnabled && canNotify) { on ->
         when {
             !on -> scope.launch { c.settings.setReminderEnabled(false) }
             Build.VERSION.SDK_INT >= 33 && !Reminders.canNotify(context) -> notifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             else -> scope.launch { c.settings.setReminderEnabled(true) }
         }
     }
-    AnimatedVisibility(denied && !s.reminderEnabled, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
+    if ((denied || s.reminderEnabled) && !canNotify) Column {
         Text(
             "Без разрешения на уведомления напомнить не получится. Его можно выдать в настройках телефона → Приложения → Albion.",
             style = MaterialTheme.typography.bodySmall,
             color = Ink.Muted,
             modifier = Modifier.padding(bottom = 8.dp),
         )
+        com.marat.albion.ui.components.AppSettingsButton()
     }
-    AnimatedVisibility(s.reminderEnabled, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
+    if (s.reminderEnabled) {
         Column {
             Row(
                 Modifier.fillMaxWidth().clickable { pickTime = true }.padding(vertical = 14.dp),
@@ -119,12 +136,41 @@ fun GoalReminderSection(s: Settings) {
 
     if (pickTime) {
         val state = rememberTimePickerState(s.reminderHour, s.reminderMinute, is24Hour = true)
+        var clock by rememberSaveable { mutableStateOf(false) }
+        var hours by rememberSaveable { mutableStateOf("%02d".format(s.reminderHour)) }
+        var minutes by rememberSaveable { mutableStateOf("%02d".format(s.reminderMinute)) }
+        val validHours = (hours.toIntOrNull() ?: -1) in 0..23
+        val validMinutes = (minutes.toIntOrNull() ?: -1) in 0..59
+        val valid = clock || (validHours && validMinutes)
+        val offerClock = androidx.compose.ui.platform.LocalDensity.current.fontScale <= 1.3f
+        androidx.compose.runtime.LaunchedEffect(offerClock) {
+            if (!offerClock && clock) { clock = false; hours = "%02d".format(state.hour); minutes = "%02d".format(state.minute) }
+        }
         AlertDialog(
             onDismissRequest = { pickTime = false },
             containerColor = Ink.Raised,
             title = { Eyebrow("Время напоминания", color = Ink.Soft) },
             text = {
-                TimePicker(
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                if (!clock) {
+                    val fields: @Composable (Modifier, Modifier) -> Unit = { hourModifier, minuteModifier ->
+                        OutlinedTextField(hours, { value ->
+                            hours = value.filter(Char::isDigit).take(2)
+                            hours.toIntOrNull()?.takeIf { it in 0..23 }?.let { state.hour = it }
+                        }, label = { Text("Часы") }, singleLine = true, isError = !validHours,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next), modifier = hourModifier)
+                        OutlinedTextField(minutes, { value ->
+                            minutes = value.filter(Char::isDigit).take(2)
+                            minutes.toIntOrNull()?.takeIf { it in 0..59 }?.let { state.minute = it }
+                        }, label = { Text("Минуты") }, singleLine = true, isError = !validMinutes,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done), modifier = minuteModifier)
+                    }
+                    if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) {
+                        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) { fields(Modifier.fillMaxWidth(), Modifier.fillMaxWidth()) }
+                    } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) { fields(Modifier.weight(1f), Modifier.weight(1f)) }
+                    Text("24-часовой формат", style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 8.dp))
+                    com.marat.albion.ui.components.FieldError(if (!validHours) "Введите часы от 0 до 23." else if (!validMinutes) "Введите минуты от 0 до 59." else null)
+                } else TimePicker(
                     state = state,
                     colors = TimePickerDefaults.colors(
                         clockDialColor = Ink.High,
@@ -138,9 +184,14 @@ fun GoalReminderSection(s: Settings) {
                         timeSelectorUnselectedContentColor = Ink.Text,
                     ),
                 )
+                if (offerClock) TextButton(enabled = valid, onClick = {
+                    if (clock) { hours = "%02d".format(state.hour); minutes = "%02d".format(state.minute) }
+                    clock = !clock
+                }) { Text(if (clock) "Ввести цифрами" else "Выбрать на циферблате") }
+                }
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(enabled = valid, onClick = {
                     pickTime = false
                     scope.launch { c.settings.setReminderTime(state.hour, state.minute) }
                 }) { Text("Готово", color = Ink.Fg) }
@@ -189,8 +240,7 @@ fun FsrsTuningBlock(s: Settings) {
                     OptimizeOutcome.Superseded ->
                         "Параметры изменились во время подбора. Его результат не применён — запустите подбор заново."
                     is OptimizeOutcome.Done -> if (o.improved) {
-                        "Готово: ошибка на ${o.validationReviews} отложенных повторениях ${"%.3f".format(o.lossBefore)} → ${"%.3f".format(o.lossAfter)} " +
-                            "(−${"%.1f".format(o.improvementPercent)}%). Новые параметры уже применяются к интервалам."
+                        "Память настроена по вашей истории. Новые интервалы уже применяются; прогноз улучшился на ${"%.1f".format(o.improvementPercent)}%."
                     } else {
                         "На отложенной истории новые параметры не улучшили прогноз — текущие параметры сохранены."
                     }

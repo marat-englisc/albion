@@ -8,8 +8,8 @@ import com.marat.albion.ui.components.gutter
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -401,7 +401,7 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
             Row(
                 Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(3.dp))
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
-                    .focusProperties { canFocus = false }
+
                     .clickable { openRule(n) }
                     .background(Ink.Raised, RoundedCornerShape(3.dp))
                     .border(.65.dp, Ink.Gold, RoundedCornerShape(3.dp))
@@ -517,7 +517,7 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
             .pressScale(interaction, 0.97f)
             .background(bg, shape)
             .border(if (state == OptionState.Idle) .65.dp else 1.dp, border, shape)
-            .clickable(interaction, indication = null, enabled = state == OptionState.Idle, onClick = onClick)
+            .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = state == OptionState.Idle, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -542,6 +542,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
     var input by rememberSaveable(task.id) { mutableStateOf("") }
     var verdict by rememberSaveable(task.id) { mutableStateOf<Verdict?>(null) }
     var shake by remember(task.id) { mutableIntStateOf(0) }
+    var validation by rememberSaveable(task.id) { mutableStateOf<String?>(null) }
     val focus = remember(task.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -553,7 +554,8 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
 
     fun check(giveUp: Boolean = false) {
         if (verdict != null) return
-        if (!giveUp && input.isBlank()) { shake++; return }
+        if (!giveUp && input.isBlank()) { validation = "Введите ответ или выберите «Не знаю»."; shake++; return }
+        validation = null
         val v = if (giveUp) Verdict.Wrong else AnswerCheck.checkGrammar(submitted, accepted, task.requiresExactWriting)
         verdict = v
         if (v == Verdict.Wrong) shake++
@@ -617,6 +619,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
                 }
             }
         }
+        com.marat.albion.ui.components.FieldError(validation)
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },

@@ -3,6 +3,7 @@ package com.marat.albion.data.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.marat.albion.data.grammar.GrammarPrompt
 
@@ -29,7 +30,12 @@ data class CardEntity(
     val audio: String?,
     /** JSON IrregularData для глаголов или BookWordSource для личных слов из книг. */
     val extra: String?,
-)
+) {
+    /** Source rows are retained in Room; the UI and scheduler use one combined word. */
+    @Ignore
+    var senses: List<CardEntity> = emptyList()
+        internal set
+}
 
 /** Состояние FSRS. Отсутствие строки = карточка ещё новая. */
 @Entity(tableName = "review_state", indices = [Index("deck"), Index("due")])

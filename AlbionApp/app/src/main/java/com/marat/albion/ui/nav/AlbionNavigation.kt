@@ -3,7 +3,7 @@ package com.marat.albion.ui.nav
 import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
@@ -125,7 +125,7 @@ import com.marat.albion.ui.theme.LocalFeedback
 private data class Tab(val route: TopLevel, val label: String, val icon: ImageVector)
 
 private val tabs = listOf(
-    Tab(HomeRoute, "Карточки", AlbionIcons.Layers),
+    Tab(HomeRoute, "Сегодня", AlbionIcons.Layers),
     Tab(GrammarRoute, "Учебник", AlbionIcons.MenuBook),
     Tab(LibraryRoute, "Чтение", AlbionIcons.AutoStories),
     Tab(GamesRoute, "Практика", AlbionIcons.EditNote),
@@ -134,9 +134,9 @@ private val tabs = listOf(
 
 // A short page movement and dissolve, without spring or depth effects.
 private fun forward(reduced: Boolean): ContentTransform =
-    (fadeIn(tween(220)) + slideInHorizontally(tween(280, easing = Easing.Standard)) { if (reduced) 0 else it / 22 }) togetherWith fadeOut(tween(160))
+    if (reduced) ContentTransform(androidx.compose.animation.EnterTransition.None, androidx.compose.animation.ExitTransition.None, sizeTransform = null) else (fadeIn(tween(220)) + slideInHorizontally(tween(280, easing = Easing.Standard)) { if (reduced) 0 else it / 22 }) togetherWith fadeOut(tween(160))
 private fun backward(reduced: Boolean): ContentTransform =
-    fadeIn(tween(200)) togetherWith (fadeOut(tween(160)) + slideOutHorizontally(tween(240, easing = Easing.Standard)) { if (reduced) 0 else it / 22 })
+    if (reduced) ContentTransform(androidx.compose.animation.EnterTransition.None, androidx.compose.animation.ExitTransition.None, sizeTransform = null) else fadeIn(tween(200)) togetherWith (fadeOut(tween(160)) + slideOutHorizontally(tween(240, easing = Easing.Standard)) { if (reduced) 0 else it / 22 })
 
 @Composable
 fun AlbionNavigation() {
@@ -190,7 +190,7 @@ fun AlbionNavigation() {
     // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
     val wide = widthClassOf(maxWidth) != WidthClass.Compact
     // Ещё шире — список и открытая из него страница рядом (учебник, все карточки колоды).
-    val listDetail = maxWidth >= ListDetailMinWidth
+    val listDetail = maxWidth >= ListDetailMinWidth && LocalDensity.current.fontScale <= 1.3f
     Scaffold(
         containerColor = Ink.Bg,
         contentWindowInsets = WindowInsets(0),
@@ -246,45 +246,27 @@ private fun maxWidthFor(route: NavKey): Dp = when (route) {
 /** Selected tabs change tone without displacing the icon. */
 @Composable
 private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) {
-    val tone by androidx.compose.animation.animateColorAsState(if (selected) Ink.AccentText else Ink.Muted, tween(180), label = "tabTint")
+    val tone by androidx.compose.animation.animateColorAsState(if (selected) Ink.AccentText else Ink.Muted, tween(if (LocalReducedMotion.current) 0 else 180), label = "tabTint")
     Icon(icon, description, tint = tone, modifier = Modifier.size(23.dp))
 }
 
 @Composable
 private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
-    val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 16.sp)
-    val itemHeight = 84.dp
-    val indicatorY by animateDpAsState(
-        itemHeight * index + (itemHeight - 32.dp - 22.dp) / 2,
-        tween(220, easing = Easing.Standard),
-        label = "railIndicator",
-    )
-    Row(
-        Modifier.fillMaxHeight().paperSurface()
-            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom)),
-    ) {
-        Box(Modifier.width(96.dp).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars).padding(top = 24.dp)) {
-            Box(Modifier.offset { IntOffset(((96.dp - 60.dp) / 2).roundToPx(), indicatorY.roundToPx()) }
-                .width(60.dp).height(32.dp).background(Ink.Surface, RoundedCornerShape(8.dp)))
-            Column(Modifier.fillMaxWidth().selectableGroup()) {
-                tabs.forEachIndexed { i, tab ->
-                    val isSelected = i == index
-                    val emphasis by animateFloatAsState(if (isSelected) 1f else 0f, tween(180), label = "railTab")
-                    Column(
-                        Modifier.fillMaxWidth().height(itemHeight)
-                            .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab.route) })
-                            .padding(horizontal = 4.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Box(Modifier.width(60.dp).height(32.dp), contentAlignment = Alignment.Center) {
-                            TabIcon(tab.icon, isSelected, null)
-                        }
-                        Spacer(Modifier.height(6.dp))
-                        Text(tab.label, style = labelStyle.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium),
-                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = lerpColor(Ink.Muted, Ink.Fg, emphasis))
-                    }
+    val fontScale = LocalDensity.current.fontScale
+    val railWidth = if (fontScale > 1.3f) 144.dp else 104.dp
+    Row(Modifier.fillMaxHeight().paperSurface().windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))) {
+        Column(Modifier.width(railWidth).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars)
+            .verticalScroll(rememberScrollState()).padding(top = 12.dp).selectableGroup()) {
+            tabs.forEach { tab ->
+                val active = tab.route == selected
+                Column(Modifier.fillMaxWidth().heightIn(min = 80.dp)
+                    .background(if (active) Ink.AccentSoft else Ink.Raised)
+                    .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) })
+                    .padding(horizontal = 6.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    TabIcon(tab.icon, active, null)
+                    Spacer(Modifier.height(8.dp))
+                    Text(tab.label, style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 17.sp),
+                        textAlign = TextAlign.Center, color = if (active) Ink.AccentText else Ink.Muted)
                 }
             }
         }
@@ -310,7 +292,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             }
             val markerWidth = 28.dp.coerceAtMost(tabWidth)
             val indicatorX by animateDpAsState(tabWidth * index + (tabWidth - markerWidth) / 2,
-                tween(220, easing = Easing.Standard), label = "indicator")
+                tween(if (LocalReducedMotion.current) 0 else 220, easing = Easing.Standard), label = "indicator")
             Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(Ink.Gold))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
@@ -350,10 +332,11 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
         Icon(AlbionIcons.Menu, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
     }
     if (open) ModalBottomSheet(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = { open = false },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Ink.Raised, contentColor = Ink.Text, scrimColor = Ink.Bg.copy(alpha = 0.4f),
-        dragHandle = { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) },
+        containerColor = Ink.Raised, contentColor = Ink.Text, scrimColor = Ink.Fg.copy(alpha = 0.32f),
     ) {
         CompositionLocalProvider(LocalDensity provides density) {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
@@ -368,7 +351,7 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                     tabs.forEach { tab ->
                         val active = tab.route == selected
                         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                            .background(if (active) Ink.AccentSoft else Ink.Raised, RoundedCornerShape(16.dp))
+                            .background(if (active) Ink.AccentSoft else Ink.Raised, RoundedCornerShape(8.dp))
                             .selectable(selected = active, role = Role.Tab, onClick = {
                                 open = false
                                 onSelect(tab.route)

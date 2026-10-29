@@ -54,7 +54,7 @@ class GrammarRoadmapTest {
             levels.forEach { await { node -> node.text?.toString() == it } }
             capture("grammar-atlas")
             activate(await { it.text?.toString() == "C1" })
-            await { it.text?.toString() == stages.last().name }
+            await { it.text?.toString() == stages.last().title }
             capture("grammar-c1")
             activate(scrollTo { it.text?.toString()?.contains(target.title) == true })
             await { it.contentDescription?.toString() == "Размер текста" }

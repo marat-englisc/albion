@@ -15,7 +15,7 @@ import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -126,7 +126,7 @@ internal fun PlaybackAction(
     slot: Dp = size,
 ) {
     val interaction = remember { MutableInteractionSource() }
-    val on by animateFloatAsState(if (active) 1f else 0f, tween(220), label = "active")
+    val on by animateFloatAsState(if (active) 1f else 0f, tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 220), label = "active")
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(min = size + 20.dp)) {
         // Кнопка центрируется в «слоте» высотой с соседний микрофон — подписи стоят на одной линии.
         Box(Modifier.height(slot), contentAlignment = Alignment.Center) {
@@ -134,7 +134,7 @@ internal fun PlaybackAction(
             Modifier.size(size).pressScale(interaction, 0.9f)
                 .background(lerpColor(Ink.Raised, Ink.Accent, on), RoundedCornerShape(3.dp))
                 .border(.75.dp, if (!enabled) Ink.Line else lerpColor(Ink.Gold, Ink.Accent, on), RoundedCornerShape(3.dp))
-                .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
+                .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -163,6 +163,7 @@ internal fun MicButton(
     onClick: () -> Unit,
     label: String? = null,
     size: Dp = 84.dp,
+    enabled: Boolean = true,
 ) {
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val feedback = com.marat.albion.ui.theme.LocalFeedback.current
@@ -179,7 +180,7 @@ internal fun MicButton(
             }
             Box(Modifier.size(size - 12.dp).background(face, RoundedCornerShape(3.dp))
                 .border(.75.dp, if (active) Ink.Gold else Ink.Gold.copy(alpha = .7f), RoundedCornerShape(3.dp))
-                .clickable(interaction, indication = null, role = Role.Button) { feedback.selection(); onClick() },
+                .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,
                     if (active) "Остановить" else "Говорить", tint = foreground, modifier = Modifier.size(size * 0.36f))
@@ -196,8 +197,8 @@ internal fun MicButton(
 
 /** Кнопка записи шэдоуинга. */
 @Composable
-internal fun RecordButton(recording: Boolean, level: Float, onClick: () -> Unit, size: Dp = 84.dp) {
-    MicButton(recording, level, onClick, label = if (recording) "Стоп" else "Запись", size = size)
+internal fun RecordButton(recording: Boolean, level: Float, onClick: () -> Unit, size: Dp = 84.dp, enabled: Boolean = true) {
+    MicButton(recording, level, onClick, label = if (recording) "Стоп" else if (enabled) "Запись" else "Подождите", size = size, enabled = enabled)
 }
 
 /** Высота кнопки микрофона вместе с кромкой — для выравнивания соседних кнопок. */
@@ -220,6 +221,9 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
     var micDenied by remember { mutableStateOf(false) }
     val micAccess = rememberMicAccess(onDenied = { micDenied = true })
 
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) micDenied = false
+    }
     DisposableEffect(Unit) { onDispose { checker.release() } }
     LaunchedEffect(card.id) { checker.reset() }
 
@@ -264,7 +268,10 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
             val s = state
             Box(Modifier.fillMaxWidth().heightIn(min = 110.dp), contentAlignment = Alignment.TopCenter) {
                 when {
-                    micDenied -> Message("Нет доступа к микрофону — разрешите его в настройках телефона.")
+                    micDenied -> Column {
+                        Message("Для проверки нужен доступ к микрофону.")
+                        com.marat.albion.ui.components.AppSettingsButton()
+                    }
                     !checker.isAvailable -> Message("На телефоне нет сервиса распознавания речи. Установите приложение Google и офлайн-пакет английского.")
                     s is SpeechState.Listening -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Eyebrow("Слушаю…", color = Ink.Error)
@@ -330,8 +337,11 @@ private fun ScoreView(score: Float, heard: String) {
             Text("${(score * 100).toInt()}%", style = AlbionType.index.copy(color = Ink.Fg))
         }
         Spacer(Modifier.height(8.dp))
+        Text("Совпадение распознавания: ${(score * 100).toInt()}%", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
         Spacer(Modifier.height(10.dp))
+        Text("Сравниваем распознанный текст со словом; это не фонетическая оценка.",
+            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         ThinProgress(score, color = if (good) Ink.Accent else Ink.Gold, track = Ink.Raised, height = 8.dp)
     }
 }

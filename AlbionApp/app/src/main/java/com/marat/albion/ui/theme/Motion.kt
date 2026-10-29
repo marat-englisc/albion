@@ -7,6 +7,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Text
@@ -71,12 +74,16 @@ fun Modifier.reveal(controller: RevealController, index: Int, step: Long = 25, d
 fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.97f): Modifier = composed {
     val reduced = LocalReducedMotion.current
     val isPressed by interaction.collectIsPressedAsState()
+    val isFocused by interaction.collectIsFocusedAsState()
     val scale by animateFloatAsState(
         if (isPressed && !reduced) maxOf(pressed, 0.985f) else 1f,
-        tween(140, easing = Easing.Standard),
+        tween(if (reduced) 0 else 140, easing = Easing.Standard),
         label = "press",
     )
-    graphicsLayer { scaleX = scale; scaleY = scale }
+    graphicsLayer { scaleX = scale; scaleY = scale }.drawWithContent {
+        drawContent()
+        if (isFocused) drawRoundRect(Ink.AccentText, cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx()), style = Stroke(2.dp.toPx()))
+    }
 }
 
 /** Число, которое «набегает» при появлении и плавно меняется дальше. */
@@ -94,4 +101,41 @@ fun AnimatedNumber(value: Int, style: TextStyle, color: Color = Color.Unspecifie
 fun rememberOnce(block: suspend () -> Unit) {
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     remember { scope.launch { block() } }
+}
+
+/** Central motion policy also covers expanding panels and changing exercise answers. */
+@Composable
+fun QuietAnimatedVisibility(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    enter: androidx.compose.animation.EnterTransition = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
+    exit: androidx.compose.animation.ExitTransition = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
+    label: String = "visibility",
+    content: @Composable androidx.compose.animation.AnimatedVisibilityScope.() -> Unit,
+) {
+    val reduced = LocalReducedMotion.current
+    androidx.compose.animation.AnimatedVisibility(visible, modifier,
+        enter = if (reduced) androidx.compose.animation.EnterTransition.None else enter,
+        exit = if (reduced) androidx.compose.animation.ExitTransition.None else exit,
+        label = label, content = content)
+}
+
+@Composable
+fun <S> QuietAnimatedContent(
+    targetState: S,
+    modifier: Modifier = Modifier,
+    transitionSpec: androidx.compose.animation.AnimatedContentTransitionScope<S>.() -> androidx.compose.animation.ContentTransform = {
+        androidx.compose.animation.ContentTransform(androidx.compose.animation.fadeIn(), androidx.compose.animation.fadeOut())
+    },
+    contentAlignment: androidx.compose.ui.Alignment = androidx.compose.ui.Alignment.TopStart,
+    label: String = "content",
+    contentKey: (S) -> Any? = { it },
+    content: @Composable androidx.compose.animation.AnimatedContentScope.(S) -> Unit,
+) {
+    val reduced = LocalReducedMotion.current
+    androidx.compose.animation.AnimatedContent(targetState, modifier, transitionSpec = {
+        if (reduced) androidx.compose.animation.ContentTransform(androidx.compose.animation.EnterTransition.None,
+            androidx.compose.animation.ExitTransition.None, sizeTransform = null)
+        else transitionSpec()
+    }, contentAlignment = contentAlignment, label = label, contentKey = contentKey, content = content)
 }

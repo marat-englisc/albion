@@ -3,8 +3,8 @@ package com.marat.albion.ui.games
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -75,6 +75,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
     var input by rememberSaveable(card.id) { mutableStateOf("") }
     var verdict by rememberSaveable(card.id) { mutableStateOf<Verdict?>(null) }
     var shake by remember(card.id) { mutableIntStateOf(0) }
+    var validation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
     val focus = remember(card.id) { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -97,7 +98,8 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
 
     fun checkTyped(giveUp: Boolean = false) {
         if (verdict != null) return
-        if (!giveUp && input.isBlank()) { shake++; return }
+        if (!giveUp && input.isBlank()) { validation = "Введите ответ или выберите «Не знаю»."; shake++; return }
+        validation = null
         finish(if (giveUp) Verdict.Wrong else AnswerCheck.checkGrammar(input, task.accepted), input)
     }
 
@@ -170,7 +172,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                         Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
                         Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(forms(task, data), style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
+                            Text(forms(task, data), style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(10.dp))
                             PracticeAudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
                         }
@@ -183,6 +185,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
             }
         }
 
+        com.marat.albion.ui.components.FieldError(validation)
         AnimatedContent(
             targetState = verdict != null,
             transitionSpec = { fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(120)) },

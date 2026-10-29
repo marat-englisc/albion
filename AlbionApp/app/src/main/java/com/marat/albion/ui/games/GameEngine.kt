@@ -1,10 +1,12 @@
 package com.marat.albion.ui.games
 
+import kotlinx.coroutines.flow.map
+
 import com.marat.albion.ui.theme.paperSurface
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
+import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,6 +70,7 @@ class GameViewModel(private val c: AppContainer, val game: Game,
     private val needAudio get() = game == Game.SHADOWING || game == Game.PRONUNCIATION
 
     /** Сколько ошибок накоплено в выбранной колоде — для экрана настройки. */
+    fun observeAvailable(deck: com.marat.albion.data.content.Deck) = c.study.observeSummaries().map { list -> list.firstOrNull { it.deck == deck }?.total ?: 0 }
     fun observeMistakes(deck: com.marat.albion.data.content.Deck) = c.study.observeGameMistakes(deck, game.name, needAudio)
     var items by mutableStateOf<List<CardEntity>>(emptyList())
         private set
@@ -218,6 +221,7 @@ private fun GameFrame(
 ) {
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
+    val available by remember(vm.deck) { vm.observeAvailable(vm.deck) }.collectAsStateWithLifecycle(0)
     val mistakeCount by remember(vm.deck) { vm.observeMistakes(vm.deck) }.collectAsStateWithLifecycle(-1)
     // Ошибок не осталось — режим «только ошибки» выключаем сам.
     LaunchedEffect(mistakeCount) { if (mistakeCount == 0) vm.onlyMistakes = false }
@@ -240,11 +244,12 @@ private fun GameFrame(
                 mode = vm.mode,
                 onMode = { vm.mode = it; vm.saveOptions() },
                 mistakes = mistakeCount,
+                available = if (vm.onlyMistakes) mistakeCount.coerceAtLeast(0) else available,
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },
             )
             Phase.Loading -> Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
-                AlbionLogo(size = 40.dp, color = Ink.Faint)
+                com.marat.albion.ui.components.LoadingState("Готовим упражнение")
             }
             Phase.Summary -> GameSummary(
                 game = vm.game,

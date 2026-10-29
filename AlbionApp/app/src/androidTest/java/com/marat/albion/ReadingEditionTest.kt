@@ -61,7 +61,8 @@ class ReadingEditionTest {
             val paragraph = "Lighthouse keepers watched the sea and waited for the morning. ".repeat(18).trim()
             val book = BookContent("A reading test", chapters = listOf(BookChapter("Chapter 6. The Light", listOf(paragraph))))
             for (fontSize in listOf(18, 27)) for (width in listOf(600, 900)) {
-                val body = TextStyle(fontFamily = Reading, fontSize = fontSize.sp, lineHeight = (fontSize * 1.6f).sp)
+                val body = TextStyle(fontFamily = Reading, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    fontSize = fontSize.sp, lineHeight = (fontSize * 1.6f).sp)
                 val heading = TextStyle(fontFamily = Brand, fontSize = 32.sp, lineHeight = 39.sp)
                 val layout = measureEditionParagraph(measurer, AnnotatedString(paragraph), body, width, dropCap = true)
                 assertTrue("Expected a real hanging initial", layout.parts.size >= 3)
@@ -96,7 +97,8 @@ class ReadingEditionTest {
             assertTrue("Text measurer did not become ready", ready.await(10, TimeUnit.SECONDS))
             val text = "The next day Daniel came back to the island with a box of groceries and a toolbox."
             for (size in listOf(18, 22, 27)) {
-                val body = TextStyle(fontFamily = Reading, fontSize = size.sp, lineHeight = (size * 1.6f).sp)
+                val body = TextStyle(fontFamily = Reading, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    fontSize = size.sp, lineHeight = (size * 1.6f).sp)
                 for (letter in listOf('T', 'L', 'A', 'W', 'J', 'É', 'Д')) {
                     val sample = AnnotatedString(letter + text.drop(1))
                     val layout = measureEditionParagraph(measurer, sample, body, 600, dropCap = true)

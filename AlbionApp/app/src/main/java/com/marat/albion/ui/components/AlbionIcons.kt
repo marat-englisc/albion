@@ -37,6 +37,7 @@ object AlbionIcons {
     val Search = pen("Search", "M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M15 15l6 6")
     val BookmarkBorder = pen("Bookmark", "M6 3h12v18l-6-4-6 4z")
     val Bookmark = pen("Saved", "M6 3h12v18l-6-4-6 4z M9 9l2 2 4-4")
+    val Delete = pen("Delete", "M4 6h16 M9 6V3h6v3 M6 6l1 15h10l1-15 M10 10v7 M14 10v7")
     val Bookmarks = pen("Bookmarks", "M5 6h12v16l-6-4-6 4z M9 2h12v16")
     val VolumeUp = pen("Listen", "M3 9h4l5-5v16l-5-5H3z M16 8c2 2 2 6 0 8 M19 5c4 4 4 10 0 14", true)
     val Mic = pen("Microphone", "M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0z M5 11v1a7 7 0 0 0 14 0v-1 M12 19v3 M8 22h8")

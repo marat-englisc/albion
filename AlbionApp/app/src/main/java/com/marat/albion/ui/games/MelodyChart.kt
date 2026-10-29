@@ -41,7 +41,7 @@ internal fun MelodyChart(report: ShadowReport) {
     val mine = remember(report) { preparePitchContour(report.minePitch, report.mineEnergy) }
 
     val fg = Ink.Accent
-    val muted = Ink.Gold
+    val muted = Ink.GoldText
     val grid = Ink.Line
     val center = Ink.LineStrong
     val band = Ink.Surface
@@ -135,7 +135,7 @@ internal fun MelodyChart(report: ShadowReport) {
 
 @Composable
 private fun MelodyLegend(dashed: Boolean, label: String) {
-    val color = if (dashed) Ink.Gold else Ink.Accent
+    val color = if (dashed) Ink.GoldText else Ink.Accent
     Row(
         Modifier.background(Ink.Surface, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,

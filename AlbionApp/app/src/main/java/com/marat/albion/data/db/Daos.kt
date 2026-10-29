@@ -10,6 +10,21 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
+    @Query("SELECT * FROM cards ORDER BY position, id")
+    suspend fun all(): List<CardEntity>
+
+    @Query("SELECT * FROM cards ORDER BY position, id")
+    fun observeAll(): Flow<List<CardEntity>>
+
+    @Query("SELECT * FROM cards WHERE deck = :deck ORDER BY position, id")
+    suspend fun inDeck(deck: String): List<CardEntity>
+
+    @Query("SELECT * FROM cards WHERE deck = (SELECT deck FROM cards WHERE id = :id) AND lower(trim(term)) = (SELECT lower(trim(term)) FROM cards WHERE id = :id) ORDER BY position, id")
+    suspend fun wordMembers(id: String): List<CardEntity>
+
+    @Query("SELECT * FROM cards WHERE deck = (SELECT deck FROM cards WHERE id = :id) AND lower(trim(term)) = (SELECT lower(trim(term)) FROM cards WHERE id = :id) ORDER BY position, id")
+    fun observeWordMembers(id: String): Flow<List<CardEntity>>
+
     @Upsert
     suspend fun upsert(cards: List<CardEntity>)
 
@@ -120,6 +135,12 @@ interface CardDao {
     @Query("SELECT * FROM game_card_stats WHERE card_id = :cardId AND game = :game")
     suspend fun gameStat(cardId: String, game: String): GameCardStatEntity?
 
+    @Query("SELECT * FROM game_card_stats")
+    suspend fun gameStats(): List<GameCardStatEntity>
+
+    @Query("SELECT * FROM game_card_stats")
+    fun observeGameStats(): Flow<List<GameCardStatEntity>>
+
     @Query("""
         SELECT EXISTS(SELECT 1 FROM review_state WHERE card_id = :cardId)
             OR EXISTS(SELECT 1 FROM review_log WHERE card_id = :cardId)
@@ -134,6 +155,18 @@ interface CardDao {
 
 @Dao
 interface ReviewDao {
+    @Query("SELECT * FROM review_state")
+    suspend fun states(): List<ReviewStateEntity>
+
+    @Query("SELECT * FROM review_state")
+    fun observeStates(): Flow<List<ReviewStateEntity>>
+
+    @Query("SELECT * FROM review_state WHERE card_id IN (:ids)")
+    suspend fun statesFor(ids: List<String>): List<ReviewStateEntity>
+
+    @Query("SELECT COUNT(*) FROM review_log WHERE card_id IN (:ids)")
+    suspend fun countLogsFor(ids: List<String>): Int
+
     @Query("SELECT * FROM review_state WHERE card_id = :id")
     suspend fun state(id: String): ReviewStateEntity?
 
@@ -272,6 +305,9 @@ interface GrammarDao {
 
     @Query("DELETE FROM grammar_progress")
     suspend fun clear()
+
+    @Query("UPDATE grammar_progress SET read_at = NULL")
+    suspend fun clearReadMarks()
 }
 
 @Dao
@@ -394,7 +430,7 @@ interface LibraryDao {
 /** Карточки по словам — для словарной справки в читалке. */
 @Dao
 interface LookupDao {
-    @Query("SELECT * FROM cards WHERE lower(term) IN (:terms) ORDER BY CASE deck WHEN 'words' THEN 0 WHEN 'irregular_verbs' THEN 1 ELSE 2 END, position LIMIT 3")
+    @Query("SELECT * FROM cards WHERE lower(term) IN (:terms) ORDER BY CASE deck WHEN 'words' THEN 0 WHEN 'irregular_verbs' THEN 1 ELSE 2 END, position")
     suspend fun findByTerms(terms: List<String>): List<CardEntity>
 
     /** Термины начатых, но ещё не выученных карточек (стабильность меньше 21 дня) — для подсветки в книгах. */

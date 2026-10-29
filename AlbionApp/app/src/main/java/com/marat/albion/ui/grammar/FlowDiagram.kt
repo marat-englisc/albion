@@ -57,7 +57,7 @@ private fun buildForest(graph: FlowGraph): List<TreeNode> {
 @Composable
 fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
     val forest = remember(graph) { buildForest(graph) }
-    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(12.dp)).padding(16.dp)) {
+    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(8.dp)).padding(16.dp)) {
         Eyebrow("Схема")
         Spacer(Modifier.height(14.dp))
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { forest.forEach { TreeView(it) } }
@@ -65,22 +65,22 @@ fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun TreeView(t: TreeNode) {
+private fun TreeView(t: TreeNode, depth: Int = 0) {
     Column {
         NodeBox(t.node, t.reference)
         if (t.reference) return@Column
         val single = t.branches.singleOrNull()
         if (single != null && single.label == null) {
             Arrow()
-            TreeView(single.target)
+            TreeView(single.target, depth + 1)
         } else if (t.branches.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 t.branches.forEach { b ->
                     Row(Modifier.height(IntrinsicSize.Min)) {
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(if (depth < 2) 12.dp else 0.dp))
                         Box(Modifier.width(1.dp).fillMaxHeight().background(Ink.LineStrong))
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(if (depth < 2) 12.dp else 0.dp))
                         Column(Modifier.weight(1f)) {
                             if (b.label != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
@@ -88,7 +88,7 @@ private fun TreeView(t: TreeNode) {
                                     Icon(AlbionIcons.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(16.dp))
                                 }
                             } else Arrow()
-                            TreeView(b.target)
+                            TreeView(b.target, depth + 1)
                         }
                     }
                 }

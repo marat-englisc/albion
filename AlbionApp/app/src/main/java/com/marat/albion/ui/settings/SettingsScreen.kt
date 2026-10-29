@@ -1,59 +1,29 @@
 package com.marat.albion.ui.settings
 
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import com.marat.albion.ui.theme.paperSurface
-
-import com.marat.albion.ui.components.gutter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.data.settings.NewCardOrder
 import com.marat.albion.data.settings.Settings
-
-import com.marat.albion.ui.components.AccessionStamp
-import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.Hairline
-import com.marat.albion.ui.components.ThinSlider
-import com.marat.albion.ui.components.ScreenHeader
-import com.marat.albion.ui.components.TopBar
-import com.marat.albion.ui.components.SectionHeader
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
+import com.marat.albion.ui.components.*
+import com.marat.albion.ui.theme.*
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -63,139 +33,117 @@ fun SettingsScreen(onBack: () -> Unit) {
     val s by c.settings.settings.collectAsStateWithLifecycle(Settings())
     val status by c.importer.status.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    var confirmGrammarReset by remember { mutableStateOf(false) }
     val repo = c.settings
-    val reveal = rememberReveal()
-
+    var reset by rememberSaveable { mutableIntStateOf(0) }
+    var resetBusy by remember { mutableStateOf(false) }
+    var resetError by remember { mutableStateOf<String?>(null) }
+    var version by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(status) { version = repo.contentVersion() }
     Column(Modifier.fillMaxSize().paperSurface()) {
-        TopBar(onBack = onBack)
-        Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
-                .padding(horizontal = gutter).padding(bottom = 32.dp),
-        ) {
-
-            Box(Modifier.fillMaxWidth().reveal(reveal, 0)) {
-                ScreenHeader("Настройки", includeStatusBarInsets = false)
-            }
-
-            Column(Modifier.reveal(reveal, 2)) {
-                SectionHeader("Звук и ощущения")
-                SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
-                Text("Тихое фортепианное созвучие в конце занятия. Учитывает беззвучный режим телефона.",
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
-                SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
-                Text("Спокойные переходы без перемещения и переворота карточек.",
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                Hairline(Modifier.padding(top = 16.dp))
-            }
-
-            Column(Modifier.reveal(reveal, 2)) { GoalReminderSection(s) }
-
-            Column(Modifier.reveal(reveal, 2)) {
-                SectionHeader("Повторение · FSRS")
-                SliderSetting(
-                    "Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
-                    "Вероятность вспомнить карточку в момент показа. Выше — чаще повторения. Рекомендуется 90%.",
-                    s.desiredRetention, 0.80f..0.97f, 16,
-                ) { scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) } }
-                SliderSetting("Новых карточек в день", "${s.newPerDay}", "Для каждой колоды отдельно.", s.newPerDay.toFloat(), 0f..100f, 19) {
-                    scope.launch { repo.setNewPerDay((it / 5).roundToInt() * 5) }
+        TopBar(onBack, "Настройки")
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
+            .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(bottom = 24.dp)) {
+            Disclosure("Занятия и цель", "${s.dailyGoal} ответов в день") {
+                GoalReminderSection(s)
+                SliderSetting("Новых карточек в день", "${s.newPerDay}",
+                    "На каждую колоду. Для шести колод — до ${s.newPerDay * 6} новых карточек в день.",
+                    s.newPerDay.toFloat(), 0f..100f, 19) { scope.launch { repo.setNewPerDay((it / 5).roundToInt() * 5) } }
+                SliderSetting("Повторений в день", "${s.reviewsPerDay}", "Для каждой колоды отдельно.",
+                    s.reviewsPerDay.toFloat(), 50f..1000f, 18) { scope.launch { repo.setReviewsPerDay((it / 50).roundToInt() * 50) } }
+                Disclosure("Порядок новых карточек", s.newOrder.title) {
+                    Column(Modifier.selectableGroup()) { NewCardOrder.entries.forEach { order ->
+                        RadioSettingOption(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
+                    } }
                 }
-                SliderSetting("Повторений в день", "${s.reviewsPerDay}", null, s.reviewsPerDay.toFloat(), 50f..1000f, 18) {
-                    scope.launch { repo.setReviewsPerDay((it / 50).roundToInt() * 50) }
-                }
-                Column(Modifier.padding(vertical = 16.dp)) {
-                    Text("Порядок новых карточек", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
-                    Spacer(Modifier.height(8.dp))
-                    Column(Modifier.fillMaxWidth().selectableGroup()) {
-                        NewCardOrder.entries.forEach { order ->
-                            RadioSettingOption(order.title, s.newOrder == order) { scope.launch { repo.setNewOrder(order) } }
-                        }
-                    }
-                }
-                Hairline()
-                SliderSetting(
-                    "Начало нового дня", "%02d:00".format(s.dayStartHour),
-                    "Ночные занятия до этого часа засчитываются в предыдущий день.",
-                    s.dayStartHour.toFloat(), 0f..8f, 7,
-                ) { scope.launch { repo.setDayStartHour(it.roundToInt()) } }
-                FsrsTuningBlock(s)
             }
-
-            Column(Modifier.reveal(reveal, 3)) {
-                SectionHeader("Карточки и озвучка")
+            Disclosure("Карточки и озвучка", "Перевод, транскрипция и воспроизведение") {
                 SwitchSetting("Озвучивать слово при показе", s.autoplayFront) { scope.launch { repo.setAutoplayFront(it) } }
                 SwitchSetting("Озвучивать при перевороте", s.autoplayBack) { scope.launch { repo.setAutoplayBack(it) } }
                 SwitchSetting("Транскрипция на лицевой стороне", s.showIpaOnFront) { scope.launch { repo.setShowIpaOnFront(it) } }
-                SwitchSetting("Русское значение на обороте", s.showRussian) { scope.launch { repo.setShowRussian(it) } }
-                SliderSetting(
-                    "Громкость озвучки", if (s.playbackVolume == 0f) "без звука" else "${(s.playbackVolume * 100).roundToInt()}%",
-                    "Относительно громкости медиа на телефоне.",
-                    s.playbackVolume, 0f..1f, 9,
-                ) {
-                    val v = (it * 10).roundToInt() / 10f
-                    c.audio.setVolume(v)
-                    scope.launch { repo.setPlaybackVolume(v) }
+                SwitchSetting("Русский перевод на обороте карточек", s.showRussian) { scope.launch { repo.setShowRussian(it) } }
+                SwitchSetting("Русский перевод в словарном списке", s.browseShowRussian) { scope.launch { repo.setBrowseShowRussian(it) } }
+                SliderSetting("Громкость озвучки", "${(s.playbackVolume * 100).roundToInt()}%",
+                    "Относительно громкости медиа на телефоне.", s.playbackVolume, 0f..1f, 9) {
+                    c.audio.setVolume(it); scope.launch { repo.setPlaybackVolume(it) }
                 }
                 SliderSetting("Скорость озвучки", "×%.1f".format(s.playbackSpeed), null, s.playbackSpeed, 0.5f..1.5f, 9) {
-                    val v = (it * 10).roundToInt() / 10f
-                    c.audio.setSpeed(v)
-                    scope.launch { repo.setPlaybackSpeed(v) }
+                    c.audio.setSpeed(it); scope.launch { repo.setPlaybackSpeed(it) }
                 }
+                ActionRow("Прослушать пример") { c.audio.speak("A little, every day.", "settings-preview") }
             }
-
-            Column(Modifier.reveal(reveal, 4)) {
-                SectionHeader("Учебник")
-                SliderSetting("Размер текста", "${(s.grammarTextScale * 100).roundToInt()}%", null, s.grammarTextScale, 0.85f..1.4f, 10) {
-                    scope.launch { repo.setGrammarTextScale(it) }
+            Disclosure("Чтение и учебник", "Размер текста, интервал и поля") {
+                SliderSetting("Текст учебника", "${(s.grammarTextScale * 100).roundToInt()}%", null,
+                    s.grammarTextScale, 0.85f..1.4f, 10) { scope.launch { repo.setGrammarTextScale(it) } }
+                Text("Английский — маленькими шагами каждый день.",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading, fontSize = (17 * s.grammarTextScale).sp))
+                SliderSetting("Текст книги", "${(s.readerTextScale * 100).roundToInt()}%", null,
+                    s.readerTextScale, 0.8f..1.5f, 13) { scope.launch { repo.setReaderTextScale(it) } }
+                SliderSetting("Межстрочный интервал", "${(s.readerLineSpacing * 100).roundToInt()}%", null,
+                    s.readerLineSpacing, 0.85f..1.3f, 8) { scope.launch { repo.setReaderLineSpacing(it) } }
+                SliderSetting("Поля книги", "${s.readerMargin} dp", null, s.readerMargin.toFloat(), 16f..40f, 11) {
+                    scope.launch { repo.setReaderMargin(it.roundToInt()) }
                 }
-                ActionRow("Сбросить отметки прочитанного") { confirmGrammarReset = true }
+                Text("A little, every day. A good book is always a good companion.", Modifier.padding(horizontal = s.readerMargin.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading, fontSize = (18 * s.readerTextScale).sp,
+                        lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
+                SwitchSetting("Подчёркивать изучаемые слова в книге", s.readerMarkWords) { scope.launch { repo.setReaderMarkWords(it) } }
             }
-
-            Column(Modifier.reveal(reveal, 5)) {
-                SectionHeader("Материалы")
-                Text(
-                    when (val st = status) {
-                        ImportStatus.Checking -> "Проверка…"
-                        is ImportStatus.Importing -> "Загрузка: ${st.deck.title} (${st.index}/${st.total})"
-                        ImportStatus.Ready -> "Материалы загружены"
-                        ImportStatus.Empty -> "В сборке нет материалов"
-                        is ImportStatus.Failed -> "Ошибка: ${st.message}"
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Ink.Text,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    "Таблицы, озвучка и учебник вшиваются в приложение при сборке. После обновления таблиц пересоберите приложение — " +
-                        "изменения подтянутся автоматически, прогресс сохранится.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Ink.Muted,
-                )
-                Spacer(Modifier.height(8.dp))
-                ActionRow("Перечитать таблицы сейчас") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
+            Disclosure("Звук и доступность", "Тактильный отклик и движение") {
+                SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
+                Text("Тихое созвучие с учётом беззвучного режима телефона.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
+                SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
             }
-
-            Column(Modifier.fillMaxWidth().padding(top = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                AccessionStamp("001")
-                Spacer(Modifier.height(10.dp))
-                Eyebrow("Albion 1.0 · FSRS-6", color = Ink.Faint)
+            Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка") {
+                SliderSetting("Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
+                    "Вероятность вспомнить карточку при показе. Рекомендуется 90%.", s.desiredRetention, 0.80f..0.97f, 16) {
+                    scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) }
+                }
+                SliderSetting("Начало учебного дня", "%02d:00".format(s.dayStartHour),
+                    "Занятия до этого часа относятся к предыдущему дню.", s.dayStartHour.toFloat(), 0f..8f, 7) {
+                    scope.launch { repo.setDayStartHour(it.roundToInt()) }
+                }
+                FsrsTuningBlock(s)
             }
+            Disclosure("Материалы и данные", "Состояние курса и управление прогрессом") {
+                when (val st = status) {
+                    ImportStatus.Checking -> LoadingState("Проверяем материалы")
+                    is ImportStatus.Importing -> LoadingState("Подготавливаем ${st.deck.title} · ${st.index}/${st.total}")
+                    is ImportStatus.Failed -> {
+                        Text("Не удалось подготовить материалы.", color = Ink.Error)
+                        ActionRow("Повторить подготовку") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
+                    }
+                    ImportStatus.Empty -> Text("Материалы недоступны. Установите полную версию приложения.", color = Ink.Muted)
+                    ImportStatus.Ready -> Text("Учебные материалы готовы", style = MaterialTheme.typography.bodyLarge, color = Ink.Success)
+                }
+                Disclosure("Сведения о материалах", "Версия курса и обслуживание") {
+                    Text("Версия материалов: ${version ?: "не определена"}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    Text("Материалы обновляются вместе с приложением. Прогресс сохраняется.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    ActionRow("Повторно проверить материалы") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
+                }
+                ActionRow("Сбросить только отметки прочитанного") { resetError = null; reset = 1 }
+                ActionRow("Удалить весь прогресс учебника") { resetError = null; reset = 2 }
+            }
+            Text("Albion 1.0", Modifier.padding(top = 24.dp), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         }
     }
-    if (confirmGrammarReset) {
-        AlertDialog(
-            onDismissRequest = { confirmGrammarReset = false },
-            containerColor = Ink.Raised,
-            title = { Text("Сбросить прогресс учебника?", style = MaterialTheme.typography.headlineSmall) },
-            text = { Text("Отметки «изучено» и закладки будут удалены.") },
-            confirmButton = {
-                TextButton(onClick = { confirmGrammarReset = false; scope.launch { c.grammar.resetProgress() } }) { Text("Сбросить", color = Ink.Error) }
-            },
-            dismissButton = { TextButton(onClick = { confirmGrammarReset = false }) { Text("Отмена", color = Ink.Muted) } },
-        )
-    }
+    if (reset != 0) AlertDialog(onDismissRequest = { if (!resetBusy) reset = 0 }, containerColor = Ink.Raised,
+        title = { Text(if (reset == 1) "Сбросить отметки чтения?" else "Удалить весь прогресс учебника?") },
+        text = { Column {
+            Text(if (reset == 1) "Будут сняты только отметки «Прочитано». Освоение, закладки, результаты проверок и план повторения сохранятся."
+                else "Будут удалены отметки чтения и освоения, закладки, последние результаты проверок и расписание повторения тем. Это действие нельзя отменить.")
+            FieldError(resetError)
+        } },
+        confirmButton = { TextButton(enabled = !resetBusy, onClick = {
+            resetBusy = true
+            scope.launch {
+                try { if (reset == 1) c.grammar.resetReadMarks() else c.grammar.resetProgress(); reset = 0 }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (_: Exception) { resetError = "Не удалось выполнить сброс. Попробуйте ещё раз." }
+                finally { resetBusy = false }
+            }
+        }) { Text(if (resetBusy) "Сохраняем…" else if (reset == 1) "Сбросить отметки" else "Удалить прогресс", color = Ink.Error) } },
+        dismissButton = { TextButton(enabled = !resetBusy, onClick = { reset = 0 }) { Text("Отмена") } })
 }
 
 @Composable
@@ -237,31 +185,39 @@ internal fun SliderSetting(
     onChange: (Float) -> Unit,
 ) {
     Column(Modifier.padding(vertical = 14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
             Text(
                 value, style = MaterialTheme.typography.titleMedium, color = Ink.AccentText,
                 modifier = Modifier.background(Ink.AccentSoft, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }
+        val step = (range.endInclusive - range.start) / (steps + 1)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(enabled = current > range.start, onClick = { onChange((current - step).coerceAtLeast(range.start)) },
+                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Уменьшить: $title" }) { Text("−") }
         ThinSlider(
             value = current.coerceIn(range.start, range.endInclusive),
             onValueChange = onChange,
             valueRange = range,
             steps = steps,
+            modifier = Modifier.weight(1f).semantics { contentDescription = title; stateDescription = value },
         )
+            TextButton(enabled = current < range.endInclusive, onClick = { onChange((current + step).coerceAtMost(range.endInclusive)) },
+                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Увеличить: $title" }) { Text("+") }
+        }
         if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
     }
 }
 
 @Composable
 internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable { onChange(!checked) }.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = checked, role = Role.Switch, onValueChange = onChange).padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
         Spacer(Modifier.width(12.dp))
         Switch(
             checked = checked,
-            onCheckedChange = onChange,
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = Ink.Accent,
                 checkedThumbColor = Ink.OnAccent,

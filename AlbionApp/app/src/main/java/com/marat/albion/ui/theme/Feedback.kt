@@ -7,6 +7,9 @@ import android.media.SoundPool
 import android.os.Build
 import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -60,8 +63,14 @@ fun AlbionExperience(settings: Settings, content: @Composable () -> Unit) {
             }
         }
     }
-    val systemReduced = remember(context) {
-        android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    fun readMotion() = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    var systemReduced by remember(context) { mutableStateOf(readMotion()) }
+    DisposableEffect(context) {
+        val observer = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) { systemReduced = readMotion() }
+        }
+        context.contentResolver.registerContentObserver(android.provider.Settings.Global.getUriFor(android.provider.Settings.Global.ANIMATOR_DURATION_SCALE), false, observer)
+        onDispose { context.contentResolver.unregisterContentObserver(observer) }
     }
     CompositionLocalProvider(
         LocalFeedback provides feedback,

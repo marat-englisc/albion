@@ -12,7 +12,7 @@ import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
-import androidx.compose.animation.AnimatedVisibility
+import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -95,6 +95,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     val file = remember(card.id) { recorder.fileFor(card.id) }
     val scope = rememberCoroutineScope()
     var micDenied by remember { mutableStateOf(false) }
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val micAccess = rememberMicAccess(onDenied = { micDenied = true })
 
     var original by remember(card.id) { mutableStateOf<Prosody?>(null) }
@@ -108,6 +109,9 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     // Скользящее окно уровней для «волны» во время записи.
     val wave = remember(card.id) { mutableStateListOf<Float>().apply { repeat(32) { add(0f) } } }
 
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) micDenied = false
+    }
     DisposableEffect(Unit) { onDispose { recorder.clear() } }
     LaunchedEffect(card.id) {
         c.audio.playDelayed(deck, card.audio, card.term, "orig:${card.id}", delayMs = 350)
@@ -145,6 +149,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     }
 
     fun toggleRecord() {
+        if (analyzing || !originalReady) return
         if (recording) { recorder.stop(); return }
         micAccess {
             c.audio.stop()
@@ -186,12 +191,12 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                PlaybackAction(AlbionIcons.PlayArrow, "Диктор", { playOriginal() }, active = playing == "orig:${card.id}", slot = micSize + MicLip)
-                RecordButton(recording = recording, level = level, onClick = ::toggleRecord, size = micSize)
+                PlaybackAction(AlbionIcons.PlayArrow, "Диктор", { playOriginal() }, enabled = !recording && !analyzing, active = playing == "orig:${card.id}", slot = micSize + MicLip)
+                RecordButton(recording = recording, level = level, onClick = ::toggleRecord, size = micSize, enabled = !analyzing && originalReady)
                 PlaybackAction(
                     AlbionIcons.SlowMotionVideo, "Медленно",
                     { playOriginal(0.7f, "slow:${card.id}") },
-                    enabled = card.audio != null, active = playing == "slow:${card.id}", slot = micSize + MicLip,
+                    enabled = card.audio != null && !recording && !analyzing, active = playing == "slow:${card.id}", slot = micSize + MicLip,
                 )
             }
 
@@ -204,7 +209,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         wave.forEach { v ->
-                            val h by animateFloatAsState(if (recording) v.coerceAtLeast(0.1f) else 0.1f, tween(160), label = "bar")
+                            val h by animateFloatAsState(if (recording && !reduced) v.coerceAtLeast(0.1f) else 0.1f, tween(160), label = "bar")
                             Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Error else Ink.LineStrong, CircleShape))
                         }
                     }
@@ -212,7 +217,10 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 }
             }
             when {
-                micDenied -> ShadowStatus("Нет доступа к микрофону — разрешите его в настройках телефона.", warm = true)
+                micDenied -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    ShadowStatus("Для записи нужен доступ к микрофону.", warm = true)
+                    com.marat.albion.ui.components.AppSettingsButton()
+                }
                 recording -> ShadowStatus("Говорите — запись остановится, когда вы замолчите", warm = true)
                 analyzing -> ShadowStatus("Сравниваю с диктором…")
                 unclear -> ShadowStatus("Не удалось разобрать запись — говорите громче и ближе к телефону", warm = true)
@@ -225,13 +233,14 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 report?.let { ReportCard(it) }
             }
 
-            AnimatedVisibility(hasTake && !recording, enter = fadeIn()) {
+            AnimatedVisibility(hasTake && !recording && !analyzing, enter = fadeIn()) {
                 PlaybackActions(onCompare = ::compare, onPlayMine = ::playMine)
             }
         }
         PrimaryButton(
-            "Дальше",
-            onClick = ::next,
+            when { recording -> "Остановить запись"; analyzing -> "Сравниваем…"; !originalReady -> "Готовим образец…"; !hasTake -> "Пропустить"; else -> "Следующее" },
+            onClick = { if (recording) recorder.stop() else next() },
+            enabled = !analyzing && originalReady,
             trailingIcon = AlbionIcons.ArrowForward,
             modifier = Modifier.padding(vertical = 12.dp),
         )
@@ -315,13 +324,15 @@ internal fun ReportCard(r: ShadowReport) {
                         r.overall >= PASS -> "Неплохо"
                         else -> "Ещё попытка"
                     },
-                    style = TextStyle(fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 22.sp, lineHeight = 26.sp),
+                    style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 22.sp, lineHeight = 26.sp),
                     color = Ink.Fg,
                 )
                 Text("сходство с диктором", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
             }
         }
         Spacer(Modifier.height(14.dp))
+        Text("Это ориентир по сходству ритма, темпа и интонации с этой записью, а не оценка отдельных звуков речи.",
+            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
         r.intonation?.let { Scale("Интонация", it, null) }
         Scale("Ритм", r.rhythm, null)
         Scale(
