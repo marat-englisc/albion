@@ -1,6 +1,5 @@
 package com.marat.albion.ui.nav
 
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -27,7 +26,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
-import com.marat.albion.ui.theme.Ink
 
 /** Роль экрана в двухпанельной вёрстке планшета. */
 internal enum class Pane { List, Detail }
@@ -89,7 +87,7 @@ private data class ListDetailScene(
             Box(Modifier.width(LIST_PANE_WIDTH).fillMaxHeight()) {
                 CompositionLocalProvider(LocalBesideDetail provides true) { list.Content() }
             }
-            Box(Modifier.width(1.dp).fillMaxHeight().background(Ink.Line))
+            Box(Modifier.width(1.dp).fillMaxHeight().background(MaterialTheme.colorScheme.outlineVariant))
             AnimatedContent(
                 targetState = detail,
                 contentKey = { it?.contentKey },
@@ -106,8 +104,8 @@ private data class ListDetailScene(
 
 @Composable
 private fun DetailPlaceholder(text: String) {
-    Box(Modifier.fillMaxSize().paperSurface().padding(32.dp), contentAlignment = Alignment.Center) {
-        Text(text, style = MaterialTheme.typography.bodyLarge, color = Ink.Faint, textAlign = TextAlign.Center)
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(32.dp), contentAlignment = Alignment.Center) {
+        Text(text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
     }
 }
 

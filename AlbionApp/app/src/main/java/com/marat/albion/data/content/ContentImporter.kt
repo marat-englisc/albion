@@ -52,7 +52,10 @@ class ContentImporter(
                 return@withContext
             }
             val bytes = available.associateWith { deck -> assets.open("$COLLECTIONS/${deck.file}").use { it.readBytes() } }
-            val version = computeVersion(bytes.values + listOfNotNull(tasksBytes))
+            // Список озвучки тоже входит в версию: новые mp3 без правки таблиц должны привязаться к карточкам.
+            val audioFiles = available.associateWith { deck -> assets.list("$AUDIO/${deck.audioDir}")?.sorted().orEmpty() }
+            val audioListing = audioFiles.values.flatten().joinToString("|").toByteArray()
+            val version = computeVersion(bytes.values + listOfNotNull(tasksBytes) + audioListing)
             if (!force && settings.contentVersion() == version) {
                 _status.value = ImportStatus.Ready
                 return@withContext
@@ -60,7 +63,7 @@ class ContentImporter(
             available.forEachIndexed { i, deck ->
                 _status.value = ImportStatus.Importing(deck, i + 1, available.size)
                 val rows = XlsxReader.read(bytes.getValue(deck).inputStream())
-                val audio = AudioIndex(assets.list("$AUDIO/${deck.audioDir}")?.toList().orEmpty())
+                val audio = AudioIndex(audioFiles.getValue(deck))
                 val cards = if (deck == Deck.IRREGULAR) parser.parseIrregular(rows, audio) else parser.parseCards(deck, rows, audio)
                 save(deck, cards)
             }

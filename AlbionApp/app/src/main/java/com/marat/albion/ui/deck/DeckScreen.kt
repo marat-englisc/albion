@@ -1,6 +1,5 @@
 package com.marat.albion.ui.deck
 
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -48,9 +47,6 @@ import com.marat.albion.ui.nav.BrowseRoute
 import com.marat.albion.ui.nav.LibraryRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.StudyRoute
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -62,13 +58,12 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     val scope = rememberCoroutineScope()
     var menu by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
-    val reveal = rememberReveal()
 
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = navigator::back) {
             Box {
                 com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true })
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
                 }
             }
@@ -77,22 +72,22 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = gutter).windowInsetsPadding(WindowInsets.navigationBars).padding(bottom = 24.dp),
         ) deckContent@{
-            Column(Modifier.reveal(reveal, 0)) {
+            Column(Modifier) {
                 Eyebrow("Колода · %02d".format(deck.ordinal + 1))
                 Spacer(Modifier.height(12.dp))
                 Text(deck.title, style = if (com.marat.albion.ui.components.LocalNarrow.current) MaterialTheme.typography.displaySmall
-                    else MaterialTheme.typography.displayMedium, color = Ink.Fg)
+                    else MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(8.dp))
-                Text(deck.subtitle, style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                Text(deck.subtitle, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             if (deck == Deck.BOOK_WORDS && summary.total == 0) {
                 Spacer(Modifier.height(24.dp))
-                Text("Добавьте первое слово", style = MaterialTheme.typography.headlineSmall, color = Ink.Fg)
+                Text("Добавьте первое слово", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(10.dp))
                 Text("Откройте книгу, коснитесь слова и нажмите «Добавить в “Слова из книг”». " +
                     "Перевод и пример можно поправить перед сохранением.",
-                    style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                    style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(20.dp))
                 PrimaryButton("Открыть библиотеку", onClick = { navigator.switchTab(LibraryRoute) },
                     trailingIcon = AlbionIcons.ArrowForward)
@@ -100,10 +95,10 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             }
 
             // Те же «камешки» с цифрами, что на главной и в «Прогрессе».
-            Row(Modifier.padding(top = 28.dp).height(IntrinsicSize.Min).reveal(reveal, 1), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatPill(summary.due, "к повторению", Modifier.weight(1f).fillMaxHeight(), tint = Ink.WarmSoft,
-                    valueColor = if (summary.due == 0) Ink.Faint else Ink.Warm)
-                StatPill(summary.newAvailable, "новых сегодня", Modifier.weight(1f).fillMaxHeight(), tint = Ink.AccentSoft)
+            Row(Modifier.padding(top = 28.dp).height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatPill(summary.due, "к повторению", Modifier.weight(1f).fillMaxHeight(), tint = MaterialTheme.colorScheme.secondaryContainer,
+                    valueColor = if (summary.due == 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.secondary)
+                StatPill(summary.newAvailable, "новых сегодня", Modifier.weight(1f).fillMaxHeight(), tint = MaterialTheme.colorScheme.primaryContainer)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -113,17 +108,17 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 enabled = summary.toStudy > 0,
                 trailingIcon = AlbionIcons.ArrowForward,
 
-                modifier = Modifier.reveal(reveal, 2),
+                modifier = Modifier,
             )
             Spacer(Modifier.height(12.dp))
             GhostButton(
                 "Все карточки и поиск",
                 onClick = { navigator.open(BrowseRoute(deck)) },
                 icon = AlbionIcons.Search,
-                modifier = Modifier.reveal(reveal, 3),
+                modifier = Modifier,
             )
 
-            Column(Modifier.reveal(reveal, 4)) {
+            Column(Modifier) {
                 SectionHeader("Прогресс", Modifier.padding(top = 28.dp), trailing = "${(summary.progress * 100).toInt()}%")
                 Spacer(Modifier.height(8.dp))
                 ThinProgress(summary.progress)
@@ -139,13 +134,13 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 }
             }
 
-            Column(Modifier.reveal(reveal, 5)) {
+            Column(Modifier) {
                 SectionHeader("Как это работает", Modifier.padding(top = 28.dp))
                 Text(
                     "Посмотрите на лицевую сторону и вспомните значение. Переверните карточку и честно оцените ответ — " +
                         "FSRS рассчитает момент, когда вы начнёте забывать, и покажет карточку именно тогда.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Ink.Muted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -154,16 +149,15 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
-            containerColor = Ink.Raised,
             title = { Text("Сбросить прогресс?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("Все карточки колоды «${deck.title}» снова станут новыми, статистика занятий сохранится.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmReset = false
                     scope.launch { c.study.resetDeck(deck) }
-                }) { Text("Сбросить", color = Ink.Fg) }
+                }) { Text("Сбросить", color = MaterialTheme.colorScheme.onSurface) }
             },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Отмена", color = Ink.Muted) } },
+            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         )
     }
 }

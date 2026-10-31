@@ -1,6 +1,5 @@
 package com.marat.albion.ui.library
 
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.EmptyState
@@ -75,13 +74,6 @@ import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.ReaderRoute
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
-import com.marat.albion.ui.theme.headingFamily
-import com.marat.albion.ui.theme.pressScale
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 
@@ -134,7 +126,7 @@ fun LibraryScreen(navigator: Navigator) {
     }
 
     val launchPicker = { picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream")) }
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.statusBars).padding(horizontal = gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Библиотека", Modifier.weight(1f), style = if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium)
             SettingsShortcut(navigator::openSettings)
@@ -143,14 +135,14 @@ fun LibraryScreen(navigator: Navigator) {
             item {
                 PrimaryButton(if (importing) "Открываю книгу…" else "Добавить", onClick = launchPicker, enabled = !importing, icon = AlbionIcons.Add)
                 Text("TXT · EPUB · PDF", style = MaterialTheme.typography.bodySmall,
-                    color = Ink.Muted, modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
                 FieldError(importError)
                 if (importError != null) TextButton(onClick = launchPicker) { Text("Выбрать другой файл") }
                 OutlinedTextField(query, { query = it }, label = { Text("Поиск книги") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box {
                         TextButton(onClick = { filterMenu = true }) { Text("Статус: $filter ▾") }
-                        DropdownMenu(filterMenu, { filterMenu = false }, containerColor = Ink.Raised) {
+                        DropdownMenu(filterMenu, { filterMenu = false }) {
                             listOf("Все", "Не начаты", "Читаю", "Прочитаны").forEach { option ->
                                 DropdownMenuItem(text = { Text(option) }, onClick = { filter = option; filterMenu = false })
                             }
@@ -158,7 +150,7 @@ fun LibraryScreen(navigator: Navigator) {
                     }
                     Box {
                         TextButton(onClick = { sortMenu = true }) { Text("Порядок: $sort ▾") }
-                        DropdownMenu(sortMenu, { sortMenu = false }, containerColor = Ink.Raised) {
+                        DropdownMenu(sortMenu, { sortMenu = false }) {
                             listOf("Недавние", "По названию", "По прогрессу").forEach { option ->
                                 DropdownMenuItem(text = { Text(option) }, onClick = { sort = option; sortMenu = false })
                             }
@@ -202,13 +194,12 @@ fun LibraryScreen(navigator: Navigator) {
     toDelete?.let { b ->
         AlertDialog(
             onDismissRequest = { toDelete = null },
-            containerColor = Ink.Raised,
             title = { Text("Удалить книгу?", style = MaterialTheme.typography.headlineSmall) },
             text = { Text("«${b.book.title}», закладки, выделения и заметки к ней будут удалены из библиотеки.") },
             confirmButton = {
-                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = Ink.Error) }
+                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = MaterialTheme.colorScheme.error) }
             },
-            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Отмена", color = Ink.Muted) } },
+            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         )
     }
 }
@@ -217,18 +208,18 @@ fun LibraryScreen(navigator: Navigator) {
 private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
     val interaction = remember { MutableInteractionSource() }
     var menu by remember { mutableStateOf(false) }
-    Column(modifier.fillMaxWidth().pressScale(interaction, 0.985f).clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onOpen)) {
+    Column(modifier.fillMaxWidth().clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onOpen)) {
         Row(Modifier.padding(vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             BookCover(item.book.title, Modifier.size(width = 64.dp, height = 92.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.book.title, style = MaterialTheme.typography.titleLarge.copy(fontFamily = headingFamily(item.book.title)), color = Ink.Fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(item.book.title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         listOf(item.book.author, "${item.book.chapters} ${pluralRu(item.book.chapters, "глава", "главы", "глав")}").filter { it.isNotBlank() }.joinToString(" · "),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Ink.Muted,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
@@ -242,13 +233,13 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ThinProgress(item.progress, modifier = Modifier.weight(1f))
                     Spacer(Modifier.width(10.dp))
-                    Text("${(item.progress * 100).toInt()}%", style = AlbionType.index)
+                    Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.titleMedium)
                 }
             }
             if (onDelete != null) {
                 Box {
-                    IconButton(onClick = { menu = true }) { Icon(AlbionIcons.MoreHoriz, "Ещё", tint = Ink.Muted) }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Ink.Raised) {
+                    IconButton(onClick = { menu = true }) { Icon(AlbionIcons.MoreHoriz, "Ещё", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete() })
                     }
                 }
@@ -258,71 +249,10 @@ private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, o
     }
 }
 
-/** Типографская обложка: название антиквой на «чернильной» плашке; на маленькой — монограмма. */
 @Composable
 fun BookCover(title: String, modifier: Modifier = Modifier) {
-
-    val (cover, ink) = when (Math.floorMod(title.hashCode(), 3)) {
-        0 -> Ink.Accent to Ink.OnAccent
-        1 -> Color(0xFF24272B) to Ink.Ivory
-        else -> Color(0xFF861F39) to Ink.Ivory
-    }
-    androidx.compose.foundation.layout.BoxWithConstraints(
-        modifier.clearAndSetSemantics {}.background(cover, RoundedCornerShape(2.dp))
-
-            .drawBehind {
-                val gold = Color(0xFFC6A66D)
-                val spine = 7.dp.toPx()
-                drawRect(Color(0xFF66172C), size = androidx.compose.ui.geometry.Size(spine, size.height))
-                for (baseY in listOf(11.dp.toPx(), size.height - 17.dp.toPx())) repeat(3) { i ->
-                    val y = baseY + i * 2.5.dp.toPx()
-                    drawLine(gold, androidx.compose.ui.geometry.Offset(1.5.dp.toPx(), y),
-                        androidx.compose.ui.geometry.Offset(spine - 1.5.dp.toPx(), y), 0.7.dp.toPx())
-                }
-                val inset = 9.dp.toPx()
-                drawRect(gold.copy(alpha = 0.65f), androidx.compose.ui.geometry.Offset(inset, inset),
-                    androidx.compose.ui.geometry.Size((size.width - 2 * inset).coerceAtLeast(0f), (size.height - 2 * inset).coerceAtLeast(0f)),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(0.5.dp.toPx()))
-            }
-            .padding(start = 13.dp, end = 11.dp, top = 12.dp, bottom = 12.dp),
-    ) {
-        // Шрифт — такой, чтобы самое длинное слово названия не переносилось посередине.
-        val measurer = androidx.compose.ui.text.rememberTextMeasurer()
-        val fontScale = androidx.compose.ui.platform.LocalDensity.current.fontScale
-        val widthPx = constraints.maxWidth
-        val heightPx = constraints.maxHeight
-        val longest = remember(title) { title.split(' ').maxByOrNull { it.length }.orEmpty() }
-        val fontSize = remember(title, widthPx, fontScale) {
-            (10 downTo 7).firstOrNull { size ->
-                measurer.measure(longest, TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = size.sp)).size.width <= widthPx
-            }
-        }
-        val small = maxWidth < 44.dp || fontSize == null
-        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-            Box(Modifier.width(14.dp).height(2.dp).background(ink.copy(alpha = 0.6f), RoundedCornerShape(1.dp)))
-            if (small) {
-                val monogram = title.split(' ')
-                    .filter { it.isNotBlank() && it.lowercase() !in setOf("the", "a", "an", "of", "and") }
-                    .firstOrNull()?.firstOrNull()?.uppercase().orEmpty()
-                val monogramSize = remember(monogram, widthPx, heightPx, fontScale) {
-                    (18 downTo 6).firstOrNull { size ->
-                        val measured = measurer.measure(monogram, TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = size.sp))
-                        measured.size.width <= widthPx && measured.size.height <= heightPx
-                    } ?: 6
-                }
-                Text(monogram, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = monogramSize.sp), color = ink,
-                    maxLines = 1, softWrap = false)
-            } else {
-                Text(
-                    title,
-                    style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.2f).sp),
-                    color = ink,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Start,
-                )
-            }
-        }
+    androidx.compose.material3.Surface(modifier.clearAndSetSemantics {}, color = MaterialTheme.colorScheme.secondaryContainer) {
+        Text(title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)
     }
 }
 

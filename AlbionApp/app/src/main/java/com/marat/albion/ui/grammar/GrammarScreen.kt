@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
@@ -126,16 +127,16 @@ fun GrammarScreen(navigator: Navigator) {
             }
         }
     }
-    Column(Modifier.fillMaxSize().paperSurface().imePadding()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium, color = Ink.Fg)
+                Text("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
                 if (!largeText) {
                     TextButton(onClick = { references = true }) { Text("Справочники") }
                     SettingsShortcut(navigator::openSettings)
                 } else Box {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true })
-                    androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }, containerColor = Ink.Raised) {
+                    androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }) {
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Справочники и курс") }, onClick = { headerMenu = false; references = true })
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Настройки") }, onClick = { headerMenu = false; navigator.openSettings() })
                     }
@@ -154,7 +155,7 @@ fun GrammarScreen(navigator: Navigator) {
             }
             if (filtering) {
                 item { Text(if (reviewsOnly) "К повторению: ${found.size}" else if (bookmarksOnly) "Сохранено: ${found.size}" else "Найдено: ${found.size}",
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(vertical = 12.dp)) }
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 12.dp)) }
                 items(found, key = { "f-${it.id}" }) { topic ->
                     GrammarSearchResult(topic, state.progress[topic.id], q, now, topic.id == shownTopic, open)
                     if (reviewsOnly && topic.number in state.quizTopics) GhostButton("Повторить тему ${topic.number}", { quiz(topic) })
@@ -194,9 +195,7 @@ fun GrammarScreen(navigator: Navigator) {
         }
     }
     if (references) androidx.compose.material3.ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },onDismissRequest = { references = false },
-        containerColor = Ink.Raised, scrimColor = Ink.Fg.copy(alpha = 0.32f),
+        onDismissRequest = { references = false },
         sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = gutter)) {
             com.marat.albion.ui.components.SheetHeader("Справочники и курс", { references = false })
@@ -218,37 +217,28 @@ private fun GrammarReviewCard(
         Panel(contentPadding = PaddingValues(16.dp)) {
             if (due.isNotEmpty()) {
                 Text("${due.size} ${com.marat.albion.ui.library.pluralRu(due.size, "тема", "темы", "тем")} ждут повторения.",
-                    style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                    style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 Row(Modifier.fillMaxWidth()) {
-                    TextButton(onClick = { open(due.first().topic) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = Ink.AccentText) }
-                    TextButton(onClick = onQueue, modifier = Modifier.weight(1f)) { Text("Очередь (${due.size})", color = Ink.Fg) }
+                    TextButton(onClick = { open(due.first().topic) }, modifier = Modifier.weight(1f)) { Text("Открыть правило", color = MaterialTheme.colorScheme.primary) }
+                    TextButton(onClick = onQueue, modifier = Modifier.weight(1f)) { Text("Очередь (${due.size})", color = MaterialTheme.colorScheme.onSurface) }
                 }
             } else {
                 val next = reviews.first()
-                Text("Следующее повторение: ${grammarReviewDate(next.dueAt, now)}", style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
-                Text(next.topic.title, style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 6.dp))
-                TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = Ink.AccentText) }
+                Text("Следующее повторение: ${grammarReviewDate(next.dueAt, now)}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(next.topic.title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
+                TextButton(onClick = { open(next.topic) }) { Text("Открыть тему", color = MaterialTheme.colorScheme.primary) }
             }
             TextButton(onClick = onExpand, modifier = Modifier.semantics { stateDescription = if (expanded) "Развёрнуто" else "Свёрнуто" }) {
-                Text("Как работает повторение", color = Ink.Fg, modifier = Modifier.weight(1f, fill = false))
-                Icon(AlbionIcons.ExpandMore, null, tint = Ink.Muted, modifier = Modifier.size(18.dp).rotate(if (expanded) 180f else 0f))
+                Text("Как работает повторение", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
+                Icon(AlbionIcons.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp).rotate(if (expanded) 180f else 0f))
             }
             AnimatedVisibility(expanded) {
                 Text("Сначала повторяются темы с самой ранней датой. Полный тест обновляет план. " +
                     "Интервалы после успешных тестов: 1, 3, 7, 14, 30 и 60 дней. Менее 70% — повтор через день. " +
                     "Досрочный тест и повтор ошибок не увеличивают интервал.",
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-    }
-}
-
-@Composable
-private fun ReferenceCard(topic: Topic, onClick: () -> Unit) {
-    Panel(onClick = onClick, modifier = Modifier.width(180.dp).heightIn(min = 124.dp), contentPadding = PaddingValues(16.dp)) {
-        Text("§", style = AlbionType.index.copy(color = Ink.GoldText, fontSize = 22.sp))
-        Spacer(Modifier.height(12.dp))
-        Text(topic.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(topic.title), fontSize = 22.sp, lineHeight = 27.sp), color = Ink.Text)
     }
 }
 
@@ -258,18 +248,18 @@ private fun GrammarSearchResult(
 ) {
     Column(Modifier.fillMaxWidth().selectedRow(selected).clickable { open(topic) }.padding(vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(topic.number?.toString() ?: "§", style = AlbionType.index, modifier = Modifier.width(36.dp))
+            Text(topic.number?.toString() ?: "§", style = MaterialTheme.typography.titleMedium, modifier = Modifier.width(36.dp))
             Column(Modifier.weight(1f)) {
-                Text(com.marat.albion.ui.components.highlightedQuery(topic.title, query), style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
+                Text(com.marat.albion.ui.components.highlightedQuery(topic.title, query), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                 val status = when { progress?.masteredAt != null -> "Освоено"; progress?.readAt != null -> "Прочитано"; else -> null }
-                if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                GrammarReview.plan(progress)?.let { Text("Повторение: ${grammarReviewDate(it.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = Ink.Soft) }
+                if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                GrammarReview.plan(progress)?.let { Text("Повторение: ${grammarReviewDate(it.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
             Spacer(Modifier.width(8.dp))
-            if (progress?.bookmarked == true) Icon(AlbionIcons.Bookmark, null, tint = Ink.Accent, modifier = Modifier.size(14.dp))
+            if (progress?.bookmarked == true) Icon(AlbionIcons.Bookmark, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
             LevelBadge(topic.level)
         }
-        if (query.isNotBlank()) Text(com.marat.albion.ui.components.highlightedQuery(GrammarSearch.snippet(topic, query), query), style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+        if (query.isNotBlank()) Text(com.marat.albion.ui.components.highlightedQuery(GrammarSearch.snippet(topic, query), query), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 36.dp, top = 7.dp))
         Hairline(Modifier.padding(top = 14.dp))
     }

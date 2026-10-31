@@ -44,7 +44,6 @@ import com.marat.albion.data.library.BookWordsRepository
 import com.marat.albion.data.library.DictEntry
 import com.marat.albion.data.library.SavedBookWord
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -103,13 +102,13 @@ internal fun BookWordAction(
             }, icon = AlbionIcons.Add, enabled = !saving,
         )
         Text(if (alreadySaved) "Это значение уже сохранено." else "В «Слова из книг» · $term",
-            style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 8.dp))
-        error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Ink.Error, modifier = Modifier.padding(top = 8.dp)) }
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
+        error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
         Column(Modifier.fillMaxWidth()) {
             TextButton(onClick = { editing = true }, enabled = !saving) {
-                Text(if (alreadySaved) "Другое значение" else "Изменить перед сохранением", color = Ink.AccentText)
+                Text(if (alreadySaved) "Другое значение" else "Изменить перед сохранением", color = MaterialTheme.colorScheme.primary)
             }
-            if (existing.isNotEmpty() && !alreadySaved) TextButton(onClick = onOpenDeck) { Text("В колоду", color = Ink.AccentText) }
+            if (existing.isNotEmpty() && !alreadySaved) TextButton(onClick = onOpenDeck) { Text("В колоду", color = MaterialTheme.colorScheme.primary) }
         }
     }
     if (editing) {
@@ -140,10 +139,8 @@ internal fun BookWordEditor(
     var error by remember { mutableStateOf<String?>(null) }
     val valid = term.isNotBlank() && term.length <= 200 && meaning.isNotBlank() && meaning.length <= 2000 && example.length <= 4000
     androidx.compose.material3.ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },onDismissRequest = { if (!saving) onDismiss() },
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Ink.Raised, scrimColor = Ink.Fg.copy(alpha = 0.32f)) {
+        onDismissRequest = { if (!saving) onDismiss() },
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(0.92f).imePadding().navigationBarsPadding().padding(horizontal = 24.dp)) {
             com.marat.albion.ui.components.SheetHeader(if (existingCard == null) "Слово из книги" else "Изменить значение", { if (!saving) onDismiss() })
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -152,8 +149,8 @@ internal fun BookWordEditor(
                 OutlinedTextField(meaning, { meaning = it }, label = { Text("Перевод") },
                     enabled = !saving, modifier = Modifier.fillMaxWidth(), minLines = 2, isError = meaning.length > 2000)
                 if (meanings.size > 1) Box {
-                    TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = Ink.AccentText) }
-                    DropdownMenu(choices, { choices = false }, containerColor = Ink.Raised) {
+                    TextButton(onClick = { choices = true }, enabled = !saving) { Text("Выбрать значение", color = MaterialTheme.colorScheme.primary) }
+                    DropdownMenu(choices, { choices = false }) {
                         meanings.forEach { option -> DropdownMenuItem(text = { Text(option) }, onClick = { meaning = option; choices = false }) }
                     }
                 }
@@ -162,7 +159,7 @@ internal fun BookWordEditor(
                         enabled = !saving, modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8, isError = example.length > 4000)
                 }
                 Text(listOf(source.title, source.chapter).filter { it.isNotBlank() }.joinToString(" · "),
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 com.marat.albion.ui.components.FieldError(when {
                     term.length > 200 -> "Сократите слово или выражение до 200 символов."
                     meaning.length > 2000 -> "Сократите перевод до 2000 символов."

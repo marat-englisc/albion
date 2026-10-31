@@ -52,7 +52,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
-import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
@@ -99,7 +98,7 @@ fun GoalReminderSection(s: Settings) {
         Text(
             "Без разрешения на уведомления напомнить не получится. Его можно выдать в настройках телефона → Приложения → Albion.",
             style = MaterialTheme.typography.bodySmall,
-            color = Ink.Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp),
         )
         com.marat.albion.ui.components.AppSettingsButton()
@@ -110,8 +109,8 @@ fun GoalReminderSection(s: Settings) {
                 Modifier.fillMaxWidth().clickable { pickTime = true }.padding(vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Время", style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
-                Text("%02d:%02d".format(s.reminderHour, s.reminderMinute), style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                Text("Время", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                Text("%02d:%02d".format(s.reminderHour, s.reminderMinute), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
             }
             SwitchSetting("Только если есть что повторить", s.reminderOnlyIfNeeded) {
                 scope.launch { c.settings.setReminderOnlyIfNeeded(it) }
@@ -119,7 +118,7 @@ fun GoalReminderSection(s: Settings) {
             Text(
                 "Напомню, если цель ещё не выполнена или карточки ждут повторения.",
                 style = MaterialTheme.typography.bodySmall,
-                color = Ink.Muted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(6.dp))
             ActionRow("Прислать пробное напоминание") {
@@ -148,8 +147,7 @@ fun GoalReminderSection(s: Settings) {
         }
         AlertDialog(
             onDismissRequest = { pickTime = false },
-            containerColor = Ink.Raised,
-            title = { Eyebrow("Время напоминания", color = Ink.Soft) },
+            title = { Eyebrow("Время напоминания", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (!clock) {
@@ -168,20 +166,19 @@ fun GoalReminderSection(s: Settings) {
                     if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) {
                         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) { fields(Modifier.fillMaxWidth(), Modifier.fillMaxWidth()) }
                     } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) { fields(Modifier.weight(1f), Modifier.weight(1f)) }
-                    Text("24-часовой формат", style = MaterialTheme.typography.bodySmall, color = Ink.Muted, modifier = Modifier.padding(top = 8.dp))
+                    Text("24-часовой формат", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
                     com.marat.albion.ui.components.FieldError(if (!validHours) "Введите часы от 0 до 23." else if (!validMinutes) "Введите минуты от 0 до 59." else null)
                 } else TimePicker(
                     state = state,
                     colors = TimePickerDefaults.colors(
-                        clockDialColor = Ink.High,
-                        clockDialSelectedContentColor = Ink.Bg,
-                        clockDialUnselectedContentColor = Ink.Text,
-                        selectorColor = Ink.Fg,
-                        containerColor = Ink.Raised,
-                        timeSelectorSelectedContainerColor = Ink.Fg,
-                        timeSelectorUnselectedContainerColor = Ink.High,
-                        timeSelectorSelectedContentColor = Ink.Bg,
-                        timeSelectorUnselectedContentColor = Ink.Text,
+                        clockDialColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        clockDialSelectedContentColor = MaterialTheme.colorScheme.background,
+                        clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                        selectorColor = MaterialTheme.colorScheme.onSurface,
+                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.onSurface,
+                        timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        timeSelectorSelectedContentColor = MaterialTheme.colorScheme.background,
+                        timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 )
                 if (offerClock) TextButton(enabled = valid, onClick = {
@@ -194,9 +191,9 @@ fun GoalReminderSection(s: Settings) {
                 TextButton(enabled = valid, onClick = {
                     pickTime = false
                     scope.launch { c.settings.setReminderTime(state.hour, state.minute) }
-                }) { Text("Готово", color = Ink.Fg) }
+                }) { Text("Готово", color = MaterialTheme.colorScheme.onSurface) }
             },
-            dismissButton = { TextButton(onClick = { pickTime = false }) { Text("Отмена", color = Ink.Muted) } },
+            dismissButton = { TextButton(onClick = { pickTime = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         )
     }
 }
@@ -210,7 +207,7 @@ fun FsrsTuningBlock(s: Settings) {
 
     Hairline()
     Column(Modifier.padding(top = 16.dp)) {
-        Text("Подстройка под вашу память", style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+        Text("Подстройка под вашу память", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(6.dp))
         Text(
             if (custom) {
@@ -222,14 +219,14 @@ fun FsrsTuningBlock(s: Settings) {
                     "параметры под то, как быстро вы запоминаете и забываете."
             },
             style = MaterialTheme.typography.bodySmall,
-            color = Ink.Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         when (val st = state) {
             is TuningState.Running -> Column(Modifier.padding(top = 16.dp)) {
                 ThinProgress(st.progress)
                 Spacer(Modifier.height(8.dp))
-                Eyebrow("Подбираю параметры · ${(st.progress * 100).toInt()}%", color = Ink.Soft)
+                Eyebrow("Подбираю параметры · ${(st.progress * 100).toInt()}%", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             is TuningState.Finished -> Text(
                 when (val o = st.outcome) {
@@ -246,10 +243,10 @@ fun FsrsTuningBlock(s: Settings) {
                     }
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                color = Ink.Fg,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 14.dp),
             )
-            is TuningState.Failed -> Text("Не удалось: ${st.message}", style = MaterialTheme.typography.bodyMedium, color = Ink.Fg, modifier = Modifier.padding(top = 14.dp))
+            is TuningState.Failed -> Text("Не удалось: ${st.message}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(top = 14.dp))
             TuningState.Idle -> {}
         }
 

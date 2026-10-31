@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -35,8 +36,6 @@ data class Settings(
     /** Час, с которого начинается новый учебный день (как в Anki). */
     val dayStartHour: Int = 4,
     val lastGrammarTopic: String? = null,
-    /** Полная заставка показывается один раз; последующие запуски — короткие. */
-    val introSeen: Boolean = false,
     /** Показывать русское значение на обороте карточек. */
     val showRussian: Boolean = true,
     val browseShowRussian: Boolean = true,
@@ -84,7 +83,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val lastTopic = stringPreferencesKey("last_grammar_topic")
         val contentVersion = stringPreferencesKey("content_version")
         val dictionaryVersion = intPreferencesKey("dictionary_version")
-        val introSeen = booleanPreferencesKey("intro_seen")
         val showRussian = booleanPreferencesKey("show_russian")
         val browseRussian = booleanPreferencesKey("browse_show_russian")
         val dailyGoal = intPreferencesKey("daily_goal")
@@ -122,7 +120,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             grammarTextScale = p[Keys.grammarScale] ?: 1.0f,
             dayStartHour = p[Keys.dayStart] ?: 4,
             lastGrammarTopic = p[Keys.lastTopic],
-            introSeen = p[Keys.introSeen] ?: false,
             showRussian = p[Keys.showRussian] ?: true,
             browseShowRussian = p[Keys.browseRussian] ?: true,
             dailyGoal = p[Keys.dailyGoal] ?: 30,
@@ -143,7 +140,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             reduceMotion = p[Keys.reduceMotion] ?: false,
             shortSessionAnswers = (p[Keys.shortSessionAnswers] ?: 10).takeIf { it in listOf(5, 10, 20) } ?: 10,
         )
-    }
+    }.distinctUntilChanged()
 
     val viewedHelp: Flow<Set<String>> = store.data.map { it[Keys.viewedHelp].orEmpty() }
 
@@ -188,7 +185,6 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
     suspend fun setInterfaceSounds(v: Boolean) = edit { it[Keys.interfaceSounds] = v }
     suspend fun setHapticsEnabled(v: Boolean) = edit { it[Keys.hapticsEnabled] = v }
     suspend fun setReduceMotion(v: Boolean) = edit { it[Keys.reduceMotion] = v }
-    suspend fun markIntroSeen() = edit { it[Keys.introSeen] = true }
     suspend fun setShowRussian(v: Boolean) = edit { it[Keys.showRussian] = v }
     suspend fun setBrowseShowRussian(v: Boolean) = edit { it[Keys.browseRussian] = v }
     suspend fun setDailyGoal(v: Int) = edit { it[Keys.dailyGoal] = v }

@@ -30,8 +30,6 @@ import com.marat.albion.data.grammar.FlowGraph
 import com.marat.albion.data.grammar.FlowNode
 import com.marat.albion.data.grammar.NodeShape
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
 
 /**
  * Нативная отрисовка схем Mermaid для узкого экрана: граф раскладывается в
@@ -57,7 +55,7 @@ private fun buildForest(graph: FlowGraph): List<TreeNode> {
 @Composable
 fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
     val forest = remember(graph) { buildForest(graph) }
-    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(8.dp)).padding(16.dp)) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(16.dp)) {
         Eyebrow("Схема")
         Spacer(Modifier.height(14.dp))
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { forest.forEach { TreeView(it) } }
@@ -79,13 +77,13 @@ private fun TreeView(t: TreeNode, depth: Int = 0) {
                 t.branches.forEach { b ->
                     Row(Modifier.height(IntrinsicSize.Min)) {
                         Spacer(Modifier.width(if (depth < 2) 12.dp else 0.dp))
-                        Box(Modifier.width(1.dp).fillMaxHeight().background(Ink.LineStrong))
+                        Box(Modifier.width(1.dp).fillMaxHeight().background(MaterialTheme.colorScheme.outline))
                         Spacer(Modifier.width(if (depth < 2) 12.dp else 0.dp))
                         Column(Modifier.weight(1f)) {
                             if (b.label != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-                                    Text(b.label.uppercase(), style = AlbionType.eyebrow.copy(letterSpacing = 1.5.sp), color = Ink.Fg)
-                                    Icon(AlbionIcons.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(16.dp))
+                                    Text(b.label.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+                                    Icon(AlbionIcons.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                                 }
                             } else Arrow()
                             TreeView(b.target, depth + 1)
@@ -100,7 +98,7 @@ private fun TreeView(t: TreeNode, depth: Int = 0) {
 @Composable
 private fun Arrow() {
     Box(Modifier.padding(start = 10.dp).height(22.dp), contentAlignment = Alignment.Center) {
-        Icon(AlbionIcons.KeyboardArrowDown, null, tint = Ink.Faint, modifier = Modifier.size(18.dp))
+        Icon(AlbionIcons.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
     }
 }
 
@@ -114,26 +112,22 @@ private fun NodeBox(node: FlowNode, reference: Boolean) {
     val scale = LocalMdEnv.current.scale
     Row(
         Modifier.widthIn(min = 80.dp)
-            .background(if (decision) Ink.Fg else Ink.Raised, shape)
-            .border(1.dp, if (reference) Ink.Line else if (decision) Ink.Fg else Ink.LineStrong, shape)
+            .background(if (decision) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface, shape)
+            .border(1.dp, if (reference) MaterialTheme.colorScheme.outlineVariant else if (decision) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline, shape)
             .padding(horizontal = 12.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (reference) {
-            Icon(AlbionIcons.Redo, null, tint = Ink.Faint, modifier = Modifier.size(15.dp))
+            Icon(AlbionIcons.Redo, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(15.dp))
             Spacer(Modifier.width(8.dp))
         }
         InlineText(
             node.label,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp * scale,
-                lineHeight = 20.sp * scale,
-                color = when {
-                    decision -> Ink.Bg
-                    reference -> Ink.Muted
-                    else -> Ink.Text
-                },
-            ),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp * scale, lineHeight = 20.sp * scale, color = when {
+                    decision -> MaterialTheme.colorScheme.background
+                    reference -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurface
+                }),
         )
     }
 }

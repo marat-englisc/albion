@@ -60,7 +60,7 @@ class IterationTwoUiTest {
                 val bounds = Rect().also(paragraph::getBoundsInScreen)
                 tap(bounds.left + 40f, bounds.exactCenterY())
                 awaitNode { it.text?.toString() == "перо" }
-                clickText("Сохранить слово")
+                clickText("Сохранить это значение")
                 awaitNode { it.text?.toString() == "Отменить" }
                 val saved = withTimeout(5_000) { c.bookWords.observeTerm(prototype.term).first { cards -> cards.any { it.id !in oldIds } } }
                     .first { it.id !in oldIds }

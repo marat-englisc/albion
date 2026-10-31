@@ -39,13 +39,6 @@ import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Brand
-import com.marat.albion.ui.theme.headingFamily
-import com.marat.albion.ui.theme.Sans
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
 
 /** Озвучка, доступная лицевой и оборотной сторонам. */
 interface CardAudio {
@@ -64,7 +57,7 @@ private fun termStyle(term: String, large: Boolean): TextStyle {
         term.length <= 28 -> 34
         else -> 28
     }
-    return TextStyle(fontFamily = headingFamily(term), fontWeight = FontWeight.SemiBold, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
+    return TextStyle(fontWeight = FontWeight.SemiBold, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -73,11 +66,11 @@ private fun TermHeader(card: CardEntity, audio: CardAudio, large: Boolean, showI
     val deck = deckOf(card)
     val key = "term:${card.id}"
     Column(horizontalAlignment = if (large) Alignment.CenterHorizontally else Alignment.Start, modifier = Modifier.fillMaxWidth()) {
-        Text(card.term, style = termStyle(card.term, large), textAlign = if (large) TextAlign.Center else TextAlign.Start, color = Ink.Fg)
+        Text(card.term, style = termStyle(card.term, large), textAlign = if (large) TextAlign.Center else TextAlign.Start, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (showIpa && card.ipa.isNotBlank()) {
-                Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
+                Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
                 Spacer(Modifier.width(10.dp))
             }
             AudioButton(audio.playingKey == key, { audio.play(deck, card.audio, card.term, key) }, size = 48.dp)
@@ -101,21 +94,21 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
         TermHeader(card, audio, large = true, showIpa = showIpa)
         if (card.senses.size > 1) {
             Spacer(Modifier.height(14.dp))
-            Eyebrow("Все значения · ${card.senses.size}", color = Ink.GoldText)
+            Eyebrow("Все значения · ${card.senses.size}", color = MaterialTheme.colorScheme.secondary)
         }
         if (irregular != null) {
             Spacer(Modifier.height(36.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, Ink.Line, RoundedCornerShape(3.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(3.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("V${i + 2}", style = AlbionType.index)
+                        Text("V${i + 2}", style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(2.dp))
-                        Text("?", style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = Sans, fontSize = 26.sp), color = Ink.Faint)
+                        Text("?", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(2.dp))
-                        Eyebrow(form.label, color = Ink.Faint)
+                        Eyebrow(form.label, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -132,24 +125,23 @@ fun CardBack(
     modifier: Modifier = Modifier,
     showRussian: Boolean = true,
 ) {
-    val reveal = rememberReveal()
     var i = 0
     Column(modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 22.dp)) {
         TermHeader(card, audio, large = false)
 
         if (irregular != null) {
             Spacer(Modifier.height(22.dp))
-            IrregularForms(card, irregular, audio, Modifier.reveal(reveal, ++i, step = 70))
+            IrregularForms(card, irregular, audio, Modifier)
         }
 
         Spacer(Modifier.height(18.dp))
 
-        Hairline(Modifier.reveal(reveal, ++i, step = 70))
+        Hairline(Modifier)
         Spacer(Modifier.height(16.dp))
 
         val senses = WordCards.members(card)
         if (senses.size > 1) {
-            Text("Оцените знание всех ${senses.size} значений", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            Text("Оцените знание всех ${senses.size} значений", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
             com.marat.albion.ui.components.WordMeanings(card, showRussian)
             com.marat.albion.ui.components.Disclosure("Определения и примеры · ${senses.size}") {
@@ -163,7 +155,7 @@ fun CardBack(
         if (irregular != null) {
             irregular.forms.forEachIndexed { fi, form ->
                 if (form.examples.isEmpty()) return@forEachIndexed
-                Column(Modifier.reveal(reveal, ++i, step = 70)) {
+                Column(Modifier) {
                     Spacer(Modifier.height(20.dp))
                     Eyebrow("Examples · V${fi + 1} ${form.label}")
                     Spacer(Modifier.height(8.dp))
@@ -173,12 +165,12 @@ fun CardBack(
             if (irregular.note.isNotBlank()) {
                 Spacer(Modifier.height(22.dp))
                 Column(
-                    Modifier.fillMaxWidth().reveal(reveal, ++i, step = 70)
-                        .border(1.dp, Ink.Line, RoundedCornerShape(3.dp)).padding(14.dp),
+                    Modifier.fillMaxWidth()
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(3.dp)).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))
-                    Text(irregular.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+                    Text(irregular.note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -193,11 +185,10 @@ private fun SenseContent(
     if (total > 1) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("%02d".format(index + 1), style = TextStyle(fontFamily = Brand,
-                fontWeight = FontWeight.SemiBold, fontSize = 24.sp), color = Ink.GoldText)
+            Text("%02d".format(index + 1), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.secondary)
             Column(Modifier.weight(1f)) {
-                Text(sense.pos, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
-                if (sense.ipa.isNotBlank() && sense.ipa != header?.ipa) Text(sense.ipa, style = AlbionType.ipa.copy(fontSize = 15.sp))
+                Text(sense.pos, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (sense.ipa.isNotBlank() && sense.ipa != header?.ipa) Text(sense.ipa, style = MaterialTheme.typography.bodyLarge)
             }
             if (sense.audio != null && sense.audio != header?.audio) {
                 val key = "sense:${sense.id}"
@@ -210,12 +201,12 @@ private fun SenseContent(
     if (sense.meaningEn.isNotBlank()) {
         if (total == 1) Eyebrow("Meaning")
         Spacer(Modifier.height(6.dp))
-        Text(sense.meaningEn, style = MaterialTheme.typography.bodyLarge, color = Ink.Fg)
+        Text(sense.meaningEn, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
     }
     if (showRussian && sense.meaningRu.isNotBlank()) {
         Spacer(Modifier.height(8.dp))
         if (total == 1) Eyebrow("Значение")
-        Text(sense.meaningRu, style = MaterialTheme.typography.bodyLarge, color = Ink.Soft)
+        Text(sense.meaningRu, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (showExamples) {
         val examples = listOf(sense.example1, sense.example2).filter { it.isNotBlank() }.distinct()
@@ -231,7 +222,7 @@ private fun SenseContent(
         Spacer(Modifier.height(14.dp))
         Eyebrow("Из книги")
         Text(listOf(source.title, source.chapter).filter { it.isNotBlank() }.joinToString(" · "),
-            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -239,13 +230,13 @@ private fun SenseContent(
 @Composable
 private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAudio, modifier: Modifier) {
     val deck = deckOf(card)
-    Column(modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(6.dp))) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))) {
         data.forms.forEachIndexed { index, form ->
             if (index > 0) Hairline()
             Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("V${index + 1}", style = AlbionType.index.copy(color = Ink.Fg, fontSize = 18.sp))
-                    Text(form.label, style = MaterialTheme.typography.labelSmall, color = Ink.Muted, modifier = Modifier.weight(1f))
+                    Text("V${index + 1}", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
+                    Text(form.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(6.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -253,8 +244,8 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
                         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Column {
-                                Text(v.text, style = TextStyle(fontFamily = headingFamily(v.text), fontWeight = FontWeight.SemiBold, fontSize = 24.sp), color = Ink.Fg)
-                                if (v.ipa.isNotBlank()) Text(v.ipa, style = AlbionType.ipa.copy(fontSize = 14.sp))
+                                Text(v.text, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
+                                if (v.ipa.isNotBlank()) Text(v.ipa, style = MaterialTheme.typography.bodyLarge)
                             }
                             v.audio.ifEmpty { listOf(null) }.forEachIndexed { k, file ->
                                 val key = "form:${card.id}:${form.label}:${v.text}:$k"
@@ -276,9 +267,9 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
 @Composable
 private fun ExampleLine(text: String, highlight: List<String>) {
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.Top) {
-        Text("—", style = MaterialTheme.typography.bodyLarge, color = Ink.Faint)
+        Text("—", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.width(12.dp))
-        Text(highlightTerms(text, highlight), style = MaterialTheme.typography.bodyLarge, color = Ink.Soft, modifier = Modifier.weight(1f))
+        Text(highlightTerms(text, highlight), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
     }
 }
 
@@ -308,7 +299,7 @@ fun highlightTerms(text: String, terms: List<String>): AnnotatedString {
         var pos = 0
         for (r in merged) {
             append(text.substring(pos, r.first))
-            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, color = Ink.Fg)) { append(text.substring(r.first, r.last + 1)) }
+            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(text.substring(r.first, r.last + 1)) }
             pos = r.last + 1
         }
         append(text.substring(pos))

@@ -114,14 +114,22 @@ class StudyRepository(
         reviews.states().associateBy { it.cardId },
     )
 
+    /** Начало текущего учебного дня; меняется раз в сутки или при смене часа начала дня. */
+    private fun observeStudyDay(): Flow<Pair<Long, Settings>> =
+        combine(minuteTicker, settings.settings) { now, s -> dayStart(now, s.dayStartHour) to s }
+            .distinctUntilChanged()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeSummaries(): Flow<List<DeckSummary>> =
-        combine(minuteTicker, settings.settings) { now, s -> now to s }
-            .flatMapLatest { (now, s) ->
-                val since = dayStart(now, s.dayStartHour)
-                combine(observeVocabulary(), reviews.observeReviewsSince(since)) { words, _ -> words }
-                    .map { words -> buildSummaries(words, s, now) }
-            }.flowOn(Dispatchers.Default)
+        observeStudyDay().flatMapLatest { (since, s) ->
+            combine(observeVocabulary(), reviews.observeReviewsSince(since), minuteTicker) { words, _, now -> words to now }
+                .map { (words, now) -> buildSummaries(words, s, now) }
+        }.flowOn(Dispatchers.Default)
+
+    /** Число слов в каждой колоде — без расчёта очередей. */
+    fun observeWordCounts(): Flow<Map<String, Int>> =
+        cards.observeAll().map { rows -> WordCards.group(rows).groupingBy { it.deck }.eachCount() }
+            .distinctUntilChanged().flowOn(Dispatchers.Default)
 
     private suspend fun buildSummaries(words: Vocabulary, s: Settings, now: Long): List<DeckSummary> = db.withTransaction {
         val byId = words.counts(now).associateBy { it.deck }
@@ -189,15 +197,6 @@ class StudyRepository(
         }
         return SessionQueue(learning, due, ordered.take(newLeft))
     }
-
-    suspend fun learningDue(deck: Deck, now: Long = System.currentTimeMillis()): List<CardEntity> =
-        db.withTransaction {
-            val words = vocabulary(deck)
-            words.cards.filter {
-                val m = WordCards.state(it, words.states)
-                m != null && m.state in listOf(CardState.LEARNING, CardState.RELEARNING) && m.due <= now + LEARN_AHEAD
-            }.sortedBy { WordCards.state(it, words.states)!!.due }
-        }
 
     private suspend fun word(id: String): CardEntity? =
         cards.wordMembers(id).takeIf { it.isNotEmpty() }?.let(WordCards::combine)
@@ -455,22 +454,24 @@ class StudyRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeStats(): Flow<Stats> = combine(minuteTicker, settings.settings.map { it.dayStartHour }.distinctUntilChanged()) { now, hour ->
-        now to hour
-    }.flatMapLatest { (now, hour) ->
-        val shift = dayShift(hour, now)
-        val today = (now + shift) / Fsrs.DAY
-        val todayStart = dayStart(now, hour)
+        dayStart(now, hour) to hour
+    }.distinctUntilChanged().flatMapLatest { (todayStart, hour) ->
+        val shift = dayShift(hour, todayStart)
+        val today = (todayStart + shift) / Fsrs.DAY
         val monthAgo = todayStart - 29 * Fsrs.DAY
+        // Одна подписка на все карточки: из неё и прогноз, и счётчики колод.
+        val vocabulary = combine(observeVocabulary(), minuteTicker) { words, now ->
+            val forecast = words.cards.mapNotNull { WordCards.state(it, words.states) }
+                .filter { it.due < todayStart + 15 * Fsrs.DAY }
+                .groupBy { (it.due + shift) / Fsrs.DAY }
+                .map { (day, states) -> DayCount(day, states.size) }.sortedBy { it.day }
+            forecast to words.counts(now)
+        }
         combine(
             combine(reviews.observeDaily(monthAgo, shift), games.observeDaily(monthAgo, shift)) { cards, games ->
                 (cards + games).groupBy { it.day }.map { (day, counts) -> DayCount(day, counts.sumOf { it.count }) }.sortedBy { it.day }
             },
-            observeVocabulary().map { words ->
-                words.cards.mapNotNull { WordCards.state(it, words.states) }
-                    .filter { it.due < todayStart + 15 * Fsrs.DAY }
-                    .groupBy { (it.due + shift) / Fsrs.DAY }
-                    .map { (day, states) -> DayCount(day, states.size) }.sortedBy { it.day }
-            },
+            vocabulary,
             combine(reviews.observeActiveDays(shift), games.observeActiveDays(shift)) { cards, games ->
                 (cards + games).distinct().sortedDescending()
             },
@@ -479,10 +480,9 @@ class StudyRepository(
                 reviews.observeTotalReviews(),
                 combine(reviews.observeTimeSince(todayStart), games.observeTimeSince(todayStart)) { cards, games -> cards + games },
                 reviews.observeReviewsSince(todayStart),
-                observeVocabulary().map { it.counts(now) },
                 combine(games.observeTotals(), games.observeAnswersSince(todayStart)) { totals, todayCount -> totals to todayCount },
-            ) { total, time, todayCount, counts, games -> StatsSummary(total, time, todayCount, counts, games.first, games.second) },
-        ) { daily, forecast, activeDays, retention, misc ->
+            ) { total, time, todayCount, games -> StatsSummary(total, time, todayCount, games.first, games.second) },
+        ) { daily, (forecast, counts), activeDays, retention, misc ->
             Stats(
                 today = today,
                 daily = daily,
@@ -495,7 +495,7 @@ class StudyRepository(
                 totalReviews = misc.total,
                 timeTodayMs = misc.time,
                 reviewsToday = misc.today,
-                counts = misc.counts,
+                counts = counts,
                 games = misc.games,
                 gameAnswersToday = misc.gamesToday,
             )
@@ -521,7 +521,7 @@ class StudyRepository(
 }
 
 private data class StatsSummary(
-    val total: Int, val time: Long, val today: Int, val counts: List<DeckCounts>,
+    val total: Int, val time: Long, val today: Int,
     val games: List<GameTotals>, val gamesToday: Int,
 )
 

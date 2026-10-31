@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.repo.WordCards
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
 
 /** Each dictionary sense has its own numbered line and room for the text to wrap. */
 @Composable
@@ -33,21 +31,21 @@ fun WordMeanings(
         senses.forEachIndexed { index, sense ->
             if (index > 0) {
                 Spacer(Modifier.height(10.dp))
-                Hairline(color = Ink.Gold.copy(alpha = .38f))
+                Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = .38f))
                 Spacer(Modifier.height(10.dp))
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (senses.size > 1) {
                     Text("%02d".format(index + 1), modifier = Modifier.widthIn(min = 24.dp).alignByBaseline(),
-                        style = AlbionType.index.copy(fontStyle = FontStyle.Normal, fontSize = 18.sp, lineHeight = 23.sp),
-                        color = Ink.GoldText)
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary)
                 }
                 Column(Modifier.weight(1f).alignBy(FirstBaseline)) {
                     val meaning = if (showRussian) sense.meaningRu.ifBlank { sense.meaningEn } else sense.meaningEn
-                    Text(meaning, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+                    Text(meaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (showDefinitions && sense.meaningEn.isNotBlank() && sense.meaningEn != meaning) {
                         Spacer(Modifier.height(4.dp))
-                        Text(sense.meaningEn, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                        Text(sense.meaningEn, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

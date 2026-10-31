@@ -43,7 +43,7 @@ class NavigationUiTest {
             assertEquals(check.top, skip.top)
             assertEquals(check.bottom, skip.bottom)
             clickText("Я не знаю")
-            awaitNode { it.text?.toString() == "НЕВЕРНО" }
+            awaitNode { it.text?.toString() == "Неверно" }
             clickText("Дальше")
             awaitNode { it.text?.toString() == "2 / 20" }
             awaitNode { it.text?.toString() == "Я не знаю" }
@@ -84,9 +84,9 @@ class NavigationUiTest {
             clickText("Учебник")
             setSearch("present")
             clickText("Прогресс")
-            awaitNode { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
+            awaitNode { it.text?.toString() == "Карточки и практика" }
             scenario.recreate()
-            awaitNode { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
+            awaitNode { it.text?.toString() == "Карточки и практика" }
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "present" }
         }
@@ -161,6 +161,8 @@ class NavigationUiTest {
                 assertEquals(2, saved.quizTotal)
                 assertTrue(saved.reviewAt!! > System.currentTimeMillis())
                 click(scrollToNode { it.text?.toString() == "Готово" })
+                // Запрос «142» остаётся в поиске: сначала очищаем его, затем очередь пуста.
+                setSearch("")
                 awaitNode { it.text?.toString() == "Все повторения выполнены" }
             }
         } finally {

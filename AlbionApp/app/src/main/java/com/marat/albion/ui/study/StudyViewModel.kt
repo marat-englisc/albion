@@ -74,7 +74,15 @@ class StudyViewModel(private val repo: StudyRepository, private val deck: Deck?,
 
     init {
         viewModelScope.launch {
-            val q = if (deck == null) repo.buildQueueAll() else repo.buildQueue(deck)
+            val q = try {
+                if (deck == null) repo.buildQueueAll() else repo.buildQueue(deck)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("Albion", "Очередь занятия", e)
+                _state.update { it.copy(loading = false, finished = true, error = "Не удалось подготовить занятие. Попробуйте ещё раз.") }
+                return@launch
+            }
             q.learning.forEach { card -> learning += card to repo.memory(card.id).due }
             reviews.addAll(q.reviews)
             news.addAll(q.news.filter { n -> learning.none { it.first.id == n.id } })

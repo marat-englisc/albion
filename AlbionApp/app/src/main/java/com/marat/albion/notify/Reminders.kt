@@ -34,7 +34,6 @@ object Reminders {
     private const val NOTIFICATION_ID = 4202
 
     fun createChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < 26) return
         val channel = NotificationChannel(CHANNEL, "Ежедневное напоминание", NotificationManager.IMPORTANCE_DEFAULT).apply {
             description = "Напоминание о дневной цели и карточках к повторению"
         }
@@ -136,15 +135,15 @@ class ReminderReceiver : BroadcastReceiver() {
                 val c = app.container
                 val s = c.settings.current()
                 if (!s.reminderEnabled) return@launch
-                if (intent.action in RESCHEDULE_ACTIONS) {
-                    Reminders.schedule(context, s.reminderHour, s.reminderMinute)
-                    return@launch
-                }
+                // Следующий будильник ставится первым: сбой подсчёта не должен отключить напоминания навсегда.
+                Reminders.schedule(context, s.reminderHour, s.reminderMinute)
+                if (intent.action in RESCHEDULE_ACTIONS) return@launch
                 val (answered, due) = c.study.todayStatus()
                 Reminders.message(answered, s.dailyGoal, due, s.reminderOnlyIfNeeded)?.let { (title, text) ->
                     Reminders.show(context, title, text)
                 }
-                Reminders.schedule(context, s.reminderHour, s.reminderMinute)
+            } catch (e: Exception) {
+                android.util.Log.e("Albion", "Напоминание", e)
             } finally {
                 pending.finish()
             }

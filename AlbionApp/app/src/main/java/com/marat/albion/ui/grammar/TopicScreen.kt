@@ -1,12 +1,10 @@
 package com.marat.albion.ui.grammar
 
-import com.marat.albion.ui.theme.paperSurface
+import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.CatalogueTab
-import com.marat.albion.ui.theme.headingFamily
 import androidx.compose.foundation.background
-import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.data.grammar.MdRule
 import com.marat.albion.data.grammar.MdParagraph
 import com.marat.albion.data.grammar.MdBlock
@@ -60,7 +58,6 @@ import com.marat.albion.data.grammar.MdHeading
 import com.marat.albion.data.grammar.Topic
 import com.marat.albion.data.grammar.TopicKind
 import com.marat.albion.data.settings.Settings
-import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
@@ -75,9 +72,6 @@ import com.marat.albion.ui.nav.TopicRoute
 import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.flow.first
 import com.marat.albion.ui.nav.TopicQuizRoute
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.rememberReveal
-import com.marat.albion.ui.theme.reveal
 import kotlinx.coroutines.launch
 
 @Composable
@@ -114,7 +108,6 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
     val headingIndex = remember(blocks) {
         blocks.withIndex().filter { (it.value as? MdHeading)?.level == 2 }.map { it.index to (it.value as MdHeading).text }
     }
-    val reveal = rememberReveal()
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
 
     val env = remember(settings.grammarTextScale, book) {
@@ -149,15 +142,15 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         }
     }
 
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = navigator::back) {
             if (headingIndex.isNotEmpty()) {
                 Box {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Разделы темы", { tocMenu = true })
-                    DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }, containerColor = Ink.Raised) {
+                    DropdownMenu(expanded = tocMenu, onDismissRequest = { tocMenu = false }) {
                         headingIndex.forEach { (index, title) ->
                             DropdownMenuItem(
-                                text = { Text(title, color = Ink.Text) },
+                                text = { Text(title, color = MaterialTheme.colorScheme.onSurface) },
                                 onClick = {
                                     tocMenu = false
                                     scope.launch { if (reduced) listState.scrollToItem(index + 1) else listState.animateScrollToItem(index + 1) }
@@ -169,7 +162,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
             }
             Box {
                 com.marat.albion.ui.components.RoundIconButton(AlbionIcons.TextFields, "Размер текста", { sizeMenu = true })
-                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
+                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }) {
                     Column(Modifier.width(240.dp).padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Eyebrow("Размер текста · ${(settings.grammarTextScale * 100).toInt()}%")
                         ThinSlider(
@@ -185,15 +178,15 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                 com.marat.albion.ui.components.RoundIconButton(
                     if (progress?.bookmarked == true) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, "Закладка",
                     { scope.launch { c.grammar.toggleBookmark(topicId) } },
-                    tint = if (progress?.bookmarked == true) Ink.AccentText else Ink.Fg,
+                    tint = if (progress?.bookmarked == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
-        ThinProgress(readProgress, track = Ink.Bg)
+        ThinProgress(readProgress, track = MaterialTheme.colorScheme.background)
 
         when {
-            missing -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Тема не найдена", color = Ink.Muted) }
-            doc == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { AlbionLogo(size = 36.dp, color = Ink.Faint) }
+            missing -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Тема не найдена", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            doc == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             else -> ProvideMdEnv(env) {
                 SelectionContainer {
                     LazyColumn(
@@ -202,10 +195,10 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                         contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp, bottom = 40.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        item(key = "header") { TopicHeader(topic, doc!!, Modifier.reveal(reveal, 0),
+                        item(key = "header") { TopicHeader(topic, doc!!, Modifier,
                             book?.lessons.orEmpty().filter { it.number in topic?.prerequisites.orEmpty() }) }
                         itemsIndexed(blocks, key = { i, _ -> "b$i" }) { i, block ->
-                            MdBlockView(block, Modifier.reveal(reveal, 1 + i, step = 45))
+                            MdBlockView(block, Modifier)
                         }
                         if (topic?.kind == TopicKind.Lesson) {
                             item(key = "footer") {
@@ -257,14 +250,14 @@ private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier, prer
         }
         Spacer(Modifier.height(14.dp))
         val title = (doc.title ?: topic?.title.orEmpty()).removePrefix("Справочник — ")
-        Text(title, style = MaterialTheme.typography.headlineLarge.copy(fontFamily = headingFamily(title)), color = Ink.Fg)
+        Text(title, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
         if (prerequisites.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
             InlineText("Сначала: " + prerequisites.joinToString(" · ") { "[[${it.id}|${it.number}. ${it.title}]]" },
-                style = MaterialTheme.typography.bodySmall.copy(color = Ink.Muted))
+                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
         }
         Spacer(Modifier.height(16.dp))
-        Hairline(color = Ink.Gold.copy(alpha = .65f))
+        Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = .65f))
     }
 }
 
@@ -283,7 +276,7 @@ private fun TopicFooter(
         val read = progress?.readAt != null
         val mastered = progress?.masteredAt != null
         Text("Чтение ${if (read) "✓" else "○"}  →  Проверка ${if (progress?.quizAt != null) "✓" else "○"}  →  Освоение ${if (mastered) "✓" else "○"}",
-            style = MaterialTheme.typography.bodySmall, color = Ink.Soft)
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         val hasQuiz = quizCount > 0 && onQuiz != null
         val review = GrammarReview.plan(progress)
         val now = grammarReviewTime()
@@ -291,15 +284,15 @@ private fun TopicFooter(
             Column(
                 Modifier.fillMaxWidth()
 
-                    .border(1.dp, Ink.LineStrong, RoundedCornerShape(8.dp)).padding(20.dp),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp)).padding(20.dp),
             ) {
-                Eyebrow("Проверь себя", color = Ink.Soft)
+                Eyebrow("Проверь себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))
                 Text(
                     "В тесте — ${minOf(quizCount, GrammarQuizSelection.SIZE)} из $quizCount заданий. " +
                         "Для отметки «Освоено» нужно не менее 70% верных ответов. При новой попытке набор меняется.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Ink.Muted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(16.dp))
                 PrimaryButton(when {
@@ -314,13 +307,13 @@ private fun TopicFooter(
                 (if (mastered) "Тема освоена. " else "Освоение пока не подтверждено. ") +
                     "Последняя полная проверка: ${progress.quizCorrect} из ${progress.quizTotal} верно.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (mastered) Ink.Fg else Ink.Muted,
+                color = if (mastered) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         if (review != null && hasQuiz) {
             Text("Следующее повторение: ${grammarReviewDate(review.dueAt, now)}. " +
                 "Успешные полные тесты увеличивают интервал до 60 дней; менее 70% — повтор через день.",
-                style = MaterialTheme.typography.bodyMedium, color = Ink.Soft)
+                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = AlbionIcons.Check)
         NavArrows(onPrev, onContents, onNext)
@@ -338,8 +331,8 @@ private fun NavArrows(onPrev: (() -> Unit)?, onContents: (() -> Unit)?, onNext: 
             Icon(
                 AlbionIcons.GridView,
                 contentDescription = "Оглавление",
-                tint = Ink.Soft,
-                modifier = Modifier.size(44.dp).pressScale(interaction, 0.88f)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(44.dp)
                     .clip(CircleShape)
                     .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onContents)
                     .padding(12.dp),
@@ -356,10 +349,9 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
     val interaction = remember { MutableInteractionSource() }
     Box(
         Modifier.size(58.dp)
-            .pressScale(interaction, 0.9f)
             .clip(CircleShape)
-            .background(if (filled && enabled) Ink.Fg else Ink.Bg)
-            .border(1.dp, if (enabled) (if (filled) Ink.Fg else Ink.LineStrong) else Ink.Line, CircleShape)
+            .background(if (filled && enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.background)
+            .border(1.dp, if (enabled) (if (filled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline) else MaterialTheme.colorScheme.outlineVariant, CircleShape)
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled) { onClick?.invoke() },
         contentAlignment = Alignment.Center,
     ) {
@@ -367,9 +359,9 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
             icon,
             contentDescription = description,
             tint = when {
-                !enabled -> Ink.Faint
-                filled -> Ink.Bg
-                else -> Ink.Fg
+                !enabled -> MaterialTheme.colorScheme.onSurfaceVariant
+                filled -> MaterialTheme.colorScheme.background
+                else -> MaterialTheme.colorScheme.onSurface
             },
             modifier = Modifier.size(24.dp),
         )

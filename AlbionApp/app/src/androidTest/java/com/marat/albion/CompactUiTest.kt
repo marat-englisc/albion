@@ -25,7 +25,7 @@ import com.marat.albion.data.library.BookWordSource
 import com.marat.albion.ui.library.TranslationSheet
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
-import com.marat.albion.ui.theme.Ink
+import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -55,7 +55,7 @@ class CompactUiTest {
                 capture(name)
                 if (menu != null) {
                     activate(menu)
-                    awaitText("РАЗДЕЛЫ")
+                    awaitText("Разделы")
                     capture("$name-navigation")
                 }
                 val before = labels.associateWith { clickableBounds(awaitTab(it)) }
@@ -63,10 +63,10 @@ class CompactUiTest {
                 before.values.forEach { assertTrue("Цель вкладки меньше 48 dp ($name): $it", it.width() / density >= 48f) }
 
                 activate(awaitTab("Прогресс"))
-                awaitText("КАРТОЧКИ И ПРАКТИКА")
+                awaitText("Карточки и практика")
                 if (menu != null) {
                     activate(awaitText("Все разделы"))
-                    awaitText("РАЗДЕЛЫ")
+                    awaitText("Разделы")
                 }
                 val after = labels.associateWith { clickableBounds(awaitTab(it)) }
                 labels.forEach { label ->
@@ -106,7 +106,7 @@ class CompactUiTest {
                 awaitText("Сохранить")
                 capture("translation-editor-keyboard-$dark-$scale")
                 activate(awaitNode { it.contentDescription?.toString() == "Закрыть: Слово из книги" })
-                awaitText("Перевод слова".uppercase())
+                awaitText("Перевод слова")
             }
         }
     }
@@ -137,7 +137,7 @@ class CompactUiTest {
                     LocalDensity provides Density(density, scale)) {
                     key(name) {
                         AlbionTheme {
-                            Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 Box(Modifier.width(width.dp).height(640.dp)) { content() }
                             }
                         }

@@ -1,8 +1,8 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.flow.map
 
-import com.marat.albion.ui.theme.paperSurface
 import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
@@ -45,10 +45,8 @@ import com.marat.albion.data.settings.PracticeOptions
 import com.marat.albion.data.games.SentencePuzzle
 import com.marat.albion.data.games.TenseDrill
 import com.marat.albion.data.games.TenseTask
-import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.Easing
-import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -70,7 +68,7 @@ class GameViewModel(private val c: AppContainer, val game: Game,
     private val needAudio get() = game == Game.SHADOWING || game == Game.PRONUNCIATION
 
     /** Сколько ошибок накоплено в выбранной колоде — для экрана настройки. */
-    fun observeAvailable(deck: com.marat.albion.data.content.Deck) = c.study.observeSummaries().map { list -> list.firstOrNull { it.deck == deck }?.total ?: 0 }
+    fun observeAvailable(deck: com.marat.albion.data.content.Deck) = c.study.observeWordCounts().map { it[deck.id] ?: 0 }
     fun observeMistakes(deck: com.marat.albion.data.content.Deck) = c.study.observeGameMistakes(deck, game.name, needAudio)
     var items by mutableStateOf<List<CardEntity>>(emptyList())
         private set
@@ -248,7 +246,7 @@ private fun GameFrame(
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },
             )
-            Phase.Loading -> Box(Modifier.fillMaxSize().paperSurface(), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
                 com.marat.albion.ui.components.LoadingState("Готовим упражнение")
             }
             Phase.Summary -> GameSummary(
@@ -262,7 +260,7 @@ private fun GameFrame(
                 scoreLabel = scoreLabel,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().paperSurface()
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })

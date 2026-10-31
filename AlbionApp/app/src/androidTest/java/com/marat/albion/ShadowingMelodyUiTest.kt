@@ -28,7 +28,7 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.games.MelodyChart
 import com.marat.albion.ui.games.preparePitchContour
 import com.marat.albion.ui.theme.AlbionTheme
-import com.marat.albion.ui.theme.Ink
+import androidx.compose.material3.MaterialTheme
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -99,7 +99,7 @@ class ShadowingMelodyUiTest {
                 val density = LocalDensity.current
                 CompositionLocalProvider(LocalDensity provides Density(density.density, scale)) {
                     AlbionTheme {
-                        Box(Modifier.fillMaxSize().background(Ink.Bg), contentAlignment = Alignment.TopCenter) {
+                        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.TopCenter) {
                             // 320 dp экран, 24 dp внешние отступы и 18 dp внутри карточки.
                             Column(Modifier.width(320.dp).padding(horizontal = 42.dp, vertical = 40.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)) {

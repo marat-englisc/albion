@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
-import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.launch
 
 /** Инструкция один раз при знакомстве с разделом, затем — по кнопке справки. */
@@ -45,11 +44,10 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
     if (expanded) {
         AlertDialog(
             onDismissRequest = ::dismiss,
-            containerColor = Ink.Raised,
             shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
-            title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = Ink.Fg) },
+            title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface) },
             text = {
-                Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Text,
+                Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))
             },
             confirmButton = { PrimaryButton("Понятно", onClick = ::dismiss) },

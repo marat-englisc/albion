@@ -30,7 +30,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.marat.albion.data.audio.ShadowReport
-import com.marat.albion.ui.theme.Ink
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -40,11 +39,11 @@ internal fun MelodyChart(report: ShadowReport) {
     val original = remember(report) { preparePitchContour(report.originalPitch, report.originalEnergy) }
     val mine = remember(report) { preparePitchContour(report.minePitch, report.mineEnergy) }
 
-    val fg = Ink.Accent
-    val muted = Ink.GoldText
-    val grid = Ink.Line
-    val center = Ink.LineStrong
-    val band = Ink.Surface
+    val fg = MaterialTheme.colorScheme.primary
+    val muted = MaterialTheme.colorScheme.secondary
+    val grid = MaterialTheme.colorScheme.outlineVariant
+    val center = MaterialTheme.colorScheme.outline
+    val band = MaterialTheme.colorScheme.surfaceContainer
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (original.available || mine.available) {
@@ -60,8 +59,8 @@ internal fun MelodyChart(report: ShadowReport) {
                     Modifier.height(144.dp).padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("Выше", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
-                    Text("Ниже", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                    Text("Выше", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Ниже", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Column(Modifier.weight(1f)) {
                     Canvas(Modifier.fillMaxWidth().height(144.dp).semantics {
@@ -108,26 +107,26 @@ internal fun MelodyChart(report: ShadowReport) {
                         drawContour(original, dashed = false)
                     }
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Начало", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
-                        Text("Конец", style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                        Text("Начало", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Конец", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             Text(
                 "Середина — обычный тон каждого голоса. Разрывы — паузы и звуки без тона.",
-                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         if (!original.available) {
             Text(
                 "В записи диктора мало участков с различимым тоном. Сравните интонацию на слух.",
-                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         if (!mine.available) {
             Text(
                 "Не удалось уверенно определить тон вашей записи. Попробуйте записать ещё раз ближе к микрофону.",
-                style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -135,9 +134,9 @@ internal fun MelodyChart(report: ShadowReport) {
 
 @Composable
 private fun MelodyLegend(dashed: Boolean, label: String) {
-    val color = if (dashed) Ink.GoldText else Ink.Accent
+    val color = if (dashed) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     Row(
-        Modifier.background(Ink.Surface, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
+        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Canvas(Modifier.size(width = 24.dp, height = 8.dp)) {
@@ -148,6 +147,6 @@ private fun MelodyLegend(dashed: Boolean, label: String) {
             )
         }
         Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

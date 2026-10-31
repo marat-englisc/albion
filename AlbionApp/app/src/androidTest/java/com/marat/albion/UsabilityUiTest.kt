@@ -26,7 +26,7 @@ import com.marat.albion.data.library.BookWordSource
 import com.marat.albion.ui.library.TranslationSheet
 import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
-import com.marat.albion.ui.theme.Ink
+import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -149,21 +149,6 @@ class UsabilityUiTest {
         }
     }
 
-    @Test fun loadingIntroKeepsItsProgressSeparateAtTwoHundredPercent() {
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            for (height in listOf(320, 640)) {
-                show(scenario, "intro-$height", 320, 2f, false) {
-                    Box(Modifier.height(height.dp)) {
-                        com.marat.albion.ui.intro.IntroScreen(com.marat.albion.data.content.ImportStatus.Checking, full = false, onFinished = {})
-                    }
-                }
-                val progress = awaitText("Проверяю материалы")
-                assertTrue(bounds(awaitText("Albion")).bottom <= bounds(progress).top)
-                capture("intro-320-$height-2")
-            }
-        }
-    }
-
     private fun scrollToDescription(description: String): AccessibilityNodeInfo {
         repeat(15) {
             if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
@@ -183,7 +168,7 @@ class UsabilityUiTest {
                     LocalDensity provides Density(density, scale)) {
                     key(name) {
                         AlbionTheme {
-                            Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 Box(Modifier.width(width.dp).height(640.dp)) { content() }
                             }
                         }

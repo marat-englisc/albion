@@ -1,5 +1,6 @@
 package com.marat.albion
 
+import androidx.compose.material3.MaterialTheme
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
@@ -63,7 +64,7 @@ class WordCardDesignTest {
             }.size)
             capture("about-list")
             showCard(scenario, about, false, 1f)
-            await { it.text?.toString() == "Все значения · ${about.senses.size}".uppercase() }
+            await { it.text?.toString() == "Все значения · ${about.senses.size}" }
             capture("about-front")
             showCard(scenario, about, true, 1f)
             capture("about-back")
@@ -105,7 +106,7 @@ class WordCardDesignTest {
         show(scenario, "$back-$scale") {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, scale)) {
-                Box(Modifier.width(320.dp).fillMaxHeight().background(Ink.Bg).verticalScroll(rememberScrollState())) {
+                Box(Modifier.width(320.dp).fillMaxHeight().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState())) {
                     if (back) CardBack(card, null, silentAudio) else CardFront(card, null, silentAudio, true)
                 }
             }
@@ -117,7 +118,7 @@ class WordCardDesignTest {
         scenario.onActivity { activity -> activity.setContent {
             CompositionLocalProvider(LocalAppContainer provides c) {
                 key(name) {
-                    AlbionTheme { Box(Modifier.fillMaxSize().background(Ink.Bg).windowInsetsPadding(WindowInsets.systemBars)) { content() } }
+                    AlbionTheme { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.systemBars)) { content() } }
                     SideEffect { ready.countDown() }
                 }
             }

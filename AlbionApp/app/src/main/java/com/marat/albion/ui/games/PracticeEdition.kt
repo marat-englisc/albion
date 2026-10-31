@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.components.AlbionIcons
-import com.marat.albion.ui.components.RibbonBookmark
 import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.theme.*
 
@@ -63,13 +62,9 @@ internal fun PracticeSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = RoundedCornerShape(3.dp)
-    Column(modifier.fillMaxWidth().background(Ink.Raised, shape).border(.65.dp, Ink.Line, shape).drawBehind {
-        val inset = 4.dp.toPx(); val length = 12.dp.toPx(); val line = .55.dp.toPx()
-        drawLine(Ink.Gold, Offset(inset, inset + length), Offset(inset, inset), line)
-        drawLine(Ink.Gold, Offset(inset, inset), Offset(inset + length, inset), line)
-        drawLine(Ink.Gold, Offset(size.width - inset - length, size.height - inset), Offset(size.width - inset, size.height - inset), line)
-        drawLine(Ink.Gold, Offset(size.width - inset, size.height - inset), Offset(size.width - inset, size.height - inset - length), line)
-    }.padding(padding), content = content)
+    androidx.compose.material3.OutlinedCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(padding), content = content)
+    }
 }
 
 /** A rectangular, labelled choice with a full 48 dp touch target. */
@@ -78,13 +73,13 @@ internal fun PracticeOption(label: String, selected: Boolean, onClick: () -> Uni
     val feedback = LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val shape = RoundedCornerShape(2.dp)
-    Box(Modifier.widthIn(min = 64.dp).heightIn(min = 48.dp).pressScale(interaction, .99f)
-        .background(if (selected) Ink.AccentSoft else Ink.Raised, shape)
-        .border(if (selected) 1.dp else .65.dp, if (selected) Ink.Accent else Ink.LineStrong, shape)
+    Box(Modifier.widthIn(min = 64.dp).heightIn(min = 48.dp)
+        .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, shape)
+        .border(if (selected) 1.dp else .65.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, shape)
         .selectable(selected, interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.RadioButton) {
             feedback.selection(); onClick()
         }.padding(horizontal = 14.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
-        Text(label, style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp), color = if (selected) Ink.AccentText else Ink.Soft)
+        Text(label, style = MaterialTheme.typography.labelLarge, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -96,12 +91,12 @@ internal fun PracticeIconButton(
     val feedback = LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val shape = RoundedCornerShape(3.dp)
-    Box(modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, .99f)
-        .background(if (active) Ink.Accent else Ink.Raised, shape)
-        .border(.65.dp, if (active) Ink.Accent else Ink.LineStrong, shape)
+    Box(modifier.size(size.coerceAtLeast(48.dp))
+        .background(if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface, shape)
+        .border(.65.dp, if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, shape)
         .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
         contentAlignment = Alignment.Center) {
-        Icon(icon, label, tint = if (!enabled) Ink.Faint else if (active) Ink.OnAccent else Ink.AccentText,
+        Icon(icon, label, tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(21.dp))
     }
 }
@@ -114,21 +109,12 @@ internal fun PracticeAudioButton(playing: Boolean, onClick: () -> Unit, size: Dp
 @Composable
 internal fun PracticeModeCard(game: Game, last: Boolean, onClick: () -> Unit) {
     val feedback = LocalFeedback.current
-    Row(Modifier.fillMaxWidth().padding(bottom = 10.dp).background(Ink.Raised, RoundedCornerShape(3.dp))
-        .border(.65.dp, Ink.Line, RoundedCornerShape(3.dp)).clickable(role = Role.Button) { feedback.selection(); onClick() }
-        .padding(start = 14.dp, end = 15.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.Top) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(36.dp)) {
-            Icon(game.icon, null, tint = Ink.GoldText, modifier = Modifier.size(23.dp))
-
-        }
-        Spacer(Modifier.width(14.dp))
-        Column(Modifier.weight(1f)) {
-            Text(game.title, style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(game.title)), color = Ink.Fg)
-            Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-
-        }
-        Spacer(Modifier.width(10.dp))
-        if (last) RibbonBookmark(width = 9.dp, height = 24.dp)
-        else Icon(AlbionIcons.ArrowForward, null, tint = Ink.Soft, modifier = Modifier.padding(top = 5.dp).size(17.dp))
+    androidx.compose.material3.Card(onClick = { feedback.selection(); onClick() }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+        androidx.compose.material3.ListItem(
+            headlineContent = { Text(game.title) },
+            supportingContent = { Text(game.tagline) },
+            leadingContent = { Icon(game.icon, null) },
+            trailingContent = { Icon(AlbionIcons.ArrowForward, null) },
+        )
     }
 }

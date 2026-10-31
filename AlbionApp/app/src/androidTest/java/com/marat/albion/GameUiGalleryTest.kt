@@ -33,7 +33,7 @@ import com.marat.albion.ui.games.GameSummary
 import com.marat.albion.ui.games.Mistake
 import com.marat.albion.ui.games.ReportCard
 import com.marat.albion.ui.theme.AlbionTheme
-import com.marat.albion.ui.theme.Ink
+import androidx.compose.material3.MaterialTheme
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -92,7 +92,7 @@ class GameUiGalleryTest {
                 CompositionLocalProvider(LocalDensity provides Density(density, scale)) {
                     key(name) {
                         AlbionTheme {
-                            Box(Modifier.fillMaxSize().background(Ink.Bg)) {
+                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 MeasureNarrow(Modifier.width(width.dp).height(760.dp)) { content() }
                             }
                         }

@@ -48,10 +48,11 @@ class GameProgressTest {
 
     @After fun tearDown() { db.close() }
 
-    @Test fun deckSearchUsesOnlyEnglishTermsAndKeepsFilters() = runBlocking {
+    @Test fun deckSearchMatchesTermsAndTranslationsAndKeepsFilters() = runBlocking {
         assertEquals(listOf(card), repo.browse(Deck.WORDS, "CAT", 0).first())
-        assertTrue(repo.browse(Deck.WORDS, "кошка", 0).first().isEmpty())
-        assertTrue(repo.browse(Deck.WORDS, "animal", 0).first().isEmpty())
+        assertEquals(listOf(card), repo.browse(Deck.WORDS, "кошка", 0).first())
+        assertEquals(listOf(card), repo.browse(Deck.WORDS, "animal", 0).first())
+        assertTrue(repo.browse(Deck.WORDS, "собака", 0).first().isEmpty())
         assertEquals(listOf(card), repo.browse(Deck.WORDS, "", 1).first())
         assertTrue(repo.browse(Deck.WORDS, "cat", 3).first().isEmpty())
     }

@@ -46,91 +46,8 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :id")
     suspend fun get(id: String): CardEntity?
 
-    @Query("SELECT * FROM cards WHERE id IN (:ids)")
-    suspend fun getMany(ids: List<String>): List<CardEntity>
-
-    @Query("SELECT * FROM cards WHERE id = :id")
-    fun observe(id: String): Flow<CardEntity?>
-
     @Query("SELECT COUNT(*) FROM cards")
     fun observeTotal(): Flow<Int>
-
-    @Query(
-        """
-        SELECT c.id, c.term FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
-        WHERE c.deck = :deck AND r.card_id IS NULL
-        ORDER BY
-          CASE WHEN :byLevel THEN
-            CASE c.level WHEN 'A1' THEN 1 WHEN 'A2' THEN 2 WHEN 'B1' THEN 3 WHEN 'B2' THEN 4
-                         WHEN 'C1' THEN 5 WHEN 'C2' THEN 6 ELSE 7 END
-          ELSE 0 END,
-          CASE WHEN :random THEN RANDOM() ELSE c.position END
-        """
-    )
-    suspend fun newCandidates(deck: String, byLevel: Boolean, random: Boolean): List<StudyCandidate>
-
-    /** filter: 0 — все, 1 — новые, 2 — изучаются, 3 — на повторении, 4 — к повторению сейчас. */
-    @Query(
-        """
-        SELECT c.* FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
-        WHERE c.deck = :deck
-          AND (:query = '' OR c.term LIKE '%' || :query || '%')
-          AND (:filter = 0
-               OR (:filter = 1 AND r.card_id IS NULL)
-               OR (:filter = 2 AND r.state IN (1, 3))
-               OR (:filter = 3 AND r.state = 2)
-               OR (:filter = 4 AND r.due <= :now))
-        ORDER BY CASE WHEN :query != '' AND c.term LIKE :query || '%' THEN 0 ELSE 1 END,
-                 c.term COLLATE NOCASE, c.position
-        """
-    )
-    fun browse(deck: String, query: String, filter: Int, now: Long): Flow<List<CardEntity>>
-
-    @Query(
-        """
-        SELECT c.deck AS deck,
-               COUNT(*) AS total,
-               COUNT(r.card_id) AS started,
-               COALESCE(SUM(CASE WHEN r.state = 2 AND r.due <= :now THEN 1 ELSE 0 END), 0) AS due,
-               COALESCE(SUM(CASE WHEN r.state IN (1, 3) AND r.due <= :now + 1200000 THEN 1 ELSE 0 END), 0) AS learningDue,
-               COALESCE(SUM(CASE WHEN r.state IN (1, 3) THEN 1 ELSE 0 END), 0) AS learning,
-               COALESCE(SUM(CASE WHEN r.state = 2 AND r.stability >= 21 THEN 1 ELSE 0 END), 0) AS mature
-        FROM cards c LEFT JOIN review_state r ON r.card_id = c.id
-        GROUP BY c.deck
-        """
-    )
-    fun observeCounts(now: Long): Flow<List<DeckCounts>>
-
-    /**
-     * Случайные карточки для мини-игр: сначала уже начатые (их полезнее закреплять),
-     * затем новые. [withAudio] — только карточки с озвучкой.
-     */
-    @Query(
-        """
-        SELECT c.* FROM cards c
-        LEFT JOIN review_state r ON r.card_id = c.id
-        LEFT JOIN game_card_stats g ON g.card_id = c.id AND g.game = :game
-        WHERE c.deck = :deck AND (:withAudio = 0 OR c.audio IS NOT NULL)
-          AND (:onlyMistakes = 0 OR (g.wrong > 0 AND g.streak < 2))
-        ORDER BY CASE
-            WHEN g.wrong > 0 AND g.streak < 2 THEN 0
-            WHEN r.card_id IS NOT NULL THEN 1
-            ELSE 2 END,
-          RANDOM()
-        LIMIT :limit
-        """
-    )
-    suspend fun gamePool(deck: String, game: String, limit: Int, withAudio: Boolean, onlyMistakes: Boolean): List<CardEntity>
-
-    /** Сколько слов колоды числятся ошибками в игре. */
-    @Query(
-        """
-        SELECT COUNT(*) FROM game_card_stats g JOIN cards c ON c.id = g.card_id
-        WHERE g.game = :game AND c.deck = :deck AND g.wrong > 0 AND g.streak < 2
-          AND (:withAudio = 0 OR c.audio IS NOT NULL)
-        """
-    )
-    fun observeGameMistakes(deck: String, game: String, withAudio: Boolean): Flow<Int>
 
     @Query("SELECT * FROM game_card_stats WHERE card_id = :cardId AND game = :game")
     suspend fun gameStat(cardId: String, game: String): GameCardStatEntity?
@@ -170,9 +87,6 @@ interface ReviewDao {
     @Query("SELECT * FROM review_state WHERE card_id = :id")
     suspend fun state(id: String): ReviewStateEntity?
 
-    @Query("SELECT * FROM review_state WHERE card_id = :id")
-    fun observeState(id: String): Flow<ReviewStateEntity?>
-
     @Upsert
     suspend fun upsertState(state: ReviewStateEntity)
 
@@ -191,36 +105,11 @@ interface ReviewDao {
     @Query("DELETE FROM review_log WHERE id = :id")
     suspend fun deleteLog(id: Long)
 
-    @Query(
-        """
-        SELECT c.* FROM cards c JOIN review_state r ON r.card_id = c.id
-        WHERE c.deck = :deck AND r.state IN (1, 3) AND r.due <= :until
-        ORDER BY r.due
-        """
-    )
-    suspend fun learningDue(deck: String, until: Long): List<CardEntity>
-
-    @Query(
-        """
-        SELECT c.id, c.term FROM cards c JOIN review_state r ON r.card_id = c.id
-        WHERE c.deck = :deck AND r.state = 2 AND r.due <= :now
-        ORDER BY r.due
-        """
-    )
-    suspend fun reviewCandidates(deck: String, now: Long): List<StudyCandidate>
-
-    /** Слова, на которые отвечали с [since], — чтобы не показывать сегодня их другие значения. */
-    @Query("SELECT DISTINCT c.term FROM review_log l JOIN cards c ON c.id = l.card_id WHERE l.deck = :deck AND l.reviewed_at >= :since")
-    suspend fun termsAnsweredSince(deck: String, since: Long): List<String>
-
     @Query("SELECT COUNT(*) FROM review_log WHERE deck = :deck AND state_before = :stateBefore AND reviewed_at >= :since")
     suspend fun countSince(deck: String, stateBefore: Int, since: Long): Int
 
     @Query("SELECT COUNT(*) FROM review_log WHERE reviewed_at >= :since")
     fun observeReviewsSince(since: Long): Flow<Int>
-
-    @Query("SELECT COUNT(DISTINCT card_id) FROM review_log WHERE reviewed_at >= :since AND state_before = 0")
-    fun observeNewSince(since: Long): Flow<Int>
 
     /** Повторения по «учебным дням». День = floor((t + shift) / сутки), shift учитывает пояс и час начала дня. */
     @Query(
@@ -234,15 +123,6 @@ interface ReviewDao {
 
     @Query("SELECT DISTINCT ((reviewed_at + :shift) / 86400000) AS day FROM review_log ORDER BY day DESC LIMIT 1000")
     fun observeActiveDays(shift: Long): Flow<List<Long>>
-
-    @Query(
-        """
-        SELECT ((due + :shift) / 86400000) AS day, COUNT(*) AS count
-        FROM review_state WHERE due < :until
-        GROUP BY day ORDER BY day
-        """
-    )
-    fun observeForecast(until: Long, shift: Long): Flow<List<DayCount>>
 
     @Query("SELECT COUNT(*) FROM review_log WHERE state_before = 2 AND reviewed_at >= :since")
     fun observeReviewAnswers(since: Long): Flow<Int>

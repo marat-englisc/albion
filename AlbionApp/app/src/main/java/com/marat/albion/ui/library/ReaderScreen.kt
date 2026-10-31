@@ -17,7 +17,6 @@ import com.marat.albion.ui.settings.SliderSetting
 import com.marat.albion.ui.settings.SwitchSetting
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.compose.foundation.border
@@ -32,9 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.style.TextAlign
 import com.marat.albion.ui.components.FolioDivider
-import com.marat.albion.ui.components.RibbonBookmark
 import com.marat.albion.ui.components.romanNumeral
-import com.marat.albion.ui.theme.headingFamily
 import com.marat.albion.ui.theme.LocalReducedMotion
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -121,15 +118,11 @@ import com.marat.albion.data.library.BookWordSource
 import com.marat.albion.data.content.Deck
 import com.marat.albion.ui.nav.DeckRoute
 import com.marat.albion.data.settings.Settings
-import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.ThinSlider
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Reading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
@@ -287,24 +280,24 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         }
     }
     val scale = settings.readerTextScale
-    val body = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontFamily = Reading, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = Ink.Text)
-    val heading = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = headingFamily(vm.title), fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = Ink.Fg, textAlign = TextAlign.Center)
+    val body = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = MaterialTheme.colorScheme.onSurface)
+    val heading = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book
     val reduced = LocalReducedMotion.current
 
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back)
             Text(vm.title.ifBlank { "Читалка" }, style = MaterialTheme.typography.titleSmall,
-                color = Ink.Muted, textAlign = TextAlign.Center, maxLines = 2, modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2, modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.List, "Оглавление", { showToc = true })
             Box {
                 com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню чтения", { sizeMenu = true })
-                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }, containerColor = Ink.Raised) {
+                DropdownMenu(expanded = sizeMenu, onDismissRequest = { sizeMenu = false }) {
                     DropdownMenuItem(text = { Text("Закладки") }, leadingIcon = { Icon(AlbionIcons.Bookmarks, null) },
                         onClick = { sizeMenu = false; showBookmarks = true })
                     DropdownMenuItem(text = { Text("Выделения и заметки") }, leadingIcon = { Icon(AlbionIcons.BorderColor, null) },
@@ -318,7 +311,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
         }
 
-        Hairline(color = Ink.Gold.copy(alpha = 0.65f))
+        Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.65f))
 
         if (!vm.loaded || book == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -441,7 +434,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     p >= current.start && (next == null || p < next.start)
                 }
                 FolioDivider(Modifier.height(16.dp))
-                Hairline(color = Ink.Gold.copy(alpha = 0.65f))
+                Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.65f))
                 Row(
                     Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).height(FOOTER_HEIGHT - 17.dp).padding(start = 24.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -449,17 +442,17 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     Column(Modifier.weight(1f)) {
                         Text(
                             current?.let { book.chapters.getOrNull(it.start.chapter)?.title }.orEmpty(),
-                            style = AlbionType.eyebrow.copy(letterSpacing = 1.sp),
-                            color = Ink.Muted,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Spacer(Modifier.height(6.dp))
-                        ThinProgress((lastPage + 1f) / pages.size, track = Ink.Line)
+                        ThinProgress((lastPage + 1f) / pages.size, track = MaterialTheme.colorScheme.outlineVariant)
                     }
                     Spacer(Modifier.width(14.dp))
                     val pageLabel = if (lastPage > firstPage) "${firstPage + 1}–${lastPage + 1}" else "${firstPage + 1}"
-                    TextButton(onClick = { showSearch = true }) { Text("$pageLabel / ${pages.size}", style = MaterialTheme.typography.bodySmall.copy(color = Ink.Soft)) }
+                    TextButton(onClick = { showSearch = true }) { Text("$pageLabel / ${pages.size}", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)) }
                     IconButton(onClick = {
                         current?.let { page ->
                             val snippet = page.blocks.firstOrNull { !it.isHeading }?.let { b ->
@@ -469,7 +462,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             if (existing.isEmpty()) vm.toggleBookmark(page, next, snippet) else existing.forEach(removeBookmark)
                         }
                     }) {
-                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, if (marked) "Удалить закладку" else "Добавить закладку", tint = Ink.Accent)
+                        Icon(if (marked) AlbionIcons.Bookmark else AlbionIcons.BookmarkBorder, if (marked) "Удалить закладку" else "Добавить закладку", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -498,7 +491,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                                 "Пока пусто. Коснитесь слова или выделите фрагмент (долгое нажатие и протяжка), " +
                                     "затем нажмите «Выделить» или «Заметка».",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Ink.Muted,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 16.dp),
                             )
                         }
@@ -521,7 +514,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                             Text(
                                 "Пока пусто. Нажмите на значок закладки внизу страницы, чтобы отметить место.",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Ink.Muted,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 16.dp),
                             )
                         }
@@ -538,16 +531,13 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     }
 
     SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = FOOTER_HEIGHT, start = 12.dp, end = 12.dp)) { data ->
-        Snackbar(data, containerColor = Ink.Fg, contentColor = Ink.Bg, actionColor = Ink.Bg,
-            dismissActionContentColor = Ink.Bg)
+        Snackbar(data)
     }
     }
 
     if (showAppearance) ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },onDismissRequest = { showAppearance = false },
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = Ink.Raised,
-        scrimColor = Ink.Fg.copy(alpha = .32f)) {
+        onDismissRequest = { showAppearance = false },
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 24.dp, vertical = 12.dp)) {
             SheetHeader("Оформление страницы", { showAppearance = false })
             SliderSetting("Размер текста", "${(scale * 100).toInt()}%", null, scale, .8f..1.5f, steps = 13) { v -> scope.launch { c.settings.setReaderTextScale(v) } }
@@ -662,7 +652,6 @@ private fun PageView(
                         }
                         Text(readingChapterTitle(book.chapters[block.chapter].title), style = heading, modifier = Modifier.fillMaxWidth())
                     }
-                    RibbonBookmark(Modifier.align(Alignment.TopEnd))
                 }
                 Spacer(Modifier.height(headingGap))
             } else {
@@ -702,8 +691,8 @@ private fun SelectableParagraph(
     highlights: List<IntRange> = emptyList(),
     marks: List<IntRange> = emptyList(),
 ) {
-    val marker = Ink.Fg.copy(alpha = 0.10f)
-    val dots = Ink.Muted
+    val marker = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+    val dots = MaterialTheme.colorScheme.onSurfaceVariant
     val density = LocalDensity.current
     // Читаем списки через состояние: выделения приходят из БД позже первого кадра,
     // и отрисовка должна обновиться сама.
@@ -713,13 +702,14 @@ private fun SelectableParagraph(
     var keyboardFocused by remember { mutableStateOf(false) }
     val shown = dragRange ?: selection?.let { it.start until it.end }
 
-    val annotated: AnnotatedString = remember(text, shown, style.color) {
+    val shownBackground = MaterialTheme.colorScheme.surfaceContainerHighest
+    val annotated: AnnotatedString = remember(text, shown, style.color, shownBackground) {
         buildAnnotatedString {
             append(text)
             shown?.let { r ->
                 val s = r.first.coerceIn(0, text.length)
                 val e = (r.last + 1).coerceIn(s, text.length)
-                addStyle(SpanStyle(background = Ink.High, color = Ink.Fg, textDecoration = TextDecoration.Underline), s, e)
+                addStyle(SpanStyle(background = shownBackground, textDecoration = TextDecoration.Underline), s, e)
             }
         }
     }
@@ -771,7 +761,7 @@ private fun SelectableParagraph(
                         clipRect(frame.left, frame.top, frame.right, frame.bottom) { drawMarkers(part) }
                     } else drawMarkers(part)
                 }
-            }.then(if (keyboardFocused) Modifier.border(2.dp, Ink.AccentText) else Modifier).onKeyEvent { event ->
+            }.then(if (keyboardFocused) Modifier.border(2.dp, MaterialTheme.colorScheme.primary) else Modifier).onKeyEvent { event ->
                 if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_UP &&
                     event.nativeKeyEvent.keyCode in listOf(android.view.KeyEvent.KEYCODE_ENTER, android.view.KeyEvent.KEYCODE_DPAD_CENTER)) {
                     onSelect(text.indices, false); true
@@ -826,7 +816,6 @@ private fun SelectableParagraph(
                     }
                 } else drawText(part.layout, topLeft = part.origin)
             }
-            layout.initialFrame?.let { drawInitialOrnament(it) }
         }
     }
 }
@@ -873,12 +862,8 @@ fun sentenceAt(text: String, offset: Int): IntRange {
 @Composable
 private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit) {
     ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Ink.Raised,
-        scrimColor = Ink.Fg.copy(alpha = .32f),
     ) {
         Column(Modifier.padding(horizontal = gutter).navigationBarsPadding()) {
             SheetHeader(title, onDismiss)
@@ -891,8 +876,8 @@ private fun ListSheet(title: String, onDismiss: () -> Unit, content: androidx.co
 private fun SheetRow(primary: String, secondary: String, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(vertical = 14.dp)) {
-            Text(primary, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading), color = Ink.Fg)
-            Text(secondary, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            Text(primary, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+            Text(secondary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Hairline()
     }
@@ -913,16 +898,16 @@ private fun HighlightRow(h: HighlightEntity, page: Int, chapter: String, onOpen:
                 Eyebrow("$chapter · стр. $page")
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.height(IntrinsicSize.Min)) {
-                    Box(Modifier.width(2.dp).fillMaxHeight().background(Ink.Fg))
+                    Box(Modifier.width(2.dp).fillMaxHeight().background(MaterialTheme.colorScheme.onSurface))
                     Spacer(Modifier.width(10.dp))
-                    Text(h.text, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = Reading, fontSize = 17.sp, lineHeight = 24.sp), color = Ink.Fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                    Text(h.text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 4, overflow = TextOverflow.Ellipsis)
                 }
                 if (h.note.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
-                    Text(h.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    Text(h.note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить выделение", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить выделение", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         Hairline()
     }
@@ -935,9 +920,9 @@ private fun BookmarkRow(b: BookmarkEntity, page: Int, chapter: String, onOpen: (
             Column(Modifier.weight(1f)) {
                 Eyebrow("$chapter · стр. $page")
                 Spacer(Modifier.height(6.dp))
-                Text(b.snippet, style = MaterialTheme.typography.bodyMedium, color = Ink.Text, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text(b.snippet, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить закладку", tint = Ink.Muted) }
+            IconButton(onClick = onDelete) { Icon(AlbionIcons.Delete, "Удалить закладку", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         Hairline()
     }
@@ -968,7 +953,7 @@ private fun ReaderSearchSheet(book: BookContent, pages: List<Page>, onDismiss: (
         }
         itemsIndexed(hits) { _, hit ->
             Column(Modifier.fillMaxWidth().clickable { onJump(hit.first) }.padding(vertical = 12.dp)) {
-                Text(book.chapters[hit.first.chapter].title, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text(book.chapters[hit.first.chapter].title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(com.marat.albion.ui.components.highlightedQuery(hit.second, query), style = MaterialTheme.typography.bodyLarge)
                 Hairline(Modifier.padding(top = 12.dp))
             }

@@ -1,10 +1,9 @@
 package com.marat.albion.ui.study
 
+import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.theme.LocalFeedback
 import com.marat.albion.ui.theme.LocalReducedMotion
-import com.marat.albion.ui.theme.Brand
 
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import androidx.activity.compose.BackHandler
@@ -76,18 +75,14 @@ import com.marat.albion.audio.AudioPlayer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.settings.Settings
-import com.marat.albion.ui.components.AlbionLogo
 import com.marat.albion.ui.components.StatPill
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.pressScale
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.sin
@@ -133,15 +128,14 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     state.error?.let { message ->
         AlertDialog(
             onDismissRequest = vm::dismissError,
-            containerColor = Ink.Raised,
-            title = { Text("Не удалось записать изменения") },
+            title = { Text("Что-то пошло не так") },
             text = { Text(message) },
             confirmButton = { TextButton(onClick = vm::dismissError) { Text("Понятно") } },
         )
     }
 
     Column(
-        Modifier.fillMaxSize().paperSurface()
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
@@ -208,7 +202,7 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
         Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, spin = 90f)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-                Text(title.uppercase(), style = AlbionType.eyebrow, color = Ink.Soft, textAlign = TextAlign.Center, maxLines = 2)
+                Text(title.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
             }
             com.marat.albion.ui.components.FeatureHelp("study.ratings", "Как оценить ответ",
                 "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false)
@@ -216,8 +210,8 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
         }
         if (state.answerLimit != null) {
             Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = Ink.Fg)
+                Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
             }
         } else Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
@@ -233,8 +227,8 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
 @Composable
 private fun QueueCount(value: Int, label: String, modifier: Modifier = Modifier) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("$value", style = MaterialTheme.typography.labelLarge, color = if (value > 0) Ink.Fg else Ink.Faint)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = Ink.Faint)
+        Text("$value", style = MaterialTheme.typography.labelLarge, color = if (value > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -248,8 +242,8 @@ private fun CardStackShadow(remaining: Int) {
             Modifier.fillMaxSize()
                 .padding(horizontal = inset)
                 .offset(y = (k * 8).dp)
-                .border(1.dp, Ink.Line.copy(alpha = 1f - k * 0.3f), RoundedCornerShape(6.dp))
-                .background(Ink.Raised, RoundedCornerShape(6.dp)),
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f - k * 0.3f), RoundedCornerShape(6.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(6.dp)),
         )
     }
 }
@@ -282,8 +276,8 @@ private fun FlipCard(
             .clip(shape)
             .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = androidx.compose.foundation.LocalIndication.current, onClick = onReveal),
         shape = shape,
-        color = Ink.Raised,
-        border = BorderStroke(1.dp, Ink.LineStrong),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Box(Modifier.fillMaxSize()) {
             if (rotation <= 90f) {
@@ -291,20 +285,19 @@ private fun FlipCard(
                     Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
                 }
                 Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
-                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = Ink.Faint)
+                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val scroll = rememberScrollState()
                 Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }) {
                     Box(Modifier.fillMaxSize().verticalScroll(scroll).padding(bottom = 28.dp)) { back() }
                     if (scroll.canScrollForward) Text("Ещё ниже ↓", Modifier.align(Alignment.BottomCenter)
-                        .background(Ink.Raised).padding(horizontal = 16.dp, vertical = 5.dp),
-                        style = MaterialTheme.typography.labelSmall, color = Ink.Muted)
+                        .background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 5.dp),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
     }
 }
-
 
 /** «Хорошо» — основное действие; остальные оценки сохраняют равную область нажатия. */
 @Composable
@@ -331,10 +324,10 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) 
 private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
 
     val (bg, fg, border) = when (r) {
-        Rating.Again -> Triple(Ink.ErrorSoft, Ink.Error, Ink.ErrorSoft)
-        Rating.Hard -> Triple(Ink.Surface, Ink.Text, Ink.LineStrong)
-        Rating.Good -> Triple(Ink.Accent, Ink.OnAccent, Ink.AccentDeep)
-        Rating.Easy -> Triple(Ink.AccentSoft, Ink.AccentText, Ink.AccentSoft)
+        Rating.Again -> Triple(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
+        Rating.Hard -> Triple(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.outline)
+        Rating.Good -> Triple(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, MaterialTheme.colorScheme.primary)
+        Rating.Easy -> Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
     }
     val interaction = remember { MutableInteractionSource() }
     val reduced = LocalReducedMotion.current
@@ -346,7 +339,6 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     Column(
         modifier.fillMaxHeight().heightIn(min = 66.dp)
             .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
-            .pressScale(interaction, 0.96f)
             .clip(RoundedCornerShape(6.dp))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(6.dp))
@@ -358,7 +350,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Text(r.label, style = MaterialTheme.typography.labelLarge, color = fg, textAlign = TextAlign.Center)
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
-            color = if (r == Rating.Good) Ink.OnAccent else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
+            color = if (r == Rating.Good) MaterialTheme.colorScheme.onPrimary else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
         Text(when(r) { Rating.Again -> "Не вспомнил"; Rating.Hard -> "С усилием"; Rating.Good -> "Вспомнил"; Rating.Easy -> "Сразу" },
             style = MaterialTheme.typography.bodySmall, color = fg, textAlign = TextAlign.Center)
     }
@@ -376,16 +368,15 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
         verticalArrangement = Arrangement.Center,
     ) {
 
-        com.marat.albion.ui.components.AlbionLogo(size = 56.dp, color = Ink.AccentText, horizonColor = Ink.Gold)
         Spacer(Modifier.height(24.dp))
-        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium.copy(fontFamily = Brand), color = Ink.Fg)
+        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(10.dp))
         Text(
             if (state.answered == 0) "Сейчас в этой колоде нечего повторять."
             else if (state.answerLimit != null) "Короткое занятие завершено. Прогресс сохранён — к оставшимся карточкам можно вернуться позже."
             else "Занятие завершено. Следующие карточки FSRS покажет точно в срок.",
             style = MaterialTheme.typography.bodyLarge,
-            color = Ink.Muted,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
         if (state.answered > 0) {
@@ -410,7 +401,7 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
             Text(
                 "Ещё ${state.learningCount} — на коротких шагах. Вернитесь через несколько минут.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Ink.Soft,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
         }
@@ -421,22 +412,6 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
             GhostButton("Отменить последний ответ", onClick = onUndo)
         }
     }
-    }
-}
-
-private fun answersWord(n: Int) = when {
-    n % 100 in 11..14 -> "ответов"
-    n % 10 == 1 -> "ответ"
-    n % 10 in 2..4 -> "ответа"
-    else -> "ответов"
-}
-
-@Composable
-private fun Stat(value: Int, label: String, suffix: String, modifier: Modifier = Modifier) {
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        AnimatedNumber(value, AlbionType.numberSmall, color = Ink.Fg, suffix = suffix)
-        Spacer(Modifier.height(2.dp))
-        Eyebrow(label)
     }
 }
 

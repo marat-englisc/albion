@@ -15,7 +15,6 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.marat.albion.ui.theme.Ink
 
 /** One disclosure pattern for secondary information, usable without animation or gestures. */
 @Composable
@@ -33,12 +32,12 @@ fun Disclosure(
             .clickable(role = Role.Button) { expanded = !expanded }
             .padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = Ink.Fg)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 if (!summary.isNullOrBlank() && !expanded) Text(summary,
-                    style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Icon(if (expanded) AlbionIcons.KeyboardArrowDown else AlbionIcons.ArrowForward,
-                null, tint = Ink.AccentText, modifier = Modifier.padding(start = 12.dp).size(20.dp))
+                null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 12.dp).size(20.dp))
         }
         if (expanded) Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), content = content)
         Hairline()
@@ -50,8 +49,8 @@ fun LoadingState(label: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(24.dp).semantics(mergeDescendants = true) {
         liveRegion = LiveRegionMode.Polite
     }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        CircularProgressIndicator(Modifier.size(28.dp), color = Ink.Accent, strokeWidth = 2.dp)
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+        CircularProgressIndicator(Modifier.size(28.dp), color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -59,7 +58,7 @@ fun LoadingState(label: String, modifier: Modifier = Modifier) {
 fun FieldError(message: String?, modifier: Modifier = Modifier) {
     if (message != null) Text(message, modifier.fillMaxWidth().padding(top = 6.dp).semantics {
         liveRegion = LiveRegionMode.Polite; error(message)
-    }, style = MaterialTheme.typography.bodySmall, color = Ink.Error)
+    }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
 }
 
 @Composable
@@ -68,14 +67,14 @@ fun AppSettingsButton() {
     TextButton(onClick = {
         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
             Uri.parse("package:${context.packageName}")))
-    }) { Text("Открыть настройки Albion", color = Ink.AccentText) }
+    }) { Text("Открыть настройки Albion", color = MaterialTheme.colorScheme.primary) }
 }
 
 @Composable
 fun SheetHeader(title: String, onClose: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(title, Modifier.weight(1f).semantics { heading() },
-            style = MaterialTheme.typography.titleLarge, color = Ink.Fg)
+            style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         RoundIconButton(AlbionIcons.Close, "Закрыть: $title", onClose)
     }
 }
@@ -86,12 +85,8 @@ fun highlightedQuery(text: String, query: String): AnnotatedString = buildAnnota
     if (term.isNotEmpty()) {
         var start = text.indexOf(term, ignoreCase = true)
         while (start >= 0) {
-            addStyle(SpanStyle(fontWeight = FontWeight.SemiBold, background = Ink.GoldSoft,
-                color = Ink.Fg), start, start + term.length)
+            addStyle(SpanStyle(fontWeight = FontWeight.SemiBold), start, start + term.length)
             start = text.indexOf(term, start + term.length, ignoreCase = true)
         }
     }
 }
-
-@Composable
-fun SheetHandle() { Hairline(Modifier.padding(top = 10.dp, bottom = 6.dp).width(36.dp), color = Ink.LineStrong) }

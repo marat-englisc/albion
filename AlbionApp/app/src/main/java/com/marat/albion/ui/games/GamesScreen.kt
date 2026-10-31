@@ -1,6 +1,5 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.theme.paperSurface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +17,6 @@ import com.marat.albion.data.settings.PracticeOptions
 import com.marat.albion.ui.components.*
 import com.marat.albion.ui.nav.GameRoute
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.Ink
 
 private val practiceGroups = listOf(
     "Словарный запас" to listOf(Game.TYPE_ANSWER, Game.IRREGULAR),
@@ -38,7 +36,7 @@ fun GamesScreen(navigator: Navigator) {
         .collectAsStateWithLifecycle(PracticeOptions(count = defaultCount))
 
     LazyColumn(
-        Modifier.fillMaxSize().paperSurface(),
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
     ) {
         item {

@@ -65,12 +65,9 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.romanNumeral
-import com.marat.albion.ui.theme.Brand
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.AnimatedNumber
-import com.marat.albion.ui.theme.Ink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -210,7 +207,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                     ) {
                         wave.forEach { v ->
                             val h by animateFloatAsState(if (recording && !reduced) v.coerceAtLeast(0.1f) else 0.1f, tween(160), label = "bar")
-                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) Ink.Error else Ink.LineStrong, CircleShape))
+                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline, CircleShape))
                         }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -267,7 +264,7 @@ private fun ShadowStatus(text: String, warm: Boolean = false) {
     Text(
         text,
         style = MaterialTheme.typography.bodyMedium,
-        color = if (warm) Ink.Error else Ink.Soft,
+        color = if (warm) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 8.dp),
     )
@@ -284,14 +281,14 @@ private fun ShadowSteps() {
     ) {
         listOf("Послушайте", "Повторите", "Сравните").forEachIndexed { i, step ->
             Row(
-                Modifier.border(.65.dp, Ink.Line, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 8.dp),
+                Modifier.border(.65.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
-                    Text(romanNumeral(i + 1), style = MaterialTheme.typography.labelMedium.copy(fontFamily = Brand), color = Ink.GoldText)
+                    Text(romanNumeral(i + 1), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
                 }
                 Spacer(Modifier.width(6.dp))
-                Text(step, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
+                Text(step, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -304,16 +301,16 @@ internal fun ReportCard(r: ShadowReport) {
     val shape = RoundedCornerShape(3.dp)
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
-            .background(Ink.Raised, shape).border(1.dp, Ink.Line, shape)
+            .background(MaterialTheme.colorScheme.surface, shape).border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Result label uses the same square corners as the exercise sheet.
             Box(
-                Modifier.background(if (good) Ink.GoldSoft else Ink.ErrorSoft, RoundedCornerShape(2.dp))
+                Modifier.background(if (good) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(2.dp))
                     .padding(horizontal = 12.dp, vertical = 4.dp),
             ) {
-                AnimatedNumber(r.overall, AlbionType.numberSmall, color = if (good) Ink.AccentText else Ink.Error, suffix = "%")
+                AnimatedNumber(r.overall, MaterialTheme.typography.headlineMedium, color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, suffix = "%")
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
@@ -324,15 +321,15 @@ internal fun ReportCard(r: ShadowReport) {
                         r.overall >= PASS -> "Неплохо"
                         else -> "Ещё попытка"
                     },
-                    style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 22.sp, lineHeight = 26.sp),
-                    color = Ink.Fg,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text("сходство с диктором", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text("сходство с диктором", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Spacer(Modifier.height(14.dp))
         Text("Это ориентир по сходству ритма, темпа и интонации с этой записью, а не оценка отдельных звуков речи.",
-            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         r.intonation?.let { Scale("Интонация", it, null) }
         Scale("Ритм", r.rhythm, null)
         Scale(
@@ -345,7 +342,7 @@ internal fun ReportCard(r: ShadowReport) {
         )
 
         Spacer(Modifier.height(14.dp))
-        Eyebrow("Мелодика", color = Ink.Soft)
+        Eyebrow("Мелодика", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(8.dp))
         MelodyChart(r)
 
@@ -353,12 +350,12 @@ internal fun ReportCard(r: ShadowReport) {
             Spacer(Modifier.height(14.dp))
             val tips = r.tips.ifEmpty { listOf("Мелодика, ритм и темп совпадают с диктором. Попробуйте следующее слово.") }
             NoteCard(tone = NoteTone.Neutral) {
-                Eyebrow("Советы", color = Ink.AccentText)
+                Eyebrow("Советы", color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.height(4.dp))
                 tips.forEach { tip ->
                     Row(Modifier.padding(vertical = 4.dp)) {
-                        Box(Modifier.padding(top = 9.dp, end = 10.dp).size(6.dp).background(Ink.Accent, CircleShape))
-                        Text(tip, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                        Box(Modifier.padding(top = 9.dp, end = 10.dp).size(6.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+                        Text(tip, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
@@ -375,14 +372,14 @@ private fun Scale(label: String, value: Int, note: String?) {
             Text(
                 buildAnnotatedString {
                     append(label)
-                    if (note != null) withStyle(SpanStyle(color = Ink.Muted, fontSize = MaterialTheme.typography.bodySmall.fontSize)) { append(" · $note") }
+                    if (note != null) withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = MaterialTheme.typography.bodySmall.fontSize)) { append(" · $note") }
                 },
-                style = MaterialTheme.typography.bodyMedium, color = Ink.Text, modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f),
             )
             Spacer(Modifier.width(10.dp))
-            Text("$value%", style = AlbionType.index.copy(color = Ink.Fg))
+            Text("$value%", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
         }
         Spacer(Modifier.height(6.dp))
-        ThinProgress(value / 100f, color = if (value >= PASS) Ink.Accent else Ink.GoldText, height = 3.dp)
+        ThinProgress(value / 100f, color = if (value >= PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary, height = 3.dp)
     }
 }

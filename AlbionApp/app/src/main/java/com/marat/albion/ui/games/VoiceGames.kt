@@ -13,7 +13,6 @@ import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.softShadow
-import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.LinearEasing
@@ -82,9 +81,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.lerpColor
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.pressScale
 import kotlinx.coroutines.flow.first
 
 /** Термин крупно на карточке задания — общий заголовок голосовых игр. */
@@ -96,11 +92,11 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
             LevelBadge(card.level)
         }
         Spacer(Modifier.height(12.dp))
-        Text(card.term, style = termStyle(card.term), color = Ink.Fg)
+        Text(card.term, style = termStyle(card.term), color = MaterialTheme.colorScheme.onSurface)
         if (card.ipa.isNotBlank() || trailing != null) {
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (card.ipa.isNotBlank()) Text(card.ipa, style = AlbionType.ipa, modifier = Modifier.weight(1f, fill = false))
+                if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
                 if (trailing != null) {
                     Spacer(Modifier.width(12.dp))
                     trailing()
@@ -109,7 +105,7 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
         }
         if (showMeaning && card.meaningRu.isNotBlank()) {
             Spacer(Modifier.height(10.dp))
-            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = Ink.Soft, textAlign = TextAlign.Center)
+            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
     }
 }
@@ -131,15 +127,15 @@ internal fun PlaybackAction(
         // Кнопка центрируется в «слоте» высотой с соседний микрофон — подписи стоят на одной линии.
         Box(Modifier.height(slot), contentAlignment = Alignment.Center) {
         Box(
-            Modifier.size(size).pressScale(interaction, 0.9f)
-                .background(lerpColor(Ink.Raised, Ink.Accent, on), RoundedCornerShape(3.dp))
-                .border(.75.dp, if (!enabled) Ink.Line else lerpColor(Ink.Gold, Ink.Accent, on), RoundedCornerShape(3.dp))
+            Modifier.size(size)
+                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(3.dp))
+                .border(.75.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(3.dp))
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 icon, label,
-                tint = if (!enabled) Ink.Faint else lerpColor(Ink.AccentText, Ink.OnAccent, on),
+                tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else lerpColor(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, on),
                 modifier = Modifier.size(size * 0.42f),
             )
         }
@@ -147,7 +143,7 @@ internal fun PlaybackAction(
         Spacer(Modifier.height(8.dp))
         // Подпись не переносится по буквам («Медленн-о»): при крупном шрифте кнопка просто шире.
         Text(
-            label, style = MaterialTheme.typography.labelMedium, color = if (enabled) Ink.Soft else Ink.Faint,
+            label, style = MaterialTheme.typography.labelMedium, color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
         )
     }
@@ -169,17 +165,17 @@ internal fun MicButton(
     val feedback = com.marat.albion.ui.theme.LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val amp by animateFloatAsState(if (active && !reduced) level.coerceIn(0f, 1f) else 0f, tween(160), label = "voiceLevel")
-    val face = if (active) Ink.Accent else Ink.AccentSoft
-    val foreground = if (active) Ink.OnAccent else Ink.AccentText
+    val face = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+    val foreground = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(size).pressScale(interaction, 0.985f), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+            val line = MaterialTheme.colorScheme.secondary
             if (active) Canvas(Modifier.size(size)) {
-                drawRect(Ink.Gold.copy(alpha = .7f), style = Stroke(.65.dp.toPx()))
-                if (!reduced) drawLine(Ink.Gold, Offset(7.dp.toPx(), this.size.height - 3.dp.toPx()),
+                if (!reduced) drawLine(line, Offset(7.dp.toPx(), this.size.height - 3.dp.toPx()),
                     Offset(7.dp.toPx() + (this.size.width - 14.dp.toPx()) * amp, this.size.height - 3.dp.toPx()), 2.dp.toPx())
             }
             Box(Modifier.size(size - 12.dp).background(face, RoundedCornerShape(3.dp))
-                .border(.75.dp, if (active) Ink.Gold else Ink.Gold.copy(alpha = .7f), RoundedCornerShape(3.dp))
+                .border(.75.dp, if (active) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondary.copy(alpha = .7f), RoundedCornerShape(3.dp))
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,
@@ -188,7 +184,7 @@ internal fun MicButton(
         }
         if (label != null) {
             Spacer(Modifier.height(8.dp))
-            Text(label, style = MaterialTheme.typography.labelMedium, color = Ink.Soft)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -274,13 +270,13 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
                     }
                     !checker.isAvailable -> Message("На телефоне нет сервиса распознавания речи. Установите приложение Google и офлайн-пакет английского.")
                     s is SpeechState.Listening -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Eyebrow("Слушаю…", color = Ink.Error)
+                        Eyebrow("Слушаю…", color = MaterialTheme.colorScheme.error)
                         if (s.partial.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
-                            Text("«${s.partial}»", style = MaterialTheme.typography.bodyLarge, color = Ink.Muted)
+                            Text("«${s.partial}»", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
-                    s is SpeechState.Processing -> Eyebrow("Распознаю…", color = Ink.Muted)
+                    s is SpeechState.Processing -> Eyebrow("Распознаю…", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     s is SpeechState.Failed -> Message(s.message)
                     lastScore >= 0f -> ScoreView(lastScore, lastHeard)
                     else -> Message("Нажмите на микрофон и произнесите вслух")
@@ -316,7 +312,7 @@ private const val PASS = 0.75f
 
 @Composable
 private fun Message(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted, textAlign = TextAlign.Center)
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
 }
 
 @Composable
@@ -331,17 +327,17 @@ private fun ScoreView(score: Float, heard: String) {
                     else -> "Ещё раз — пока не узнаётся"
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = if (good) Ink.Success else Ink.Error,
+                color = if (good) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.weight(1f),
             )
-            Text("${(score * 100).toInt()}%", style = AlbionType.index.copy(color = Ink.Fg))
+            Text("${(score * 100).toInt()}%", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
         }
         Spacer(Modifier.height(8.dp))
-        Text("Совпадение распознавания: ${(score * 100).toInt()}%", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-        Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+        Text("Совпадение распознавания: ${(score * 100).toInt()}%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Распознано: «$heard»", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(10.dp))
         Text("Сравниваем распознанный текст со словом; это не фонетическая оценка.",
-            style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-        ThinProgress(score, color = if (good) Ink.Accent else Ink.Gold, track = Ink.Raised, height = 8.dp)
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        ThinProgress(score, color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary, track = MaterialTheme.colorScheme.surface, height = 8.dp)
     }
 }

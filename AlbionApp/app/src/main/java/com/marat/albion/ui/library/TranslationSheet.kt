@@ -68,9 +68,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.study.rememberCardAudio
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
 
 private sealed interface TranslationResult {
     data object Loading : TranslationResult
@@ -142,13 +139,8 @@ fun TranslationSheet(
     }
 
     ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Ink.Raised,
-        contentColor = Ink.Text,
-        scrimColor = Ink.Fg.copy(alpha = 0.32f),
     ) {
         Column(
             Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
@@ -167,14 +159,14 @@ fun TranslationSheet(
                     primary = false,
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(AlbionIcons.Close, "Закрыть перевод", tint = Ink.Muted)
+                    Icon(AlbionIcons.Close, "Закрыть перевод", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Spacer(Modifier.height(10.dp))
             Text(
                 text,
-                style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = if (isWord) 34.sp else 20.sp, lineHeight = if (isWord) 40.sp else 29.sp),
-                color = Ink.Fg,
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             val dictionary = entries.orEmpty()
             selectionControls?.invoke()
@@ -184,8 +176,8 @@ fun TranslationSheet(
             val firstEntry = selected?.first
             val dictionaryMeaning = selected?.second
             if (options.size > 1) Box {
-                TextButton(onClick = { choiceMenu = true }) { Text("Выбрать значение · ${options.size}", color = Ink.AccentText) }
-                DropdownMenu(choiceMenu, { choiceMenu = false }, containerColor = Ink.Raised) {
+                TextButton(onClick = { choiceMenu = true }) { Text("Выбрать значение · ${options.size}", color = MaterialTheme.colorScheme.primary) }
+                DropdownMenu(choiceMenu, { choiceMenu = false }) {
                     options.forEachIndexed { i, option -> DropdownMenuItem(text = {
                         Text("${if (chosen == i) "✓ " else ""}${option.first.headword} · ${option.first.posLabel} — ${option.second}")
                     }, onClick = { chosen = i; choiceMenu = false }) }
@@ -198,35 +190,35 @@ fun TranslationSheet(
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.padding(top = 6.dp)) {
                     firstEntry?.posLabel?.takeIf { it.isNotBlank() }?.let { Chip(it) }
-                    if (ipa != null) Text(ipa, style = AlbionType.ipa)
+                    if (ipa != null) Text(ipa, style = MaterialTheme.typography.bodyLarge)
                 }
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
             val meaning = dictionaryMeaning ?: cardMeaning ?: automatic
             Spacer(Modifier.height(12.dp))
             if (meaning != null) {
-                Text(meaning, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 22.sp, lineHeight = 30.sp), color = Ink.Text)
+                Text(meaning, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
                     else -> "Автоперевод"
-                }, style = MaterialTheme.typography.bodySmall, color = Ink.Muted,
+                }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {
                         Text(if (isWord && entries == null) "Ищу перевод…"
                             else if (model == ModelState.Downloading) "Загружается перевод предложений…" else "Перевожу…",
-                            style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
-                            color = Ink.AccentText, trackColor = Ink.Line)
+                            color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
                     }
                     is TranslationResult.Failed -> {
                         com.marat.albion.ui.components.FieldError(r.message)
                         TextButton(onClick = { result = TranslationResult.Loading; retry++ }) { Text("Повторить перевод") }
                     }
                     else -> Text("Перевод не найден. Значение можно указать при сохранении.",
-                        style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (model == ModelState.Missing || model == ModelState.Failed) TextButton(onClick = { scope.launch { c.translator.ensureModel() } }) { Text("Загрузить перевод предложений") }
                 if (glosses.isNotEmpty()) {
@@ -257,8 +249,8 @@ fun TranslationSheet(
                 TextButton(onClick = { details = !details }, modifier = Modifier.fillMaxWidth().semantics {
                     stateDescription = if (details) "Развёрнуто" else "Свёрнуто"
                 }) {
-                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = Ink.AccentText)
-                    Icon(AlbionIcons.ExpandMore, null, tint = Ink.AccentText,
+                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.primary)
+                    Icon(AlbionIcons.ExpandMore, null, tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 8.dp).rotate(if (details) 180f else 0f))
                 }
                 AnimatedVisibility(details) {
@@ -267,7 +259,7 @@ fun TranslationSheet(
                         if (isWord && automatic != null && !automatic.equals(meaning, ignoreCase = true)) {
                             Column {
                                 Eyebrow("Автоперевод")
-                                Text(automatic, style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                                Text(automatic, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                         if (meaning == null && glosses.size > 4) WordGlosses(glosses.drop(4))
@@ -290,8 +282,8 @@ private fun WordGlosses(glosses: List<Pair<String, String>>) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 8.dp)) {
         glosses.forEach { (word, meaning) ->
             Column {
-                Text(word, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 17.sp), color = Ink.Fg)
-                Text(meaning, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                Text(word, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(meaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -301,14 +293,14 @@ private fun WordGlosses(glosses: List<Pair<String, String>>) {
 private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (showHeadword) Text(entry.headword, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
+            if (showHeadword) Text(entry.headword, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             if (entry.posLabel.isNotEmpty()) Chip(entry.posLabel)
         }
         Spacer(Modifier.height(6.dp))
         entry.senses.forEachIndexed { i, sense ->
             Row(Modifier.padding(vertical = 2.dp)) {
-                if (entry.senses.size > 1) Text("${i + 1}", style = AlbionType.index, color = Ink.Faint, modifier = Modifier.width(20.dp).padding(top = 3.dp))
-                Text(sense, style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+                if (entry.senses.size > 1) Text("${i + 1}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(20.dp).padding(top = 3.dp))
+                Text(sense, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -316,11 +308,11 @@ private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
 
 @Composable
 private fun DictionaryEntry(card: CardEntity) {
-    Column(Modifier.fillMaxWidth().border(1.dp, Ink.Line, RoundedCornerShape(8.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(card.term, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 20.sp), color = Ink.Fg)
+            Text(card.term, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(10.dp))
-            if (card.ipa.isNotBlank()) Text(card.ipa, style = AlbionType.ipa.copy(fontSize = 15.sp))
+            if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.weight(1f))
             LevelBadge(card.level)
         }
@@ -355,13 +347,13 @@ private fun HighlightSection(
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         if (highlight != null) {
-            Column(Modifier.fillMaxWidth().background(Ink.Fg.copy(alpha = 0.06f), RoundedCornerShape(8.dp)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(8.dp)).padding(14.dp)) {
                 Eyebrow("Выделено")
                 Spacer(Modifier.height(6.dp))
-                Text(highlight.text, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontFamily = Serif, fontSize = 16.sp, lineHeight = 23.sp), color = Ink.Text, maxLines = 4)
+                Text(highlight.text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 4)
                 if (highlight.note.isNotBlank() && !editing) {
                     Spacer(Modifier.height(8.dp))
-                    Text(highlight.note, style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    Text(highlight.note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -374,8 +366,8 @@ private fun HighlightSection(
                 modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 minLines = 2,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Ink.Fg, unfocusedBorderColor = Ink.LineStrong, cursorColor = Ink.Fg,
-                    focusedTextColor = Ink.Fg, unfocusedTextColor = Ink.Text,
+                    focusedBorderColor = MaterialTheme.colorScheme.onSurface, unfocusedBorderColor = MaterialTheme.colorScheme.outline, cursorColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface, unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
         }
@@ -406,12 +398,12 @@ private fun HighlightSection(
 @Composable
 private fun SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        Modifier.border(1.dp, Ink.LineStrong, RoundedCornerShape(4.dp)).clickable(onClick = onClick)
+        Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp)).clickable(onClick = onClick)
             .heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, null, tint = Ink.Fg, modifier = Modifier.size(16.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = Ink.Fg)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 }

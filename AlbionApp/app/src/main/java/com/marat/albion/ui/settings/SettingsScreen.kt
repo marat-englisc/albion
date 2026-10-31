@@ -39,7 +39,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var resetError by remember { mutableStateOf<String?>(null) }
     var version by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(status) { version = repo.contentVersion() }
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack, "Настройки")
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
             .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(bottom = 24.dp)) {
@@ -75,7 +75,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 SliderSetting("Текст учебника", "${(s.grammarTextScale * 100).roundToInt()}%", null,
                     s.grammarTextScale, 0.85f..1.4f, 10) { scope.launch { repo.setGrammarTextScale(it) } }
                 Text("Английский — маленькими шагами каждый день.",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading, fontSize = (17 * s.grammarTextScale).sp))
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = (17 * s.grammarTextScale).sp))
                 SliderSetting("Текст книги", "${(s.readerTextScale * 100).roundToInt()}%", null,
                     s.readerTextScale, 0.8f..1.5f, 13) { scope.launch { repo.setReaderTextScale(it) } }
                 SliderSetting("Межстрочный интервал", "${(s.readerLineSpacing * 100).roundToInt()}%", null,
@@ -84,13 +84,12 @@ fun SettingsScreen(onBack: () -> Unit) {
                     scope.launch { repo.setReaderMargin(it.roundToInt()) }
                 }
                 Text("A little, every day. A good book is always a good companion.", Modifier.padding(horizontal = s.readerMargin.dp),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Reading, fontSize = (18 * s.readerTextScale).sp,
-                        lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = (18 * s.readerTextScale).sp, lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
                 SwitchSetting("Подчёркивать изучаемые слова в книге", s.readerMarkWords) { scope.launch { repo.setReaderMarkWords(it) } }
             }
             Disclosure("Звук и доступность", "Тактильный отклик и движение") {
                 SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
-                Text("Тихое созвучие с учётом беззвучного режима телефона.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text("Тихое созвучие с учётом беззвучного режима телефона.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
                 SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
             }
@@ -110,24 +109,24 @@ fun SettingsScreen(onBack: () -> Unit) {
                     ImportStatus.Checking -> LoadingState("Проверяем материалы")
                     is ImportStatus.Importing -> LoadingState("Подготавливаем ${st.deck.title} · ${st.index}/${st.total}")
                     is ImportStatus.Failed -> {
-                        Text("Не удалось подготовить материалы.", color = Ink.Error)
+                        Text("Не удалось подготовить материалы.", color = MaterialTheme.colorScheme.error)
                         ActionRow("Повторить подготовку") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
                     }
-                    ImportStatus.Empty -> Text("Материалы недоступны. Установите полную версию приложения.", color = Ink.Muted)
-                    ImportStatus.Ready -> Text("Учебные материалы готовы", style = MaterialTheme.typography.bodyLarge, color = Ink.Success)
+                    ImportStatus.Empty -> Text("Материалы недоступны. Установите полную версию приложения.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    ImportStatus.Ready -> Text("Учебные материалы готовы", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.tertiary)
                 }
                 Disclosure("Сведения о материалах", "Версия курса и обслуживание") {
-                    Text("Версия материалов: ${version ?: "не определена"}", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-                    Text("Материалы обновляются вместе с приложением. Прогресс сохраняется.", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    Text("Версия материалов: ${version ?: "не определена"}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Материалы обновляются вместе с приложением. Прогресс сохраняется.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     ActionRow("Повторно проверить материалы") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
                 }
                 ActionRow("Сбросить только отметки прочитанного") { resetError = null; reset = 1 }
                 ActionRow("Удалить весь прогресс учебника") { resetError = null; reset = 2 }
             }
-            Text("Albion 1.0", Modifier.padding(top = 24.dp), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+            Text("Albion 1.0", Modifier.padding(top = 24.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    if (reset != 0) AlertDialog(onDismissRequest = { if (!resetBusy) reset = 0 }, containerColor = Ink.Raised,
+    if (reset != 0) AlertDialog(onDismissRequest = { if (!resetBusy) reset = 0 },
         title = { Text(if (reset == 1) "Сбросить отметки чтения?" else "Удалить весь прогресс учебника?") },
         text = { Column {
             Text(if (reset == 1) "Будут сняты только отметки «Прочитано». Освоение, закладки, результаты проверок и план повторения сохранятся."
@@ -142,7 +141,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 catch (_: Exception) { resetError = "Не удалось выполнить сброс. Попробуйте ещё раз." }
                 finally { resetBusy = false }
             }
-        }) { Text(if (resetBusy) "Сохраняем…" else if (reset == 1) "Сбросить отметки" else "Удалить прогресс", color = Ink.Error) } },
+        }) { Text(if (resetBusy) "Сохраняем…" else if (reset == 1) "Сбросить отметки" else "Удалить прогресс", color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton(enabled = !resetBusy, onClick = { reset = 0 }) { Text("Отмена") } })
 }
 
@@ -160,15 +159,15 @@ private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> 
             selected = selected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = Ink.Accent,
-                unselectedColor = Ink.Muted,
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
         )
         Spacer(Modifier.width(12.dp))
         Text(
             title,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (selected) Ink.Fg else Ink.Soft,
+            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
     }
@@ -186,10 +185,10 @@ internal fun SliderSetting(
 ) {
     Column(Modifier.padding(vertical = 14.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text)
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
             Text(
-                value, style = MaterialTheme.typography.titleMedium, color = Ink.AccentText,
-                modifier = Modifier.background(Ink.AccentSoft, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
+                value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }
         val step = (range.endInclusive - range.start) / (steps + 1)
@@ -206,25 +205,25 @@ internal fun SliderSetting(
             TextButton(enabled = current < range.endInclusive, onClick = { onChange((current + step).coerceAtMost(range.endInclusive)) },
                 modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Увеличить: $title" }) { Text("+") }
         }
-        if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+        if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
 @Composable
 internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = checked, role = Role.Switch, onValueChange = onChange).padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, style = MaterialTheme.typography.bodyLarge, color = Ink.Text, modifier = Modifier.weight(1f))
+        Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         Spacer(Modifier.width(12.dp))
         Switch(
             checked = checked,
             onCheckedChange = null,
             colors = SwitchDefaults.colors(
-                checkedTrackColor = Ink.Accent,
-                checkedThumbColor = Ink.OnAccent,
-                checkedBorderColor = Ink.Accent,
-                uncheckedTrackColor = Ink.Surface,
-                uncheckedThumbColor = Ink.Muted,
-                uncheckedBorderColor = Ink.LineStrong,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainer,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
             ),
         )
     }
@@ -236,7 +235,7 @@ internal fun ActionRow(title: String, onClick: () -> Unit) {
         Text(
             title,
             style = MaterialTheme.typography.bodyLarge,
-            color = Ink.Fg,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
         )
         Hairline()

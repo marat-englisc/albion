@@ -119,11 +119,6 @@ class Translator(private val context: Context, private val scope: CoroutineScope
         return result
     }
 
-    suspend fun deleteModel() {
-        runCatching { models.deleteDownloadedModel(russian).await() }
-        cache.clear()
-        _model.value = ModelState.Missing
-    }
 }
 
 private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { cont ->

@@ -49,11 +49,11 @@ class PracticeDesignTest {
         c.importer.importIfNeeded()
         ActivityScenario.launch(MainActivity::class.java).use {
             activate(await { it.text?.toString() == "Практика" })
-            await { it.text?.toString() == "THE PRACTICE ROOM" }
+            await { it.text?.toString() == "The Practice Room" }
             capture("practice-home")
             for (game in catalogue) {
                 capture("${game.name}-catalogue")
-                activate(scrollTo { it.text?.toString() == game.title })
+                activate(scrollTo { it.text?.toString() == game.title && hasActionTarget(it) })
                 dismissHelp()
                 await { it.text?.toString() == game.editionTitle }
                 assertMinimumTarget(await { it.text?.toString() == "Начать" }, "${game.name} start")
@@ -141,6 +141,14 @@ class PracticeDesignTest {
     private fun dismissHelp() {
         val node = await { it.text?.toString() in setOf("Понятно", "Начать") }
         if (node.text?.toString() == "Понятно") activate(node)
+    }
+    private fun hasActionTarget(node: AccessibilityNodeInfo): Boolean {
+        var current: AccessibilityNodeInfo? = node
+        while (current != null) {
+            if (current.isClickable || current.isSelected || current.isChecked) return true
+            current = current.parent
+        }
+        return false
     }
     private fun target(node: AccessibilityNodeInfo): AccessibilityNodeInfo {
         var current = node

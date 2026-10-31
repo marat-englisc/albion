@@ -1,6 +1,6 @@
 package com.marat.albion.ui.nav
 
-import com.marat.albion.ui.theme.paperSurface
+import androidx.compose.material3.MaterialTheme
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.activity.compose.BackHandler
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
@@ -116,9 +116,7 @@ import com.marat.albion.ui.library.ReaderScreen
 import com.marat.albion.ui.settings.SettingsScreen
 import com.marat.albion.ui.stats.StatsScreen
 import com.marat.albion.ui.study.StudyScreen
-import com.marat.albion.ui.theme.AlbionType
 import com.marat.albion.ui.theme.Easing
-import com.marat.albion.ui.theme.Ink
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.LocalFeedback
 
@@ -186,13 +184,12 @@ fun AlbionNavigation() {
         }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().paperSurface()) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
     val wide = widthClassOf(maxWidth) != WidthClass.Compact
     // Ещё шире — список и открытая из него страница рядом (учебник, все карточки колоды).
     val listDetail = maxWidth >= ListDetailMinWidth && LocalDensity.current.fontScale <= 1.3f
     Scaffold(
-        containerColor = Ink.Bg,
         contentWindowInsets = WindowInsets(0),
         bottomBar = {
             AnimatedVisibility(
@@ -227,7 +224,7 @@ fun AlbionNavigation() {
                     predictivePopTransitionSpec = { backward(reduced) },
                 )
                 // Прокручиваемый контент не должен просвечивать под статус-баром.
-                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(Ink.Bg.copy(alpha = 0.94f)))
+                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.background.copy(alpha = 0.94f)))
             }
         }
     }
@@ -246,7 +243,7 @@ private fun maxWidthFor(route: NavKey): Dp = when (route) {
 /** Selected tabs change tone without displacing the icon. */
 @Composable
 private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) {
-    val tone by androidx.compose.animation.animateColorAsState(if (selected) Ink.AccentText else Ink.Muted, tween(if (LocalReducedMotion.current) 0 else 180), label = "tabTint")
+    val tone by androidx.compose.animation.animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, tween(if (LocalReducedMotion.current) 0 else 180), label = "tabTint")
     Icon(icon, description, tint = tone, modifier = Modifier.size(23.dp))
 }
 
@@ -254,23 +251,23 @@ private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) 
 private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val fontScale = LocalDensity.current.fontScale
     val railWidth = if (fontScale > 1.3f) 144.dp else 104.dp
-    Row(Modifier.fillMaxHeight().paperSurface().windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))) {
+    Row(Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))) {
         Column(Modifier.width(railWidth).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(top = 12.dp).selectableGroup()) {
             tabs.forEach { tab ->
                 val active = tab.route == selected
                 Column(Modifier.fillMaxWidth().heightIn(min = 80.dp)
-                    .background(if (active) Ink.AccentSoft else Ink.Raised)
+                    .background(if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
                     .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) })
                     .padding(horizontal = 6.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     TabIcon(tab.icon, active, null)
                     Spacer(Modifier.height(8.dp))
-                    Text(tab.label, style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 17.sp),
-                        textAlign = TextAlign.Center, color = if (active) Ink.AccentText else Ink.Muted)
+                    Text(tab.label, style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center, color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
-        Box(Modifier.width(1.dp).fillMaxHeight().background(Ink.Line))
+        Box(Modifier.width(1.dp).fillMaxHeight().background(MaterialTheme.colorScheme.outlineVariant))
     }
 }
 
@@ -278,9 +275,9 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.Medium)
+    val labelStyle = MaterialTheme.typography.labelMedium
     val textMeasurer = rememberTextMeasurer()
-    Column(Modifier.background(Ink.Raised).windowInsetsPadding(WindowInsets.navigationBars)) {
+    Column(Modifier.background(MaterialTheme.colorScheme.surface).windowInsetsPadding(WindowInsets.navigationBars)) {
         Hairline()
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val tabWidth = maxWidth / tabs.size
@@ -293,7 +290,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
             val markerWidth = 28.dp.coerceAtMost(tabWidth)
             val indicatorX by animateDpAsState(tabWidth * index + (tabWidth - markerWidth) / 2,
                 tween(if (LocalReducedMotion.current) 0 else 220, easing = Easing.Standard), label = "indicator")
-            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(Ink.Gold))
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(MaterialTheme.colorScheme.secondary))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val active = i == index
@@ -304,7 +301,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                         TabIcon(tab.icon, active, null)
                         Spacer(Modifier.height(7.dp))
                         Text(tab.label, style = labelStyle.copy(fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium),
-                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = if (active) Ink.AccentText else Ink.Muted)
+                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -322,21 +319,16 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 68.dp)
         .clickable(role = Role.Button, onClick = { open = true }).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(current.icon, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
+        Icon(current.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
         Column(Modifier.weight(1f)) {
-            Text(current.label, style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 14.sp,
-                lineHeight = 20.sp, fontWeight = FontWeight.SemiBold), color = Ink.Fg)
-            Text("Все разделы", style = AlbionType.eyebrow.copy(letterSpacing = 0.sp, fontSize = 12.sp,
-                lineHeight = 16.sp), color = Ink.Muted)
+            Text(current.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text("Все разделы", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(AlbionIcons.Menu, null, tint = Ink.AccentText, modifier = Modifier.size(24.dp))
+        Icon(AlbionIcons.Menu, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
     }
     if (open) ModalBottomSheet(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        dragHandle = { com.marat.albion.ui.components.SheetHandle() },
         onDismissRequest = { open = false },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Ink.Raised, contentColor = Ink.Text, scrimColor = Ink.Fg.copy(alpha = 0.32f),
     ) {
         CompositionLocalProvider(LocalDensity provides density) {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
@@ -344,24 +336,23 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Eyebrow("Разделы", Modifier.weight(1f))
                     IconButton(onClick = { open = false }) {
-                        Icon(AlbionIcons.Close, "Закрыть разделы", tint = Ink.Muted)
+                        Icon(AlbionIcons.Close, "Закрыть разделы", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Column(Modifier.selectableGroup()) {
                     tabs.forEach { tab ->
                         val active = tab.route == selected
                         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                            .background(if (active) Ink.AccentSoft else Ink.Raised, RoundedCornerShape(8.dp))
+                            .background(if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .selectable(selected = active, role = Role.Tab, onClick = {
                                 open = false
                                 onSelect(tab.route)
                             }).padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(tab.icon, null, tint = if (active) Ink.AccentText else Ink.Muted, modifier = Modifier.size(24.dp))
-                            Text(tab.label, modifier = Modifier.weight(1f), style = AlbionType.eyebrow.copy(
-                                letterSpacing = 0.sp, fontSize = 16.sp, lineHeight = 22.sp), color = Ink.Fg)
-                            if (active) Icon(AlbionIcons.Check, null, tint = Ink.AccentText, modifier = Modifier.size(20.dp))
+                            Icon(tab.icon, null, tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
+                            Text(tab.label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+                            if (active) Icon(AlbionIcons.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                         }
                     }
                 }

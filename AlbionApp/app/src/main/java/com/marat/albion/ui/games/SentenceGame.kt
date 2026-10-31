@@ -59,8 +59,6 @@ import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.pressScale
 
 /**
  * «Собери предложение»: плашки со словами примера перемешаны внизу, касание переносит
@@ -111,12 +109,12 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard {
-            Eyebrow("Соберите предложение", color = Ink.AccentText)
+            Eyebrow("Соберите предложение", color = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Chip(card.term, Modifier.weight(1f, fill = false))
                 if (card.meaningRu.isNotBlank()) {
-                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = Ink.Muted, maxLines = 2,
+                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2,
                         overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                 }
             }
@@ -137,7 +135,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     if (placed.isEmpty()) Text("Нажимайте слова ниже по порядку. Нажмите слово в ответе, чтобы вернуть его.",
-                        style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     placed.forEachIndexed { pos, tokenIndex ->
                         WordTile(
                             text = puzzle.tokens[tokenIndex],
@@ -150,10 +148,10 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         )
                     }
                     if (puzzle.ending.isNotEmpty() && placed.size == puzzle.tokens.size) {
-                        Text(puzzle.ending, style = TileText, color = Ink.Muted, modifier = Modifier.padding(top = 9.dp))
+                        Text(puzzle.ending, style = TileText, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 9.dp))
                     }
                 }
-                Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(2.dp).background(Ink.LineStrong, CircleShape))
+                Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(2.dp).background(MaterialTheme.colorScheme.outline, CircleShape))
             }
             }
 
@@ -184,14 +182,14 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         VerdictLine(v)
                         if (v == Verdict.Correct && hinted) {
                             Spacer(Modifier.height(4.dp))
-                            Text("Собрано с подсказкой — в итоге не засчитано как «без ошибок».", style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                            Text("Собрано с подсказкой — в итоге не засчитано как «без ошибок».", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 puzzle.original,
-                                style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 19.sp else 22.sp, lineHeight = if (LocalNarrow.current) 27.sp else 31.sp),
-                                color = Ink.Fg,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f),
                             )
                             Spacer(Modifier.width(12.dp))
@@ -225,8 +223,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
 
 private enum class TileStyle { Idle, Placed, Ghost, Correct, Wrong }
 
-private val TileText = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 19.sp, lineHeight = 24.sp)
-private val TileTextNarrow = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = 17.sp, lineHeight = 22.sp)
+private val TileText @Composable get() = MaterialTheme.typography.titleLarge
+private val TileTextNarrow @Composable get() = MaterialTheme.typography.titleMedium
 
 /** Плашка со словом. Ghost — пустое место, откуда слово уже взято. */
 @Composable
@@ -234,34 +232,33 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.SuccessSoft
-            TileStyle.Placed -> Ink.AccentSoft
-            TileStyle.Wrong -> Ink.ErrorSoft
-            TileStyle.Ghost -> Ink.Surface
-            TileStyle.Idle -> Ink.Raised
+            TileStyle.Correct -> MaterialTheme.colorScheme.tertiaryContainer
+            TileStyle.Placed -> MaterialTheme.colorScheme.primaryContainer
+            TileStyle.Wrong -> MaterialTheme.colorScheme.errorContainer
+            TileStyle.Ghost -> MaterialTheme.colorScheme.surfaceContainer
+            TileStyle.Idle -> MaterialTheme.colorScheme.surface
         },
         tween(240), label = "tileBg",
     )
     val fg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> Ink.Success
-            TileStyle.Wrong -> Ink.Error
-            else -> Ink.Fg
+            TileStyle.Correct -> MaterialTheme.colorScheme.tertiary
+            TileStyle.Wrong -> MaterialTheme.colorScheme.error
+            else -> MaterialTheme.colorScheme.onSurface
         },
         tween(240), label = "tileFg",
     )
     val border = when (style) {
-        TileStyle.Idle -> Ink.LineStrong
-        TileStyle.Placed -> Ink.Accent
-        TileStyle.Ghost -> Ink.Line
-        TileStyle.Correct -> Ink.Success
-        TileStyle.Wrong -> Ink.Error
+        TileStyle.Idle -> MaterialTheme.colorScheme.outline
+        TileStyle.Placed -> MaterialTheme.colorScheme.primary
+        TileStyle.Ghost -> MaterialTheme.colorScheme.outlineVariant
+        TileStyle.Correct -> MaterialTheme.colorScheme.tertiary
+        TileStyle.Wrong -> MaterialTheme.colorScheme.error
     }
     val shape = RoundedCornerShape(2.dp)
     Box(
         Modifier
             .widthIn(min = 48.dp).heightIn(min = 48.dp)
-            .pressScale(interaction, 0.99f)
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)

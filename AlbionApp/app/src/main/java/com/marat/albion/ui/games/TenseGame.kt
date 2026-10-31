@@ -56,8 +56,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
-import com.marat.albion.ui.theme.AlbionType
-import com.marat.albion.ui.theme.Ink
 
 /**
  * Тренажёр времён: пример с пропуском вместо формы неправильного глагола.
@@ -107,14 +105,14 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard(Modifier.shakeOn(shake)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = Ink.AccentText)
+                    Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = MaterialTheme.colorScheme.primary)
                     LevelBadge(card.level)
                 }
                 Spacer(Modifier.height(14.dp))
                 Text(
                     sentence(task, filled = verdict?.let { shownAnswer(task, if (typing) input else picked, it) }),
                     style = promptStyle,
-                    color = Ink.Fg,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
             Spacer(Modifier.height(20.dp))
@@ -162,23 +160,23 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                         Text(
                             AnnotatedString(task.answer),
                             style = promptStyle,
-                            color = Ink.Fg,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                     Spacer(Modifier.height(14.dp))
                     NoteCard {
-                        Eyebrow(task.formLabel, color = Ink.AccentText)
+                        Eyebrow(task.formLabel, color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.height(8.dp))
-                        Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = Ink.Text)
+                        Text(task.rule, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(forms(task, data), style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = com.marat.albion.ui.theme.Sans, fontSize = if (LocalNarrow.current) 18.sp else 20.sp), color = Ink.Muted, modifier = Modifier.weight(1f))
+                            Text(forms(task, data), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(10.dp))
                             PracticeAudioButton(playing = audio.playingKey == "tense:${card.id}", onClick = ::playAnswer, size = 40.dp, primary = false)
                         }
                         answerVariant?.ipa?.takeIf { it.isNotBlank() }?.let {
                             Spacer(Modifier.height(4.dp))
-                            Text("${task.answer}  $it", style = AlbionType.ipa.copy(fontSize = 15.sp))
+                            Text("${task.answer}  $it", style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }
@@ -210,10 +208,10 @@ private fun shownAnswer(task: TenseTask, answer: String?, verdict: Verdict): Str
 private fun sentence(task: TenseTask, filled: String?): AnnotatedString = buildAnnotatedString {
     append(task.before)
     if (filled == null) {
-        withStyle(SpanStyle(color = Ink.Muted)) { append(GAP_MARK) }
-        withStyle(SpanStyle(color = Ink.Muted, fontSize = 20.sp)) { append(" (${task.infinitive})") }
+        append(GAP_MARK)
+        withStyle(SpanStyle(fontSize = 20.sp)) { append(" (${task.infinitive})") }
     } else {
-        withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontWeight = FontWeight.SemiBold, color = Ink.Fg)) { append(filled) }
+        withStyle(SpanStyle(textDecoration = TextDecoration.Underline, fontWeight = FontWeight.SemiBold)) { append(filled) }
     }
     append(task.after)
 }
@@ -224,6 +222,6 @@ private fun forms(task: TenseTask, data: com.marat.albion.data.content.Irregular
     list.forEachIndexed { i, f ->
         if (i > 0) append("  ·  ")
         val text = f.variants.joinToString(" / ") { it.text }
-        if (i == task.formIndex) withStyle(SpanStyle(color = Ink.Fg, fontWeight = FontWeight.SemiBold)) { append(text) } else append(text)
+        if (i == task.formIndex) withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(text) } else append(text)
     }
 }

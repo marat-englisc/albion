@@ -1,13 +1,11 @@
 package com.marat.albion.ui.browse
 
-import com.marat.albion.ui.theme.paperSurface
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import com.marat.albion.ui.theme.pressScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.*
@@ -82,9 +80,6 @@ import com.marat.albion.ui.nav.CardRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.study.CardBack
 import com.marat.albion.ui.study.rememberCardAudio
-import com.marat.albion.ui.theme.Ink
-import com.marat.albion.ui.theme.Serif
-import com.marat.albion.ui.theme.headingFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
@@ -121,7 +116,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val audio = rememberCardAudio(c.audio)
     val showRussian by remember { c.settings.settings.map { it.browseShowRussian } }.collectAsStateWithLifecycle(true)
 
-    Column(Modifier.fillMaxSize().paperSurface().imePadding()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         TopBar(onBack = navigator::back, title = deck.title)
         SearchField(query, { query = it }, "Слово или перевод", Modifier.padding(horizontal = gutter))
         androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth().padding(horizontal = gutter),
@@ -178,10 +173,10 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
     val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(AlbionIcons.Search, null, tint = lerpColor(Ink.Faint, Ink.Fg, active), modifier = Modifier.size(20.dp))
+            Icon(AlbionIcons.Search, null, tint = lerpColor(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onSurface, active), modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
             Box(Modifier.weight(1f)) {
-                if (value.isEmpty()) Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = Ink.Faint,
+                if (value.isEmpty()) Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.clearAndSetSemantics {})
                 BasicTextField(
                     value = value,
@@ -189,18 +184,18 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { keyboard?.hide(); focus.clearFocus() }),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Ink.Fg),
-                    cursorBrush = SolidColor(Ink.Fg),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                     modifier = Modifier.semantics { contentDescription = placeholder }.fillMaxWidth().heightIn(min = 48.dp).padding(vertical = 10.dp),
                 )
             }
             if (value.isNotEmpty()) {
                 IconButton(onClick = { onChange("") }, modifier = Modifier.size(48.dp)) {
-                    Icon(AlbionIcons.Clear, "Очистить", tint = Ink.Muted, modifier = Modifier.size(18.dp))
+                    Icon(AlbionIcons.Clear, "Очистить", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
             }
         }
-        Hairline(color = lerpColor(Ink.LineStrong, Ink.Fg, active))
+        Hairline(color = lerpColor(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.onSurface, active))
     }
 }
 
@@ -212,15 +207,14 @@ fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(3.dp)
     Box(
         Modifier
-            .pressScale(interaction, 0.93f)
-            .background(lerpColor(Ink.Surface, Ink.Accent, t), shape)
-            .border(1.dp, lerpColor(Ink.Line, Ink.Accent, t), shape)
+            .background(lerpColor(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.primary, t), shape)
+            .border(1.dp, lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, t), shape)
             .heightIn(min = 48.dp)
             .selectable(selected, interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = androidx.compose.ui.semantics.Role.Tab, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label.uppercase(), style = com.marat.albion.ui.theme.AlbionType.eyebrow, color = lerpColor(Ink.Soft, Ink.OnAccent, t))
+        Text(label.uppercase(), style = MaterialTheme.typography.labelMedium, color = lerpColor(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onPrimary, t))
     }
 }
 
@@ -235,8 +229,8 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             com.marat.albion.ui.components.highlightedQuery(card.term, query),
-                            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = headingFamily(card.term)),
-                            color = Ink.Fg,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
@@ -245,7 +239,7 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
                         LevelBadge(card.level)
                     }
                     Spacer(Modifier.height(2.dp))
-                    if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                    if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.width(12.dp))
                 AudioButton(playing = playing, onClick = onPlay, size = 48.dp, primary = false)
@@ -256,13 +250,13 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
             else {
                 val match = senses.firstOrNull { (if (showRussian) it.meaningRu else it.meaningEn).contains(query, true) } ?: senses.first()
                 Text(com.marat.albion.ui.components.highlightedQuery(if (showRussian) match.meaningRu.ifBlank { match.meaningEn } else match.meaningEn, query),
-                    style = MaterialTheme.typography.bodyMedium, color = Ink.Soft, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             if (!showRussian && query.isNotBlank()) senses.firstOrNull { it.meaningRu.contains(query, true) }?.let { matched ->
-                Text(com.marat.albion.ui.components.highlightedQuery("В переводе: ${matched.meaningRu}", query), style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
+                Text(com.marat.albion.ui.components.highlightedQuery("В переводе: ${matched.meaningRu}", query), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (senses.size > 1 && !detailed) TextButton(onClick = { expanded = !expanded }) {
-                Text(if (expanded) "Свернуть значения" else "Все значения · ${senses.size}", color = Ink.AccentText)
+                Text(if (expanded) "Свернуть значения" else "Все значения · ${senses.size}", color = MaterialTheme.colorScheme.primary)
             }
         }
         Hairline(Modifier.padding(horizontal = gutter))
@@ -283,7 +277,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     var removing by remember { mutableStateOf(false) }
     var removeError by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().paperSurface()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = navigator::back)
         val current = card ?: run {
             if (!cardResult.first) com.marat.albion.ui.components.LoadingState("Открываем карточку")
@@ -296,7 +290,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
         ) {
             Panel(
                 Modifier.padding(top = 20.dp),
-                contentPadding = PaddingValues(0.dp), color = Ink.Surface, borderColor = Ink.LineStrong,
+                contentPadding = PaddingValues(0.dp), color = MaterialTheme.colorScheme.surfaceContainer, borderColor = MaterialTheme.colorScheme.outline,
             ) {
                 CardBack(current, c.study.irregular(current), audio, showRussian = settings.showRussian)
             }
@@ -304,7 +298,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
             Column(Modifier.padding(horizontal = 4.dp)) {
                 val s = state
                 if (s == null) {
-                    Text("Карточка ещё не изучалась.", style = MaterialTheme.typography.bodyMedium, color = Ink.Muted)
+                    Text("Карточка ещё не изучалась.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val r = Fsrs(w = Fsrs.decodeParams(settings.fsrsParams) ?: Fsrs.DEFAULT_W).retrievability(s.toMemory(), System.currentTimeMillis())
                     InfoRow("Статус", stateName(s.state))
@@ -337,11 +331,10 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     if (confirmRemove) {
         AlertDialog(
             onDismissRequest = { if (!removing) confirmRemove = false },
-            containerColor = Ink.Raised,
-            title = { Text("Удалить слово?", color = Ink.Fg) },
+            title = { Text("Удалить слово?", color = MaterialTheme.colorScheme.onSurface) },
             text = {
                 Text(if (removeError) "Не удалось удалить слово. Попробуйте ещё раз."
-                    else "Карточка «${card?.term.orEmpty()}» и история её повторений будут удалены.", color = Ink.Muted)
+                    else "Карточка «${card?.term.orEmpty()}» и история её повторений будут удалены.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             },
             confirmButton = {
                 TextButton(enabled = !removing, onClick = {
@@ -358,9 +351,9 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
                             removing = false
                         }
                     }
-                }) { Text(if (removing) "Удаляю…" else "Удалить", color = Ink.Fg) }
+                }) { Text(if (removing) "Удаляю…" else "Удалить", color = MaterialTheme.colorScheme.onSurface) }
             },
-            dismissButton = { TextButton(enabled = !removing, onClick = { confirmRemove = false }) { Text("Отмена", color = Ink.Muted) } },
+            dismissButton = { TextButton(enabled = !removing, onClick = { confirmRemove = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         )
     }
 }
@@ -369,8 +362,8 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
 private fun InfoRow(label: String, value: String) {
     Column {
         Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
-            Text(label, style = MaterialTheme.typography.bodySmall, color = Ink.Muted)
-            Text(value, style = MaterialTheme.typography.bodyMedium, color = Ink.Fg)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         }
         Hairline()
     }

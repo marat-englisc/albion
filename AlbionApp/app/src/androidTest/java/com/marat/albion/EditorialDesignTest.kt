@@ -10,7 +10,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.marat.albion.data.content.ImportStatus
-import com.marat.albion.ui.intro.IntroScreen
 import com.marat.albion.ui.theme.AlbionTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
@@ -35,8 +34,7 @@ class EditorialDesignTest {
                 shell("cmd uimode night ${if (night) "yes" else "no"}")
                 val edition = if (night) "system-night" else "reading-room"
                 ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-                    await { it.text?.toString()?.startsWith("Начать · ") == true || it.text?.toString() == "Открыть библиотеку" }
-                    assertIvoryBackground()
+                    await { it.text?.toString() == "Начать" || it.text?.toString() == "Открыть библиотеку" }
                     capture("home-$edition")
                     click { it.text?.toString() == "Учебник" && it.isVisibleToUser }
                     await { it.isEditable }
@@ -64,34 +62,25 @@ class EditorialDesignTest {
                     click { it.contentDescription?.toString() == "Назад" }
                     await { it.text?.toString() == "Библиотека" }
                     click { it.text?.toString() == "Практика" }
-                    await { it.text?.toString() == "Словарный запас".uppercase() }
+                    await { it.text?.toString() == "Словарный запас" }
                     capture("practice-$edition")
                     click { it.text?.toString() == "Прогресс" }
-                    await { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
+                    await { it.text?.toString() == "Карточки и практика" }
                     capture("progress-$edition")
                     click { it.contentDescription?.toString() == "Настройки" }
-                    await { it.text?.toString() == "ЗВУК И ОЩУЩЕНИЯ" }
+                    await { it.text?.toString() == "Звук и доступность" }
                     assertNull(find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() in setOf("Тема", "Тёмная", "Как в системе") })
                     capture("settings-$edition")
                     click { it.contentDescription?.toString() == "Назад" }
-                    await { it.text?.toString() == "КАРТОЧКИ И ПРАКТИКА" }
-                    click { it.text?.toString() == "Карточки" }
-                    click { it.text?.toString()?.startsWith("Начать · ") == true }
+                    await { it.text?.toString() == "Карточки и практика" }
+                    click { it.text?.toString() == "Сегодня" }
+                    click { it.text?.toString() == "Начать" }
                     await { it.text?.toString() == "Показать ответ" }
                     capture("study-$edition")
                     click { it.text?.toString() == "Показать ответ" }
                     await { it.text?.toString() == "Хорошо" }
                     capture("answer-$edition")
                     click { it.contentDescription?.toString() == "Закрыть" }
-                    scenario.onActivity { activity ->
-                        activity.setContent {
-                            AlbionTheme {
-                                IntroScreen(ImportStatus.Checking, full = false, onFinished = {})
-                            }
-                        }
-                    }
-                    await { it.text?.toString() == "Проверяю материалы" }
-                    capture("launch-$edition")
                 }
             }
             c.settings.setInterfaceSounds(false)
@@ -100,7 +89,7 @@ class EditorialDesignTest {
             val saved = c.settings.current()
             assertTrue(!saved.interfaceSounds && !saved.hapticsEnabled && saved.reduceMotion)
             ActivityScenario.launch(MainActivity::class.java).use {
-                click { it.text?.toString()?.startsWith("Начать · ") == true }
+                click { it.text?.toString() == "Начать" }
                 click { it.text?.toString() == "Показать ответ" }
                 await { it.text?.toString() == "Хорошо" }
                 capture("study-reduced-motion")
@@ -117,13 +106,6 @@ class EditorialDesignTest {
         val descriptor = instrumentation.uiAutomation.executeShellCommand(command)
         android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
         SystemClock.sleep(350)
-    }
-    private fun assertIvoryBackground() {
-        val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("Screenshot unavailable")
-        val color = bitmap.getPixel(6, 280)
-        assertTrue("Application followed system dark mode", android.graphics.Color.red(color) > 230 &&
-            android.graphics.Color.green(color) > 220 && android.graphics.Color.blue(color) > 205)
-        bitmap.recycle()
     }
 
     private fun dismissHelp() {
