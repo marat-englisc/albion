@@ -65,7 +65,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = navigator::back) {
             Box {
-                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true })
+                com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true }, filled = true)
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
                 }

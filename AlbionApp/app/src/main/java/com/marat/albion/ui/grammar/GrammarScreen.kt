@@ -138,7 +138,7 @@ fun GrammarScreen(navigator: Navigator) {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
                     SettingsShortcut(navigator::openSettings)
                 } else Box {
-                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true })
+                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true }, filled = true)
                     androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }) {
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Справочники и курс") }, onClick = { headerMenu = false; references = true })
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Настройки") }, onClick = { headerMenu = false; navigator.openSettings() })

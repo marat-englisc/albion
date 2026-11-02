@@ -209,7 +209,8 @@ fun AlbionNavigation() {
         contentWindowInsets = WindowInsets(0),
         bottomBar = {
             AnimatedVisibility(
-                visible = showBar && !wide,
+                // В уроке учебника на телефоне вкладки прячутся, как в читалке: больше места тексту.
+                visible = showBar && !wide && current !is TopicRoute,
                 enter = fadeIn(tween(180)) + slideInVertically(tween(220, easing = Easing.Standard)) { if (reduced) 0 else it / 3 },
                 exit = fadeOut(tween(120)) + slideOutVertically(tween(180)) { if (reduced) 0 else it / 3 },
             ) {

@@ -149,14 +149,14 @@ enum class Game(
         emptyList(),
     ),
     GRAMMAR_GAP(
-        "Допиши пропуск",
+        "Впишите пропуск",
         "Впишите пропущенное в предложение",
         "В предложении пропуск — впишите нужную форму сами, без подсказок-вариантов. В скобках дана " +
             "начальная форма или перевод. Регистр и лишние пробелы не важны.",
         emptyList(),
     ),
     SENTENCE(
-        "Собери предложение",
+        "Соберите предложение",
         "Расставьте слова по порядку",
         "Слова примера из карточки перемешаны — касайтесь их по порядку, чтобы собрать предложение. Тренирует порядок " +
             "слов, вопросы и место наречий. Нажмите на слово в ответе, чтобы вернуть его обратно.",
@@ -175,7 +175,7 @@ enum class Game(
     val icon: ImageVector
         get() = when (this) {
             TYPE_ANSWER -> AlbionIcons.Keyboard
-            IRREGULAR -> AlbionIcons.Timeline
+            IRREGULAR -> AlbionIcons.List
             SHADOWING -> AlbionIcons.RecordVoiceOver
             PRONUNCIATION -> AlbionIcons.Mic
             GRAMMAR_CHOICE -> AlbionIcons.Rule

@@ -221,7 +221,7 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
                 Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
             }
             com.marat.albion.ui.components.FeatureHelp("study.ratings", "Как оценить ответ",
-                "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false)
+                "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false, filled = false)
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
         if (state.answerLimit != null) {

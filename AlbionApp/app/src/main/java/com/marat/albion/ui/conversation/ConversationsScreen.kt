@@ -90,7 +90,7 @@ fun ConversationsScreen(navigator: Navigator) {
                     onClick = if (model.ready) ({ start(scenario) }) else null, contentPadding = PaddingValues(18.dp)) {
                     Box(Modifier.size(36.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small),
                         contentAlignment = Alignment.Center) {
-                        Icon(AlbionIcons.RecordVoiceOver, null, Modifier.size(18.dp))
+                        Icon(scenario.icon, null, Modifier.size(18.dp))
                     }
                     Spacer(Modifier.weight(1f).heightIn(min = 16.dp))
                     Text(scenario.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -145,4 +145,16 @@ private fun HistoryRow(summary: ConversationSummary, modifier: Modifier, onOpen:
                 tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+}
+
+/** Знак ситуации: раньше у всех семи была одна и та же иконка. */
+private val Scenario.icon: androidx.compose.ui.graphics.vector.ImageVector get() = when (this) {
+    Scenario.FREE -> AlbionIcons.Chat
+    Scenario.DAY -> AlbionIcons.Sun
+    Scenario.CAFE -> AlbionIcons.Coffee
+    Scenario.HOTEL -> AlbionIcons.Bed
+    Scenario.INTERVIEW -> AlbionIcons.Briefcase
+    Scenario.DOCTOR -> AlbionIcons.Health
+    Scenario.SHOP -> AlbionIcons.Bag
+    Scenario.OPINION -> AlbionIcons.Debate
 }

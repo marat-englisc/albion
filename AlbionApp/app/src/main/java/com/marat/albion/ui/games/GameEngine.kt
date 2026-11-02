@@ -107,7 +107,8 @@ class GameViewModel(private val c: AppContainer, val game: Game,
         if (retry == null) saveOptions(markAsLast = true)
         phase = Phase.Loading
         // Новая игра — новые примеры; повтор ошибок — те же задания.
-        if (retry == null) { tenses.clear(); tenseOptions.clear(); puzzles.clear(); shuffledTokens.clear() }
+        if (retry == null) { tenses.clear(); tenseOptions.clear(); puzzles.clear(); shuffledTokens.clear(); sentenceTranslations.clear() }
+        translating?.cancel()
         viewModelScope.launch {
             val pool = retry?.shuffled() ?: when (game) {
                 // Нужны карточки, у которых есть пример подходящей длины.
@@ -173,6 +174,24 @@ class GameViewModel(private val c: AppContainer, val game: Game,
         // Идиома и коллокация остаются одной плашкой: задача — встроить выражение в предложение.
         val chunk = card.term.takeIf { card.deck == Deck.IDIOMS.id || card.deck == Deck.COLLOCATIONS.id }
         SentencePuzzle.fromExamples(listOf(card.example1, card.example2).shuffled(), chunk)
+    }
+
+    /** Переводы предложений «Собери предложение» — готовятся для всей тренировки заранее, по порядку заданий. */
+    val sentenceTranslations = androidx.compose.runtime.mutableStateMapOf<String, String>()
+    private var translating: kotlinx.coroutines.Job? = null
+
+    /** Запускает перевод оставшихся предложений с текущего задания; повторный вызов ничего не делает. */
+    fun prefetchTranslations() {
+        if (game != Game.SENTENCE || translating?.isActive == true) return
+        translating = viewModelScope.launch {
+            for (card in items.drop(index)) {
+                if (card.id in sentenceTranslations) continue
+                val original = puzzle(card)?.original ?: continue
+                try { c.translator.translations(original).collect { sentenceTranslations[card.id] = it } }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (_: Exception) { }
+            }
+        }
     }
 
     private val tenses = HashMap<String, TenseTask?>()

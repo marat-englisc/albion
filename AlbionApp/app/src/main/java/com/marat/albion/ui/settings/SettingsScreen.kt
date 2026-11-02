@@ -52,7 +52,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
             SegmentedPicker(ThemeMode.entries.map { it.title }, s.themeMode.ordinal, { scope.launch { repo.setThemeMode(ThemeMode.entries[it]) } })
             Spacer(Modifier.height(16.dp))
-            Disclosure("Занятия и цель", "${s.dailyGoal} ответов в день", icon = com.marat.albion.ui.components.AlbionIcons.Insights) {
+            Disclosure("Занятия и цель", "${s.dailyGoal} ответов в день", icon = com.marat.albion.ui.components.AlbionIcons.TaskAlt) {
                 GoalReminderSection(s)
                 SliderSetting("Новых карточек в день", "${s.newPerDay}",
                     "На каждую колоду. Для шести колод — до ${s.newPerDay * 6} новых карточек в день.",
@@ -65,7 +65,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     } }
                 }
             }
-            Disclosure("Карточки и озвучка", "Перевод, транскрипция и воспроизведение", icon = com.marat.albion.ui.components.AlbionIcons.VolumeUp) {
+            Disclosure("Карточки и озвучка", "Перевод, транскрипция и воспроизведение", icon = com.marat.albion.ui.components.AlbionIcons.Layers) {
                 SwitchSetting("Озвучивать слово при показе", s.autoplayFront) { scope.launch { repo.setAutoplayFront(it) } }
                 SwitchSetting("Озвучивать при перевороте", s.autoplayBack) { scope.launch { repo.setAutoplayBack(it) } }
                 SwitchSetting("Транскрипция на лицевой стороне", s.showIpaOnFront) { scope.launch { repo.setShowIpaOnFront(it) } }
@@ -80,7 +80,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
                 ActionRow("Прослушать пример") { c.audio.speak("A little, every day.", "settings-preview") }
             }
-            Disclosure("Чтение и учебник", "Размер текста, интервал и поля", icon = com.marat.albion.ui.components.AlbionIcons.AutoStories) {
+            Disclosure("Чтение и учебник", "Размер текста, интервал и поля", icon = com.marat.albion.ui.components.AlbionIcons.TextFields) {
                 SliderSetting("Текст учебника", "${(s.grammarTextScale * 100).roundToInt()}%", null,
                     s.grammarTextScale, 0.85f..1.4f, 10) { scope.launch { repo.setGrammarTextScale(it) } }
                 Text("Английский — маленькими шагами каждый день.",
@@ -96,16 +96,16 @@ fun SettingsScreen(onBack: () -> Unit) {
                     style = com.marat.albion.ui.theme.ReadingStyle.copy(fontSize = (18 * s.readerTextScale).sp, lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
                 SwitchSetting("Подчёркивать изучаемые слова в книге", s.readerMarkWords) { scope.launch { repo.setReaderMarkWords(it) } }
             }
-            Disclosure("Звук и доступность", "Тактильный отклик и движение", icon = com.marat.albion.ui.components.AlbionIcons.Lightbulb) {
+            Disclosure("Звук и доступность", "Тактильный отклик и движение", icon = com.marat.albion.ui.components.AlbionIcons.VolumeUp) {
                 SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
                 Text("Тихое созвучие с учётом беззвучного режима телефона.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
                 SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
             }
-            Disclosure("Перевод книг", "Qwen3.5 · офлайн-модель", icon = AlbionIcons.AutoStories) {
+            Disclosure("Перевод книг", "Qwen3.5 · офлайн-модель", icon = AlbionIcons.CloudOff) {
                 com.marat.albion.ui.library.TranslationModelControls()
             }
-            Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка", icon = com.marat.albion.ui.components.AlbionIcons.Timeline) {
+            Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка", icon = com.marat.albion.ui.components.AlbionIcons.Route) {
                 SliderSetting("Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
                     "Вероятность вспомнить карточку при показе. Рекомендуется 90%.", s.desiredRetention, 0.80f..0.97f, 16) {
                     scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) }

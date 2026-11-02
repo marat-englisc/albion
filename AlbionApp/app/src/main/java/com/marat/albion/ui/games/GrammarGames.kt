@@ -272,7 +272,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
         vm.topicIds[n]?.let { navigator.open(TopicRoute(it, fromQuiz = true)) }
     }
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
-    val quizTitle = if (vm.retryingMistakes) "Повтор ошибок · тема $topic" else "Проверь себя · тема $topic"
+    val quizTitle = if (vm.retryingMistakes) "Повтор ошибок · тема $topic" else "Проверьте себя · тема $topic"
 
     AnimatedContent(
         targetState = vm.phase,
@@ -607,12 +607,12 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
                 imeAction = ImeAction.Done,
                 onIme = { check() },
                 modifier = Modifier.shakeOn(shake),
-                struck = verdict == Verdict.Wrong,
+                struck = verdict == Verdict.Wrong, accepted = verdict == Verdict.Correct,
             )
             AnimatedVisibility(verdict != null, enter = fadeIn(tween(300)) + expandVertically()) {
                 val v = verdict ?: Verdict.Wrong
                 Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
-                    VerdictLine(v)
+                    AnswerLabel(v)
                     if (v != Verdict.Correct) {
                         Spacer(Modifier.height(10.dp))
                         Text(

@@ -87,13 +87,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     // Перевод предложения: без него порядок слов приходится угадывать. Переводит модель на устройстве, если она установлена.
     val model by c.translator.model.collectAsStateWithLifecycle()
     val canTranslate = model.phase == com.marat.albion.data.translation.ModelState.Ready
-    var translation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
-    androidx.compose.runtime.LaunchedEffect(card.id, canTranslate) {
-        if (!canTranslate || translation != null) return@LaunchedEffect
-        try { c.translator.translations(puzzle.original).collect { translation = it } }
-        catch (e: kotlinx.coroutines.CancellationException) { throw e }
-        catch (_: Exception) { }
-    }
+    val translation = vm.sentenceTranslations[card.id]
+    androidx.compose.runtime.LaunchedEffect(canTranslate) { if (canTranslate) vm.prefetchTranslations() }
 
     fun check() {
         if (verdict != null) return
@@ -205,7 +200,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                 } else {
                     NoteCard(Modifier.padding(top = 18.dp), tone = if (verdict == Verdict.Correct) NoteTone.Good else NoteTone.Bad) {
                         val v = verdict ?: Verdict.Wrong
-                        VerdictLine(v)
+                        Eyebrow(if (v == Verdict.Correct) "Предложение целиком" else "Правильный порядок",
+                            color = if (v == Verdict.Correct) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error)
                         if (v == Verdict.Correct && hinted) {
                             Spacer(Modifier.height(4.dp))
                             Text("Собрано с подсказкой — в итоге не засчитано как «без ошибок».", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

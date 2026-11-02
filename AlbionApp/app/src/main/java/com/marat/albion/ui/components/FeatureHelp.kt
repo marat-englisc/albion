@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 /** Инструкция один раз при знакомстве с разделом, затем — по кнопке справки. */
 @Composable
-fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = false) {
+fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolean = false, filled: Boolean = true) {
     val c = LocalAppContainer.current
     val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
     var expanded by rememberSaveable(key) { mutableStateOf(false) }
@@ -40,7 +40,8 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
         c.appScope.launch { c.settings.markHelpViewed(key) }
     }
 
-    RoundIconButton(AlbionIcons.HelpOutline, "Справка: $title", onClick = { presented = true; expanded = true }, spin = -20f)
+    // В шапках — в рамке, как «Назад» и «Настройки»; в строке занятия, где все кнопки без рамки, — без неё.
+    RoundIconButton(AlbionIcons.HelpOutline, "Справка: $title", onClick = { presented = true; expanded = true }, spin = -20f, filled = filled)
     if (expanded) {
         AlertDialog(
             onDismissRequest = ::dismiss,

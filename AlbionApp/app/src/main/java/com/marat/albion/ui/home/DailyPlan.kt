@@ -124,10 +124,13 @@ internal fun DeckRow(summary: DeckSummary, modifier: Modifier = Modifier, onClic
     val scheme = MaterialTheme.colorScheme
     Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(52.dp).background(scheme.background, MaterialTheme.shapes.small)
-                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
+            // Число с подписью: без неё было непонятно, что значит «20».
+            Column(Modifier.size(56.dp).background(scheme.background, MaterialTheme.shapes.small)
+                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small),
+                horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text("${summary.toStudy}", style = MaterialTheme.typography.titleLarge,
                     color = if (summary.toStudy > 0) scheme.onSurface else scheme.onSurfaceVariant)
+                Text("сегодня", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant, maxLines = 1)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
@@ -135,7 +138,10 @@ internal fun DeckRow(summary: DeckSummary, modifier: Modifier = Modifier, onClic
                 Text(when {
                     summary.total == 0 -> summary.deck.subtitle
                     summary.toStudy == 0 -> "На сегодня всё · ${summary.started} из ${summary.total} начато"
-                    else -> "${summary.due} повторить · ${summary.newAvailable} новых"
+                    else -> listOfNotNull(
+                        summary.due.takeIf { it > 0 }?.let { "$it повторить" },
+                        summary.newAvailable.takeIf { it > 0 }?.let { "$it ${com.marat.albion.ui.library.pluralRu(it, "новая", "новые", "новых")}" },
+                    ).joinToString(" · ")
                 }, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (summary.started > 0) {
                     Spacer(Modifier.height(8.dp))

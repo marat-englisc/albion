@@ -1,5 +1,7 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.foundation.layout.wrapContentHeight
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -281,7 +283,9 @@ fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
     if (level.isNullOrBlank()) return
     Text(
         level.uppercase(),
-        modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape).padding(horizontal = 8.dp, vertical = 2.dp),
+        // Одна высота с [Chip]: рядом стоящие «article» и «A1» больше не прыгают по вертикали.
+        modifier = modifier.heightIn(min = 28.dp).border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+            .wrapContentHeight(Alignment.CenterVertically).padding(horizontal = 10.dp),
         style = MaterialTheme.typography.labelSmall,
     )
 }
@@ -290,7 +294,8 @@ fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
 fun Chip(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
-        modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape).padding(horizontal = 12.dp, vertical = 5.dp),
+        modifier = modifier.heightIn(min = 28.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
+            .wrapContentHeight(Alignment.CenterVertically).padding(horizontal = 12.dp, vertical = 4.dp),
         style = MaterialTheme.typography.labelMedium,
     )
 }

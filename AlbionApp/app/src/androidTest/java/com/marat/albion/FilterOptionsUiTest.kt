@@ -47,7 +47,7 @@ class FilterOptionsUiTest {
             choose("Навык", "Речь и слух", "practice-menu")
             scrollTo { it.text?.toString() == "Произношение" }
             await { it.text?.toString() == "Шэдоуинг" }
-            assertNull(find(root()) { it.text?.toString() == "Собери предложение" })
+            assertNull(find(root()) { it.text?.toString() == "Соберите предложение" })
             capture("practice-selected")
             scenario.recreate()
             assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Навык" }).contains("Речь и слух"))

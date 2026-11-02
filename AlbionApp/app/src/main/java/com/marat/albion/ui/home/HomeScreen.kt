@@ -98,7 +98,6 @@ fun HomeScreen(navigator: Navigator) {
     val vm = viewModel { HomeViewModel(c) }
     val state by vm.state.collectAsStateWithLifecycle()
     val status by vm.importStatus.collectAsStateWithLifecycle()
-    var showDecks by rememberSaveable { mutableStateOf(false) }
     var sessionSize by rememberSaveable { mutableIntStateOf(state.sessionSize) }
     LaunchedEffect(state.sessionSize) { sessionSize = state.sessionSize }
     val date = SimpleDateFormat("d MMMM · EEEE", Locale.forLanguageTag("ru")).format(Date())
@@ -116,8 +115,7 @@ fun HomeScreen(navigator: Navigator) {
                         Text("albion", style = MaterialTheme.typography.titleLarge.copy(fontFamily = AlbionFonts.Display), maxLines = 1)
                         if (!compact) SignalLabel("АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ", Modifier.padding(top = 3.dp))
                     }
-                    RoundIconButton(AlbionIcons.Inventory2, "Колоды", { showDecks = true }, filled = true)
-                    Spacer(Modifier.width(4.dp))
+                    // Колоды и так списком ниже — отдельная кнопка в шапке дублировала их.
                     SettingsShortcut(navigator::openSettings)
                 }
             }
@@ -219,18 +217,6 @@ fun HomeScreen(navigator: Navigator) {
             }
         } else LazyColumn(Modifier.fillMaxSize(), contentPadding = padding) { overview(); decks() }
     }
-    if (showDecks) androidx.compose.material3.ModalBottomSheet(
-        onDismissRequest = { showDecks = false },
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = gutter)) {
-            SheetHeader("Все колоды", { showDecks = false })
-            state.decks.forEach { deck -> EditorialLink(deck.deck.title,
-                "${deck.due} повторить · ${deck.newAvailable} новых", onClick = {
-                    showDecks = false; navigator.open(DeckRoute(deck.deck))
-                }) }
-        }
-    }
-
 }
 
 @Composable

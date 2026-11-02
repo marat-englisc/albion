@@ -72,7 +72,7 @@ fun ChatScreen(id: Long, navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         TopBar(navigator::back, conversation?.title) {
             Box {
-                RoundIconButton(AlbionIcons.MoreHoriz, "Действия с беседой", { menu = true })
+                RoundIconButton(AlbionIcons.MoreHoriz, "Действия с беседой", { menu = true }, filled = true)
                 DropdownMenu(menu, { menu = false }) {
                     DropdownMenuItem({ Text("Другой ответ") }, { menu = false; vm.regenerate() },
                         enabled = !vm.busy && items.lastOrNull()?.fromUser == false && items.any { it.fromUser },

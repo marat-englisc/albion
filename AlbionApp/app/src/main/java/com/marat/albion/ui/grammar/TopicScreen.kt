@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -192,7 +194,9 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp, bottom = 40.dp),
+                        // Вкладки в уроке скрыты — сами отступаем от системной навигации.
+                        contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp,
+                            bottom = 40.dp + androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         item(key = "header") { TopicHeader(topic, doc!!, Modifier,
@@ -286,7 +290,7 @@ private fun TopicFooter(
 
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp)).padding(20.dp),
             ) {
-                Eyebrow("Проверь себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Eyebrow("Проверьте себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))
                 Text(
                     "В тесте — ${minOf(quizCount, GrammarQuizSelection.SIZE)} из $quizCount заданий. " +
@@ -315,7 +319,10 @@ private fun TopicFooter(
                 "Успешные полные тесты увеличивают интервал до 60 дней; менее 70% — повтор через день.",
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        GhostButton(if (read) "Тема прочитана" else "Отметить как прочитанную", onClick = onToggleRead, icon = AlbionIcons.Check)
+        // Переключатель с явным состоянием: прежняя кнопка «Тема прочитана» читалась и как статус, и как действие.
+        com.marat.albion.ui.components.Panel(contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 4.dp)) {
+            com.marat.albion.ui.settings.SwitchSetting("Тема прочитана", read) { onToggleRead() }
+        }
         NavArrows(onPrev, onContents, onNext)
     }
 }
@@ -350,8 +357,8 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
     Box(
         Modifier.size(58.dp)
             .clip(CircleShape)
-            .background(if (filled && enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.background)
-            .border(1.dp, if (enabled) (if (filled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline) else MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            .background(if (filled && enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+            .border(1.dp, if (enabled) (if (filled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline) else MaterialTheme.colorScheme.outlineVariant, CircleShape)
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled) { onClick?.invoke() },
         contentAlignment = Alignment.Center,
     ) {
@@ -360,7 +367,7 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
             contentDescription = description,
             tint = when {
                 !enabled -> MaterialTheme.colorScheme.onSurfaceVariant
-                filled -> MaterialTheme.colorScheme.background
+                filled -> MaterialTheme.colorScheme.onPrimary
                 else -> MaterialTheme.colorScheme.onSurface
             },
             modifier = Modifier.size(24.dp),

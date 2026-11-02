@@ -102,6 +102,8 @@ internal fun AnswerField(
     onIme: () -> Unit,
     modifier: Modifier = Modifier,
     struck: Boolean = false,
+    /** Ответ принят — поле подкрашивается мятой. */
+    accepted: Boolean = false,
 ) {
     var focused by remember { mutableStateOf(false) }
     val on by animateFloatAsState(if (focused) 1f else 0f, tween(220), label = "focus")
@@ -109,6 +111,7 @@ internal fun AnswerField(
     val shape = MaterialTheme.shapes.medium
     val border = when {
         struck -> MaterialTheme.colorScheme.error
+        accepted -> MaterialTheme.colorScheme.tertiary
         else -> lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, on)
     }
     Column(modifier.fillMaxWidth()) {
@@ -135,7 +138,11 @@ internal fun AnswerField(
         decorationBox = { inner ->
             Row(
                 Modifier.fillMaxWidth()
-                    .background(if (struck) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow, shape)
+                    .background(when {
+                        struck -> MaterialTheme.colorScheme.errorContainer
+                        accepted -> MaterialTheme.colorScheme.tertiaryContainer
+                        else -> MaterialTheme.colorScheme.surfaceContainerLow
+                    }, shape)
                     .border(if (focused) 1.25.dp else .75.dp, border, shape)
                     .heightIn(min = 64.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
@@ -144,7 +151,8 @@ internal fun AnswerField(
                 Icon(AlbionIcons.EditNote, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(12.dp))
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                if (value.isEmpty() && !focused) {
+                // Подсказка видна и в фокусе: поле открывается с клавиатурой, и иначе её никто не видел.
+                if (value.isEmpty()) {
                     Text(
                         placeholder,
                         style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
@@ -196,6 +204,19 @@ private fun skeleton(term: String, revealed: Int): String {
 private fun hintLetters(term: String) =
     term.split(' ').filterNot { AnswerCheck.isPlaceholder(it) }.sumOf { w -> w.count { it.isLetter() } }
 
+/**
+ * Подпись над правильным ответом под заданием. Сам вердикт («Верно / Неверно») показывает
+ * нижняя панель [NextDock] — здесь он не повторяется.
+ */
+@Composable
+internal fun AnswerLabel(verdict: Verdict) {
+    when (verdict) {
+        Verdict.Correct -> Unit
+        Verdict.Typo -> Eyebrow("Почти — правильно так", color = MaterialTheme.colorScheme.tertiary)
+        Verdict.Wrong -> Eyebrow("Правильный ответ", color = MaterialTheme.colorScheme.tertiary)
+    }
+}
+
 /** Rectangular proof mark; text and an icon explain the result independently of colour. */
 @Composable
 internal fun VerdictLine(verdict: Verdict) {
@@ -220,18 +241,23 @@ internal fun VerdictLine(verdict: Verdict) {
 /** Разбор ошибки: введённый вариант зачёркнут, правильное слово — крупно, на красноватой плашке. */
 @Composable
 private fun WrongAnswerFeedback(answer: String, correct: String) {
-    NoteCard(Modifier.semantics { liveRegion = LiveRegionMode.Polite }, tone = NoteTone.Bad) {
-        Eyebrow("Ваш ответ", color = MaterialTheme.colorScheme.error)
-        Spacer(Modifier.height(2.dp))
-        Text(
-            answer.ifBlank { "Ответ не дан" },
-            style = MaterialTheme.typography.bodyLarge.copy(textDecoration = if (answer.isNotBlank()) TextDecoration.LineThrough else null),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(10.dp))
-        Eyebrow("Правильный ответ", color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(2.dp))
-        Text(correct, style = termStyle(correct, 34).copy(textAlign = TextAlign.Start), color = MaterialTheme.colorScheme.onSurface)
+    // Две плашки: коралл — ваш вариант, мята — правильный; отличающиеся буквы подчёркнуты.
+    Column(Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        NoteCard(tone = NoteTone.Bad) {
+            Eyebrow("Ваш ответ", color = MaterialTheme.colorScheme.error)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                answer.ifBlank { "Ответ не дан" },
+                style = MaterialTheme.typography.bodyLarge.copy(textDecoration = if (answer.isNotBlank()) TextDecoration.LineThrough else null),
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        NoteCard(tone = NoteTone.Good) {
+            Eyebrow("Правильный ответ", color = MaterialTheme.colorScheme.tertiary)
+            Spacer(Modifier.height(2.dp))
+            Text(if (answer.isNotBlank()) annotateMistakes(correct, answer) else AnnotatedString(correct),
+                style = termStyle(correct, 34).copy(textAlign = TextAlign.Start), color = MaterialTheme.colorScheme.onSurface)
+        }
     }
 }
 
@@ -321,7 +347,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                     if (v == Verdict.Wrong) {
                         WrongAnswerFeedback(input, card.term)
                     } else {
-                        VerdictLine(v)
+                        // Вердикт — в нижней панели; здесь только подробности.
                         if (hinted) {
                             Spacer(Modifier.height(6.dp))
                             Text("С подсказкой — слово останется в ошибках", style = MaterialTheme.typography.bodySmall,
@@ -386,15 +412,14 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             if (answered) {
                 NextDock(verdict != Verdict.Wrong, title = when { verdict == Verdict.Typo -> "Почти"; verdict == Verdict.Wrong -> "Неверно"; else -> "Верно" }) { vm.next() }
             } else {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    val hintLabel = if (hints < letters - 1) "Буква" else "Определение"
-                    val pad = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
-                    ButtonPair(
-                        listOf(hintLabel, "Не знаю"),
-                        first = { m -> GhostButton(hintLabel, onClick = { if (hints < letters - 1) hints++ else showEn = true }, modifier = m, contentPadding = pad) },
-                        second = { m -> GhostButton("Не знаю", onClick = { check(giveUp = true) }, modifier = m, contentPadding = pad) },
-                    )
-                    PrimaryButton("Проверить", onClick = { check() })
+                // Как во всех тренажёрах: «Проверить | Не знаю», подсказка — тихой ссылкой над ними.
+                Column {
+                    val canReveal = hints < letters - 1
+                    if (canReveal || !showEn) androidx.compose.material3.TextButton(
+                        onClick = { if (canReveal) hints++ else showEn = true },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    ) { Text(if (canReveal) "Подсказка: открыть букву" else "Подсказка: определение", color = MaterialTheme.colorScheme.primary) }
+                    GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
                 }
             }
         }
@@ -542,12 +567,13 @@ private fun FormInput(
         AnswerField(
             value = value,
             onChange = onChange,
-            placeholder = "…",
+            placeholder = "Впишите форму",
             enabled = verdict == null,
             focus = focus,
             imeAction = imeAction,
             onIme = onIme,
             struck = verdict == Verdict.Wrong,
+            accepted = verdict == Verdict.Correct,
         )
         AnimatedVisibility(verdict != null, enter = expandVertically() + fadeIn()) {
             // Вариантов может быть два (abided / abode) — на узком экране они переносятся.
@@ -559,10 +585,12 @@ private fun FormInput(
                 correct.forEachIndexed { i, text ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (i > 0) Text("/", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 10.dp))
+                        // Верная форма уже стоит в мятном поле — под ним только озвучка, без повтора слова.
+                        val same = verdict == Verdict.Correct && text.equals(value.trim(), ignoreCase = true)
                         Text(
-                            if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(text),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            if (verdict == Verdict.Typo) annotateMistakes(text, value) else AnnotatedString(if (same) "Послушать" else text),
+                            style = if (same) MaterialTheme.typography.labelLarge else MaterialTheme.typography.headlineSmall,
+                            color = if (same) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f, fill = false),
                         )
                         Spacer(Modifier.width(4.dp))

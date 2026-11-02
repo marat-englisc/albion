@@ -67,14 +67,11 @@ internal fun GrammarAtlas(
                     .padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     Text(stage.level, style = MaterialTheme.typography.titleMedium, color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
                     Text("$done / ${stage.topics.size}", style = MaterialTheme.typography.labelSmall.copy(fontFamily = AlbionFonts.Tech),
-                        color = (if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant).copy(alpha = .75f))
+                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
-        active?.let { label -> stages.firstOrNull { it.level == label }?.let { stage ->
-            Text("${stage.level} · освоено ${stage.topics.count { progress[it.id]?.masteredAt != null }} из ${stage.topics.size} · всего $mastered из $total",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp))
-        } }
+        // Освоение по уровню уже на плитках, по этапу — в заголовке маршрута; отдельная строка повторяла их.
     }
 }
 

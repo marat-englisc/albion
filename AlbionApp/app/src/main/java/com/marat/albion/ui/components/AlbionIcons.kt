@@ -106,4 +106,13 @@ object AlbionIcons {
     val ReportProblem = pen("Attention", "M12 3l10 18H2z M12 9v5 M12 17h.01")
     val Inventory2 = pen("Collection", "M3 4h18v5H3z M5 9v12h14V9 M9 13h6")
     val Inventory = Inventory2
+
+    // ---- разговор с ИИ: свой знак у каждой ситуации ----
+    val Chat = pen("Chat", "M4 5.5h16v10H9l-5 4z M8 9.5h8 M8 12.5h5")
+    val Coffee = pen("Cafe", "M5 9h11v4.5A5.5 5.5 0 0 1 10.5 19 5.5 5.5 0 0 1 5 13.5z M16 10.5h1.5a2.25 2.25 0 0 1 0 4.5h-2 M8.5 3.5V6 M12 3.5V6")
+    val Bed = pen("Hotel", "M3 18.5V6 M3 14h18v4.5 M21 14v-2.5A2.5 2.5 0 0 0 18.5 9H11v5 M5.25 11a1.75 1.75 0 1 0 3.5 0 1.75 1.75 0 1 0-3.5 0")
+    val Briefcase = pen("Interview", "M3.75 8h16.5v11H3.75z M9 8V5.75h6V8 M3.75 13h16.5")
+    val Health = pen("Doctor", "M12 20.5s-7.5-4.5-7.5-10A4.25 4.25 0 0 1 12 7.75a4.25 4.25 0 0 1 7.5 2.75c0 5.5-7.5 10-7.5 10z M12 10.5v4.5 M9.75 12.75h4.5")
+    val Bag = pen("Shop", "M5 8h14l-1 12H6z M9 8V6.5a3 3 0 0 1 6 0V8")
+    val Debate = pen("Opinion", "M3.5 4.5h11v7H8l-4.5 3.5z M17.5 8.5h3v6h-3v3l-4-3h-3")
 }

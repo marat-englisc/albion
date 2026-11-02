@@ -126,7 +126,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                     focus = focus,
                     imeAction = ImeAction.Done,
                     onIme = { checkTyped() },
-                    struck = verdict == Verdict.Wrong,
+                    struck = verdict == Verdict.Wrong, accepted = verdict == Verdict.Correct,
                 )
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -155,7 +155,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
             AnimatedVisibility(verdict != null, enter = fadeIn(tween(300)) + expandVertically()) {
                 val v = verdict ?: Verdict.Wrong
                 Column(Modifier.fillMaxWidth().padding(top = 18.dp)) {
-                    VerdictLine(v)
+                    if (typing) AnswerLabel(v)
                     if (typing && v != Verdict.Correct) {
                         Spacer(Modifier.height(8.dp))
                         Text(

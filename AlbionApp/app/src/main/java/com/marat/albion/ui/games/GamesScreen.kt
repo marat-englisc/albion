@@ -97,7 +97,7 @@ fun GamesScreen(navigator: Navigator) {
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(AlbionIcons.RecordVoiceOver, null, Modifier.size(22.dp))
+                        Icon(AlbionIcons.Chat, null, Modifier.size(22.dp))
                     }
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {

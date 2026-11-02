@@ -209,10 +209,8 @@ fun LibraryScreen(navigator: Navigator) {
             BookTile(b, Modifier.animateItem(), { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
+            // Добавление книги — кнопкой «+» в шапке; здесь вторая такая же кнопка не нужна.
             Column(Modifier.padding(top = 12.dp)) {
-                GhostButton("Добавить книгу", launchPicker, icon = AlbionIcons.Add)
-                Text("TXT · EPUB · PDF", Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 12.dp), style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Disclosure("Офлайн-перевод", model.summary) { TranslationModelControls() }
                 Disclosure("Подсказки по чтению", "Перевод касанием, выделение и заметки", icon = AlbionIcons.HelpOutline) {
                     Text("Коснитесь слова — откроется перевод. Долгое нажатие выбирает предложение, протяжка — любой фрагмент. " +
@@ -312,8 +310,9 @@ fun BookCover(title: String, modifier: Modifier = Modifier, inverse: Boolean = f
         Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().then(if (inverse) Modifier else Modifier.background(bg)).padding(if (thumbnail) 10.dp else 14.dp)) {
             Box(Modifier.width(24.dp).height(1.dp).background(fg.copy(alpha = .5f)))
             Spacer(Modifier.height(if (thumbnail) 6.dp else 8.dp))
-            Text(title, style = MaterialTheme.typography.titleSmall,
-                color = fg, maxLines = if (thumbnail) 2 else 4, overflow = TextOverflow.Ellipsis)
+            // На миниатюре мельче и в три строки: «The Keeper of Gull Island» больше не обрезается до «The Keepe…».
+            Text(title, style = if (thumbnail) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleSmall,
+                color = fg, maxLines = if (thumbnail) 3 else 4, overflow = TextOverflow.Ellipsis)
         }
     }
 }
