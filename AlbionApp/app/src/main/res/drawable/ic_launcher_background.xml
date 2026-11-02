@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#4A30E0" />
-</shape>
+<!-- Фон иконки — та же ирисовая плита, что «Продолжить» и «Фокус» в приложении: градиент Hero.Gradient,
+     холодный блик слева сверху и едва заметные орбиты-разметка. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="108" android:endY="108">
+                <item android:offset="0" android:color="#FF6E52FF" />
+                <item android:offset="0.55" android:color="#FF4A30E0" />
+                <item android:offset="1" android:color="#FF2C1C9C" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="30" android:centerY="24" android:gradientRadius="62">
+                <item android:offset="0" android:color="#33FFFFFF" />
+                <item android:offset="1" android:color="#00FFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M54,54 m-44,0 a44,44 0,1 0,88 0 a44,44 0,1 0,-88 0"
+        android:strokeColor="#14FFFFFF" android:strokeWidth="0.6" />
+    <path android:pathData="M54,54 m-38,0 a38,38 0,1 0,76 0 a38,38 0,1 0,-76 0"
+        android:strokeColor="#1FFFFFFF" android:strokeWidth="0.6" />
+</vector>

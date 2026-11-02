@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Тематическая иконка Android 13+: силуэт без полупрозрачности — система сама красит его в тон обоев. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M38,73 L54,35 L70,73 M44.8,61 L63.2,61"
+        android:strokeColor="#FF000000" android:strokeWidth="3"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M54,73 m-2.5,0 a2.5,2.5 0,1 0,5 0 a2.5,2.5 0,1 0,-5 0" android:fillColor="#FF000000" />
+    <path android:pathData="M82.53,48.73 A30,10.5 -18 0,1 25.47,67.27"
+        android:strokeColor="#FF000000" android:strokeWidth="1.6" android:strokeLineCap="round" />
+    <path android:pathData="M79.38,55.99 m-2.8,0 a2.8,2.8 0,1 0,5.6 0 a2.8,2.8 0,1 0,-5.6 0" android:fillColor="#FF000000" />
+</vector>

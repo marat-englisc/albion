@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -127,7 +125,9 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         }
     }
 
-    // Отмечаем тему прочитанной, когда пользователь долистал до конца.
+    // Отмечаем тему прочитанной, когда пользователь долистал до конца и провёл на странице хотя бы
+    // [MIN_READ_MS]: быстрая прокрутка до конца («посмотреть, что там») больше не считается чтением.
+    val openedAt = remember(topicId) { android.os.SystemClock.elapsedRealtime() }
     val reachedEnd by remember {
         derivedStateOf {
             val info = listState.layoutInfo
@@ -136,6 +136,8 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
     }
     LaunchedEffect(reachedEnd, topic) {
         if (reachedEnd && topic?.kind == TopicKind.Lesson && progress?.readAt == null && blocks.isNotEmpty()) {
+            // Ждём, пока пользователь остаётся внизу; ушёл вверх — эффект отменится и отметки не будет.
+            kotlinx.coroutines.delay((MIN_READ_MS - (android.os.SystemClock.elapsedRealtime() - openedAt)).coerceAtLeast(0))
             c.grammar.setRead(topicId, true)
         }
     }
@@ -198,9 +200,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        // Вкладки в уроке скрыты — сами отступаем от системной навигации.
-                        contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp,
-                            bottom = 40.dp + androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
+                        contentPadding = PaddingValues(start = gutter, end = gutter, top = 12.dp, bottom = 40.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         item(key = "header") { TopicHeader(topic, doc!!, Modifier,
@@ -441,3 +441,6 @@ private fun LessonStep(i: Int, title: String, done: Boolean, active: Boolean, mo
             color = if (done) scheme.onTertiaryContainer else if (active) scheme.onSurface else scheme.onSurfaceVariant)
     }
 }
+
+/** Сколько нужно пробыть в уроке, чтобы прокрутка до конца отметила его прочитанным. */
+private const val MIN_READ_MS = 45_000L

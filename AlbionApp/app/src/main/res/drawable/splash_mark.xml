@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Системный сплэш Android 12+: только знак на графите. Экран загрузки (ui/launch/LaunchScreen.kt)
+     начинается с этого же знака в той же точке и разворачивает вокруг него орбиты и сферу. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M38,73 L54,35 L70,73 M44.8,61 L63.2,61"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="2.8"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M54,73 m-2.4,0 a2.4,2.4 0,1 0,4.8 0 a2.4,2.4 0,1 0,-4.8 0" android:fillColor="#FFFFFFFF" />
+</vector>

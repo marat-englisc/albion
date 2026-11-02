@@ -63,7 +63,7 @@ class CompactUiTest {
                 before.values.forEach { assertTrue("Цель вкладки меньше 48 dp ($name): $it", it.width() / density >= 48f) }
 
                 activate(awaitTab("Прогресс"))
-                awaitText("Карточки и практика")
+                awaitText("05 / ДИНАМИКА")
                 if (menu != null) {
                     activate(awaitText("Все разделы"))
                     awaitText("Разделы")

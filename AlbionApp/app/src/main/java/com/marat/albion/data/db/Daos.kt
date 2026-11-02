@@ -352,4 +352,14 @@ interface SentenceTranslationDao {
 
     @androidx.room.Upsert
     suspend fun upsert(row: SentenceTranslationEntity)
+
+    /** Начатые карточки колоды с примерами — их «Соберите предложение» берёт в первую очередь. */
+    @Query(
+        """
+        SELECT c.* FROM cards c JOIN review_state r ON r.card_id = c.id
+        WHERE c.deck = :deck AND (c.example1 != '' OR c.example2 != '')
+        ORDER BY r.due LIMIT :limit
+        """
+    )
+    suspend fun startedWithExamples(deck: String, limit: Int): List<CardEntity>
 }

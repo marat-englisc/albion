@@ -200,8 +200,11 @@ fun TranslationSheet(
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
             val partial = (result as? TranslationResult.Streaming)?.text
-            // Пока модель думает над контекстом, сразу показываем словарь или карточку — перевод не прячется за ожиданием.
-            val provisional = if (contextual && automatic == null && partial == null && result is TranslationResult.Loading)
+            // Пока модель думает над контекстом или если она не смогла (нет памяти и т. п.), показываем словарь или карточку:
+            // словарный перевод от модели не зависит и не должен прятаться за её ожиданием или ошибкой.
+            val failed = result as? TranslationResult.Failed
+            val provisional = if (contextual && automatic == null && partial == null &&
+                (result is TranslationResult.Loading || failed != null))
                 options.firstOrNull()?.second ?: cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu else null
             val meaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: partial ?: provisional
             Spacer(Modifier.height(12.dp))
@@ -210,12 +213,19 @@ fun TranslationSheet(
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
+                    provisional != null && failed != null -> "Словарь"
                     provisional != null -> "Словарь · уточняю по контексту…"
                     else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · значение в этом месте книги"
                 }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
-                if (provisional != null) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
+                if (provisional != null && failed == null) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                     color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
+                if (provisional != null && failed != null) {
+                    // Перевод по контексту не получился — словарь уже на экране, ошибка модели второстепенна.
+                    Text("Перевод по контексту недоступен: ${failed.message}", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
+                    TextButton(onClick = { result = TranslationResult.Loading; retry++ }) { Text("Повторить перевод") }
+                }
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {

@@ -33,7 +33,12 @@ class NavigationUiTest {
         val before = c.study.observeStats().first().games.firstOrNull { it.game == Game.IRREGULAR.name }?.answers ?: 0
         ActivityScenario.launch(MainActivity::class.java).use {
             click(awaitNode { it.text?.toString() == "Практика" || it.contentDescription?.toString() == "Практика" })
-            clickText("Неправильные глаголы")
+            // Плитка упражнения, а не строка накопленных ошибок с тем же названием (она ведёт в режим «только ошибки»).
+            click(scrollToNode { node ->
+                node.text?.toString() == "Неправильные глаголы" && node.parent?.let { p ->
+                    (0 until p.childCount).any { p.getChild(it)?.text?.toString() == "Впишите V2 и V3" }
+                } == true
+            })
             dismissFeatureHelp()
             click(scrollToNode { it.text?.toString() == "Начать" })
             val check = clickableBounds(awaitNode { it.text?.toString() == "Проверить" })
@@ -85,9 +90,9 @@ class NavigationUiTest {
             clickText("Учебник")
             setSearch("present")
             clickText("Прогресс")
-            awaitNode { it.text?.toString() == "Карточки и практика" }
+            awaitNode { it.text?.toString() == "05 / ДИНАМИКА" }
             scenario.recreate()
-            awaitNode { it.text?.toString() == "Карточки и практика" }
+            awaitNode { it.text?.toString() == "05 / ДИНАМИКА" }
             clickText("Учебник")
             awaitNode { it.isEditable && it.text?.toString() == "present" }
         }
@@ -105,7 +110,8 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable }
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-            awaitNode { it.text?.toString() == "На сегодня" }
+            // На обычной ширине подпись набрана заглавными («НА СЕГОДНЯ»), в компактной главной — «На сегодня».
+            awaitNode { it.text?.toString()?.equals("На сегодня", ignoreCase = true) == true }
             awaitNode { it.text?.toString()?.equals("Начать") == true }
         }
     }

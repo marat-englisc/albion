@@ -69,13 +69,13 @@ class EditorialDesignTest {
                     await { it.text?.toString() == "Словарный запас" }
                     capture("practice-$edition")
                     click { it.text?.toString() == "Прогресс" }
-                    await { it.text?.toString() == "Карточки и практика" }
+                    await { it.text?.toString() == "05 / ДИНАМИКА" }
                     capture("progress-$edition")
                     click { it.contentDescription?.toString() == "Настройки" }
                     await { it.text?.toString() == "Звук и доступность" }
                     capture("settings-$edition")
                     click { it.contentDescription?.toString() == "Назад" }
-                    await { it.text?.toString() == "Карточки и практика" }
+                    await { it.text?.toString() == "05 / ДИНАМИКА" }
                     click { it.text?.toString() == "Сегодня" }
                     click { it.text?.toString() == "Начать" }
                     await { it.text?.toString() == "Показать ответ" }

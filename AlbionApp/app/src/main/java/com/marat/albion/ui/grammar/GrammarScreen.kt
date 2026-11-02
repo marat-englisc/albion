@@ -80,6 +80,7 @@ fun GrammarScreen(navigator: Navigator) {
     var reviewDetails by rememberSaveable { mutableStateOf(false) }
     var references by rememberSaveable { mutableStateOf(false) }
     var headerMenu by remember { mutableStateOf(false) }
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
     val shortScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 480
     val routeState = rememberLazyListState()
@@ -131,14 +132,20 @@ fun GrammarScreen(navigator: Navigator) {
     }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
-            if (!shortScreen) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
+            if (!shortScreen && !largeText) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                 com.marat.albion.ui.components.FitText("Учебник", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.displaySmall, minSize = 18.sp)
                 if (!largeText) {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
                     SettingsShortcut(navigator::openSettings)
                 } else Box {
-                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true }, filled = true)
+                    Row {
+                        // При крупном шрифте поле поиска занимало треть экрана — теперь оно открывается лупой.
+                        com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Search, if (searchOpen) "Скрыть поиск" else "Поиск",
+                            { searchOpen = !searchOpen; if (!searchOpen) query = "" }, filled = true)
+                        Spacer(Modifier.width(8.dp))
+                        com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true }, filled = true)
+                    }
                     androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }) {
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Справочники и курс") }, onClick = { headerMenu = false; references = true })
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Настройки") }, onClick = { headerMenu = false; navigator.openSettings() })
@@ -146,7 +153,7 @@ fun GrammarScreen(navigator: Navigator) {
                 }
             }
             Spacer(Modifier.height(8.dp))
-            if (!shortScreen) search()
+            if (!shortScreen && (!largeText || searchOpen || query.isNotBlank())) search()
         }
         LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState,
             contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 24.dp)) {

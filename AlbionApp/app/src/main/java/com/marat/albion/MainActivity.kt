@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.ui.nav.AlbionNavigation
+import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.ui.theme.AlbionTheme
 import com.marat.albion.ui.theme.AlbionExperience
 import kotlinx.coroutines.runBlocking
@@ -33,20 +35,43 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         val container = (application as AlbionApp).container
         val initial = runBlocking { container.settings.current() }
+        val debuggable = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        // Под инструментальными тестами экран загрузки не показываем: он перехватывает касания первые секунды.
+        val underTest = debuggable && runCatching { Class.forName("androidx.test.platform.app.InstrumentationRegistry") }.isSuccess
+        // Экран загрузки — только при новом запуске, не после поворота; если процесс уже всё подготовил — короткая версия.
+        val coldLaunch = savedInstanceState == null && !underTest
+        val warm = container.importer.status.value == ImportStatus.Ready
+        // Только для отладочной сборки: `adb shell am start -n com.marat.albion/.MainActivity --ei albion.holdLaunchMs 8000`
+        // держит экран загрузки дольше, чтобы посмотреть петлю, — на эмуляторе материалы готовы за доли секунды.
+        val holdMs = if (debuggable) intent.getIntExtra("albion.holdLaunchMs", 0).toLong() else 0L
         enableEdgeToEdge()
 
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
+            val importStatus by container.importer.status.collectAsStateWithLifecycle()
+            var launching by rememberSaveable { mutableStateOf(coldLaunch) }
+            var held by remember { mutableStateOf(holdMs > 0) }
+            LaunchedEffect(Unit) { if (held) { kotlinx.coroutines.delay(holdMs); held = false } }
             CompositionLocalProvider(LocalAppContainer provides container) {
                 val dark = isAppInDarkTheme(settings.themeMode)
-                // Иконки статус-бара и навигации следуют теме приложения, а не только системе.
-                LaunchedEffect(dark) {
-                    val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                // Иконки статус-бара и навигации следуют теме приложения; на графитовом экране загрузки — светлые.
+                LaunchedEffect(dark, launching) {
+                    val style = if (dark || launching) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                     enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 }
                 AlbionTheme(darkTheme = dark) {
                     AlbionExperience(settings) {
-                        AlbionNavigation()
+                        // Приложение собирается под экраном загрузки и к его уходу уже готово.
+                        Box(Modifier.fillMaxSize()) {
+                            AlbionNavigation()
+                            if (launching) com.marat.albion.ui.launch.LaunchScreen(
+                                ready = !held && importStatus !is ImportStatus.Checking && importStatus !is ImportStatus.Importing,
+                                status = (importStatus as? ImportStatus.Importing)?.let { "ГОТОВИМ МАТЕРИАЛЫ · ${it.index}/${it.total}" }
+                                    ?: if (importStatus is ImportStatus.Checking) "ПРОВЕРЯЕМ МАТЕРИАЛЫ" else null,
+                                warm = warm,
+                                onFinished = { launching = false },
+                            )
+                        }
                     }
                 }
             }

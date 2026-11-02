@@ -109,6 +109,8 @@ class GameViewModel(private val c: AppContainer, val game: Game,
         // Новая игра — новые примеры; повтор ошибок — те же задания.
         if (retry == null) { tenses.clear(); tenseOptions.clear(); puzzles.clear(); shuffledTokens.clear(); sentenceTranslations.clear() }
         translating?.cancel()
+        // Фоновый перевод доделывает текущее предложение (обрыв посреди генерации терял работу) и останавливается.
+        stopUpcoming = true
         viewModelScope.launch {
             val pool = retry?.shuffled() ?: when (game) {
                 // Нужны карточки, у которых есть пример подходящей длины.
@@ -169,14 +171,47 @@ class GameViewModel(private val c: AppContainer, val game: Game,
 
     private val puzzles = HashMap<String, SentencePuzzle?>()
 
-    /** Предложение карточки для «Собери предложение» (одно и то же на всю игру). */
+    /** Предложение карточки для «Соберите предложение» (одно и то же на всю игру). */
     fun puzzle(card: CardEntity): SentencePuzzle? = puzzles.getOrPut(card.id) {
-        // Идиома и коллокация остаются одной плашкой: задача — встроить выражение в предложение.
-        val chunk = card.term.takeIf { card.deck == Deck.IDIOMS.id || card.deck == Deck.COLLOCATIONS.id }
-        SentencePuzzle.fromExamples(listOf(card.example1, card.example2).shuffled(), chunk)
+        SentencePuzzle.fromExamples(listOf(card.example1, card.example2).shuffled(), chunk(card))
     }
 
-    /** Переводы предложений «Собери предложение» — готовятся для всей тренировки заранее, по порядку заданий. */
+    // Идиома и коллокация остаются одной плашкой: задача — встроить выражение в предложение.
+    private fun chunk(card: CardEntity) = card.term.takeIf { card.deck == Deck.IDIOMS.id || card.deck == Deck.COLLOCATIONS.id }
+
+    private var upcoming: kotlinx.coroutines.Job? = null
+    private var upcomingDeck: Deck? = null
+    @Volatile private var stopUpcoming = false
+
+    /**
+     * Перевод заранее, пока открыт экран настройки: оба примера начатых карточек выбранной колоды —
+     * их тренировка берёт первыми. Модель грузится только здесь, не при запуске приложения.
+     */
+    fun prefetchUpcoming(limit: Int = 20) {
+        if (game != Game.SENTENCE) return
+        if (upcoming?.isActive == true) { if (upcomingDeck == deck) return else upcoming?.cancel() }
+        if (c.translator.model.value.phase != com.marat.albion.data.translation.ModelState.Ready) return
+        val dao = c.database.sentenceTranslations()
+        val forDeck = deck
+        upcomingDeck = forDeck
+        stopUpcoming = false
+        upcoming = viewModelScope.launch {
+            val texts = dao.startedWithExamples(forDeck.id, limit).flatMap { card ->
+                listOf(card.example1, card.example2).mapNotNull { SentencePuzzle.fromExamples(listOf(it), chunk(card))?.original }
+            }.distinct()
+            val known = dao.find(texts).map { it.text }.toSet()
+            for (text in texts - known) {
+                if (stopUpcoming) return@launch
+                try { dao.insertIfAbsent(text, c.translator.translate(text)) }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (_: Exception) { return@launch }
+            }
+        }
+    }
+
+    val translatorModel = c.translator.model
+
+    /** Переводы предложений «Соберите предложение» — готовятся для всей тренировки заранее, по порядку заданий. */
     val sentenceTranslations = androidx.compose.runtime.mutableStateMapOf<String, String>()
     private var translating: kotlinx.coroutines.Job? = null
 
@@ -192,8 +227,11 @@ class GameViewModel(private val c: AppContainer, val game: Game,
             val saved = dao.find(rest.map { it.second }.distinct()).associate { it.text to it.translation }
             rest.forEach { (id, text) -> saved[text]?.let { sentenceTranslations[id] = it } }
             if (!canTranslate) return@launch
+            upcoming?.join()  // дождаться предложения, которое фоновый перевод уже доделывает
             for ((id, text) in rest) {
                 if (id in sentenceTranslations) continue
+                // Фоновый перевод мог только что сохранить это предложение.
+                dao.find(listOf(text)).firstOrNull()?.let { sentenceTranslations[id] = it.translation; continue }
                 try {
                     var done = ""
                     c.translator.translations(text).collect { done = it; sentenceTranslations[id] = it }
@@ -272,6 +310,9 @@ private fun GameFrame(
     val mistakeCount by remember(vm.deck) { vm.observeMistakes(vm.deck) }.collectAsStateWithLifecycle(-1)
     // Ошибок не осталось — режим «только ошибки» выключаем сам.
     LaunchedEffect(mistakeCount) { if (mistakeCount == 0) vm.onlyMistakes = false }
+    // Пока выбирают колоду и длину, переводим вероятные предложения заранее.
+    val translatorModel by vm.translatorModel.collectAsStateWithLifecycle()
+    LaunchedEffect(vm.phase, vm.deck, translatorModel.phase) { if (vm.phase == Phase.Setup) vm.prefetchUpcoming() }
 
     AnimatedContent(
         targetState = vm.phase,

@@ -63,6 +63,8 @@ class UsabilityUiTest {
                 scrollToText("Все")
                 capture("library-$name")
                 show(scenario, "grammar-$name", width, scale, false) { com.marat.albion.ui.grammar.GrammarScreen(nav) }
+                // При крупном шрифте поиск свёрнут в лупу в шапке.
+                if (scale > 1.3f) activate(awaitNode { it.contentDescription?.toString() == "Поиск" })
                 val search = awaitNode { it.isEditable && find(it) { child -> child.contentDescription?.toString() == "Найти правило или пример…" } != null }
                 val top = bounds(search).top
                 assertTrue(search.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, android.os.Bundle().apply {

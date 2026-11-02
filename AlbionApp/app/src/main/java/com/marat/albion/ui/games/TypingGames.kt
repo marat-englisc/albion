@@ -287,7 +287,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
         validation = null
         verdict = v
         if (v == Verdict.Wrong) shake++
-        // Как в «Собери предложение»: ответ с подсказкой не снимает слово из ошибок.
+        // Как в «Соберите предложение»: ответ с подсказкой не снимает слово из ошибок.
         val clean = v != Verdict.Wrong && !hinted
         vm.record(clean, if (clean) null else Mistake(card.meaningRu, if (v == Verdict.Wrong) input else "с подсказкой", card.term))
         focusManager.clearFocus(force = true)
