@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.data.translation.TranslationProtocol
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
@@ -608,6 +609,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                         sentenceAt(paragraph, absStart).first,
                         sentenceAt(paragraph, (absEnd - 1).coerceAtLeast(absStart)).last + 1,
                     ).trim(),
+                    translationContext = translationContext(paragraph, absStart, absEnd),
                     onOpenBookWords = { selection = null; navigator.open(DeckRoute(Deck.BOOK_WORDS)) },
                     onBookWordSaved = { saved ->
                         selection = null
@@ -845,6 +847,17 @@ fun wordAt(text: String, offset: Int): IntRange? {
 }
 
 /** Предложение вокруг позиции — по точке, вопросительному и восклицательному знакам. */
+/** Предложение с выделением и по соседнему с каждой стороны; выделение отмечено для модели. */
+private fun translationContext(paragraph: String, start: Int, end: Int): String {
+    val first = sentenceAt(paragraph, start).first
+    val last = sentenceAt(paragraph, (end - 1).coerceAtLeast(start)).last + 1
+    val before = (first - 1 downTo 0).firstOrNull { !paragraph[it].isWhitespace() }
+    val after = (last until paragraph.length).firstOrNull { !paragraph[it].isWhitespace() }
+    val from = before?.let { sentenceAt(paragraph, it).first } ?: first
+    val to = after?.let { sentenceAt(paragraph, it).last + 1 } ?: last
+    return TranslationProtocol.marked(paragraph.substring(from, to), start - from, end - from)
+}
+
 fun sentenceAt(text: String, offset: Int): IntRange {
     if (text.isEmpty()) return 0..0
     val o = offset.coerceIn(0, text.length - 1)

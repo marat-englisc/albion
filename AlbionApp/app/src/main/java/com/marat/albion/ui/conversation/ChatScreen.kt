@@ -53,7 +53,6 @@ fun ChatScreen(id: Long, navigator: Navigator) {
     val model by c.conversations.model.collectAsStateWithLifecycle()
     val speechModel by c.speech.models.state.collectAsStateWithLifecycle()
     val loading by c.conversations.loading.collectAsStateWithLifecycle()
-    val playing by c.audio.playing.collectAsStateWithLifecycle()
     val recording by vm.recorder.recording.collectAsStateWithLifecycle()
     val level by vm.recorder.level.collectAsStateWithLifecycle()
     var menu by remember { mutableStateOf(false) }
@@ -72,9 +71,6 @@ fun ChatScreen(id: Long, navigator: Navigator) {
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         TopBar(navigator::back, conversation?.title) {
-            RoundIconButton(AlbionIcons.VolumeUp, if (vm.autoSpeak) "Не озвучивать ответы" else "Озвучивать ответы",
-                { vm.changeAutoSpeak(!vm.autoSpeak) }, filled = vm.autoSpeak,
-                tint = if (vm.autoSpeak) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             Box {
                 RoundIconButton(AlbionIcons.MoreHoriz, "Действия с беседой", { menu = true })
                 DropdownMenu(menu, { menu = false }) {
@@ -124,12 +120,6 @@ fun ChatScreen(id: Long, navigator: Navigator) {
                             }
                         }
                         Row(Modifier.offset(x = (-10).dp), verticalAlignment = Alignment.CenterVertically) {
-                            val key = "chat:${message.id}"
-                            TextButton({ vm.speak(message) }, contentPadding = PaddingValues(horizontal = 10.dp)) {
-                                Icon(if (playing == key) AlbionIcons.Stop else AlbionIcons.VolumeUp, null, Modifier.size(16.dp))
-                                Spacer(Modifier.width(6.dp))
-                                Text(if (playing == key) "Стоп" else "Слушать", style = MaterialTheme.typography.labelMedium)
-                            }
                             TextButton({ vm.toggleTranslation(message) }, contentPadding = PaddingValues(horizontal = 10.dp)) {
                                 Text(if (vm.shownTranslations[message.id] == true) "Скрыть перевод" else "Перевод",
                                     style = MaterialTheme.typography.labelMedium)

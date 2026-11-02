@@ -72,7 +72,13 @@ import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.theme.AnimatedNumber
+import androidx.compose.foundation.layout.navigationBarsPadding
+import com.marat.albion.data.speech.HeardWord
+import com.marat.albion.data.speech.SpokenWords
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,6 +105,17 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val micAccess = rememberMicAccess(onDenied = { micDenied = true })
 
+    val speechModel by c.speech.models.state.collectAsStateWithLifecycle()
+    var installSpeech by remember { mutableStateOf(false) }
+    // Что звучит в записи диктора: подписи слов на графике и допустимые омофоны (read/red) для проверки.
+    val originalWords = remember(card.id) { CompletableDeferred<List<HeardWord>?>() }
+    var diktorWords by remember(card.id) { mutableStateOf<List<HeardWord>?>(null) }
+    var clarity by remember(card.id) { mutableStateOf<ClarityState>(ClarityState.Idle) }
+    var clarityJob by remember(card.id) { mutableStateOf<Job?>(null) }
+    // Имя файла озвучки — ровно то, что произносит диктор («read (past).mp3» → «read»).
+    val expected = remember(card.id) {
+        SpokenWords.split(card.audio?.substringBeforeLast('.')?.substringBefore(" (") ?: card.term).ifEmpty { SpokenWords.split(card.term) }
+    }
     var original by remember(card.id) { mutableStateOf<Prosody?>(null) }
     var originalReady by remember(card.id) { mutableStateOf(false) }
     var hasTake by rememberSaveable(card.id) { mutableStateOf(false) }
@@ -119,10 +136,14 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     }
     // Мелодика диктора — один раз на карточку, в фоне.
     LaunchedEffect(card.id) {
-        original = card.audio?.let { name ->
-            withContext(Dispatchers.Default) { AudioDecoder.decodeCardAudio(context, deck, name)?.let(ProsodyAnalyzer::analyze) }
-        }
+        val pcm = card.audio?.let { name -> withContext(Dispatchers.Default) { AudioDecoder.decodeCardAudio(context, deck, name) } }
+        original = pcm?.let { withContext(Dispatchers.Default) { ProsodyAnalyzer.analyze(it) } }
         originalReady = true
+        val words = if (pcm != null && speechModel.ready) {
+            try { c.speech.words(pcm) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+        } else null
+        diktorWords = words
+        originalWords.complete(words)
     }
     LaunchedEffect(level, recording) {
         if (recording) { wave.removeAt(0); wave.add(level) }
@@ -131,11 +152,29 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
     fun playOriginal(rate: Float = 1f, key: String = "orig:${card.id}") = c.audio.play(deck, card.audio, card.term, key, rate)
     fun playMine() = c.audio.playFile(file, "mine:${card.id}")
 
+    fun checkClarity(samples: FloatArray) {
+        clarityJob?.cancel()
+        if (!speechModel.ready) { clarity = ClarityState.Idle; return }
+        clarity = ClarityState.Checking
+        clarityJob = scope.launch {
+            clarity = try {
+                val mine = c.speech.words(samples)
+                // Если и диктора Whisper записал другим словом (омофон), такое же написание у вас — не ошибка.
+                val reference = originalWords.await()?.let { SpokenWords.check(expected, it) }
+                val alternatives = reference?.words.orEmpty().map { w -> setOfNotNull(w.heard?.let { SpokenWords.key(it.text) }) }
+                ClarityState.Done(SpokenWords.check(expected, mine, alternatives))
+            } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                ClarityState.Failed(e.message?.takeIf { it.any { ch -> ch in 'А'..'я' } } ?: "Не удалось распознать запись. Попробуйте ещё раз.")
+            }
+        }
+    }
+
     fun onTake() {
         val samples = recorder.samples ?: return
         hasTake = samples.isNotEmpty() && file.exists()
         if (!hasTake) return
         takes++
+        checkClarity(samples)
         val orig = original
         if (orig == null) { playMine(); return }
         analyzing = true
@@ -157,6 +196,8 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             wave.indices.forEach { wave[it] = 0f }
             report = null
             unclear = false
+            clarityJob?.cancel()
+            clarity = ClarityState.Idle
             if (!recorder.start(file, onStopped = ::onTake)) unclear = true
         }
     }
@@ -236,7 +277,14 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             }
 
             AnimatedVisibility(report != null && !recording, enter = fadeIn(tween(320)) + expandVertically()) {
-                report?.let { ReportCard(it) }
+                report?.let { r ->
+                    val words = remember(r, diktorWords) { chartWords(diktorWords, original) }
+                    ReportCard(r, words, stressTip(r, words))
+                }
+            }
+
+            AnimatedVisibility(hasTake && !recording && !analyzing, enter = fadeIn(tween(320)) + expandVertically()) {
+                SpeechCheckCard(clarity, speechModel.ready) { installSpeech = true }
             }
 
             AnimatedVisibility(hasTake && !recording && !analyzing, enter = fadeIn()) {
@@ -250,6 +298,37 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             trailingIcon = AlbionIcons.ArrowForward,
             modifier = Modifier.padding(vertical = 12.dp),
         )
+    }
+    if (installSpeech) SpeechInstallSheet { installSpeech = false }
+}
+
+/** Слова диктора на шкале графика; для одного слова подписи не нужны. */
+private fun chartWords(words: List<HeardWord>?, original: Prosody?): List<ChartWord> {
+    if (words == null || original == null || words.size < 2) return emptyList()
+    return words.map { ChartWord(it.text, it.start - original.start, it.end - original.start) }
+        .filter { it.to >= 0 && it.from < original.frames }
+}
+
+/** Совет об ударении с конкретными словами: какое выделяет диктор, а какое — вы. */
+private fun stressTip(r: ShadowReport, words: List<ChartWord>): String? {
+    if (words.size < 2 || ProsodyAnalyzer.STRESS_TIP !in r.tips) return null
+    val spans = words.map { HeardWord(it.text, it.from, it.to, 1f) }
+    val theirs = SpokenWords.wordAt(spans, r.originalEnergy.indices.maxBy { r.originalEnergy[it] }) ?: return null
+    val yours = SpokenWords.wordAt(spans, r.mineEnergy.indices.maxBy { r.mineEnergy[it] }) ?: return null
+    if (SpokenWords.key(theirs.text) == SpokenWords.key(yours.text)) return null
+    return "Диктор сильнее всего выделяет «${theirs.text}», а вы — «${yours.text}». Сделайте ударным «${theirs.text}», остальные слова — легче и короче."
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun SpeechInstallSheet(onDismiss: () -> Unit) {
+    androidx.compose.material3.ModalBottomSheet(onDismiss,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(bottom = 24.dp).navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            com.marat.albion.ui.components.SheetHeader("Распознавание речи", onDismiss)
+            com.marat.albion.ui.conversation.SpeechModelControls()
+        }
     }
 }
 
@@ -304,7 +383,7 @@ private fun ShadowSteps(active: Int = 0) {
 
 /** Разбор попытки: общий процент, три шкалы, график мелодики и советы — на мягкой карточке. */
 @Composable
-internal fun ReportCard(r: ShadowReport) {
+internal fun ReportCard(r: ShadowReport, words: List<ChartWord> = emptyList(), stressTip: String? = null) {
     val shape = MaterialTheme.shapes.large
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
@@ -348,11 +427,11 @@ internal fun ReportCard(r: ShadowReport) {
         Spacer(Modifier.height(14.dp))
         Eyebrow("Мелодика", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(8.dp))
-        MelodyChart(r)
+        MelodyChart(r, words)
 
         if (r.tips.isNotEmpty() || r.overall >= 85) {
             Spacer(Modifier.height(14.dp))
-            val tips = r.tips.ifEmpty { listOf("Мелодика, ритм и темп совпадают с диктором. Попробуйте следующее слово.") }
+            val tips = r.tips.map { if (it == ProsodyAnalyzer.STRESS_TIP && stressTip != null) stressTip else it }.ifEmpty { listOf("Мелодика, ритм и темп совпадают с диктором. Попробуйте следующее слово.") }
             NoteCard(tone = NoteTone.Neutral) {
                 Eyebrow("Советы", color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.height(4.dp))

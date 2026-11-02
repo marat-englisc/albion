@@ -30,13 +30,17 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.drawText
 import com.marat.albion.data.audio.ShadowReport
 import kotlin.math.abs
 import kotlin.math.ceil
 
-/** Общая шкала относительной высоты; время записи уже сопоставлено с диктором. */
+/** Слово диктора на шкале графика: кадры [from, to] от начала фразы. */
+internal data class ChartWord(val text: String, val from: Int, val to: Int)
+
+/** Общая шкала относительной высоты; время записи уже сопоставлено с диктором. [words] подписываются под кривой. */
 @Composable
-internal fun MelodyChart(report: ShadowReport) {
+internal fun MelodyChart(report: ShadowReport, words: List<ChartWord> = emptyList()) {
     val original = remember(report) { preparePitchContour(report.originalPitch, report.originalEnergy) }
     val mine = remember(report) { preparePitchContour(report.minePitch, report.mineEnergy) }
 
@@ -105,9 +109,16 @@ internal fun MelodyChart(report: ShadowReport) {
                                 )
                             }
                         }
+                        // Границы слов — тонкие вертикали: видно, на какое слово приходится подъём или спад.
+                        for (word in words.drop(1)) {
+                            val xx = x(word.from.coerceIn(0, frames - 1))
+                            drawLine(grid, Offset(xx, inset), Offset(xx, size.height - inset), 1.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(), 3.dp.toPx())))
+                        }
                         drawContour(mine, dashed = true)
                         drawContour(original, dashed = false)
                     }
+                    if (words.isNotEmpty()) WordLabels(words, maxOf(report.originalPitch.size, report.minePitch.size, 2), inset = 4.dp)
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Начало", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("Конец", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -130,6 +141,30 @@ internal fun MelodyChart(report: ShadowReport) {
                 "Не удалось уверенно определить тон вашей записи. Попробуйте записать ещё раз ближе к микрофону.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+/** Подписи слов под центрами их отрезков; если соседние не помещаются, следующая уходит во второй ряд. */
+@Composable
+private fun WordLabels(words: List<ChartWord>, frames: Int, inset: androidx.compose.ui.unit.Dp) {
+    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+    val style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurface)
+    val rowHeight = with(androidx.compose.ui.platform.LocalDensity.current) { style.lineHeight.toDp() + 2.dp }
+    Canvas(Modifier.fillMaxWidth().height(rowHeight * 2).padding(top = 2.dp).semantics {
+        contentDescription = "Слова диктора: " + words.joinToString(" ") { it.text }
+    }) {
+        val left = inset.toPx()
+        val width = (size.width - 2 * left).coerceAtLeast(1f)
+        val ends = floatArrayOf(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
+        val gap = 6.dp.toPx()
+        for (word in words) {
+            val layout = measurer.measure(word.text, style, maxLines = 1)
+            val center = left + (word.from + word.to) / 2f / (frames - 1) * width
+            val x0 = (center - layout.size.width / 2f).coerceIn(0f, (size.width - layout.size.width).coerceAtLeast(0f))
+            val row = if (x0 >= ends[0] + gap) 0 else if (x0 >= ends[1] + gap) 1 else if (ends[0] <= ends[1]) 0 else 1
+            ends[row] = x0 + layout.size.width
+            drawText(layout, topLeft = Offset(x0, row * rowHeight.toPx()))
         }
     }
 }

@@ -17,6 +17,8 @@ class Prosody(
     val energy: FloatArray,
     val pitch: FloatArray,
     val medianHz: Float,
+    /** Первый кадр фразы в исходной записи: по нему слова Whisper ложатся на шкалу кадров. */
+    val start: Int = 0,
 ) {
     val frames get() = energy.size
     val seconds get() = frames * ProsodyAnalyzer.HOP_SEC
@@ -40,6 +42,8 @@ data class ShadowReport(
 )
 
 object ProsodyAnalyzer {
+    /** Общий совет об ударении; шэдоуинг заменяет его конкретными словами, когда их знает. */
+    const val STRESS_TIP = "Самый громкий слог у вас не там, где у диктора. Проверьте ударение — знак ˈ в транскрипции стоит перед ударным слогом."
     const val RATE = 16_000
     private const val HOP = 160 // 10 мс
     const val HOP_SEC = HOP / RATE.toFloat()
@@ -77,13 +81,13 @@ object ProsodyAnalyzer {
         }
         val smooth = medianFilter(hz, 5)
         val voicedHz = smooth.filter { !it.isNaN() }.sorted()
-        if (voicedHz.size < 3) return Prosody(energy, FloatArray(len) { Float.NaN }, 0f)
+        if (voicedHz.size < 3) return Prosody(energy, FloatArray(len) { Float.NaN }, 0f, from)
         val median = voicedHz[voicedHz.size / 2]
         val pitch = FloatArray(len) { k ->
             val h = smooth[k]
             if (h.isNaN()) Float.NaN else (12 * log2(h / median)).let { s -> if (abs(s) > 12f) Float.NaN else s }
         }
-        return Prosody(energy, pitch, median)
+        return Prosody(energy, pitch, median, from)
     }
 
     /** Основной тон кадра по алгоритму YIN; NaN — кадр без отчётливого тона. */
@@ -220,7 +224,7 @@ object ProsodyAnalyzer {
             val o = original.energy.indices.maxBy { original.energy[it] }
             val y = mineEnergy.indices.maxBy { mineEnergy[it] }
             if (abs(o - y) > original.frames * 0.25f) {
-                tips += "Самый громкий слог у вас не там, где у диктора. Проверьте ударение — знак ˈ в транскрипции стоит перед ударным слогом."
+                tips += STRESS_TIP
             }
         }
         return tips

@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
  */
 class ChatViewModel(private val c: AppContainer, context: Context, val id: Long) : ViewModel() {
     private val repo = c.conversations
-    private val prefs = context.getSharedPreferences("conversation", Context.MODE_PRIVATE)
     val recorder = VoiceRecorder(context)
     val conversation = repo.conversation(id).stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val messages = repo.messages(id).stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -37,7 +36,6 @@ class ChatViewModel(private val c: AppContainer, context: Context, val id: Long)
     var transcribing by mutableStateOf(false); private set
     var hint by mutableStateOf<String?>(null); private set
     var hintLoading by mutableStateOf(false); private set
-    var autoSpeak by mutableStateOf(prefs.getBoolean("autoSpeak", false)); private set
     /** Модель пересказывает раннюю часть беседы. */
     var compacting by mutableStateOf(false); private set
     val checking = mutableStateMapOf<Long, Boolean>()
@@ -94,10 +92,8 @@ class ChatViewModel(private val c: AppContainer, context: Context, val id: Long)
         replyJob?.cancel()
         streaming = ""
         replyJob = viewModelScope.launch {
-            var reply = ""
             try {
-                repo.reply(id).collect { reply = it; streaming = it }
-                if (autoSpeak && reply.isNotBlank()) c.audio.speak(reply, "chat:last")
+                repo.reply(id).collect { streaming = it }
             } catch (e: CancellationException) { throw e } catch (e: Exception) {
                 error = ConversationProtocol.errorMessage(e)
             } finally {
@@ -166,17 +162,6 @@ class ChatViewModel(private val c: AppContainer, context: Context, val id: Long)
 
     fun dismissHint() { hintJob?.cancel(); hint = null; hintLoading = false }
     fun dismissError() { error = null }
-
-    fun changeAutoSpeak(value: Boolean) {
-        autoSpeak = value
-        prefs.edit().putBoolean("autoSpeak", value).apply()
-        if (!value) c.audio.stop()
-    }
-
-    fun speak(message: ConversationMessageEntity) {
-        val key = "chat:${message.id}"
-        if (c.audio.playing.value == key) c.audio.stop() else c.audio.speak(message.text, key)
-    }
 
     /** Запись до паузы в 2,5 с (ученик подбирает слова) или до минуты; затем Whisper. */
     fun startRecording(): Boolean {

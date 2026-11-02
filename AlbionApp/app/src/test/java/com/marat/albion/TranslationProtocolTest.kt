@@ -16,6 +16,24 @@ class TranslationProtocolTest {
         assertTrue(prompt.contains("Контекст (не переводи):\nWe sat on the bank of the river."))
         assertTrue(prompt.contains("Переведи на русский:\nbank 🌍"))
     }
+    @Test fun wordIsTranslatedByItsMarkedOccurrenceInContext() {
+        val context = TranslationProtocol.marked("They rowed to the bank. The bank was closed.", 28, 32)
+        assertEquals("They rowed to the bank. The ⟦bank⟧ was closed.", context)
+        val prompt = TranslationProtocol.prompt("bank", context)
+        assertTrue(prompt.contains("The ⟦bank⟧ was closed."))
+        assertTrue(prompt.contains("в том значении, в котором оно употреблено здесь"))
+    }
+    @Test fun phraseInContextIsMarkedButTranslatedAlone() {
+        val prompt = TranslationProtocol.prompt("ran out", TranslationProtocol.marked("We ran out of milk.", 3, 10))
+        assertTrue(prompt.contains("We ⟦ran out⟧ of milk."))
+        assertTrue(prompt.contains("только отмеченный фрагмент"))
+    }
+    @Test fun longParagraphIsCutAroundSelection() {
+        val text = "a".repeat(2000) + "WORD" + "b".repeat(2000)
+        val context = TranslationProtocol.marked(text, 2000, 2004, room = 100)
+        assertEquals("…" + "a".repeat(50) + "⟦WORD⟧" + "b".repeat(50) + "…", context)
+        assertEquals("⟦WORD⟧" + "b".repeat(100) + "…", TranslationProtocol.marked("WORD" + "b".repeat(500), 0, 4, room = 100))
+    }
     @Test fun emptyAndOversizedSelectionsHaveActionableErrors() {
         for (text in listOf("  ", "a".repeat(TranslationProtocol.MAX_SELECTION + 1))) {
             try { TranslationProtocol.prompt(text); fail("Invalid selection accepted") }

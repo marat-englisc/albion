@@ -81,9 +81,9 @@ private sealed interface TranslationResult {
 }
 
 /**
- * Перевод слова или выделенного фрагмента. Слово сразу ищется во встроенном словаре
- * и в ваших карточках (с транскрипцией и озвучкой) — это работает без интернета.
- * Фразы переводит Qwen3.5; пока модель не установлена, фрагмент разбирается по словам.
+ * Перевод слова или выделенного фрагмента. И слово, и фразу переводит Qwen3.5 с учётом соседних
+ * предложений — значение именно в этом месте книги. Словарь и ваши карточки (транскрипция, озвучка)
+ * ищутся параллельно и остаются в подробностях; без модели перевод берётся из них.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +100,8 @@ fun TranslationSheet(
     onDeleteHighlight: (HighlightEntity) -> Unit = {},
     bookSource: BookWordSource? = null,
     bookExample: String = "",
+    /** Окружение для модели, выделение в нём отмечено (см. TranslationProtocol.marked). */
+    translationContext: String = bookExample,
     onOpenBookWords: () -> Unit = {},
     onBookWordSaved: (com.marat.albion.data.library.SavedBookWord) -> Unit = {},
 ) {
@@ -114,19 +116,19 @@ fun TranslationSheet(
     var details by rememberSaveable(text) { mutableStateOf(false) }
 
     var retry by remember(text) { mutableStateOf(0) }
+    /** Значение из меню; при работающей модели 0 — её перевод в контексте, дальше — словарь. */
     var chosen by remember(text) { mutableStateOf(0) }
-    LaunchedEffect(text, bookExample, retry, model.phase, model.selected) {
+    LaunchedEffect(text, translationContext, retry, model.phase, model.selected) {
         result = TranslationResult.Loading
         if (isWord) {
-            cards = c.library.lookup(text)
-            entries = c.dictionary.lookup(text)
-            // Для слова машинный перевод — дополнение: не ждём загрузки модели, если есть словарь.
-            if (model.phase != ModelState.Ready && (entries.orEmpty().isNotEmpty() || cards.isNotEmpty())) {
-                result = TranslationResult.Skipped
-                return@LaunchedEffect
+            // Словарь и карточки — подробности и запасной вариант; перевод модели их не ждёт.
+            val lookups = launch {
+                cards = c.library.lookup(text)
+                entries = c.dictionary.lookup(text)
             }
+            if (model.phase != ModelState.Ready) lookups.join()
         }
-        // Пока модели фраз нет, сразу разбираем фрагмент по словам встроенным словарём.
+        // Пока модели нет, сразу разбираем фрагмент по словам встроенным словарём.
         if (!isWord && model.phase != ModelState.Ready) {
             glosses = WORD.findAll(text).map { it.value }.distinctBy { it.lowercase() }
                 .filter { it.lowercase() !in ARTICLES }.take(16).toList().mapNotNull { w ->
@@ -139,7 +141,7 @@ fun TranslationSheet(
         if (model.phase != ModelState.Ready) { result = TranslationResult.Skipped; return@LaunchedEffect }
         try {
             var completed = ""
-            c.translator.translations(text, bookExample).collect {
+            c.translator.translations(text, translationContext).collect {
                 completed = it
                 result = TranslationResult.Streaming(it)
             }
@@ -182,10 +184,12 @@ fun TranslationSheet(
             selectionControls?.invoke()
             val options = dictionary.flatMap { entry -> entry.senses.filter { it.isNotBlank() }.map { entry to it } }
                 .distinctBy { it.first.headword.lowercase() to it.second.lowercase() }
-            val selected = options.getOrNull(chosen) ?: options.firstOrNull()
-            val firstEntry = selected?.first
-            val dictionaryMeaning = selected?.second
-            val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu
+            // С моделью перевод по контексту главный; словарное значение — только если выбрать его в меню.
+            val contextual = model.phase == ModelState.Ready
+            val picked = if (contextual) options.getOrNull(chosen - 1) else options.getOrNull(chosen) ?: options.firstOrNull()
+            val firstEntry = picked?.first ?: options.firstOrNull()?.first
+            val dictionaryMeaning = picked?.second
+            val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu?.takeIf { !contextual }
             val automatic = (result as? TranslationResult.Done)?.text?.takeIf { it.isNotBlank() }
             val ipa = cards.firstOrNull { it.ipa.isNotBlank() }?.ipa
             if (isWord && (firstEntry?.posLabel?.isNotBlank() == true || ipa != null)) {
@@ -204,14 +208,14 @@ fun TranslationSheet(
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
-                    else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · перевод на устройстве"
+                    else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · значение в этом месте книги"
                 }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {
-                        Text(if (isWord && entries == null) "Ищу перевод…"
-                            else if (loadingModel) "Открываю Qwen3.5…" else "Перевожу…",
+                        Text(if (loadingModel) "Открываю Qwen3.5…"
+                            else if (contextual) "Перевожу с учётом контекста…" else if (isWord && entries == null) "Ищу перевод…" else "Перевожу…",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                             color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
@@ -234,9 +238,11 @@ fun TranslationSheet(
 
 
             // Полное значение в меню; выбранное уходит в карточку при сохранении.
-            if (options.size > 1) {
+            val choices = (if (contextual) listOfNotNull(automatic?.let { "$it · по контексту" }) else emptyList()) +
+                options.map { it.second }
+            if (choices.size > 1 && (!contextual || automatic != null)) {
                 Spacer(Modifier.height(14.dp))
-                com.marat.albion.ui.components.OptionPicker("Значение · ${options.size}", options.map { it.second },
+                com.marat.albion.ui.components.OptionPicker("Значение · ${choices.size}", choices,
                     chosen.coerceAtLeast(0), { chosen = it })
             }
             val hasDetails = dictionary.sumOf { it.senses.size } > 1 || cards.isNotEmpty() ||
@@ -280,7 +286,7 @@ fun TranslationSheet(
                 Hairline()
                 if (bookSource != null) {
                     BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
-                        suggestedTerm = if (dictionaryMeaning != null) requireNotNull(firstEntry).headword
+                        suggestedTerm = if (isWord && firstEntry != null) firstEntry.headword
                             else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
                         suggestedMeaning = dictionaryMeaning ?: cardMeaning ?: automatic, onSaved = onBookWordSaved)
                 }

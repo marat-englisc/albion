@@ -2,6 +2,8 @@
 #include <jni.h>
 #include <algorithm>
 #include <atomic>
+#include <cinttypes>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -52,7 +54,7 @@ Java_com_marat_albion_data_speech_WhisperBridge_nativeLoad(JNIEnv *env, jobject,
 
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_marat_albion_data_speech_WhisperBridge_nativeTranscribe(
-        JNIEnv *env, jobject, jlong handle, jlong request, jfloatArray pcm, jint threads, jstring prompt) {
+        JNIEnv *env, jobject, jlong handle, jlong request, jfloatArray pcm, jint threads, jstring prompt, jboolean words) {
     try {
         if (!handle) throw std::runtime_error("Whisper model is not loaded");
         auto *recognizer = reinterpret_cast<Recognizer *>(handle);
@@ -70,7 +72,9 @@ Java_com_marat_albion_data_speech_WhisperBridge_nativeTranscribe(
         params.language = "en";
         params.translate = false;
         params.no_context = true;
-        params.no_timestamps = true;
+        // Shadowing needs per-token timing and confidence; plain transcription skips that work.
+        params.no_timestamps = !words;
+        params.token_timestamps = words;
         params.single_segment = false;
         params.print_special = false;
         params.print_progress = false;
@@ -86,8 +90,29 @@ Java_com_marat_albion_data_speech_WhisperBridge_nativeTranscribe(
         if (whisper_full(recognizer->context, params, samples.data(), count) != 0)
             throw std::runtime_error(aborted(recognizer) ? "Recognition cancelled" : "Recognition failed");
         std::string text;
-        const int segments = whisper_full_n_segments(recognizer->context);
-        for (int i = 0; i < segments; ++i) text += whisper_full_get_segment_text(recognizer->context, i);
+        auto *context = recognizer->context;
+        const int segments = whisper_full_n_segments(context);
+        if (!words) {
+            for (int i = 0; i < segments; ++i) text += whisper_full_get_segment_text(context, i);
+        } else {
+            // One text token per line: "t0<TAB>t1<TAB>p<TAB>text", times in 10 ms units from the start of the audio.
+            const whisper_token eot = whisper_token_eot(context);
+            char head[96];
+            for (int i = 0; i < segments; ++i) {
+                const int tokens = whisper_full_n_tokens(context, i);
+                for (int j = 0; j < tokens; ++j) {
+                    const auto data = whisper_full_get_token_data(context, i, j);
+                    if (data.id >= eot) continue; // timestamps and other special tokens
+                    std::string piece = whisper_full_get_token_text(context, i, j);
+                    std::replace(piece.begin(), piece.end(), '\t', ' ');
+                    std::replace(piece.begin(), piece.end(), '\n', ' ');
+                    std::snprintf(head, sizeof(head), "%" PRId64 "\t%" PRId64 "\t%.4f\t", data.t0, data.t1, data.p);
+                    text += head;
+                    text += piece;
+                    text += '\n';
+                }
+            }
+        }
         // Bytes, not NewStringUTF: Whisper may emit 4-byte UTF-8 that JNI modified UTF-8 rejects.
         auto result = env->NewByteArray(static_cast<jsize>(text.size()));
         if (result) env->SetByteArrayRegion(result, 0, static_cast<jsize>(text.size()), reinterpret_cast<const jbyte *>(text.data()));

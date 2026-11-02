@@ -20,7 +20,8 @@ import kotlin.coroutines.resumeWithException
 @Keep
 object WhisperBridge {
     external fun nativeLoad(path: String): Long
-    external fun nativeTranscribe(handle: Long, request: Long, pcm: FloatArray, threads: Int, prompt: String?): ByteArray
+    /** [words] — one token per line with timing and confidence (see albion_stt.cpp) instead of plain text. */
+    external fun nativeTranscribe(handle: Long, request: Long, pcm: FloatArray, threads: Int, prompt: String?, words: Boolean): ByteArray
     external fun nativeCancel(handle: Long, request: Long)
     external fun nativeUnload(handle: Long)
 }
@@ -71,7 +72,15 @@ class SpeechToText(context: Context, private val scope: CoroutineScope) {
     fun preload() { scope.launch { models.refresh() } }
 
     /** [hint] — recent conversation text: Whisper spells names and topic words the same way. */
-    suspend fun transcribe(pcm: FloatArray, hint: String = ""): String = mutex.withLock {
+    suspend fun transcribe(pcm: FloatArray, hint: String = ""): String = clean(recognize(pcm, hint, words = false))
+
+    /**
+     * Words with timing and confidence, for checking pronunciation. No hint on purpose:
+     * knowing the expected phrase, Whisper would "hear" it in an unclear recording.
+     */
+    suspend fun words(pcm: FloatArray): List<HeardWord> = SpokenWords.parse(recognize(pcm, "", words = true))
+
+    private suspend fun recognize(pcm: FloatArray, hint: String, words: Boolean): String = mutex.withLock {
         idle?.cancel()
         try {
             LlamaBridge.requireAvailable()
@@ -92,14 +101,14 @@ class SpeechToText(context: Context, private val scope: CoroutineScope) {
                     val activeHandle = handle
                     continuation.invokeOnCancellation { WhisperBridge.nativeCancel(activeHandle, request) }
                     try {
-                        val bytes = WhisperBridge.nativeTranscribe(activeHandle, request, audio, threads, hint.takeLast(400).ifBlank { null })
+                        val bytes = WhisperBridge.nativeTranscribe(activeHandle, request, audio, threads, hint.takeLast(400).ifBlank { null }, words)
                         continuation.resume(bytes.toString(Charsets.UTF_8))
                     } catch (error: Throwable) {
                         if (continuation.isActive) continuation.resumeWithException(error)
                     }
                 }
             }
-            clean(raw)
+            raw
         } finally {
             idle = scope.launch { delay(180_000); unload() }
         }
