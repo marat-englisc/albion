@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Помнишь Present Perfect Continuous — «жду **уже** час (до сих пор)»? Это то же самое, только точка отсчёта — **не сейчас, а момент в прошлом**:
+Помните Present Perfect Continuous — «жду **уже** час (до сих пор)»? Это то же самое, только точка отсчёта — **не сейчас, а момент в прошлом**:
 
 | Точка отсчёта | Время | Пример |
 | --- | --- | --- |
@@ -51,16 +51,16 @@ tags:
 > - ~~I had waiting for two hours.~~ → **I had been waiting for two hours.** — не теряй `been`.
 > - ~~She had been writing five letters.~~ → **She had written five letters.** — есть число → результат.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол в Past Perfect Continuous: We ___ (walk) for hours when we found a café.
-2. Вставь глагол: Her eyes were red because she ___ (cry).
-3. Выбери: By 2010, he (had been knowing / had known) her for ten years.
-4. Выбери: When I met him, he (had been working / has been working) there for a year.
-5. Выбери: She (had written / had been writing) five letters by noon.
-6. Исправь ошибку: *I had waiting for two hours.*
+1. Вставьте глагол в Past Perfect Continuous: We ___ (walk) for hours when we found a café.
+2. Вставьте глагол: Her eyes were red because she ___ (cry).
+3. Выберите: By 2010, he (had been knowing / had known) her for ten years.
+4. Выберите: When I met him, he (had been working / has been working) there for a year.
+5. Выберите: She (had written / had been writing) five letters by noon.
+6. Исправьте ошибку: *I had waiting for two hours.*
 
 > [!success]- Ответы и пояснения
 > 1. **had been walking** — шли уже несколько часов к моменту, когда нашли кафе.

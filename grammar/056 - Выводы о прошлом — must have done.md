@@ -11,11 +11,11 @@ tags:
 # Выводы о прошлом — must have done
 
 > [!abstract] Коротко
-> Чтобы догадаться о **прошлом**, добавь к must / might / can't слова **have + третья форма**: **She must have forgotten.** — Она, **должно быть, забыла**.
+> Чтобы догадаться о **прошлом**, добавьте к must / might / can't слова **have + третья форма**: **She must have forgotten.** — Она, **должно быть, забыла**.
 
 ## Суть
 
-В прошлом уроке ты делал догадки о настоящем: **He must be tired.** А если улики говорят о **прошлом**? Например, асфальт мокрый — значит, ночью **был** дождь.
+В прошлом уроке вы делали догадки о настоящем: **He must be tired.** А если улики говорят о **прошлом**? Например, асфальт мокрый — значит, ночью **был** дождь.
 
 Модальные глаголы не умеют сами переходить в прошлое. Поэтому им «пристёгивают» **have + V3**:
 
@@ -46,16 +46,16 @@ tags:
 > - ~~He must have went.~~ → **He must have gone.** — после `have` нужна третья форма.
 > - ~~She mustn't have seen us.~~ → **She can't have seen us.** — уверенное «нет» = `can't`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь: The ground is wet. It must ___ (rain) at night.
-2. Вставь: I can't find my keys. I might ___ (leave) them at work.
-3. Выбери: She (can't have / mustn't have) seen us — she was in Spain.
+1. Вставьте: The ground is wet. It must ___ (rain) at night.
+2. Вставьте: I can't find my keys. I might ___ (leave) them at work.
+3. Выберите: She (can't have / mustn't have) seen us — she was in Spain.
 4. Перефразируй: *I'm sure he forgot about the meeting.*
 5. Перефразируй: *Perhaps they took a taxi.*
-6. Исправь ошибку: *He must have went home.*
+6. Исправьте ошибку: *He must have went home.*
 
 > [!success]- Ответы и пояснения
 > 1. **have rained** — уверенная догадка о прошлом.

@@ -60,18 +60,18 @@ tags:
 > - ~~She suggested me to take a taxi.~~ → **She suggested (that) I (should) take a taxi.**
 > - ~~I recommend that he doesn't drive.~~ → **I recommend that he not drive.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 В заданиях 1–3 обойдись без `should`.
 
-1. Вставь глагол: The teacher insisted that every student ___ (hand) in the essay by Friday.
-2. Вставь глагол: It's essential that the patient ___ (be) kept warm.
-3. Вставь глагол (отрицание): I recommend that he ___ (not / drive) tonight.
+1. Вставьте глагол: The teacher insisted that every student ___ (hand) in the essay by Friday.
+2. Вставьте глагол: It's essential that the patient ___ (be) kept warm.
+3. Вставьте глагол (отрицание): I recommend that he ___ (not / drive) tonight.
 4. Перефразируй по-британски с should: *They proposed that the meeting be postponed.*
-5. Переведи: «Как бы то ни было, мы должны продолжать».
-6. Исправь ошибку: *She suggested me to take a taxi.*
+5. Переведите: «Как бы то ни было, мы должны продолжать».
+6. Исправьте ошибку: *She suggested me to take a taxi.*
 
 > [!success]- Ответы и пояснения
 > 1. **hand** — словарная форма, даже после прошедшего `insisted`.

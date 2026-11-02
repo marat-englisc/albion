@@ -50,16 +50,16 @@ tags:
 > - ~~If I would have time, I would help.~~ → **If I had time, I would help.** — после `if` нет `would`.
 > - ~~If I have more money, I'd buy…~~ → **If I had more money, I'd buy…**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: If I ___ (know) the answer, I ___ (tell) you.
-2. Вставь глаголы: What ___ you ___ (do) if you ___ (win) the lottery?
-3. Вставь глагол: If I ___ (be) you, I would apologise.
-4. Выбери: If I (have / had) more money, I'd buy a house.
-5. Выбери (это вполне возможно): If it (rains / rained) tomorrow, we'll stay home.
-6. Исправь ошибку: *If I would have time, I would help you.*
+1. Вставьте глаголы: If I ___ (know) the answer, I ___ (tell) you.
+2. Вставьте глаголы: What ___ you ___ (do) if you ___ (win) the lottery?
+3. Вставьте глагол: If I ___ (be) you, I would apologise.
+4. Выберите: If I (have / had) more money, I'd buy a house.
+5. Выберите (это вполне возможно): If it (rains / rained) tomorrow, we'll stay home.
+6. Исправьте ошибку: *If I would have time, I would help you.*
 
 > [!success]- Ответы и пояснения
 > 1. **knew, would tell** — сейчас я не знаю, это воображаемая ситуация.

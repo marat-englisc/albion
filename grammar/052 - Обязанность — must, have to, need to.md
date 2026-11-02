@@ -51,16 +51,16 @@ tags:
 > - ~~Did you must wait?~~ → **Did you have to wait?**
 > - ~~I must to go.~~ → **I must go.** — после `must` без `to`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь форму: Yesterday I ___ (have to) work late.
-2. Сделай вопрос: *She has to get up early.*
-3. Вставь форму: Next year you ___ (have to) pay more.
-4. Выбери: I really (must / have to) stop eating sweets — I decided it myself.
-5. Исправь ошибку: *She musts leave now.*
-6. Исправь ошибку: *Did you must wait long?*
+1. Вставьте форму: Yesterday I ___ (have to) work late.
+2. Сделайте вопрос: *She has to get up early.*
+3. Вставьте форму: Next year you ___ (have to) pay more.
+4. Выберите: I really (must / have to) stop eating sweets — I decided it myself.
+5. Исправьте ошибку: *She musts leave now.*
+6. Исправьте ошибку: *Did you must wait long?*
 
 > [!success]- Ответы и пояснения
 > 1. **had to** — прошлое → `had to`.

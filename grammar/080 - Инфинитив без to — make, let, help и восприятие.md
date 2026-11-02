@@ -55,16 +55,16 @@ tags:
 > - ~~Let me to help.~~ → **Let me help.**
 > - ~~We were let to use the pool.~~ → **We were allowed to use the pool.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь форму: My mum made me ___ (clean) my room.
-2. Вставь форму: Let me ___ (explain).
-3. Вставь форму: We were made ___ (wait) for hours.
+1. Вставьте форму: My mum made me ___ (clean) my room.
+2. Вставьте форму: Let me ___ (explain).
+3. Вставьте форму: We were made ___ (wait) for hours.
 4. Перефразируй без let: *They let us use the pool.* → We were ___
-5. Исправь ошибку: *She made him to apologise.*
-6. Выбери: I heard someone (call / to call) my name.
+5. Исправьте ошибку: *She made him to apologise.*
+6. Выберите: I heard someone (call / to call) my name.
 
 > [!success]- Ответы и пояснения
 > 1. **clean** — после `make` + человек — без `to`.

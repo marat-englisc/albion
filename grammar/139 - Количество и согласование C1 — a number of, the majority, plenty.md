@@ -21,7 +21,7 @@ tags:
 | **the number of** accidents | **количество** аварий (одна цифра) | **is / has** |
 
 > [!example] Как проверить
-> Замени на русское. «**Несколько** вопросов **были** заданы» → **were**.
+> Замените на русское. «**Несколько** вопросов **были** заданы» → **were**.
 >
 > «**Число** аварий **снизилось**» → **has**.
 
@@ -60,16 +60,16 @@ tags:
 > - ~~A great deal of people~~ → **A large number of people** — `people` считают.
 > - ~~The number of cars are growing.~~ → **The number of cars is growing.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: A number of questions (was / were) raised.
-2. Выбери: The number of accidents (has / have) fallen.
-3. Выбери: Ten dollars (is / are) not enough.
-4. Вставь (горстка): There were only ___ ___ ___ people at the meeting.
-5. Замени a lot of официальным выражением: *A lot of research has been done.*
-6. Исправь ошибку: *A great deal of people came to the concert.*
+1. Выберите: A number of questions (was / were) raised.
+2. Выберите: The number of accidents (has / have) fallen.
+3. Выберите: Ten dollars (is / are) not enough.
+4. Вставьте (горстка): There were only ___ ___ ___ people at the meeting.
+5. Замените a lot of официальным выражением: *A lot of research has been done.*
+6. Исправьте ошибку: *A great deal of people came to the concert.*
 
 > [!success]- Ответы и пояснения
 > 1. **were** — «ряд вопросов» — их много.

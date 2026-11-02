@@ -54,16 +54,16 @@ tags:
 > - ~~She going to study.~~ → **She is going to study.** — не теряй `is`.
 > - ~~I'm going to buy~~ (если решил только что) → **I'll buy it.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: — We've run out of bread. — Oh, I (will / am going to) buy some.
-2. Выбери: I've decided — I (will / am going to) change jobs.
-3. Выбери: Look out! You (will / are going to) fall!
-4. Сделай вопрос: *They are going to buy a house.*
-5. Сделай отрицание: *I'm going to watch the match.*
-6. Исправь ошибку: *She going to study medicine.*
+1. Выберите: — We've run out of bread. — Oh, I (will / am going to) buy some.
+2. Выберите: I've decided — I (will / am going to) change jobs.
+3. Выберите: Look out! You (will / are going to) fall!
+4. Сделайте вопрос: *They are going to buy a house.*
+5. Сделайте отрицание: *I'm going to watch the match.*
+6. Исправьте ошибку: *She going to study medicine.*
 
 > [!success]- Ответы и пояснения
 > 1. **will** — решение пришло в голову только что.

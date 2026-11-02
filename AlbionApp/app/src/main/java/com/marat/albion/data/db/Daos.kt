@@ -341,3 +341,15 @@ interface DictionaryDao {
     suspend fun insert(rows: List<DictionaryEntity>)
 }
 
+@Dao
+interface SentenceTranslationDao {
+    @Query("SELECT * FROM sentence_translations WHERE text IN (:texts)")
+    suspend fun find(texts: List<String>): List<SentenceTranslationEntity>
+
+    /** Перевод модели не затирает поправленный вручную. */
+    @Query("INSERT OR IGNORE INTO sentence_translations(text, translation, edited, updated_at) VALUES (:text, :translation, 0, :now)")
+    suspend fun insertIfAbsent(text: String, translation: String, now: Long = System.currentTimeMillis())
+
+    @androidx.room.Upsert
+    suspend fun upsert(row: SentenceTranslationEntity)
+}

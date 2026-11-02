@@ -65,16 +65,16 @@ tags:
 > - ~~ten eggs, half of them were broken~~ → **ten eggs, half of which were broken**
 > - ~~the way how he spoke~~ → **the way he spoke** / **the way in which he spoke**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Соедини: *I have four cousins. Two of them live abroad.*
-2. Соедини: *He wrote many novels. Most of them were bestsellers.*
+1. Соедините: *I have four cousins. Two of them live abroad.*
+2. Соедините: *He wrote many novels. Most of them were bestsellers.*
 3. Перефразируй с to: *She was the last person who left the office.*
-4. Вставь (официально): This is the hotel at ___ we stayed.
-5. Переведи: «Ему не с кем поговорить».
-6. Исправь ошибку: *I bought ten eggs, half of them were broken.*
+4. Вставьте (официально): This is the hotel at ___ we stayed.
+5. Переведите: «Ему не с кем поговорить».
+6. Исправьте ошибку: *I bought ten eggs, half of them were broken.*
 
 > [!success]- Ответы и пояснения
 > 1. **I have four cousins, two of whom live abroad.** — люди → `of whom`.

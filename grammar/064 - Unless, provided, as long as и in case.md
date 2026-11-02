@@ -34,8 +34,8 @@ tags:
 
 Это важная разница:
 
-- **Call me ==if== you need help.** — Позвони, **если** понадобится помощь. *Звонишь только тогда, когда нужна помощь.*
-- **Take my number ==in case== you need help.** — Возьми мой номер **на всякий случай**. *Берёшь номер сейчас, заранее.*
+- **Call me ==if== you need help.** — Позвони, **если** понадобится помощь. *Звоните только тогда, когда нужна помощь.*
+- **Take my number ==in case== you need help.** — Возьми мой номер **на всякий случай**. *Берёте номер сейчас, заранее.*
 
 **In case** — это действие **заранее**, для подстраховки.
 
@@ -52,16 +52,16 @@ tags:
 > - ~~unless you don't come~~ → **unless you come** — `unless` уже значит «если не».
 > - ~~in case it will rain~~ → **in case it rains**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй с unless: *If you don't practise, you won't improve.*
-2. Вставь in case или if: Take some money ___ you need a taxi.
-3. Вставь in case или if: Call me ___ you need a taxi — I'll come and get you.
-4. Вставь as long as или unless: You can borrow my car ___ you drive carefully.
-5. Вставь even if или if: I'll go to the party ___ it rains. Nothing will stop me!
-6. Исправь ошибку (смысл: «Я пойду только вместе с тобой»): *I won't go unless you don't come with me.*
+2. Вставьте in case или if: Take some money ___ you need a taxi.
+3. Вставьте in case или if: Call me ___ you need a taxi — I'll come and get you.
+4. Вставьте as long as или unless: You can borrow my car ___ you drive carefully.
+5. Вставьте even if или if: I'll go to the party ___ it rains. Nothing will stop me!
+6. Исправьте ошибку (смысл: «Я пойду только вместе с тобой»): *I won't go unless you don't come with me.*
 
 > [!success]- Ответы и пояснения
 > 1. **Unless you practise, you won't improve.** — `unless` уже содержит «не».

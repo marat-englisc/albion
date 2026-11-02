@@ -57,16 +57,16 @@ tags:
 > - ~~one of the best player~~ → **one of the best players**
 > - ~~the most tallest~~ → **the tallest**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Образуй: *big* → the ___
-2. Образуй: *interesting* → the ___
-3. Вставь: It's the ___ (good) day of my life.
-4. Вставь in или of: She's the youngest ___ her family.
-5. Исправь ошибку: *He is one of the best player in the team.*
-6. Исправь ошибку: *This is most expensive hotel in the city.*
+1. Образуйте: *big* → the ___
+2. Образуйте: *interesting* → the ___
+3. Вставьте: It's the ___ (good) day of my life.
+4. Вставьте in или of: She's the youngest ___ her family.
+5. Исправьте ошибку: *He is one of the best player in the team.*
+6. Исправьте ошибку: *This is most expensive hotel in the city.*
 
 > [!success]- Ответы и пояснения
 > 1. **biggest** — удваиваем `g` и добавляем `-est`.

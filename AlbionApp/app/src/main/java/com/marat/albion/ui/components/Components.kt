@@ -85,11 +85,17 @@ fun Hairline(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorSc
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    Row(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.padding(end = 10.dp).size(4.dp).background(MaterialTheme.colorScheme.primary))
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-        if (trailing != null) Text(trailing, style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+    // При крупном шрифте счётчик уходит под заголовок: иначе он теснит название и рвёт слово («Активност|ь»).
+    val large = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+    Column(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.padding(end = 10.dp).size(4.dp).background(MaterialTheme.colorScheme.primary))
+            Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+            if (trailing != null && !large) Text(trailing, style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+        }
+        if (trailing != null && large) Text(trailing, Modifier.padding(start = 14.dp, top = 2.dp), style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

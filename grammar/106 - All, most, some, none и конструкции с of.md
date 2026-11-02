@@ -55,16 +55,16 @@ tags:
 > - ~~The most people~~ (большинство) → **Most people**
 > - ~~All us~~ → **All of us**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь of или ничего: Most ___ people like music.
-2. Вставь of или ничего: Most ___ my friends live in Moscow.
-3. Вставь (ни один): ___ of them speaks English.
-4. Вставь of или ничего: All ___ us were tired.
-5. Исправь ошибку: *Most of students passed the test.*
-6. Переведи: «Не все магазины открыты в воскресенье».
+1. Вставьте of или ничего: Most ___ people like music.
+2. Вставьте of или ничего: Most ___ my friends live in Moscow.
+3. Вставьте (ни один): ___ of them speaks English.
+4. Вставьте of или ничего: All ___ us were tired.
+5. Исправьте ошибку: *Most of students passed the test.*
+6. Переведите: «Не все магазины открыты в воскресенье».
 
 > [!success]- Ответы и пояснения
 > 1. **— (без of)** — люди вообще.

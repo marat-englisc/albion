@@ -48,22 +48,22 @@ tags:
 - **If I'd had an umbrella, I wouldn't have got wet.** — Если бы у меня был зонт, я бы не промок.
 
 > [!tip] Как построить из реальности
-> Возьми реальное прошлое и **переверни «да» и «нет»**: didn't book → **had booked**; didn't get a table → **would have got** a table.
+> Возьмите реальное прошлое и **переверните «да» и «нет»**: didn't book → **had booked**; didn't get a table → **would have got** a table.
 
 > [!warning] Частые ошибки
 > - ~~If I would have seen him…~~ → **If I had seen him…** — после `if` нет `would`.
 > - ~~If I had known, I would come.~~ → **…I would have come.** — результат тоже в прошлом.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: If you ___ (tell) me, I ___ (help) you.
-2. Вставь глаголы: She ___ (not / be) late if she ___ (catch) the bus.
-3. Раскрой сокращения: *If I'd known, I'd have come.*
+1. Вставьте глаголы: If you ___ (tell) me, I ___ (help) you.
+2. Вставьте глаголы: She ___ (not / be) late if she ___ (catch) the bus.
+3. Раскройте сокращения: *If I'd known, I'd have come.*
 4. Перефразируй: *I didn't have an umbrella, so I got wet.*
 5. Перефразируй: *We didn't book, so we didn't get a table.*
-6. Исправь ошибку: *If I would have seen him, I would have said hello.*
+6. Исправьте ошибку: *If I would have seen him, I would have said hello.*
 
 > [!success]- Ответы и пояснения
 > 1. **had told, would have helped** — обе части о прошлом.

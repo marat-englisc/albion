@@ -31,7 +31,7 @@ tags:
 
 ## Давно пора
 
-Чтобы усилить, добавь **high** или **about**:
+Чтобы усилить, добавьте **high** или **about**:
 
 - **It's high time we did something.** — Давно пора что-то сделать.
 - **It's about time he apologised.** — Ему уже давно пора извиниться.
@@ -50,16 +50,16 @@ tags:
 > - ~~It's time we go home.~~ → **It's time we went home.**
 > - ~~It's time going.~~ → **It's time to go.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: It's time ___ (go) to bed.
-2. Вставь глагол: It's time you ___ (go) to bed.
-3. Вставь глагол: It's high time they ___ (fix) the lift.
+1. Вставьте глагол: It's time ___ (go) to bed.
+2. Вставьте глагол: It's time you ___ (go) to bed.
+3. Вставьте глагол: It's high time they ___ (fix) the lift.
 4. Перефразируй с for: *It's time we started.*
-5. Исправь ошибку: *It's time we go home.*
-6. Переведи: «Тебе давно пора найти работу».
+5. Исправьте ошибку: *It's time we go home.*
+6. Переведите: «Тебе давно пора найти работу».
 
 > [!success]- Ответы и пояснения
 > 1. **to go** — человек не назван → `to` + глагол.

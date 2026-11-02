@@ -22,7 +22,7 @@ Second Conditional — всё про «сейчас». Third — всё про �
 >
 > If I **had taken** that job, I **would be** rich now.
 
-Главное — **подпиши каждую часть**: «тогда» или «сейчас», и выбери для неё форму.
+Главное — **подпишите каждую часть**: «тогда» или «сейчас», и выберите для неё форму.
 
 | Часть | Тогда (прошлое) | Сейчас |
 | --- | --- | --- |
@@ -42,21 +42,21 @@ Second Conditional — всё про «сейчас». Third — всё про �
 - **If he were braver, he would have jumped.** — Будь он смелее, он бы прыгнул.
 
 > [!tip] Ищи слово «сейчас»
-> Видишь в результате **now, today, still** — скорее всего нужен **would + глагол**, даже если условие в прошлом.
+> Видите в результате **now, today, still** — скорее всего нужен **would + глагол**, даже если условие в прошлом.
 
 > [!warning] Частые ошибки
 > - ~~If I had studied medicine, I would have been a doctor now.~~ → **…I would be a doctor now.** — результат «сейчас».
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: If I ___ (take) that job last year, I ___ (be) rich now.
-2. Вставь глаголы: If she ___ (be) more careful, she ___ (not / lose) her phone yesterday.
+1. Вставьте глаголы: If I ___ (take) that job last year, I ___ (be) rich now.
+2. Вставьте глаголы: If she ___ (be) more careful, she ___ (not / lose) her phone yesterday.
 3. Перефразируй: *I didn't eat breakfast, so I'm hungry now.*
 4. Перефразируй: *He isn't brave, so he didn't jump.*
-5. Выбери: If we hadn't missed the flight, we (would be / would have been) in Rome now.
-6. Исправь результат так, чтобы он был о настоящем: *If I had studied medicine, I would have been a doctor now.*
+5. Выберите: If we hadn't missed the flight, we (would be / would have been) in Rome now.
+6. Исправьте результат так, чтобы он был о настоящем: *If I had studied medicine, I would have been a doctor now.*
 
 > [!success]- Ответы и пояснения
 > 1. **had taken, would be** — условие «тогда» (last year), результат «сейчас» (now).

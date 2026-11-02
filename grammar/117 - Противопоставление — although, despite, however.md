@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Это та же логика, что **because / because of** в прошлом уроке. Смотри, что идёт после связки:
+Это та же логика, что **because / because of** в прошлом уроке. Смотрите, что идёт после связки:
 
 | Связка | После неё | Пример |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ tags:
 
 ## Если очень хочется despite + предложение
 
-Добавь **the fact that**: **Despite ==the fact that== it was cold, we went out.**
+Добавьте **the fact that**: **Despite ==the fact that== it was cold, we went out.**
 
 ## Ещё полезные слова
 
@@ -51,16 +51,16 @@ tags:
 > - ~~Although he is rich, but…~~ → **Although he is rich, he…**
 > - ~~Despite it was raining~~ → **Although it was raining**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь although или despite: ___ the rain, we played football.
-2. Вставь although или despite: ___ it was raining, we played football.
+1. Вставьте although или despite: ___ the rain, we played football.
+2. Вставьте although или despite: ___ it was raining, we played football.
 3. Перефразируй с in spite of: *Although she was tired, she kept working.*
 4. Перефразируй с despite the fact that: *Despite the cold, we went out.*
-5. Исправь ошибку: *Despite of the noise, I slept well.*
-6. Исправь ошибку: *Although he is rich, but he isn't happy.*
+5. Исправьте ошибку: *Despite of the noise, I slept well.*
+6. Исправьте ошибку: *Although he is rich, but he isn't happy.*
 
 > [!success]- Ответы и пояснения
 > 1. **Despite** — дальше только слово `the rain`.

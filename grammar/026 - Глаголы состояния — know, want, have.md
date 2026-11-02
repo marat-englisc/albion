@@ -32,7 +32,7 @@ Continuous — это «фото процесса»: человек что-то 
 
 ## Один глагол — два смысла
 
-Некоторые глаголы бывают и состоянием, и действием. Смотри на **смысл**:
+Некоторые глаголы бывают и состоянием, и действием. Смотрите на **смысл**:
 
 | Состояние → Simple | Действие → Continuous |
 | --- | --- |
@@ -42,7 +42,7 @@ Continuous — это «фото процесса»: человек что-то 
 | The soup **tastes** good. — на вкус | I'm **tasting** the soup. — пробую |
 
 > [!tip] Как проверить
-> Задай вопрос: «Можно это **делать** медленно, по шагам?» Обедать — да (действие). Владеть машиной — нет (состояние).
+> Задайте вопрос: «Можно это **делать** медленно, по шагам?» Обедать — да (действие). Владеть машиной — нет (состояние).
 
 ## Примеры
 
@@ -56,16 +56,16 @@ Continuous — это «фото процесса»: человек что-то 
 > - ~~I'm wanting a new phone.~~ → **I want a new phone.**
 > - ~~I'm having a car.~~ → **I have a car.** — «владеть» — состояние.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: I (don't understand / am not understanding) this rule.
-2. Выбери: This bag (belongs / is belonging) to Anna.
-3. Выбери: We (have / are having) dinner at the moment.
-4. Выбери: I (think / am thinking) she's right.
-5. Выбери: Be quiet! I (think / am thinking).
-6. Исправь ошибку: *I'm wanting a new phone.*
+1. Выберите: I (don't understand / am not understanding) this rule.
+2. Выберите: This bag (belongs / is belonging) to Anna.
+3. Выберите: We (have / are having) dinner at the moment.
+4. Выберите: I (think / am thinking) she's right.
+5. Выберите: Be quiet! I (think / am thinking).
+6. Исправьте ошибку: *I'm wanting a new phone.*
 
 > [!success]- Ответы и пояснения
 > 1. **don't understand** — понимание — состояние.

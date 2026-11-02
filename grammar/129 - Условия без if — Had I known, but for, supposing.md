@@ -52,23 +52,23 @@ tags:
 - **Were it not for your help, I would be lost.** — Если бы не твоя помощь, я бы пропал.
 
 > [!tip] Как превратить
-> Найди **had / were / should** после **if**. Убери **if** и поставь этот глагол **перед** «кто». Готово!
+> Найдите **had / were / should** после **if**. Уберите **if** и поставьте этот глагол **перед** «кто». Готово!
 
 > [!warning] Частые ошибки
 > - ~~Hadn't she warned us…~~ → **Had she not warned us…**
 > - ~~Had I know~~ → **Had I known** — нужна третья форма.
 > - ~~But for the doctor helped~~ → **But for the doctor('s help)** — после `but for` — слово, не предложение.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй без if: *If I had known about the problem, I would have helped.*
 2. Перефразируй без if: *If you need more information, please call.*
 3. Перефразируй без if: *If I were the manager, I would change everything.*
 4. Перефразируй с but for: *If the doctor hadn't helped, she would have died.*
-5. Вставь подходящее слово: Take a coat, ___ you'll be cold.
-6. Исправь ошибку: *Hadn't she warned us, we would have been in trouble.*
+5. Вставьте подходящее слово: Take a coat, ___ you'll be cold.
+6. Исправьте ошибку: *Hadn't she warned us, we would have been in trouble.*
 
 > [!success]- Ответы и пояснения
 > 1. **Had I known about the problem, I would have helped.** — `had` вперёд.

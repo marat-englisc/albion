@@ -46,22 +46,22 @@ tags:
 - **Can you explain this word to me?** — Объясни мне это слово.
 
 > [!tip] Как запомнить
-> Русское «**объясни мне**» соблазняет сказать ~~explain me~~. Помни: **explain** всегда «объясняет **что-то кому-то**» — **explain it to me**.
+> Русское «**объясни мне**» соблазняет сказать ~~explain me~~. Помните: **explain** всегда «объясняет **что-то кому-то**» — **explain it to me**.
 
 > [!warning] Частые ошибки
 > - ~~Can you explain me this word?~~ → **Can you explain this word to me?**
 > - ~~Give to me the book.~~ → **Give me the book.** — если человек перед вещью, предлог не нужен.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Перестрой: *She showed her photos to me.* → She showed ___
-2. Перестрой: *He cooked dinner for us.* → He cooked ___
-3. Вставь to или for: Can you lend your bike ___ me?
-4. Вставь to или for: I bought flowers ___ my mum.
-5. Исправь ошибку: *Can you explain me this word?*
-6. Исправь порядок слов: *Give to me the book.*
+1. Перестройте: *She showed her photos to me.* → She showed ___
+2. Перестройте: *He cooked dinner for us.* → He cooked ___
+3. Вставьте to или for: Can you lend your bike ___ me?
+4. Вставьте to или for: I bought flowers ___ my mum.
+5. Исправьте ошибку: *Can you explain me this word?*
+6. Исправьте порядок слов: *Give to me the book.*
 
 > [!success]- Ответы и пояснения
 > 1. **She showed me her photos.** — человек перед вещью → без предлога.

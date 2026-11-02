@@ -54,14 +54,14 @@ tags:
 > - ~~My father, that is a pilot,…~~ → **My father, who is a pilot,…**
 > - ~~My mother who is 60 has retired.~~ → **My mother, who is 60, has retired.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь подходящее слово: My car, ___ is ten years old, still runs well.
-2. Вставь подходящее слово: Moscow, ___ my parents live, is a huge city.
-3. Соедини: *Mr Brown is our new teacher. He comes from Leeds.*
-4. Исправь ошибку: *My father, that is a pilot, travels a lot.*
+1. Вставьте подходящее слово: My car, ___ is ten years old, still runs well.
+2. Вставьте подходящее слово: Moscow, ___ my parents live, is a huge city.
+3. Соедините: *Mr Brown is our new teacher. He comes from Leeds.*
+4. Исправьте ошибку: *My father, that is a pilot, travels a lot.*
 5. Нужны ли запятые (уточняем, какие именно люди)? *The people who live upstairs are very noisy.*
 6. Нужны ли запятые? *My mother who is 60 has just retired.*
 

@@ -51,16 +51,16 @@ tags:
 > - ~~it's name~~ → **its name** — `it's` значит «it is».
 > - ~~Is this yours umbrella?~~ → **Is this your umbrella?** — если вещь названа, нужна короткая форма.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: Is this (your / yours) umbrella?
-2. Выбери: No, it isn't (my / mine).
-3. Вставь: Anna loves ___ brother. (своего)
-4. Вставь: The dog is eating ___ food. (свой)
-5. Исправь ошибку: *This pen is your's.*
-6. Переведи: «Их дом больше нашего».
+1. Выберите: Is this (your / yours) umbrella?
+2. Выберите: No, it isn't (my / mine).
+3. Вставьте: Anna loves ___ brother. (своего)
+4. Вставьте: The dog is eating ___ food. (свой)
+5. Исправьте ошибку: *This pen is your's.*
+6. Переведите: «Их дом больше нашего».
 
 > [!success]- Ответы и пояснения
 > 1. **your** — после слова стоит вещь `umbrella`.

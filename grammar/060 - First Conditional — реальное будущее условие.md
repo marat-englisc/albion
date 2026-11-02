@@ -45,16 +45,16 @@ tags:
 > - ~~If it will be sunny, we'll go.~~ → **If it is sunny, we'll go.**
 > - ~~If you will study, you pass.~~ → **If you study, you will pass.** — `will` не в той части.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: If you ___ (study), you ___ (pass) the exam.
-2. Вставь глаголы: We ___ (miss) the train if we ___ (not / hurry).
-3. Вставь глаголы: If she ___ (call), ___ (tell) her I'm busy.
-4. Выбери (я точно приду домой): (If / When) I get home, I'll make dinner.
-5. Исправь ошибку: *If it will be sunny, we'll go to the beach.*
-6. Переведи: «Если опоздаешь, я не буду ждать».
+1. Вставьте глаголы: If you ___ (study), you ___ (pass) the exam.
+2. Вставьте глаголы: We ___ (miss) the train if we ___ (not / hurry).
+3. Вставьте глаголы: If she ___ (call), ___ (tell) her I'm busy.
+4. Выберите (я точно приду домой): (If / When) I get home, I'll make dinner.
+5. Исправьте ошибку: *If it will be sunny, we'll go to the beach.*
+6. Переведите: «Если опоздаешь, я не буду ждать».
 
 > [!success]- Ответы и пояснения
 > 1. **study, will pass** — после `if` настоящее, во второй части `will`.

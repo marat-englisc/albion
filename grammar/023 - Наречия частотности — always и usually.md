@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь шкалу от «всегда» до «никогда»:
+Представьте шкалу от «всегда» до «никогда»:
 
 | Слово | Значит | Примерно |
 | --- | --- | --- |
@@ -55,16 +55,16 @@ tags:
 > - ~~She goes often to the gym.~~ → **She often goes to the gym.**
 > - ~~He always is late.~~ → **He is always late.** — с `is` наречие идёт после.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Поставь наречие на место: *I drink coffee in the evening.* (never)
-2. Поставь наречие на место: *He is tired after work.* (usually)
-3. Поставь наречие на место: *We have been to Spain.* (often)
-4. Исправь порядок слов: *She goes often to the gym.*
-5. Исправь ошибку: *I don't never watch TV.*
-6. Переведи: «Мы ходим в бассейн два раза в неделю».
+1. Поставьте наречие на место: *I drink coffee in the evening.* (never)
+2. Поставьте наречие на место: *He is tired after work.* (usually)
+3. Поставьте наречие на место: *We have been to Spain.* (often)
+4. Исправьте порядок слов: *She goes often to the gym.*
+5. Исправьте ошибку: *I don't never watch TV.*
+6. Переведите: «Мы ходим в бассейн два раза в неделю».
 
 > [!success]- Ответы и пояснения
 > 1. **I never drink coffee in the evening.** — перед обычным глаголом `drink`.

@@ -14,7 +14,8 @@ object GrammarSearch {
                 else -> emptyList()
             }
         }
-        val theory = document.blocks.takeWhile { it !is MdHeading || it.text != "Проверь себя" }
+        // Раздел заданий в уроках назывался «Проверь себя», теперь — «Проверьте себя».
+        val theory = document.blocks.takeWhile { it !is MdHeading || it.text !in setOf("Проверьте себя", "Проверь себя") }
         return plain(flatten(theory).joinToString(" "))
     }
 

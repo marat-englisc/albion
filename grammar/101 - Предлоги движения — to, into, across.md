@@ -53,16 +53,16 @@ tags:
 > - ~~Let's go to home.~~ → **Let's go home.**
 > - ~~She jumped in the pool~~ (в движении) → лучше **She jumped into the pool.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь предлог: She jumped ___ the pool.
-2. Вставь предлог: We swam ___ the river to the other side.
-3. Вставь предлог: The train went ___ a long tunnel.
-4. Вставь предлог «вдоль»: We walked ___ the beach for an hour.
-5. Исправь ошибку: *We arrived to London at night.*
-6. Исправь ошибку: *Let's go to home.*
+1. Вставьте предлог: She jumped ___ the pool.
+2. Вставьте предлог: We swam ___ the river to the other side.
+3. Вставьте предлог: The train went ___ a long tunnel.
+4. Вставьте предлог «вдоль»: We walked ___ the beach for an hour.
+5. Исправьте ошибку: *We arrived to London at night.*
+6. Исправьте ошибку: *Let's go to home.*
 
 > [!success]- Ответы и пояснения
 > 1. **into** — движение внутрь.

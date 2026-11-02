@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь дедлайн в будущем — пятницу. Future Perfect смотрит на эту пятницу и говорит: «К этому моменту дело **будет готово**».
+Представьте дедлайн в будущем — пятницу. Future Perfect смотрит на эту пятницу и говорит: «К этому моменту дело **будет готово**».
 
 - **I'll ==have finished== the report ==by Friday==.** — К пятнице я (уже) закончу отчёт.
 
@@ -53,16 +53,16 @@ tags:
 > - ~~By the time you will arrive~~ → **By the time you arrive**
 > - ~~Send it until Monday.~~ → **Send it by Monday.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: By the end of the year, I ___ (read) twenty books.
-2. Вставь глагол: Call me at ten — I ___ (finish) by then.
-3. Выбери (важно, что к сроку уже окончит): By next June, she (will graduate / will have graduated).
-4. Вставь by или until: I'll be here ___ six, then I'll leave.
-5. Вставь by или until: Please send the documents ___ Monday.
-6. Исправь ошибку: *By the time you arrive, she will has left.*
+1. Вставьте глагол: By the end of the year, I ___ (read) twenty books.
+2. Вставьте глагол: Call me at ten — I ___ (finish) by then.
+3. Выберите (важно, что к сроку уже окончит): By next June, she (will graduate / will have graduated).
+4. Вставьте by или until: I'll be here ___ six, then I'll leave.
+5. Вставьте by или until: Please send the documents ___ Monday.
+6. Исправьте ошибку: *By the time you arrive, she will has left.*
 
 > [!success]- Ответы и пояснения
 > 1. **will have read** — результат к сроку: двадцать книг будут прочитаны.

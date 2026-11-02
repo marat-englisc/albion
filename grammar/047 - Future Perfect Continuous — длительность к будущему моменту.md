@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Ты уже знаешь «счётчики» для настоящего и прошлого. Этот — для будущего:
+Вы уже знаете «счётчики» для настоящего и прошлого. Этот — для будущего:
 
 | Счётчик до… | Время | Пример |
 | --- | --- | --- |
@@ -49,16 +49,16 @@ tags:
 > - ~~will have been knowing~~ → **will have known**
 > - ~~I'll have been writing the essay by Friday~~ (эссе будет готово) → **I'll have written the essay by Friday.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: By 2030, they ___ (live) in this house for twenty years.
-2. Вставь глагол в Future Perfect Continuous: By five o'clock tomorrow, I ___ (drive) for six hours.
-3. Выбери: By then, I (will have been knowing / will have known) her for ten years.
-4. Выбери (к пятнице эссе будет готово): By Friday, I (will have written / will have been writing) the essay.
-5. Сделай вопрос: *You will have been studying for long by then.*
-6. Исправь ошибку: *Next month I will have be teaching for ten years.*
+1. Вставьте глагол: By 2030, they ___ (live) in this house for twenty years.
+2. Вставьте глагол в Future Perfect Continuous: By five o'clock tomorrow, I ___ (drive) for six hours.
+3. Выберите: By then, I (will have been knowing / will have known) her for ten years.
+4. Выберите (к пятнице эссе будет готово): By Friday, I (will have written / will have been writing) the essay.
+5. Сделайте вопрос: *You will have been studying for long by then.*
+6. Исправьте ошибку: *Next month I will have be teaching for ten years.*
 
 > [!success]- Ответы и пояснения
 > 1. **will have been living** — длительность к будущему моменту. `Will have lived` тоже возможно.

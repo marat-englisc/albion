@@ -58,16 +58,16 @@ tags:
 > - ~~for to earn~~ → **to earn**
 > - ~~to not wake~~ → **so as not to wake / in order not to wake** (в простом стиле можно и **not to wake**)
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Переведи: «Я пришёл, чтобы помочь».
-2. Переведи: «Она говорила шёпотом, чтобы не разбудить ребёнка».
-3. Соедини: *I'll write it down. You won't forget.*
-4. Вставь for или to: This app is ___ learning words.
-5. Исправь ошибку: *I went to the shop for buy bread.*
-6. Исправь ошибку: *He works hard for to earn money.*
+1. Переведите: «Я пришёл, чтобы помочь».
+2. Переведите: «Она говорила шёпотом, чтобы не разбудить ребёнка».
+3. Соедините: *I'll write it down. You won't forget.*
+4. Вставьте for или to: This app is ___ learning words.
+5. Исправьте ошибку: *I went to the shop for buy bread.*
+6. Исправьте ошибку: *He works hard for to earn money.*
 
 > [!success]- Ответы и пояснения
 > 1. **I came to help.** — цель → `to` + глагол.

@@ -20,7 +20,7 @@ tags:
 - **A writer ==whose books== I love.** — Писатель, **чьи** книги я люблю.
 - **That's the girl ==whose brother== plays football.** — Это девочка, **чей** брат играет в футбол.
 
-Не путай с **who's** — это **who is / who has**: **Who's there?** — Кто там?
+Не путайте с **who's** — это **who is / who has**: **Who's there?** — Кто там?
 
 ## Предлог: в конце или в начале
 
@@ -53,16 +53,16 @@ tags:
 > - ~~the hotel in that we stayed~~ → **the hotel in which we stayed**
 > - ~~the girl who's brother~~ → **the girl whose brother**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь whose или who's: That's the girl ___ brother plays for Spartak.
-2. Вставь where или which: This is the town ___ I was born.
-3. Вставь where или which: This is the town ___ I visited last year.
-4. Перестрой официально: *the man who I gave the money to*
-5. Соедини с which: *He didn't call me. This made me angry.*
-6. Исправь ошибку: *the hotel in that we stayed*
+1. Вставьте whose или who's: That's the girl ___ brother plays for Spartak.
+2. Вставьте where или which: This is the town ___ I was born.
+3. Вставьте where или which: This is the town ___ I visited last year.
+4. Перестройте официально: *the man who I gave the money to*
+5. Соедините с which: *He didn't call me. This made me angry.*
+6. Исправьте ошибку: *the hotel in that we stayed*
 
 > [!success]- Ответы и пояснения
 > 1. **whose** — «чей брат».

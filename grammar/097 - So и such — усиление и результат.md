@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Посмотри, что стоит после «так / такой»:
+Посмотрите, что стоит после «так / такой»:
 
 - только признак (холодный, быстро) → **so**: **It's ==so== cold!** — Так холодно!
 - есть предмет (день, книга, люди) → **such**: **It's ==such a== cold day!** — Такой холодный день!
@@ -55,16 +55,16 @@ tags:
 > - ~~such beautiful view~~ → **such a beautiful view**
 > - ~~such many people~~ → **so many people**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь so или such: The weather was ___ nice that we went to the beach.
-2. Вставь so или such: It was ___ a nice day that we went to the beach.
-3. Вставь so или such: They are ___ friendly people.
-4. Вставь so или such: There were ___ many people that we couldn't get in.
-5. Исправь ошибку: *It was so good film.*
-6. Исправь ошибку: *I've never seen such beautiful view.*
+1. Вставьте so или such: The weather was ___ nice that we went to the beach.
+2. Вставьте so или such: It was ___ a nice day that we went to the beach.
+3. Вставьте so или such: They are ___ friendly people.
+4. Вставьте so или such: There were ___ many people that we couldn't get in.
+5. Исправьте ошибку: *It was so good film.*
+6. Исправьте ошибку: *I've never seen such beautiful view.*
 
 > [!success]- Ответы и пояснения
 > 1. **so** — после него только прилагательное.

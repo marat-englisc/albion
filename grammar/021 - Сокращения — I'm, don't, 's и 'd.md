@@ -55,16 +55,16 @@ tags:
 > - ~~willn't~~ → **won't**
 > - ~~it's name~~ → **its name** — `it's` = it is / it has.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Раскрой сокращение: *She's working.*
-2. Раскрой сокращение: *She's worked here for years.*
-3. Раскрой сокращение: *I'd help you if I could.*
-4. Раскрой сокращение: *When I arrived, they'd left.*
+1. Раскройте сокращение: *She's working.*
+2. Раскройте сокращение: *She's worked here for years.*
+3. Раскройте сокращение: *I'd help you if I could.*
+4. Раскройте сокращение: *When I arrived, they'd left.*
 5. Сократи: *I will not tell anyone.*
-6. Исправь ошибку: *Are you hungry? — Yes, I'm.*
+6. Исправьте ошибку: *Are you hungry? — Yes, I'm.*
 
 > [!success]- Ответы и пояснения
 > 1. **She is working.** — дальше слово на `-ing` → `is`.

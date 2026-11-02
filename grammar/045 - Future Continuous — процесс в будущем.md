@@ -11,11 +11,11 @@ tags:
 # Future Continuous — процесс в будущем
 
 > [!abstract] Коротко
-> Future Continuous — это «фото» из будущего: что ты **будешь делать** в определённый момент. **At eight tomorrow, I'll be driving.** — Завтра в восемь я буду ехать за рулём.
+> Future Continuous — это «фото» из будущего: что вы **будете делать** в определённый момент. **At eight tomorrow, I'll be driving.** — Завтра в восемь я буду ехать за рулём.
 
 ## Суть
 
-Помнишь Past Continuous — «в восемь я **готовил**»? Здесь то же самое, только в будущем. Выбираешь момент завтра (или через неделю) и смотришь, **в процессе чего** ты будешь:
+Помните Past Continuous — «в восемь я **готовил**»? Здесь то же самое, только в будущем. Выбираете момент завтра (или через неделю) и смотрите, **в процессе чего** вы будете:
 
 - **This time next week, we'll ==be lying== on the beach.** — Через неделю в это время мы будем лежать на пляже.
 
@@ -48,16 +48,16 @@ tags:
 > - ~~At midnight I will sleeping.~~ → **At midnight I will be sleeping.** — не теряй `be`.
 > - ~~I will be calling you at eight, I promise.~~ → **I will call you at eight, I promise.** — обещание одного действия.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: This time next week, I ___ (lie) on a beach.
-2. Вставь глагол: Don't phone at seven — we ___ (have) dinner.
-3. Выбери (простое обещание позвонить): I (will call / will be calling) you at eight, I promise.
-4. Сделай вопрос: *You will be working tomorrow.*
-5. Сделай отрицание: *She will be using the laptop.*
-6. Исправь ошибку: *At midnight I will sleeping.*
+1. Вставьте глагол: This time next week, I ___ (lie) on a beach.
+2. Вставьте глагол: Don't phone at seven — we ___ (have) dinner.
+3. Выберите (простое обещание позвонить): I (will call / will be calling) you at eight, I promise.
+4. Сделайте вопрос: *You will be working tomorrow.*
+5. Сделайте отрицание: *She will be using the laptop.*
+6. Исправьте ошибку: *At midnight I will sleeping.*
 
 > [!success]- Ответы и пояснения
 > 1. **will be lying / 'll be lying** — процесс в будущий момент; `lie → lying`.

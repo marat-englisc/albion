@@ -51,16 +51,16 @@ tags:
 > - ~~I'd like going.~~ → **I'd like to go.**
 > - ~~I want go.~~ → **I want to go.** — после `want` нужен `to`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: (I like / I'd like) a glass of water, please.
-2. Выбери: (I like / I'd like) reading detective stories. Это моё хобби.
-3. Вставь форму: My dad loves ___ (cook).
-4. Вставь форму: I'd like ___ (book) a table for two.
-5. Сделай вопрос: *She likes football.*
-6. Исправь ответ на предложение: *Would you like some tea? — Yes, I would like.*
+1. Выберите: (I like / I'd like) a glass of water, please.
+2. Выберите: (I like / I'd like) reading detective stories. Это моё хобби.
+3. Вставьте форму: My dad loves ___ (cook).
+4. Вставьте форму: I'd like ___ (book) a table for two.
+5. Сделайте вопрос: *She likes football.*
+6. Исправьте ответ на предложение: *Would you like some tea? — Yes, I would like.*
 
 > [!success]- Ответы и пояснения
 > 1. **I'd like** — вежливая просьба прямо сейчас.

@@ -60,16 +60,16 @@ tags:
 > - ~~on a taxi~~ → **in a taxi**
 > - ~~in work~~ → **at work**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь предлог (ключи лежат на столе): The keys are ___ the table.
-2. Вставь предлог: She lives ___ Paris.
-3. Вставь предлог: I'll wait for you ___ the bus stop.
-4. Вставь предлог: There's a picture ___ the wall.
-5. Вставь предлоги: He's ___ a taxi, and she's ___ a train.
-6. Исправь ошибку: *My office is in the third floor.*
+1. Вставьте предлог (ключи лежат на столе): The keys are ___ the table.
+2. Вставьте предлог: She lives ___ Paris.
+3. Вставьте предлог: I'll wait for you ___ the bus stop.
+4. Вставьте предлог: There's a picture ___ the wall.
+5. Вставьте предлоги: He's ___ a taxi, and she's ___ a train.
+6. Исправьте ошибку: *My office is in the third floor.*
 
 > [!success]- Ответы и пояснения
 > 1. **on** — поверхность стола.

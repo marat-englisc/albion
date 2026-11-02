@@ -55,16 +55,16 @@ tags:
 > - ~~They looked at themselves and smiled~~ (друг на друга) → **They looked at each other and smiled.**
 > - ~~themself~~ → **themselves**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь (говоришь одному человеку): Be careful! Don't cut ___.
-2. Вставь (сами): We painted the room ___.
-3. Вставь (друг друга): Anna and Tom love ___.
-4. Вставь: She lives by ___.
-5. Исправь ошибку: *I felt myself tired.*
-6. Исправь ошибку (друг на друга): *They looked at themselves and smiled.*
+1. Вставьте (говорите одному человеку): Be careful! Don't cut ___.
+2. Вставьте (сами): We painted the room ___.
+3. Вставьте (друг друга): Anna and Tom love ___.
+4. Вставьте: She lives by ___.
+5. Исправьте ошибку: *I felt myself tired.*
+6. Исправьте ошибку (друг на друга): *They looked at themselves and smiled.*
 
 > [!success]- Ответы и пояснения
 > 1. **yourself** — «ты» один → `yourself`.

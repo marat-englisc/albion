@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь двоих: **фильм** и **зритель**. Фильм **вызывает** скуку, зритель её **чувствует**:
+Представьте двоих: **фильм** и **зритель**. Фильм **вызывает** скуку, зритель её **чувствует**:
 
 - **The film is bor==ing==.** — Фильм скучный.
 - **I'm bor==ed==.** — Мне скучно.
@@ -43,16 +43,16 @@ tags:
 > - ~~I'm exciting about the trip.~~ → **I'm excited about the trip.**
 > - ~~The instructions are confused.~~ → **The instructions are confusing.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: The lecture was so (bored / boring) that I fell asleep.
-2. Выбери: I'm (exciting / excited) about the trip.
-3. Выбери: These instructions are very (confusing / confused).
-4. Выбери: She felt (embarrassing / embarrassed) when she fell.
-5. Выбери: It was a (tiring / tired) journey.
-6. Исправь ошибку: *I'm very interesting in history.*
+1. Выберите: The lecture was so (bored / boring) that I fell asleep.
+2. Выберите: I'm (exciting / excited) about the trip.
+3. Выберите: These instructions are very (confusing / confused).
+4. Выберите: She felt (embarrassing / embarrassed) when she fell.
+5. Выберите: It was a (tiring / tired) journey.
+6. Исправьте ошибку: *I'm very interesting in history.*
 
 > [!success]- Ответы и пояснения
 > 1. **boring** — лекция вызывает скуку.

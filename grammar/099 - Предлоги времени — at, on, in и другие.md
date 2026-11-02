@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь **пирамиду**: от маленького к большому.
+Представьте **пирамиду**: от маленького к большому.
 
 | Предлог | Для чего | Примеры |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ tags:
 
 Чем «шире» отрезок времени — тем «шире» предлог: **at** (точка) → **on** (день) → **in** (большой период).
 
-Запомни исключения: **at night** (ночью), но **in the morning / afternoon / evening**. А если день назван — **on Monday morning**.
+Запомните исключения: **at night** (ночью), но **in the morning / afternoon / evening**. А если день назван — **on Monday morning**.
 
 ## Когда предлог не нужен
 
@@ -57,16 +57,16 @@ tags:
 > - ~~on next week~~ → **next week**
 > - ~~in night~~ → **at night**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь предлоги: The meeting is ___ Tuesday ___ 3 p.m.
-2. Вставь предлоги: I was born ___ May 1995. My sister was born ___ 1998.
-3. Вставь предлог или ничего: See you ___ next week!
-4. Вставь предлог: We go skiing ___ winter.
-5. Вставь by или until: Can you finish the report ___ Friday?
-6. Исправь ошибку: *I'll call you in Friday morning.*
+1. Вставьте предлоги: The meeting is ___ Tuesday ___ 3 p.m.
+2. Вставьте предлоги: I was born ___ May 1995. My sister was born ___ 1998.
+3. Вставьте предлог или ничего: See you ___ next week!
+4. Вставьте предлог: We go skiing ___ winter.
+5. Вставьте by или until: Can you finish the report ___ Friday?
+6. Исправьте ошибку: *I'll call you in Friday morning.*
 
 > [!success]- Ответы и пояснения
 > 1. **on, at** — день → `on`, точное время → `at`.

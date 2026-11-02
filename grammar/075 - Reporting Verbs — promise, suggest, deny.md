@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Сравни: **He said he would help** и **He ==promised== to help**. Второе короче и точнее — сразу ясно, что это обещание.
+Сравните: **He said he would help** и **He ==promised== to help**. Второе короче и точнее — сразу ясно, что это обещание.
 
 Таких глаголов много, но формул всего несколько:
 
@@ -50,16 +50,16 @@ tags:
 > - ~~He denied to take it.~~ → **He denied taking it.**
 > - ~~explain me it~~ → **explain it to me**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Перескажи: "I'll help you," he said. (offer)
-2. Перескажи: "I didn't take the money," she said. (deny)
-3. Перескажи: "Let's go to the beach," said Tom. (suggest)
-4. Перескажи: "Don't forget to buy milk," Mum said to me. (remind)
-5. Перескажи: "Sorry I'm late," he said. (apologise)
-6. Исправь ошибку: *She suggested me to see a doctor.*
+1. Перескажите: "I'll help you," he said. (offer)
+2. Перескажите: "I didn't take the money," she said. (deny)
+3. Перескажите: "Let's go to the beach," said Tom. (suggest)
+4. Перескажите: "Don't forget to buy milk," Mum said to me. (remind)
+5. Перескажите: "Sorry I'm late," he said. (apologise)
+6. Исправьте ошибку: *She suggested me to see a doctor.*
 
 > [!success]- Ответы и пояснения
 > 1. **He offered to help me.** — `offer` + `to` + глагол.

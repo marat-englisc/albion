@@ -236,3 +236,15 @@ data class DictionaryEntity(
     /** Значения через «; », синонимы внутри значения — через «, ». */
     val text: String,
 )
+
+/**
+ * Перевод предложения-примера на русский для «Соберите предложение». Модель на устройстве переводит
+ * один раз; плохой перевод можно поправить вручную — тогда [edited] защищает его от перезаписи.
+ */
+@Entity(tableName = "sentence_translations")
+data class SentenceTranslationEntity(
+    @PrimaryKey val text: String,
+    val translation: String,
+    val edited: Boolean = false,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis(),
+)

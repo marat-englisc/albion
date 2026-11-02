@@ -88,7 +88,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     val model by c.translator.model.collectAsStateWithLifecycle()
     val canTranslate = model.phase == com.marat.albion.data.translation.ModelState.Ready
     val translation = vm.sentenceTranslations[card.id]
-    androidx.compose.runtime.LaunchedEffect(canTranslate) { if (canTranslate) vm.prefetchTranslations() }
+    androidx.compose.runtime.LaunchedEffect(canTranslate) { vm.prefetchTranslations(canTranslate) }
+    var editingTranslation by rememberSaveable(card.id) { mutableStateOf(false) }
 
     fun check() {
         if (verdict != null) return
@@ -116,10 +117,16 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard(label = "СОБЕРИТЕ ПРЕДЛОЖЕНИЕ") {
             val shownTranslation = translation?.takeIf { it.isNotBlank() }
-            if (shownTranslation != null || canTranslate) {
-                Text(shownTranslation ?: "Переводим предложение…",
-                    style = if (shownTranslation != null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodySmall,
-                    color = if (shownTranslation != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+            if (shownTranslation != null) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(shownTranslation, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                    // Перевод делает маленькая модель — его можно поправить, исправление сохранится.
+                    com.marat.albion.ui.components.RoundIconButton(com.marat.albion.ui.components.AlbionIcons.EditNote, "Исправить перевод",
+                        { editingTranslation = true }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Spacer(Modifier.height(8.dp))
+            } else if (canTranslate) {
+                Text("Переводим предложение…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(12.dp))
             }
             Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -240,6 +247,22 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                 GameAnswerActions(onCheck = { check() }, onSecondary = { hint() }, secondaryLabel = "Подсказка")
             }
         }
+    }
+    if (editingTranslation) {
+        var draft by rememberSaveable(card.id) { mutableStateOf(translation.orEmpty()) }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { editingTranslation = false },
+            title = { Text("Перевод предложения") },
+            text = {
+                androidx.compose.material3.OutlinedTextField(draft, { draft = it }, Modifier.fillMaxWidth(), minLines = 2,
+                    supportingText = { Text("Исправление сохранится и заменит перевод модели.") })
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { vm.editTranslation(card, draft); editingTranslation = false },
+                    enabled = draft.isNotBlank()) { Text("Сохранить") }
+            },
+            dismissButton = { androidx.compose.material3.TextButton(onClick = { editingTranslation = false }) { Text("Отмена") } },
+        )
     }
 }
 

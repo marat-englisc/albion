@@ -54,16 +54,16 @@ tags:
 > - ~~I haven't never been.~~ → **I've never been.**
 > - ~~Have you already finished?~~ — допустимо, но обычный вопрос звучит так: **Have you finished yet?**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Поставь слово на место: *I have had lunch.* (just)
-2. Поставь слово на место: *Has she called?* (yet)
-3. Поставь слово на место: *We haven't decided.* (still)
-4. Выбери: — Do you want to see this film? — No, I've (already / yet) seen it.
-5. Выбери: Have you (ever / never) been to Japan?
-6. Исправь так, чтобы получилось «Я ещё не закончил»: *I haven't finished already.*
+1. Поставьте слово на место: *I have had lunch.* (just)
+2. Поставьте слово на место: *Has she called?* (yet)
+3. Поставьте слово на место: *We haven't decided.* (still)
+4. Выберите: — Do you want to see this film? — No, I've (already / yet) seen it.
+5. Выберите: Have you (ever / never) been to Japan?
+6. Исправьте так, чтобы получилось «Я ещё не закончил»: *I haven't finished already.*
 
 > [!success]- Ответы и пояснения
 > 1. **I have just had lunch.** — `just` между `have` и третьей формой.

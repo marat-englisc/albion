@@ -17,10 +17,10 @@ tags:
 
 Это время, которого нет в русском, поэтому оно кажется сложным. Но идея простая: действие было в прошлом, а **смотрим мы на него из «сейчас»**.
 
-Сравни:
+Сравните:
 
 - **I lost my key yesterday.** — Я потерял ключ вчера. *Рассказ о прошлом.*
-- **I've lost my key!** — Я потерял ключ! *Смотри, что сейчас: ключа нет, войти не могу.*
+- **I've lost my key!** — Я потерял ключ! *Смотрите, что сейчас: ключа нет, войти не могу.*
 
 Present Perfect нужен в трёх ситуациях:
 
@@ -55,16 +55,16 @@ Present Perfect нужен в трёх ситуациях:
 > - ~~I have saw.~~ → **I have seen.** — после `have` нужна именно третья форма.
 > - ~~Have you visited Paris last year?~~ → **Did you visit Paris last year?** — если есть точное прошлое время (вчера, в прошлом году), нужен Past Simple.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: I ___ (lose) my keys. I can't open the door.
-2. Вставь глагол: ___ you ever ___ (try) sushi?
-3. Вставь глагол: She ___ (not / finish) her homework.
-4. Выбери: Tom isn't here. He's (been / gone) to the bank.
-5. Исправь ошибку: *I have saw this film.*
-6. Исправь ошибку: *Have you visited Paris last year?*
+1. Вставьте глагол: I ___ (lose) my keys. I can't open the door.
+2. Вставьте глагол: ___ you ever ___ (try) sushi?
+3. Вставьте глагол: She ___ (not / finish) her homework.
+4. Выберите: Tom isn't here. He's (been / gone) to the bank.
+5. Исправьте ошибку: *I have saw this film.*
+6. Исправьте ошибку: *Have you visited Paris last year?*
 
 > [!success]- Ответы и пояснения
 > 1. **have lost** (коротко: **I've lost**) — важен результат сейчас: дверь не открыть.

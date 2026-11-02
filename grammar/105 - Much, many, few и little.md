@@ -56,16 +56,16 @@ tags:
 > - ~~How many money?~~ → **How much money?**
 > - ~~less people~~ → **fewer people** (в аккуратной речи)
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь much или many: How ___ money do you have?
-2. Вставь much или many: How ___ brothers do you have?
-3. Вставь a few или a little: I need ___ minutes.
-4. Вставь a little или little: There's ___ hope — the situation is very bad.
-5. Вставь a few или few: I have ___ good friends, so I'm never lonely.
-6. Исправь ошибку: *There isn't many traffic today.*
+1. Вставьте much или many: How ___ money do you have?
+2. Вставьте much или many: How ___ brothers do you have?
+3. Вставьте a few или a little: I need ___ minutes.
+4. Вставьте a little или little: There's ___ hope — the situation is very bad.
+5. Вставьте a few или few: I have ___ good friends, so I'm never lonely.
+6. Исправьте ошибку: *There isn't many traffic today.*
 
 > [!success]- Ответы и пояснения
 > 1. **much** — деньги в английском не считают.

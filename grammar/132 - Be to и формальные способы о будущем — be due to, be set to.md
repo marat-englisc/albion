@@ -40,23 +40,23 @@ tags:
 - **The plane is due to land in ten minutes.** — Самолёт должен приземлиться через десять минут.
 - **If we are to succeed, we need help.** — Если мы хотим добиться успеха, нам нужна помощь.
 
-> [!tip] Где встретишь
+> [!tip] Где встретите
 > Заголовки новостей обожают **be to**, часто даже без **is**: **PM to visit Japan** — Премьер посетит Японию.
 
 > [!warning] Частые ошибки
 > - ~~on the verge of close~~ → **on the verge of closing** — после `of` — `-ing`.
 > - ~~The concert is about start.~~ → **The concert is about to start.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй в стиле новостей (be to): *The Prime Minister will visit Japan next month.*
 2. Перефразируй как приказ (be to): *You must not open this box.*
-3. Вставь: Hurry up! The concert is ___ ___ start.
-4. Вставь (по расписанию): The plane is ___ to land in ten minutes.
-5. Переведи: «Ей не суждено было увидеть сына снова».
-6. Исправь ошибку: *The company is on the verge of close.*
+3. Вставьте: Hurry up! The concert is ___ ___ start.
+4. Вставьте (по расписанию): The plane is ___ to land in ten minutes.
+5. Переведите: «Ей не суждено было увидеть сына снова».
+6. Исправьте ошибку: *The company is on the verge of close.*
 
 > [!success]- Ответы и пояснения
 > 1. **The Prime Minister is to visit Japan next month.** — официальный план.

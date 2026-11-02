@@ -22,7 +22,7 @@ tags:
 | **договорился**, записан в ежедневник | Present Continuous | **I'm seeing** the dentist tomorrow. |
 | **расписание**, программа | Present Simple | The train **leaves** at 7.10. |
 
-Подсказка: в Continuous обычно есть **другие люди** или **запись** (встреча, бронь, билет). А Simple — это **табло, программа, расписание**, которые от тебя не зависят.
+Подсказка: в Continuous обычно есть **другие люди** или **запись** (встреча, бронь, билет). А Simple — это **табло, программа, расписание**, которые от вас не зависят.
 
 ## Примеры
 
@@ -38,16 +38,16 @@ tags:
 > - ~~I think it is snowing tomorrow.~~ → **I think it will snow tomorrow.** — погоду нельзя «запланировать», это прогноз.
 > - ~~What do you do this weekend?~~ → **What are you doing this weekend?** — вопрос о планах.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери (по программе концерта): The concert (starts / is starting) at 7 p.m.
-2. Выбери (есть запись к врачу): I (see / am seeing) the doctor tomorrow at ten.
-3. Выбери (по расписанию рейса): What time (does / is) your plane land?
-4. Выбери (вопрос о планах): What (do you do / are you doing) this weekend?
-5. Переведи: «Мы ужинаем у бабушки в воскресенье».
-6. Исправь ошибку: *I think it is snowing tomorrow.*
+1. Выберите (по программе концерта): The concert (starts / is starting) at 7 p.m.
+2. Выберите (есть запись к врачу): I (see / am seeing) the doctor tomorrow at ten.
+3. Выберите (по расписанию рейса): What time (does / is) your plane land?
+4. Выберите (вопрос о планах): What (do you do / are you doing) this weekend?
+5. Переведите: «Мы ужинаем у бабушки в воскресенье».
+6. Исправьте ошибку: *I think it is snowing tomorrow.*
 
 > [!success]- Ответы и пояснения
 > 1. **starts** — программа, расписание → Present Simple.

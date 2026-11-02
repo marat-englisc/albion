@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Чтобы выбрать форму, задай два вопроса:
+Чтобы выбрать форму, задайте два вопроса:
 
 - **Сам** делает или **с ним** делают?
 - **Одновременно** или **раньше**?
@@ -59,16 +59,16 @@ tags:
 > - ~~Walking into the room, the smell of coffee hit me.~~ → **Walking into the room, I was hit by the smell of coffee.**
 > - ~~Not having knowing~~ → **Not knowing**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Сократи: *After she had checked the figures, she sent the report.*
 2. Сократи: *Because he had been injured, he couldn't play.*
 3. Сократи: *As I didn't know the way, I asked a policeman.*
 4. Сократи с собственным «кто»: *When the work was done, we went home.*
 5. Перефразируй с with: *The door was open, so we could hear everything.*
-6. Исправь висячий оборот: *Walking into the room, the smell of coffee hit me.*
+6. Исправьте висячий оборот: *Walking into the room, the smell of coffee hit me.*
 
 > [!success]- Ответы и пояснения
 > 1. **Having checked the figures, she sent the report.** — сама, раньше.

@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Сравни:
+Сравните:
 
 - **I have never seen this.** — Я никогда такого не видел. *Обычно.*
 - **Never have I seen this!** — Никогда в жизни я такого не видел! *Эффектно, как в книге или речи.*
@@ -61,16 +61,16 @@ tags:
 > - ~~Never I have seen…~~ → **Never have I seen…**
 > - ~~Rarely does he is late.~~ → **Rarely is he late.** — с `be` не нужен `do`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй с Never: *I have never been so insulted.*
 2. Перефразируй с Rarely: *We rarely go out these days.*
 3. Перефразируй с Hardly: *I had just closed my eyes when the alarm went off.*
 4. Перефразируй с Not only: *She sings and she also plays the violin.*
 5. Перефразируй с Only when: *I realised my mistake only when I read the email again.*
-6. Исправь ошибку: *Little I knew that he was lying.*
+6. Исправьте ошибку: *Little I knew that he was lying.*
 
 > [!success]- Ответы и пояснения
 > 1. **Never have I been so insulted.** — `have` встаёт перед `I`.

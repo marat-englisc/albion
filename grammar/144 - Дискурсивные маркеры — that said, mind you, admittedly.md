@@ -53,16 +53,16 @@ tags:
 > - ~~and after all the bus came~~ (наконец) → **and eventually the bus came**
 > - ~~On the contrary~~ (в смысле «с другой стороны») → **On the other hand**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь (при этом): The film was too long. ___, the acting was superb.
-2. Вставь (ведь): Don't worry about the mistake. ___, everyone makes them.
-3. Вставь (что касается): ___ the kids, they can stay with Grandma.
-4. Вставь (напротив): — You must be tired. — ___, I feel great.
-5. Вставь (надо признать): ___, there are some advantages, but the disadvantages outweigh them.
-6. Исправь ошибку (нужен смысл «наконец»): *We waited for hours and after all the bus came.*
+1. Вставьте (при этом): The film was too long. ___, the acting was superb.
+2. Вставьте (ведь): Don't worry about the mistake. ___, everyone makes them.
+3. Вставьте (что касается): ___ the kids, they can stay with Grandma.
+4. Вставьте (напротив): — You must be tired. — ___, I feel great.
+5. Вставьте (надо признать): ___, there are some advantages, but the disadvantages outweigh them.
+6. Исправьте ошибку (нужен смысл «наконец»): *We waited for hours and after all the bus came.*
 
 > [!success]- Ответы и пояснения
 > 1. **That said / Having said that / Even so** — оговорка.

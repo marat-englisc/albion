@@ -59,16 +59,16 @@ tags:
 > - ~~He will comes.~~ → **He will come.** — после `will` нет `-s`.
 > - ~~I will be call.~~ → **I will call.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь will: It's cold in here. — I ___ (close) the window.
-2. Вставь will: I promise I ___ (not / tell) anyone.
-3. Вставь will: I think it ___ (be) sunny tomorrow.
-4. Переведи: «Мне помочь тебе с сумками?»
-5. Исправь ошибку: *She will to call you later.*
-6. Исправь ошибку: *He will comes tomorrow.*
+1. Вставьте will: It's cold in here. — I ___ (close) the window.
+2. Вставьте will: I promise I ___ (not / tell) anyone.
+3. Вставьте will: I think it ___ (be) sunny tomorrow.
+4. Переведите: «Мне помочь тебе с сумками?»
+5. Исправьте ошибку: *She will to call you later.*
+6. Исправьте ошибку: *He will comes tomorrow.*
 
 > [!success]- Ответы и пояснения
 > 1. **'ll close / will close** — решение принято прямо сейчас.

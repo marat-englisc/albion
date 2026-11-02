@@ -52,16 +52,16 @@ tags:
 > - ~~My one is red.~~ → **Mine is red.**
 > - ~~Have you seen one?~~ (о моём потерянном зонте) → **Have you seen it?**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь one или ones: These shoes are too small. Have you got bigger ___?
-2. Вставь one или it: I've lost my umbrella. I need to buy a new ___.
-3. Вставь one или it: I've lost my umbrella. Have you seen ___?
-4. Вставь: Which jacket do you like? — The black ___.
-5. Исправь ошибку: *I'd like some milk. — Hot one or cold one?*
-6. Скажи проще: *This isn't my bag. My one is red.*
+1. Вставьте one или ones: These shoes are too small. Have you got bigger ___?
+2. Вставьте one или it: I've lost my umbrella. I need to buy a new ___.
+3. Вставьте one или it: I've lost my umbrella. Have you seen ___?
+4. Вставьте: Which jacket do you like? — The black ___.
+5. Исправьте ошибку: *I'd like some milk. — Hot one or cold one?*
+6. Скажите проще: *This isn't my bag. My one is red.*
 
 > [!success]- Ответы и пояснения
 > 1. **ones** — туфли — много → `ones`.

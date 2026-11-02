@@ -57,16 +57,16 @@ tags:
 > - ~~I'd love.~~ → **I'd love to.** — `to` обязателен.
 > - ~~I hope no.~~ → **I hope not.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Ответь «Боюсь, что да»: *Is the shop closed?*
-2. Ответь «Надеюсь, нет»: *Is it going to snow?*
-3. Убери повтор: *I can't come tonight, but my sister can come tonight.*
-4. Убери повтор: *I didn't want to apologise, but I had to apologise.*
-5. Ответь на приглашение «С удовольствием»: *Would you like to join us?*
-6. Исправь ошибку: *Will he pass the exam? — I think it.*
+1. Ответьте «Боюсь, что да»: *Is the shop closed?*
+2. Ответьте «Надеюсь, нет»: *Is it going to snow?*
+3. Уберите повтор: *I can't come tonight, but my sister can come tonight.*
+4. Уберите повтор: *I didn't want to apologise, but I had to apologise.*
+5. Ответьте на приглашение «С удовольствием»: *Would you like to join us?*
+6. Исправьте ошибку: *Will he pass the exam? — I think it.*
 
 > [!success]- Ответы и пояснения
 > 1. **I'm afraid so.** — `so` = «да».

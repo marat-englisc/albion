@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Выучи 4 начала и 3 окончания — и получишь 12 слов:
+Выучите 4 начала и 3 окончания — и получите 12 слов:
 
 | | **-one / -body** (кто) | **-thing** (что) | **-where** (где) |
 | --- | --- | --- | --- |
@@ -54,16 +54,16 @@ tags:
 > - ~~interesting something~~ → **something interesting**
 > - ~~Everyone are ready.~~ → **Everyone is ready.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь (кто-нибудь): Is there ___ in the room?
-2. Вставь (нигде): I've lost my keys. I can't find them ___.
-3. Вставь (никто): ___ knows the answer.
-4. Вставь is или are: Everyone ___ ready.
-5. Исправь ошибку: *I want to eat interesting something.*
-6. Исправь так, чтобы получилось «Никто не пришёл»: *Nobody didn't come.*
+1. Вставьте (кто-нибудь): Is there ___ in the room?
+2. Вставьте (нигде): I've lost my keys. I can't find them ___.
+3. Вставьте (никто): ___ knows the answer.
+4. Вставьте is или are: Everyone ___ ready.
+5. Исправьте ошибку: *I want to eat interesting something.*
+6. Исправьте так, чтобы получилось «Никто не пришёл»: *Nobody didn't come.*
 
 > [!success]- Ответы и пояснения
 > 1. **anyone / anybody** — вопрос → `any-`.

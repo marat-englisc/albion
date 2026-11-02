@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь, что у тебя две туфли и много чашек:
+Представьте, что у вас две туфли и много чашек:
 
 | Слово | Значит | Пример |
 | --- | --- | --- |
@@ -51,16 +51,16 @@ tags:
 > - ~~an other piece~~ → **another piece**
 > - ~~another books~~ → **other books** — `another` только с одной вещью.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь: This cup is dirty. Can I have ___ one?
-2. Вставь: I have two brothers. One is a teacher, ___ is a doctor.
-3. Вставь: Some people like coffee; ___ prefer tea.
-4. Вставь: Only Tom came. Where are ___?
-5. Исправь ошибку: *There are others ways to do it.*
-6. Исправь ошибку: *Can I have an other piece?*
+1. Вставьте: This cup is dirty. Can I have ___ one?
+2. Вставьте: I have two brothers. One is a teacher, ___ is a doctor.
+3. Вставьте: Some people like coffee; ___ prefer tea.
+4. Вставьте: Only Tom came. Where are ___?
+5. Исправьте ошибку: *There are others ways to do it.*
+6. Исправьте ошибку: *Can I have an other piece?*
 
 > [!success]- Ответы и пояснения
 > 1. **another** — ещё одну, любую другую.

@@ -54,16 +54,16 @@ tags:
 > - ~~The thing what I need~~ → **The thing (that) I need** или **What I need**
 > - ~~I don't know where does she live.~~ → **I don't know where she lives.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь that или what: I can't believe ___ he said.
-2. Вставь that или what: I believe ___ he is honest.
-3. Вставь whether или what: We haven't decided ___ to go or not.
-4. Исправь ошибку: *I don't know where does she live.*
-5. Исправь ошибку: *The thing what I need is time.*
-6. Переведи: «Интересно, придёт ли он».
+1. Вставьте that или what: I can't believe ___ he said.
+2. Вставьте that или what: I believe ___ he is honest.
+3. Вставьте whether или what: We haven't decided ___ to go or not.
+4. Исправьте ошибку: *I don't know where does she live.*
+5. Исправьте ошибку: *The thing what I need is time.*
+6. Переведите: «Интересно, придёт ли он».
 
 > [!success]- Ответы и пояснения
 > 1. **what** — «то, что он сказал».

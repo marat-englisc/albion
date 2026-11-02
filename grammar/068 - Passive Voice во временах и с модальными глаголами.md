@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь пассив как поезд: последний вагон — **третья форма** — никогда не меняется. Меняются вагоны перед ним. И это **те же самые** времена, что ты уже знаешь, только с **be**:
+Представьте пассив как поезд: последний вагон — **третья форма** — никогда не меняется. Меняются вагоны перед ним. И это **те же самые** времена, что вы уже знаете, только с **be**:
 
 | Время | Пассив | Значит |
 | --- | --- | --- |
@@ -54,16 +54,16 @@ tags:
 > - ~~The house is been painted.~~ → **The house is being painted.** — процесс сейчас → `being`.
 > - ~~It must cleaned.~~ → **It must be cleaned.** — после `must` нужно `be`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Перестрой в пассив: *They are building a new bridge.*
-2. Перестрой в пассив: *Someone has cleaned the room.*
-3. Перестрой в пассив: *They will announce the results tomorrow.*
-4. Перестрой в пассив: *You must sign this form.*
-5. Сделай вопрос: *The parcel has been delivered.*
-6. Исправь ошибку: *The house is been painted at the moment.*
+1. Перестройте в пассив: *They are building a new bridge.*
+2. Перестройте в пассив: *Someone has cleaned the room.*
+3. Перестройте в пассив: *They will announce the results tomorrow.*
+4. Перестройте в пассив: *You must sign this form.*
+5. Сделайте вопрос: *The parcel has been delivered.*
+6. Исправьте ошибку: *The house is been painted at the moment.*
 
 > [!success]- Ответы и пояснения
 > 1. **A new bridge is being built.** — процесс сейчас → `is being` + V3.

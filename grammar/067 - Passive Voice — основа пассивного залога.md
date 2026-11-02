@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Сравни два русских предложения:
+Сравните два русских предложения:
 
 - «Рабочие **починили** крышу» — главный тот, кто делает.
 - «Крыша **починена**» / «Крышу **починили**» — главное — крыша. Кто чинил — неважно или неизвестно.
@@ -55,16 +55,16 @@ tags:
 > - ~~The accident was happened.~~ → **The accident happened.**
 > - ~~English is speak.~~ → **English is spoken.** — нужна третья форма.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Перестрой в пассив: *They make cars in this factory.*
-2. Перестрой в пассив: *Someone stole my bike.*
-3. Перестрой в пассив: *Shakespeare wrote "Hamlet".*
-4. Вставь by или with: The letter was written ___ a pencil.
-5. Исправь ошибку: *The accident was happened at night.*
-6. Исправь ошибку: *English is speak all over the world.*
+1. Перестройте в пассив: *They make cars in this factory.*
+2. Перестройте в пассив: *Someone stole my bike.*
+3. Перестройте в пассив: *Shakespeare wrote "Hamlet".*
+4. Вставьте by или with: The letter was written ___ a pencil.
+5. Исправьте ошибку: *The accident was happened at night.*
+6. Исправьте ошибку: *English is speak all over the world.*
 
 > [!success]- Ответы и пояснения
 > 1. **Cars are made in this factory.** — сейчас, обычно → `are` + V3; кто делает — неважно.

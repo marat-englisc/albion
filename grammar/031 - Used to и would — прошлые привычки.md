@@ -25,7 +25,7 @@ tags:
 >
 > **Не:** didn't **use** to + глагол. **Вопрос:** Did you **use** to + глагол?
 
-Обрати внимание: после **did** буква **d** пропадает — **use to** (ведь прошлое уже показал `did`).
+Обратите внимание: после **did** буква **d** пропадает — **use to** (ведь прошлое уже показал `did`).
 
 ## А что такое would?
 
@@ -55,16 +55,16 @@ tags:
 > - ~~Did you used to…?~~ → **Did you use to…?** — после `did` без `d`.
 > - ~~I would have long hair.~~ → **I used to have long hair.** — состояние.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь used to: I ___ (live) in Samara, but now I live in Moscow.
-2. Сделай отрицание: *She used to like fish.*
-3. Сделай вопрос: *He used to play football.*
-4. Выбери: When I was a child, I (would / used to) have long hair.
-5. Выбери: Every summer, Grandad (would / was) take us fishing.
-6. Исправь ошибку: *I use to get up early when I was at school.*
+1. Вставьте used to: I ___ (live) in Samara, but now I live in Moscow.
+2. Сделайте отрицание: *She used to like fish.*
+3. Сделайте вопрос: *He used to play football.*
+4. Выберите: When I was a child, I (would / used to) have long hair.
+5. Выберите: Every summer, Grandad (would / was) take us fishing.
+6. Исправьте ошибку: *I use to get up early when I was at school.*
 
 > [!success]- Ответы и пояснения
 > 1. **used to live** — раньше жил, теперь нет.

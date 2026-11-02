@@ -57,16 +57,16 @@ tags:
 > - ~~I can to swim.~~ → **I can swim.**
 > - ~~I'll can come.~~ → **I'll be able to come.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь can или could: When I was five, I ___ read.
-2. Выбери: The fire spread quickly, but everyone (could / was able to) escape.
-3. Вставь форму: I hope I ___ (can) come next week.
-4. Сделай вопрос: *She can play the guitar.*
-5. Исправь ошибку: *He cans speak three languages.*
-6. Исправь ошибку: *I can to swim.*
+1. Вставьте can или could: When I was five, I ___ read.
+2. Выберите: The fire spread quickly, but everyone (could / was able to) escape.
+3. Вставьте форму: I hope I ___ (can) come next week.
+4. Сделайте вопрос: *She can play the guitar.*
+5. Исправьте ошибку: *He cans speak three languages.*
+6. Исправьте ошибку: *I can to swim.*
 
 > [!success]- Ответы и пояснения
 > 1. **could** — умение в прошлом вообще.

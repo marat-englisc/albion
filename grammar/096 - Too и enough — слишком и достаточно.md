@@ -56,16 +56,16 @@ tags:
 > - ~~too much difficult~~ → **too difficult** — перед прилагательным просто `too`.
 > - ~~too much people~~ → **too many people**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь too или enough: She's only 15. She isn't old ___ to vote.
-2. Вставь too или enough: The coffee is ___ hot. I can't drink it.
-3. Поставь enough на место: *We don't have chairs.*
-4. Вставь many или much: There are too ___ people here.
-5. Исправь ошибку: *He isn't enough tall to play basketball.*
-6. Исправь ошибку: *This exercise is too much difficult.*
+1. Вставьте too или enough: She's only 15. She isn't old ___ to vote.
+2. Вставьте too или enough: The coffee is ___ hot. I can't drink it.
+3. Поставьте enough на место: *We don't have chairs.*
+4. Вставьте many или much: There are too ___ people here.
+5. Исправьте ошибку: *He isn't enough tall to play basketball.*
+6. Исправьте ошибку: *This exercise is too much difficult.*
 
 > [!success]- Ответы и пояснения
 > 1. **enough** — возраста не хватает → `old enough`.

@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь две дороги:
+Представьте две дороги:
 
 | Слово | Значит | Пример |
 | --- | --- | --- |
@@ -56,16 +56,16 @@ tags:
 > - ~~Both of answer~~ → **Both answers** или **Both of the answers**
 > - ~~either… nor~~ → **either… or**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь both, either или neither: ___ my parents are doctors.
-2. Вставь (любой из двух): I don't mind. ___ day is fine for me.
-3. Вставь: ___ of the two hotels was cheap, so we went camping.
-4. Вставь or или nor: You can either call ___ write.
-5. Исправь так, чтобы получилось «Ни одному из нас это не нравится»: *Neither of us don't like it.*
-6. Исправь ошибку: *Both of answer are correct.*
+1. Вставьте both, either или neither: ___ my parents are doctors.
+2. Вставьте (любой из двух): I don't mind. ___ day is fine for me.
+3. Вставьте: ___ of the two hotels was cheap, so we went camping.
+4. Вставьте or или nor: You can either call ___ write.
+5. Исправьте так, чтобы получилось «Ни одному из нас это не нравится»: *Neither of us don't like it.*
+6. Исправьте ошибку: *Both of answer are correct.*
 
 > [!success]- Ответы и пояснения
 > 1. **Both** — оба родителя.

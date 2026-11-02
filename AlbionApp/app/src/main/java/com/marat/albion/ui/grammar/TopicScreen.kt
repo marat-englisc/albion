@@ -1,5 +1,9 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.layout.heightIn
+
 import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
@@ -279,8 +283,7 @@ private fun TopicFooter(
     Column(Modifier.padding(top = 28.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
         val read = progress?.readAt != null
         val mastered = progress?.masteredAt != null
-        Text("Чтение ${if (read) "✓" else "○"}  →  Проверка ${if (progress?.quizAt != null) "✓" else "○"}  →  Освоение ${if (mastered) "✓" else "○"}",
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        LessonStepper(listOf("Чтение" to read, "Проверка" to (progress?.quizAt != null), "Освоение" to mastered))
         val hasQuiz = quizCount > 0 && onQuiz != null
         val review = GrammarReview.plan(progress)
         val now = grammarReviewTime()
@@ -400,4 +403,41 @@ private fun splitNavigation(blocks: List<MdBlock>): Pair<List<MdBlock>, NavLinks
     var rest = blocks.dropLast(1)
     if (rest.lastOrNull() == MdRule) rest = rest.dropLast(1)
     return rest to NavLinks(prev, contents, next)
+}
+
+/**
+ * Путь темы тремя этапами, как в шэдоуинге: пройденный — мятный с галочкой, текущий — в ирисовой рамке,
+ * следующие — тихие. Раньше это была строка «Чтение ✓ → Проверка ○ → Освоение ○».
+ */
+@Composable
+private fun LessonStepper(steps: List<Pair<String, Boolean>>) {
+    val scheme = MaterialTheme.colorScheme
+    val current = steps.indexOfFirst { !it.second }
+    // При крупном шрифте или на узком экране три плитки в ряд обрезали подписи («Чтен», «Осво») — тогда этапы идут столбиком.
+    val stacked = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f || com.marat.albion.ui.components.LocalNarrow.current
+    val description = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
+        contentDescription = steps.joinToString(", ") { (title, done) -> "$title — ${if (done) "пройдено" else "впереди"}" }
+    }
+    val step: @Composable (Int, Modifier) -> Unit = { i, modifier -> LessonStep(i, steps[i].first, steps[i].second, i == current, modifier) }
+    if (stacked) Column(description, verticalArrangement = Arrangement.spacedBy(8.dp)) { steps.indices.forEach { step(it, Modifier.fillMaxWidth()) } }
+    else Row(description, horizontalArrangement = Arrangement.spacedBy(8.dp)) { steps.indices.forEach { step(it, Modifier.weight(1f)) } }
+}
+
+@Composable
+private fun LessonStep(i: Int, title: String, done: Boolean, active: Boolean, modifier: Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    val shape = MaterialTheme.shapes.small
+    Column(modifier.heightIn(min = 60.dp)
+        .background(if (done) scheme.tertiaryContainer else scheme.surfaceContainerLow, shape)
+        .border(if (active) 1.25.dp else .75.dp, when { done -> scheme.tertiary.copy(alpha = .5f); active -> scheme.primary; else -> scheme.outlineVariant }, shape)
+        .padding(horizontal = 10.dp, vertical = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("%02d".format(i + 1), Modifier.weight(1f), style = MaterialTheme.typography.labelSmall.copy(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Tech),
+                color = when { done -> scheme.tertiary; active -> scheme.primary; else -> scheme.onSurfaceVariant })
+            if (done) Icon(AlbionIcons.Check, null, Modifier.size(14.dp), tint = scheme.tertiary)
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(title, style = MaterialTheme.typography.labelMedium, maxLines = 1,
+            color = if (done) scheme.onTertiaryContainer else if (active) scheme.onSurface else scheme.onSurfaceVariant)
+    }
 }

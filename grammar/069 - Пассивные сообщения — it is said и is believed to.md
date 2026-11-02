@@ -51,16 +51,16 @@ tags:
 > - ~~She is said that she lives in Paris.~~ → **She is said to live in Paris.**
 > - ~~He is said to leave yesterday.~~ → **He is said to have left yesterday.** — действие было раньше.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй: *People say that he is very rich.* → He ___
 2. Перефразируй: *People believe that the thief escaped through the window.* → The thief ___
 3. Перефразируй: *They report that the president is ill.* → It ___
-4. Выбери: The painting is thought (to be / to have been) stolen in 1990.
-5. Исправь ошибку: *She is said that she lives in Paris.*
-6. Переведи: «Считается, что этот замок построили в XII веке».
+4. Выберите: The painting is thought (to be / to have been) stolen in 1990.
+5. Исправьте ошибку: *She is said that she lives in Paris.*
+6. Переведите: «Считается, что этот замок построили в XII веке».
 
 > [!success]- Ответы и пояснения
 > 1. **He is said to be very rich.** — «говорят сейчас — богат сейчас» → `to be`.

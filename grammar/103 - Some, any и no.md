@@ -47,16 +47,16 @@ tags:
 > - ~~I didn't buy no bread.~~ → **I didn't buy any bread.** или **I bought no bread.**
 > - ~~Have you got some brothers?~~ — в обычном вопросе лучше **any**.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь some или any: There are ___ biscuits in the box.
-2. Вставь some или any: Have you got ___ brothers?
-3. Вставь some или any: Could I have ___ water, please?
-4. Вставь some или any («в любое время»): You can call me ___ time.
+1. Вставьте some или any: There are ___ biscuits in the box.
+2. Вставьте some или any: Have you got ___ brothers?
+3. Вставьте some или any: Could I have ___ water, please?
+4. Вставьте some или any («в любое время»): You can call me ___ time.
 5. Перефразируй с no: *We don't have any milk.*
-6. Исправь ошибку: *I didn't buy no bread.*
+6. Исправьте ошибку: *I didn't buy no bread.*
 
 > [!success]- Ответы и пояснения
 > 1. **some** — утверждение.

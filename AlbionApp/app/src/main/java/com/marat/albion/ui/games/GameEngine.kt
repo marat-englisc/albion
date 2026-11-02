@@ -180,18 +180,37 @@ class GameViewModel(private val c: AppContainer, val game: Game,
     val sentenceTranslations = androidx.compose.runtime.mutableStateMapOf<String, String>()
     private var translating: kotlinx.coroutines.Job? = null
 
-    /** Запускает перевод оставшихся предложений с текущего задания; повторный вызов ничего не делает. */
-    fun prefetchTranslations() {
+    /**
+     * Переводы оставшихся предложений: сначала из базы (переведённые раньше и поправленные вручную),
+     * недостающие — моделью на устройстве, с сохранением. Повторный вызов ничего не делает.
+     */
+    fun prefetchTranslations(canTranslate: Boolean) {
         if (game != Game.SENTENCE || translating?.isActive == true) return
+        val dao = c.database.sentenceTranslations()
         translating = viewModelScope.launch {
-            for (card in items.drop(index)) {
-                if (card.id in sentenceTranslations) continue
-                val original = puzzle(card)?.original ?: continue
-                try { c.translator.translations(original).collect { sentenceTranslations[card.id] = it } }
-                catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            val rest = items.drop(index).mapNotNull { card -> puzzle(card)?.original?.let { card.id to it } }
+            val saved = dao.find(rest.map { it.second }.distinct()).associate { it.text to it.translation }
+            rest.forEach { (id, text) -> saved[text]?.let { sentenceTranslations[id] = it } }
+            if (!canTranslate) return@launch
+            for ((id, text) in rest) {
+                if (id in sentenceTranslations) continue
+                try {
+                    var done = ""
+                    c.translator.translations(text).collect { done = it; sentenceTranslations[id] = it }
+                    if (done.isNotBlank()) dao.insertIfAbsent(text, done)
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e }
                 catch (_: Exception) { }
             }
         }
+    }
+
+    /** Ручная правка перевода: сохраняется навсегда и больше не перезаписывается моделью. */
+    fun editTranslation(card: CardEntity, translation: String) {
+        val text = puzzle(card)?.original ?: return
+        val clean = translation.trim()
+        if (clean.isEmpty()) return
+        sentenceTranslations[card.id] = clean
+        c.appScope.launch { c.database.sentenceTranslations().upsert(com.marat.albion.data.db.SentenceTranslationEntity(text, clean, edited = true)) }
     }
 
     private val tenses = HashMap<String, TenseTask?>()

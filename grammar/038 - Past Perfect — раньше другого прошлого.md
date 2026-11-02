@@ -11,11 +11,11 @@ tags:
 # Past Perfect — раньше другого прошлого
 
 > [!abstract] Коротко
-> Past Perfect — это «**прошлое прошлого**». Когда рассказываешь о прошлом и нужно вернуться ещё дальше назад: **When we arrived, the film ==had started==.** — Когда мы пришли, фильм **уже** начался.
+> Past Perfect — это «**прошлое прошлого**». Когда рассказываете о прошлом и нужно вернуться ещё дальше назад: **When we arrived, the film ==had started==.** — Когда мы пришли, фильм **уже** начался.
 
 ## Суть
 
-Представь, что твой рассказ — это **точка в прошлом** (например, «мы пришли в кино»). Всё, что случилось **ещё до** этой точки, идёт в Past Perfect:
+Представьте, что ваш рассказ — это **точка в прошлом** (например, «мы пришли в кино»). Всё, что случилось **ещё до** этой точки, идёт в Past Perfect:
 
 ```mermaid
 flowchart LR
@@ -24,7 +24,7 @@ flowchart LR
 
 **When we arrived, the film had started.** — Мы пришли, а фильм к тому времени уже шёл. Мы его начало пропустили.
 
-Сравни:
+Сравните:
 
 - **When we arrived, the film ==started==.** — Мы пришли, и (тогда) фильм начался. *Успели!*
 - **When we arrived, the film ==had started==.** — Мы пришли, а он уже начался. *Опоздали.*
@@ -50,16 +50,16 @@ flowchart LR
 > - ~~After he has finished work, he went home.~~ → **After he had finished work, he went home.** — в рассказе о прошлом `has` не подходит.
 > - ~~When the phone rang, I had answered it.~~ → **When the phone rang, I answered it.** — ответил **после** звонка, а не до.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: When we got to the cinema, the film ___ (already / start).
-2. Вставь глагол: She was sad because she ___ (lose) her ring.
-3. Вставь глагол: I ___ (never / see) the sea before that trip.
-4. Выбери: When I arrived, she (left / had left). Мы так и не увиделись.
-5. Выбери: When the phone rang, I (answered / had answered) it.
-6. Исправь ошибку: *After he has finished work, he went home.*
+1. Вставьте глагол: When we got to the cinema, the film ___ (already / start).
+2. Вставьте глагол: She was sad because she ___ (lose) her ring.
+3. Вставьте глагол: I ___ (never / see) the sea before that trip.
+4. Выберите: When I arrived, she (left / had left). Мы так и не увиделись.
+5. Выберите: When the phone rang, I (answered / had answered) it.
+6. Исправьте ошибку: *After he has finished work, he went home.*
 
 > [!success]- Ответы и пояснения
 > 1. **had already started** — фильм начался раньше, чем мы пришли.

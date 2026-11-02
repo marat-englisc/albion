@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Это не то же самое, что **used to** из прошлого урока! Сравни три похожие фразы:
+Это не то же самое, что **used to** из прошлого урока! Сравните три похожие фразы:
 
 | Фраза | Значит |
 | --- | --- |
@@ -48,18 +48,18 @@ tags:
 
 > [!warning] Частые ошибки
 > - ~~He isn't used to speak English.~~ → **He isn't used to speaking English.** — после `to` здесь `-ing`.
-> - ~~I used to drink milk~~ (если имеешь в виду «привык») → **I'm used to drinking milk.**
+> - ~~I used to drink milk~~ (если имеете в виду «привык») → **I'm used to drinking milk.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: I'm used to ___ (wake) up early.
-2. Выбери: It took me months to (be / get) used to the climate.
-3. Выбери: Don't worry, she (is used to / used to) working at night.
-4. Выбери: I (used to / am used to) drink milk, but now I don't.
-5. Исправь ошибку: *He isn't used to speak English.*
-6. Переведи: «Ты к этому привыкнешь».
+1. Вставьте глагол: I'm used to ___ (wake) up early.
+2. Выберите: It took me months to (be / get) used to the climate.
+3. Выберите: Don't worry, she (is used to / used to) working at night.
+4. Выберите: I (used to / am used to) drink milk, but now I don't.
+5. Исправьте ошибку: *He isn't used to speak English.*
+6. Переведите: «Ты к этому привыкнешь».
 
 > [!success]- Ответы и пояснения
 > 1. **waking** — после «привык к» нужна форма `-ing`.

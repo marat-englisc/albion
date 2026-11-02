@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Когда ты пересказываешь вопрос, ты **сообщаешь** о нём, а не спрашиваешь сам. Поэтому всё «вопросительное» исчезает:
+Когда вы пересказываете вопрос, вы **сообщаете** о нём, а не спрашиваете сами. Поэтому всё «вопросительное» исчезает:
 
 - нет **do / does / did**,
 - нет перестановки — сначала «кто», потом глагол,
@@ -51,18 +51,18 @@ tags:
 > - ~~He asked me where was the station.~~ → **He asked me where the station was.**
 > - ~~She asked where did I live.~~ → **She asked where I lived.** — `did` исчезает.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-В заданиях 1–5 вопросы задавали тебе. Перескажи их со сдвигом времени.
+В заданиях 1–5 вопросы задавали вам. Перескажите их со сдвигом времени.
 
-1. Перескажи: "Are you hungry?" she asked me.
-2. Перескажи: "Where do you work?" he asked.
-3. Перескажи: "What are you doing?" Mum asked.
-4. Перескажи: "Did you like the film?" they asked.
-5. Перескажи: "Can you help me?" she asked.
-6. Исправь ошибку: *He asked me where was the station.*
+1. Перескажите: "Are you hungry?" she asked me.
+2. Перескажите: "Where do you work?" he asked.
+3. Перескажите: "What are you doing?" Mum asked.
+4. Перескажите: "Did you like the film?" they asked.
+5. Перескажите: "Can you help me?" she asked.
+6. Исправьте ошибку: *He asked me where was the station.*
 
 > [!success]- Ответы и пояснения
 > 1. **She asked me if / whether I was hungry.** — вопрос «да/нет» → `if`; порядок `I was`.

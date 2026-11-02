@@ -45,16 +45,16 @@ tags:
 > - ~~If water will reach 100°C, it boils.~~ → **If water reaches 100°C, it boils.**
 > - ~~If you press it, it will stop~~ (о том, как работает всегда) → **If you press it, it stops.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: If you ___ (mix) red and white, you ___ (get) pink.
-2. Вставь глаголы: Plants ___ (die) if they ___ (not / get) water.
-3. Вставь глагол: When I drink coffee late, I ___ (not / sleep) well.
-4. Поставь запятую, если нужно: *If it rains the streets get wet.*
-5. Выбери (так работает всегда): If you press this button, the machine (stops / will stop).
-6. Исправь ошибку: *If water will reach 100°C, it boils.*
+1. Вставьте глаголы: If you ___ (mix) red and white, you ___ (get) pink.
+2. Вставьте глаголы: Plants ___ (die) if they ___ (not / get) water.
+3. Вставьте глагол: When I drink coffee late, I ___ (not / sleep) well.
+4. Поставьте запятую, если нужно: *If it rains the streets get wet.*
+5. Выберите (так работает всегда): If you press this button, the machine (stops / will stop).
+6. Исправьте ошибку: *If water will reach 100°C, it boils.*
 
 > [!success]- Ответы и пояснения
 > 1. **mix, get** — общее правило → Present Simple в обеих частях.

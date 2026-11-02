@@ -52,16 +52,16 @@ tags:
 > - ~~This is the book that I told you about it.~~ → **This is the book that I told you about.**
 > - ~~The man which…~~ → **The man who…** — о людях `which` не используем.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь who или which: The woman ___ lives next door is a doctor.
-2. Вставь who или which: This is the phone ___ I bought yesterday.
-3. Вставь подходящее слово: That's the hotel ___ we stayed.
+1. Вставьте who или which: The woman ___ lives next door is a doctor.
+2. Вставьте who или which: This is the phone ___ I bought yesterday.
+3. Вставьте подходящее слово: That's the hotel ___ we stayed.
 4. Можно ли убрать who? *The girl who called you is my sister.*
-5. Соедини: *I met a man. He speaks six languages.*
-6. Исправь ошибку: *This is the book that I told you about it.*
+5. Соедините: *I met a man. He speaks six languages.*
+6. Исправьте ошибку: *This is the book that I told you about it.*
 
 > [!success]- Ответы и пояснения
 > 1. **who** — речь о человеке.

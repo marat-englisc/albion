@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь кино. Сначала камера показывает **фон**: идёт дождь, герой готовит ужин. И вдруг — **событие**: звонок в дверь!
+Представьте кино. Сначала камера показывает **фон**: идёт дождь, герой готовит ужин. И вдруг — **событие**: звонок в дверь!
 
 - **Фон** — процесс, который тянулся: **Past Continuous** — «готовил, шёл, спал».
 - **Событие** — короткое, «бац!»: **Past Simple** — «позвонил, вошёл, упал».
@@ -52,16 +52,16 @@ tags:
 > - ~~they were have dinner~~ → **they were having dinner** — после `were` нужна форма `-ing`.
 > - ~~I cooked when she called.~~ (если готовка уже шла) → **I was cooking when she called.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глаголы: I ___ (have) a shower when the doorbell ___ (ring).
-2. Вставь глагол: At 8 o'clock yesterday we ___ (watch) TV.
-3. Вставь глаголы (два процесса одновременно): While she ___ (drive), she ___ (listen) to music.
-4. Вставь глаголы: He ___ (open) the door, ___ (come) in and ___ (sit) down.
-5. Сделай вопрос: *You were sleeping at midnight.*
-6. Исправь ошибку: *When I arrived, they were have dinner.*
+1. Вставьте глаголы: I ___ (have) a shower when the doorbell ___ (ring).
+2. Вставьте глагол: At 8 o'clock yesterday we ___ (watch) TV.
+3. Вставьте глаголы (два процесса одновременно): While she ___ (drive), she ___ (listen) to music.
+4. Вставьте глаголы: He ___ (open) the door, ___ (come) in and ___ (sit) down.
+5. Сделайте вопрос: *You were sleeping at midnight.*
+6. Исправьте ошибку: *When I arrived, they were have dinner.*
 
 > [!success]- Ответы и пояснения
 > 1. **was having, rang** — душ — фон, звонок — событие.

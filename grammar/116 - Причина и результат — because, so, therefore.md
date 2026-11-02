@@ -22,7 +22,7 @@ tags:
 
 ## Because или because of?
 
-Это главная ловушка темы. Смотри, что идёт **после**:
+Это главная ловушка темы. Смотрите, что идёт **после**:
 
 | Слово | После него | Пример |
 | --- | --- | --- |
@@ -56,16 +56,16 @@ tags:
 > - ~~because the rain~~ → **because of the rain**
 > - ~~because of it was raining~~ → **because it was raining**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь because или because of: We were late ___ the traffic.
-2. Вставь because или because of: We were late ___ there was a lot of traffic.
-3. Вставь so или because: I was hungry, ___ I made a sandwich.
+1. Вставьте because или because of: We were late ___ the traffic.
+2. Вставьте because или because of: We were late ___ there was a lot of traffic.
+3. Вставьте so или because: I was hungry, ___ I made a sandwich.
 4. Перефразируй с due to: *The flight was cancelled because of the storm.*
-5. Исправь ошибку: *Because I was ill, so I stayed at home.*
-6. Соедини с therefore: *The road was closed. We took another route.*
+5. Исправьте ошибку: *Because I was ill, so I stayed at home.*
+6. Соедините с therefore: *The road was closed. We took another route.*
 
 > [!success]- Ответы и пояснения
 > 1. **because of** — дальше только слово `the traffic`.

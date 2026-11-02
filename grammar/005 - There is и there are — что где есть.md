@@ -11,7 +11,7 @@ tags:
 # There is и there are — что где есть
 
 > [!abstract] Коротко
-> Когда хочешь сказать «где-то **есть** что-то», начни с **There is** (одно) или **There are** (много): **There is a café near here** — Рядом есть кафе.
+> Когда хотите сказать «где-то **есть** что-то», начните с **There is** (одно) или **There are** (много): **There is a café near here** — Рядом есть кафе.
 
 ## Суть
 
@@ -48,16 +48,16 @@ tags:
 > - ~~In my room is a bed.~~ → **There is a bed in my room.** — новое «есть» начинаем с `there`.
 > - ~~There is a café. There is small.~~ → **There is a café. It is small.** — когда предмет уже назван и мы его описываем, нужен `it`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь is или are: There ___ three windows in my room.
-2. Вставь is или are: There ___ some milk in the fridge.
-3. Сделай вопрос: *There is a pharmacy near here.*
-4. Сделай отрицание: *There are some chairs in the room.*
-5. Выбери: (There is / It is) a good café on this street.
-6. Переведи: «В нашем городе два музея».
+1. Вставьте is или are: There ___ three windows in my room.
+2. Вставьте is или are: There ___ some milk in the fridge.
+3. Сделайте вопрос: *There is a pharmacy near here.*
+4. Сделайте отрицание: *There are some chairs in the room.*
+5. Выберите: (There is / It is) a good café on this street.
+6. Переведите: «В нашем городе два музея».
 
 > [!success]- Ответы и пояснения
 > 1. **are** — окон несколько → `are`.

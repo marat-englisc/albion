@@ -52,16 +52,16 @@ tags:
 > - ~~two times more expensive as~~ → **twice as expensive as**
 > - ~~twice as big than~~ → **twice as big as** — с `as` всегда второе `as`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Переведи: «Этот дом вдвое больше нашего».
-2. Переведи: «Экзамен был далеко не таким трудным, как я думал».
+1. Переведите: «Этот дом вдвое больше нашего».
+2. Переведите: «Экзамен был далеко не таким трудным, как я думал».
 3. Перефразируй с by far: *She is the best player in the team, and nobody is close.*
-4. Вставь: Of the two brothers, Tom is ___ taller.
+4. Вставьте: Of the two brothers, Tom is ___ taller.
 5. Перефразируй с no: *His car is not cheaper than mine at all.*
-6. Исправь ошибку: *This phone is two times more expensive as that one.*
+6. Исправьте ошибку: *This phone is two times more expensive as that one.*
 
 > [!success]- Ответы и пояснения
 > 1. **This house is twice as big as ours.** — `twice as … as`.

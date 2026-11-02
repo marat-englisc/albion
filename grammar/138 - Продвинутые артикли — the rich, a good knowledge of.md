@@ -61,16 +61,16 @@ tags:
 > - ~~The rich is…~~ → **The rich are…**
 > - ~~a useful advice~~ → **some useful advice**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь артикль или ничего: ___ wheel was invented thousands of years ago.
-2. Вставь артикль или ничего: ___ unemployed often feel isolated.
-3. Вставь артикль или ничего: She has ___ good understanding of economics.
-4. Вставь артикль или ничего: ___ society has changed a lot. / ___ society we live in is complex.
-5. Вставь артикль или ничего: He's in ___ hospital (пациент), so I went to ___ hospital to see him.
-6. Исправь ошибку: *The poors need help.*
+1. Вставьте артикль или ничего: ___ wheel was invented thousands of years ago.
+2. Вставьте артикль или ничего: ___ unemployed often feel isolated.
+3. Вставьте артикль или ничего: She has ___ good understanding of economics.
+4. Вставьте артикль или ничего: ___ society has changed a lot. / ___ society we live in is complex.
+5. Вставьте артикль или ничего: He's in ___ hospital (пациент), so I went to ___ hospital to see him.
+6. Исправьте ошибку: *The poors need help.*
 
 > [!success]- Ответы и пояснения
 > 1. **The** — изобретение как явление.

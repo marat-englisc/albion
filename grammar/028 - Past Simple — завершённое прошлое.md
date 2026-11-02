@@ -51,16 +51,16 @@ tags:
 > - ~~I didn't saw it.~~ → **I didn't see it.**
 > - ~~Where did you be?~~ → **Where were you?** — у `be` своё прошлое: was / were (тема 29).
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: We ___ (see) a great film last night.
-2. Вставь глагол: She ___ (not / call) me yesterday.
-3. Сделай вопрос: *They moved to London in 2019.*
-4. Вставь глаголы: I ___ (stop) the car and ___ (get) out.
-5. Исправь ошибку: *Did you went to school?*
-6. Переведи: «Я купил это два года назад».
+1. Вставьте глагол: We ___ (see) a great film last night.
+2. Вставьте глагол: She ___ (not / call) me yesterday.
+3. Сделайте вопрос: *They moved to London in 2019.*
+4. Вставьте глаголы: I ___ (stop) the car and ___ (get) out.
+5. Исправьте ошибку: *Did you went to school?*
+6. Переведите: «Я купил это два года назад».
 
 > [!success]- Ответы и пояснения
 > 1. **saw** — неправильный глагол: `see → saw`.

@@ -51,16 +51,16 @@ tags:
 > - ~~She have a dog.~~ → **She has a dog.** — с `he/she/it` нужен `has`.
 > - ~~I've got breakfast at seven.~~ → **I have breakfast at seven.** — с действием `got` не используется.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь has или have: My sister ___ two children.
-2. Сделай вопрос с do: *They have a car.*
-3. Сделай вопрос с got: *She has got a dog.*
-4. Исправь ошибку: *Do you have got a pen?*
-5. Исправь ошибку: *I've got breakfast at seven.* (имеется в виду «Я завтракаю в семь»)
-6. Переведи: «У него нет машины».
+1. Вставьте has или have: My sister ___ two children.
+2. Сделайте вопрос с do: *They have a car.*
+3. Сделайте вопрос с got: *She has got a dog.*
+4. Исправьте ошибку: *Do you have got a pen?*
+5. Исправьте ошибку: *I've got breakfast at seven.* (имеется в виду «Я завтракаю в семь»)
+6. Переведите: «У него нет машины».
 
 > [!success]- Ответы и пояснения
 > 1. **has** — сестра — это «она» → `has`.

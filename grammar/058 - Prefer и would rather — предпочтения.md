@@ -33,7 +33,7 @@ tags:
 
 ## Если речь о другом человеке
 
-Когда хочешь, чтобы что-то сделал **другой**, после **would rather** идёт прошедшая форма:
+Когда хотите, чтобы что-то сделал **другой**, после **would rather** идёт прошедшая форма:
 
 - **I'd rather you ==stayed==.** — Я бы предпочёл, чтобы ты остался.
 - **I'd rather you ==didn't tell== her.** — Я бы предпочёл, чтобы ты ей не говорил.
@@ -55,16 +55,16 @@ tags:
 > - ~~I prefer tea than coffee.~~ → **I prefer tea to coffee.**
 > - ~~I'd rather you don't tell her.~~ → **I'd rather you didn't tell her.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь to или than: I prefer swimming ___ running.
-2. Вставь to или ничего: I'd rather ___ stay at home tonight.
-3. Вставь to или ничего: I'd prefer ___ stay at home tonight.
-4. Вставь глагол: I'd rather you ___ (not / tell) her.
-5. Исправь ошибку: *I'd rather to walk.*
-6. Переведи: «Я бы лучше поехал на поезде, чем полетел».
+1. Вставьте to или than: I prefer swimming ___ running.
+2. Вставьте to или ничего: I'd rather ___ stay at home tonight.
+3. Вставьте to или ничего: I'd prefer ___ stay at home tonight.
+4. Вставьте глагол: I'd rather you ___ (not / tell) her.
+5. Исправьте ошибку: *I'd rather to walk.*
+6. Переведите: «Я бы лучше поехал на поезде, чем полетел».
 
 > [!success]- Ответы и пояснения
 > 1. **to** — после `prefer` сравниваем через `to`.

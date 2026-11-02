@@ -17,7 +17,7 @@ tags:
 
 По-русски мы тоже так делаем: «Я **хотел** спросить…» — хотя спрашиваем прямо сейчас. Прошедшее время создаёт **дистанцию** — просьба звучит не так напористо.
 
-Сравни, как растёт вежливость:
+Сравните, как растёт вежливость:
 
 | Прямо | Мягче | Очень вежливо |
 | --- | --- | --- |
@@ -51,16 +51,16 @@ tags:
 > - ~~I'd appreciate if you…~~ → **I'd appreciate it if you…** — не забудь `it`.
 > - ~~I was wondering if could you help.~~ → **…if you could help.** — после `if` обычный порядок.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Сделай вежливее с wondering: *Can you help me with my CV?*
-2. Сделай вежливее с hoping: *I want to talk to you about my salary.*
-3. Сделай вежливее (I'd appreciate it…): *Send me the file today.*
+1. Сделайте вежливее с wondering: *Can you help me with my CV?*
+2. Сделайте вежливее с hoping: *I want to talk to you about my salary.*
+3. Сделайте вежливее (I'd appreciate it…): *Send me the file today.*
 4. Смягчи вопросом с not: *It's better to wait.*
 5. О каком времени фраза? *I was wondering if you were busy this evening.*
-6. Исправь ошибку: *I'd appreciate if you could call me back.*
+6. Исправьте ошибку: *I'd appreciate if you could call me back.*
 
 > [!success]- Ответы и пояснения
 > 1. **I was wondering if you could help me with my CV.**

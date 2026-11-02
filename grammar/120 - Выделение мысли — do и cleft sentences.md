@@ -19,7 +19,7 @@ tags:
 
 ## 1. Ударное do — «правда, действительно»
 
-Вставь **do / does / did** перед глаголом и сделай на нём ударение:
+Вставьте **do / does / did** перед глаголом и сделайте на нём ударение:
 
 - **I ==do== like your dress!** — Мне правда нравится твоё платье!
 - **She ==does== work hard.** — Она и правда много работает.
@@ -56,16 +56,16 @@ tags:
 > - ~~She does likes chocolate.~~ → **She does like chocolate.**
 > - ~~It was Anna who she called.~~ → **It was Anna who called.** — лишнее `she`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Усиль глагол: *I like your dress.*
 2. Усиль глагол: *He tried to help.*
 3. Выдели Тома: *Tom found the keys.*
 4. Выдели время: *We met in 2015.*
 5. Перефразируй с What: *I need some sleep.*
-6. Исправь ошибку: *She does likes chocolate.*
+6. Исправьте ошибку: *She does likes chocolate.*
 
 > [!success]- Ответы и пояснения
 > 1. **I do like your dress.** — ударное `do` + начальная форма.

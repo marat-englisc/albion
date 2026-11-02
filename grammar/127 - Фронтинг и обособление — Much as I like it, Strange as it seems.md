@@ -58,16 +58,16 @@ tags:
 > - ~~Here comes he!~~ → **Here he comes!**
 > - ~~Tired as was she~~ → **Tired as she was** — после `as` порядок обычный: сначала «кто», потом глагол.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Перефразируй с as: *Although it may seem incredible, it's true.*
 2. Перефразируй с much as: *Although I love you very much, I can't marry you.*
 3. Перефразируй с try as: *Although we tried hard, we couldn't find the key.*
 4. Перефразируй с though: *Although he was rich, he lived simply.*
-5. Начни с Here: *The bus is coming.*
-6. Исправь ошибку: *Here comes he!*
+5. Начните с Here: *The bus is coming.*
+6. Исправьте ошибку: *Here comes he!*
 
 > [!success]- Ответы и пояснения
 > 1. **Incredible as it may seem, it's true.** — признак вперёд + `as`.

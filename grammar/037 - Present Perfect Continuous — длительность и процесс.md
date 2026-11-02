@@ -51,16 +51,16 @@ tags:
 > - ~~I'm waiting for an hour.~~ → **I've been waiting for an hour.**
 > - ~~I've been reading three books.~~ → **I've read three books.** — есть число → результат.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол в Present Perfect Continuous: I ___ (learn) English for three years.
-2. Вставь глагол: Why are your hands dirty? — I ___ (repair) the bike.
-3. Выбери (книги прочитаны полностью): I (have read / have been reading) three books this month.
-4. Выбери: She (has known / has been knowing) him for years.
-5. Сделай вопрос: *You have been waiting long.*
-6. Исправь ошибку: *It has raining all day.*
+1. Вставьте глагол в Present Perfect Continuous: I ___ (learn) English for three years.
+2. Вставьте глагол: Why are your hands dirty? — I ___ (repair) the bike.
+3. Выберите (книги прочитаны полностью): I (have read / have been reading) three books this month.
+4. Выберите: She (has known / has been knowing) him for years.
+5. Сделайте вопрос: *You have been waiting long.*
+6. Исправьте ошибку: *It has raining all day.*
 
 > [!success]- Ответы и пояснения
 > 1. **have been learning** (коротко: **I've been learning**) — занятие длится уже три года.

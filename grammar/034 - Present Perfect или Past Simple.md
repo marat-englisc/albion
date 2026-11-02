@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь два вопроса:
+Представьте два вопроса:
 
 - «**Когда** это было?» → **Past Simple**. Событие привязано к моменту в прошлом.
 - «**Что в итоге сейчас?**» → **Present Perfect**. Момент не важен, важен результат.
@@ -56,16 +56,16 @@ flowchart TD
 > - ~~When have you arrived?~~ → **When did you arrive?** — вопрос «когда?» — всегда про момент в прошлом.
 > - ~~I have seen him yesterday.~~ → **I saw him yesterday.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: I (have finished / finished) the report an hour ago.
-2. Выбери: I (have finished / finished) the report. Here it is.
-3. Выбери: She (has lived / lived) in Paris from 2010 to 2015.
-4. Выбери: — (Have you seen / Did you see) the new Bond film? — Yes, I (have seen / saw) it on Friday.
-5. Выбери: We (haven't had / didn't have) any rain so far this month.
-6. Исправь ошибку: *When have you arrived?*
+1. Выберите: I (have finished / finished) the report an hour ago.
+2. Выберите: I (have finished / finished) the report. Here it is.
+3. Выберите: She (has lived / lived) in Paris from 2010 to 2015.
+4. Выберите: — (Have you seen / Did you see) the new Bond film? — Yes, I (have seen / saw) it on Friday.
+5. Выберите: We (haven't had / didn't have) any rain so far this month.
+6. Исправьте ошибку: *When have you arrived?*
 
 > [!success]- Ответы и пояснения
 > 1. **finished** — «час назад» — точный момент в прошлом.

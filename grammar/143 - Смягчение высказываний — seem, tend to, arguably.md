@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Сравни:
+Сравните:
 
 - **Women live longer than men.** — Женщины живут дольше мужчин. *Звучит как закон — а вдруг кто-то возразит?*
 - **Women ==tend to== live longer than men.** — Женщины, как правило, живут дольше. *Осторожно и точно.*
@@ -56,16 +56,16 @@ tags:
 > - ~~He seems not understand.~~ → **He doesn't seem to understand.**
 > - ~~She seems forgot.~~ → **She seems to have forgotten.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
 1. Смягчи с seem: *He is unhappy.*
 2. Смягчи с tend: *Women live longer than men.*
 3. Смягчи с suggest и may: *This proves that the theory is wrong.*
 4. Смягчи с it would appear: *The project has failed.*
 5. Перефразируй: *It seems that she has forgotten.* → She ___
-6. Исправь ошибку: *He seems not understand the question.*
+6. Исправьте ошибку: *He seems not understand the question.*
 
 > [!success]- Ответы и пояснения
 > 1. **He seems (to be) unhappy.**

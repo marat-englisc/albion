@@ -25,7 +25,7 @@ tags:
 | **чужом поведении** | wish + **would** | I wish you **would stop** talking! — Да перестань ты болтать! |
 
 > [!example] Как перевести
-> Переделай «Жаль, что я **не** живу у моря» в «Я хотел бы, чтобы я **жил** у моря» — и получишь **I wish I lived by the sea**. «Не» исчезает!
+> Переделайте «Жаль, что я **не** живу у моря» в «Я хотел бы, чтобы я **жил** у моря» — и получите **I wish I lived by the sea**. «Не» исчезает!
 
 ## If only
 
@@ -52,16 +52,16 @@ tags:
 > - ~~I wish I knew about the party yesterday.~~ → **I wish I had known…** — о прошлом нужно `had` + V3.
 > - ~~I wish you pass your exam.~~ → **I hope you pass your exam.** — реальная надежда.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь глагол: I wish I ___ (live) closer to the sea.
-2. Вставь глагол: I wish I ___ (not / eat) so much last night.
-3. Вставь глагол: I wish I ___ (can) drive.
-4. Вставь глагол: I wish the neighbours ___ (stop) making noise!
-5. Выбери: I (wish / hope) you pass your exam tomorrow.
-6. Исправь ошибку: *I wish I knew about the party yesterday.*
+1. Вставьте глагол: I wish I ___ (live) closer to the sea.
+2. Вставьте глагол: I wish I ___ (not / eat) so much last night.
+3. Вставьте глагол: I wish I ___ (can) drive.
+4. Вставьте глагол: I wish the neighbours ___ (stop) making noise!
+5. Выберите: I (wish / hope) you pass your exam tomorrow.
+6. Исправьте ошибку: *I wish I knew about the party yesterday.*
 
 > [!success]- Ответы и пояснения
 > 1. **lived** — жалею о настоящем → Past Simple.

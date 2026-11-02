@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь два способа показать жизнь человека:
+Представьте два способа показать жизнь человека:
 
 - **Simple — это его анкета.** Где живёт, где работает, что любит, что делает каждый день. Постоянное.
 - **Continuous — это фото прямо сейчас.** Что он делает в этот момент или в этот период. Временное.
@@ -51,16 +51,16 @@ flowchart TD
 > - ~~I'm going to the gym every day.~~ → **I go to the gym every day.** — привычка.
 > - ~~I'm thinking you're right.~~ → **I think you're right.** — мнение.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Выбери: Shh! The baby (sleeps / is sleeping).
-2. Выбери: My grandparents (live / are living) in a village. Это их постоянный дом.
-3. Выбери: I (stay / am staying) at a hotel until my flat is ready.
-4. Выбери: How often (do you go / are you going) to the gym?
-5. Выбери: I (think / am thinking) you're right.
-6. Исправь ошибку: *Look! It rains.*
+1. Выберите: Shh! The baby (sleeps / is sleeping).
+2. Выберите: My grandparents (live / are living) in a village. Это их постоянный дом.
+3. Выберите: I (stay / am staying) at a hotel until my flat is ready.
+4. Выберите: How often (do you go / are you going) to the gym?
+5. Выберите: I (think / am thinking) you're right.
+6. Исправьте ошибку: *Look! It rains.*
 
 > [!success]- Ответы и пояснения
 > 1. **is sleeping** — «Тише!» — ребёнок спит прямо сейчас.

@@ -65,9 +65,11 @@ internal fun GrammarAtlas(
                     .selectable(selected, role = Role.Tab, onClick = { feedback.selection(); onSelect(stage.level) })
                     .semantics { stateDescription = "Освоено $done из ${stage.topics.size} тем" }
                     .padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    Text(stage.level, style = MaterialTheme.typography.titleMedium, color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
-                    Text("$done / ${stage.topics.size}", style = MaterialTheme.typography.labelSmall.copy(fontFamily = AlbionFonts.Tech),
-                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                    // В одну строку с уменьшением: при крупном шрифте «0 / 24» больше не рвётся на две строки.
+                    com.marat.albion.ui.components.FitText(stage.level, Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium,
+                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, minSize = 10.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    com.marat.albion.ui.components.FitText("$done/${stage.topics.size}", Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.labelSmall.copy(fontFamily = AlbionFonts.Tech),
+                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, minSize = 7.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
         }
@@ -142,8 +144,10 @@ internal fun GrammarRouteLesson(
             Box(Modifier.size(36.dp).background(if (emphasis) MaterialTheme.colorScheme.primary else if (mastered) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
                 .border(1.dp, if (emphasis) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
                 if (mastered) Icon(AlbionIcons.Check, null, tint = if (emphasis) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary, modifier = Modifier.size(17.dp))
-                else Text(topic.number.toString(), style = MaterialTheme.typography.labelSmall,
-                    color = if (emphasis) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+                // Трёхзначный номер при крупном шрифте уменьшается, а не обрезается («10C»).
+                else com.marat.albion.ui.components.FitText(topic.number.toString(), Modifier.padding(horizontal = 2.dp), style = MaterialTheme.typography.labelSmall,
+                    color = if (emphasis) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, minSize = 7.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         }
         Spacer(Modifier.width(13.dp))

@@ -51,16 +51,16 @@ tags:
 > - ~~Every of them~~ → **Each of them** или **Every one of them**
 > - ~~Every student have~~ → **Every student has**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь has или have: Every student ___ a dictionary.
-2. Выбери: She had a ring on (each / every) hand.
-3. Выбери: (Each / Every) of the players got a medal.
-4. Исправь ошибку: *Every students must sign here.*
-5. Вставь every day или everyday: I check my email ___.
-6. Переведи: «Автобус ходит каждые двадцать минут».
+1. Вставьте has или have: Every student ___ a dictionary.
+2. Выберите: She had a ring on (each / every) hand.
+3. Выберите: (Each / Every) of the players got a medal.
+4. Исправьте ошибку: *Every students must sign here.*
+5. Вставьте every day или everyday: I check my email ___.
+6. Переведите: «Автобус ходит каждые двадцать минут».
 
 > [!success]- Ответы и пояснения
 > 1. **has** — после `every` — как с одним.

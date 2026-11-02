@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Представь линию времени. Можно сказать про неё двумя способами:
+Представьте линию времени. Можно сказать про неё двумя способами:
 
 - показать **длину отрезка** — **for**: for five years, for two hours, for a long time;
 - показать **точку старта** — **since**: since 2020, since Monday, since I was a child.
@@ -52,16 +52,16 @@ tags:
 > - ~~I live here for five years.~~ → **I've lived here for five years.**
 > - ~~since two hours~~ → **for two hours** — это длительность.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь for или since: I've had this car ___ 2018.
-2. Вставь for или since: They've been married ___ twenty years.
-3. Вставь for или since: She's been ill ___ last Friday.
-4. Задай вопрос «Как давно ты здесь живёшь?»
-5. Исправь ошибку: *I know him since school.*
-6. Исправь ошибку: *We waited for since two hours.*
+1. Вставьте for или since: I've had this car ___ 2018.
+2. Вставьте for или since: They've been married ___ twenty years.
+3. Вставьте for или since: She's been ill ___ last Friday.
+4. Задайте вопрос «Как давно ты здесь живёшь?»
+5. Исправьте ошибку: *I know him since school.*
+6. Исправьте ошибку: *We waited for since two hours.*
 
 > [!success]- Ответы и пояснения
 > 1. **since** — 2018 — точка на календаре.

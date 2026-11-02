@@ -15,7 +15,7 @@ tags:
 
 ## «Времена» инфинитива
 
-Сравни три фразы с **seems** («кажется»):
+Сравните три фразы с **seems** («кажется»):
 
 | Форма | Когда | Пример |
 | --- | --- | --- |
@@ -62,16 +62,16 @@ tags:
 > - ~~It's worth to see.~~ → **It's worth seeing.**
 > - ~~I'm sorry to disturb you yesterday.~~ → **I'm sorry to have disturbed you yesterday.**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь инфинитив (действие было раньше): I'm sorry ___ (disturb) you yesterday.
-2. Вставь инфинитив (длительный процесс): They seem ___ (wait) for hours — they look exhausted.
-3. Вставь форму: This museum is worth ___ (visit).
-4. Вставь форму: I'm not used to ___ (tell) what to do.
+1. Вставьте инфинитив (действие было раньше): I'm sorry ___ (disturb) you yesterday.
+2. Вставьте инфинитив (длительный процесс): They seem ___ (wait) for hours — they look exhausted.
+3. Вставьте форму: This museum is worth ___ (visit).
+4. Вставьте форму: I'm not used to ___ (tell) what to do.
 5. Перефразируй с no use: *It's useless to argue with him.*
-6. Исправь ошибку: *I look forward to meet you.*
+6. Исправьте ошибку: *I look forward to meet you.*
 
 > [!success]- Ответы и пояснения
 > 1. **to have disturbed** — побеспокоил вчера, а извиняюсь сейчас.

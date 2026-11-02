@@ -49,7 +49,7 @@ tags:
 - **I'm absolutely exhausted.** — Я совершенно вымотан.
 - **The food was really delicious.** — Еда была очень вкусной.
 
-> [!tip] Не уверен — говори really
+> [!tip] Не уверены — говорите really
 > **Really** подходит к любому слову: **really cold**, **really freezing**. Это безопасный выбор.
 
 > [!warning] Частые ошибки
@@ -57,18 +57,18 @@ tags:
 > - ~~absolutely tired~~ → **very tired** (или **absolutely exhausted**)
 > - ~~very delicious~~ → **absolutely / really delicious**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-В заданиях 1–4 выбирай по правилу из таблицы.
+В заданиях 1–4 выбирайте по правилу из таблицы.
 
-1. Выбери усилитель: The film was (very / absolutely) fantastic.
-2. Выбери усилитель: I'm (very / absolutely) tired.
-3. Выбери усилитель: The hotel room was (very / absolutely) tiny.
-4. Выбери усилитель: It's (extremely / absolutely) cold outside.
+1. Выберите усилитель: The film was (very / absolutely) fantastic.
+2. Выберите усилитель: I'm (very / absolutely) tired.
+3. Выберите усилитель: The hotel room was (very / absolutely) tiny.
+4. Выберите усилитель: It's (extremely / absolutely) cold outside.
 5. Подбери крайнее прилагательное: *very hungry* → absolutely ___
-6. Замени усилитель на подходящий: *The food was very delicious.*
+6. Замените усилитель на подходящий: *The food was very delicious.*
 
 > [!success]- Ответы и пояснения
 > 1. **absolutely** — `fantastic` — уже крайнее слово.

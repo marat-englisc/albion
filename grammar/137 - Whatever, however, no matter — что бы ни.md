@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Добавь **-ever** к вопросительному слову — и получишь «…бы ни»:
+Добавьте **-ever** к вопросительному слову — и получите «…бы ни»:
 
 | Слово | Значит | Пример |
 | --- | --- | --- |
@@ -57,16 +57,16 @@ tags:
 > - ~~Whatever will happen~~ → **Whatever happens** — о будущем настоящим.
 > - ~~However it is difficult~~ → **However difficult it is** — признак сразу после `however`.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Переведи: «Где бы ты ни был, позвони мне».
-2. Переведи: «Каким бы трудным это ни было, я закончу».
+1. Переведите: «Где бы ты ни был, позвони мне».
+2. Переведите: «Каким бы трудным это ни было, я закончу».
 3. Перефразируй с no matter: *Whatever she says, don't believe her.*
-4. Вставь (тот, кто): ___ broke the window must pay for it.
-5. Вставь: You can choose ___ colour you prefer — red or blue.
-6. Исправь ошибку: *Whatever will happen, I'll be there.*
+4. Вставьте (тот, кто): ___ broke the window must pay for it.
+5. Вставьте: You can choose ___ colour you prefer — red or blue.
+6. Исправьте ошибку: *Whatever will happen, I'll be there.*
 
 > [!success]- Ответы и пояснения
 > 1. **Wherever you are, call me.** — «где бы ни».

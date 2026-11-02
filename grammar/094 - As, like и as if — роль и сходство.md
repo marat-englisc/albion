@@ -15,7 +15,7 @@ tags:
 
 ## Суть
 
-Сравни два предложения:
+Сравните два предложения:
 
 - **She works ==as== a teacher.** — Она работает учителем. *Это правда: её профессия.*
 - **She speaks ==like== a teacher.** — Она говорит, как учитель. *Похоже, но она, возможно, не учитель.*
@@ -53,16 +53,16 @@ tags:
 > - ~~She works like a nurse.~~ (она медсестра) → **She works as a nurse.**
 > - ~~He swims as a fish.~~ → **He swims like a fish.** — он не рыба, просто похож.
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь as или like: He works ___ a waiter in a café.
-2. Вставь as или like: She swims ___ a fish.
-3. Вставь as или like: ___ your teacher, I must warn you.
-4. Вставь as if или like (аккуратный письменный стиль): You look ___ you haven't slept for days.
-5. Вставь as или like: Do it ___ I told you.
-6. Исправь ошибку: *My sister is a nurse. She works like a nurse in a hospital.*
+1. Вставьте as или like: He works ___ a waiter in a café.
+2. Вставьте as или like: She swims ___ a fish.
+3. Вставьте as или like: ___ your teacher, I must warn you.
+4. Вставьте as if или like (аккуратный письменный стиль): You look ___ you haven't slept for days.
+5. Вставьте as или like: Do it ___ I told you.
+6. Исправьте ошибку: *My sister is a nurse. She works like a nurse in a hospital.*
 
 > [!success]- Ответы и пояснения
 > 1. **as** — это его настоящая работа.

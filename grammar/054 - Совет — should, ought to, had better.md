@@ -48,16 +48,16 @@ tags:
 > - ~~You had better to go.~~ → **You had better go.**
 > - ~~You hadn't better~~ → **You'd better not…**
 
-## Проверь себя
+## Проверьте себя
 
-Сначала ответь сам, потом открой ответы: нажми на заголовок блока.
+Сначала ответьте сами, потом откройте ответы: нажмите на заголовок блока.
 
-1. Вставь should, ought to или had better: You look tired. You ___ go to bed earlier.
-2. Вставь: It's going to rain. We'd better ___ (take) umbrellas.
-3. Сделай отрицание: *You had better be late.*
-4. Вставь to или ничего: You ought ___ apologise.
-5. Сделай вопрос: *I should call her.*
-6. Исправь ошибку: *You should to see a doctor.*
+1. Вставьте should, ought to или had better: You look tired. You ___ go to bed earlier.
+2. Вставьте: It's going to rain. We'd better ___ (take) umbrellas.
+3. Сделайте отрицание: *You had better be late.*
+4. Вставьте to или ничего: You ought ___ apologise.
+5. Сделайте вопрос: *I should call her.*
+6. Исправьте ошибку: *You should to see a doctor.*
 
 > [!success]- Ответы и пояснения
 > 1. **should / ought to / had better** — подходят все три: `should` и `ought to` — спокойный совет, `had better` — настойчивее.
