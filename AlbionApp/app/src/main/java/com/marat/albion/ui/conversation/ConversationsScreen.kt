@@ -62,7 +62,7 @@ fun ConversationsScreen(navigator: Navigator) {
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 BoundVolume(Modifier.fillMaxWidth().appear(1)) {
-                    Eyebrow("ON-DEVICE · QWEN3.5 + WHISPER", color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
+                    Eyebrow("На устройстве · без интернета", color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
                     Text("Говорите по-английски\nс собеседником-ИИ", style = MaterialTheme.typography.headlineSmall)
                     Text("Пишите или говорите — модель ответит, поправит ошибки и подскажет. Бесплатно, без лимитов и интернета.",
                         style = MaterialTheme.typography.bodyMedium, color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.75f))

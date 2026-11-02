@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -57,22 +58,24 @@ fun CoachMark(key: String, text: String, modifier: Modifier = Modifier, show: Bo
             .animateFloat(0f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Restart), label = "dot").value
         Row(
             Modifier.fillMaxWidth().padding(vertical = 6.dp).clip(MaterialTheme.shapes.large)
-                .background(scheme.inverseSurface)
+                // Спокойная панель темы: в тёмной теме инверсная белая плашка слепила и спорила с карточкой.
+                .background(scheme.surfaceContainerHigh)
+                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large)
                 .clickable(role = Role.Button, onClickLabel = "Понятно") { c.appScope.launch { c.settings.markHelpViewed("coach.$key") } }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
-                val dot = scheme.inverseOnSurface
+                val dot = scheme.primary
                 Canvas(Modifier.size(22.dp)) {
                     drawCircle(dot.copy(alpha = 0.35f * (1f - pulse)), radius = size.minDimension / 2 * (0.4f + 0.6f * pulse))
                     drawCircle(dot, radius = size.minDimension * 0.18f)
                 }
             }
             Spacer(Modifier.width(12.dp))
-            Text(text, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = scheme.inverseOnSurface)
+            Text(text, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurface)
             Spacer(Modifier.width(8.dp))
-            Icon(AlbionIcons.Close, "Скрыть подсказку", Modifier.size(18.dp), tint = scheme.inverseOnSurface.copy(alpha = 0.7f))
+            Icon(AlbionIcons.Close, "Скрыть подсказку", Modifier.size(18.dp), tint = scheme.onSurfaceVariant)
         }
     }
 }

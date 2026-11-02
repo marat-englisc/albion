@@ -214,7 +214,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
     val openRule: (Int) -> Unit = { n -> vm.topicIds[n]?.let { navigator.open(TopicRoute(it)) } }
 
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
-    BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
+    BackHandler(enabled = vm.phase == Phase.Summary) { vm.backToSetup() }
 
     AnimatedContent(
         targetState = vm.phase,
@@ -239,7 +239,8 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
                 Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
-                GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })
+                val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }
+                GameTopRow(vm.game, vm.index, vm.items.size, onClose = leave)
                 AnimatedContent(
                     targetState = vm.index,
                     transitionSpec = { practiceTransition(reduced) },
@@ -297,7 +298,8 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
                 Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
-                GameTopRow(null, vm.index, vm.items.size, onClose = navigator::back, title = quizTitle)
+                val leave = rememberLeaveGuard(active = vm.index > 0, onLeave = navigator::back)
+                GameTopRow(null, vm.index, vm.items.size, onClose = leave, title = quizTitle)
                 AnimatedContent(
                     targetState = vm.index,
                     transitionSpec = { practiceTransition(reduced) },
@@ -368,11 +370,14 @@ internal fun promptWithGap(prompt: String, filled: String?): AnnotatedString = b
 }
 
 @Composable
-private fun TaskHeader(task: GrammarTaskEntity) {
+private fun TaskHeader(task: GrammarTaskEntity, showTopic: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "),
-            Modifier.weight(1f, fill = false), color = MaterialTheme.colorScheme.primary, maxLines = 2)
-        Spacer(Modifier.width(10.dp))
+        // В смешанной тренировке название темы до ответа — готовая подсказка («Артикли a и an»), поэтому его видно только после.
+        if (showTopic) {
+            Eyebrow(listOfNotNull(task.topic?.let { "Тема $it" }, task.topicTitle.takeIf { it.isNotBlank() }).joinToString(" · "),
+                Modifier.weight(1f, fill = false), color = MaterialTheme.colorScheme.primary, maxLines = 2)
+            Spacer(Modifier.width(10.dp))
+        }
         LevelBadge(task.level)
     }
 }
@@ -422,7 +427,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard(Modifier.shakeOn(shake), label = "ВЫБЕРИТЕ ВЕРНЫЙ ВАРИАНТ") {
-                TaskHeader(task)
+                TaskHeader(task, showTopic = answered || vm.topic != null)
                 Spacer(Modifier.height(14.dp))
                 Text(
                     promptWithGap(task.prompt, if (answered && task.prompt.contains("___")) task.answer else null),
@@ -471,7 +476,8 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> MaterialTheme.colorScheme.primary
+            // Мята — «верно», ирис остаётся цветом выбора и действий.
+            OptionState.Correct -> MaterialTheme.colorScheme.tertiaryContainer
             OptionState.Wrong -> MaterialTheme.colorScheme.errorContainer
             else -> MaterialTheme.colorScheme.surfaceContainerLow
         },
@@ -479,7 +485,7 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
     )
     val fg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> MaterialTheme.colorScheme.onPrimary
+            OptionState.Correct -> MaterialTheme.colorScheme.onTertiaryContainer
             OptionState.Wrong -> MaterialTheme.colorScheme.error
             OptionState.Dim -> MaterialTheme.colorScheme.onSurfaceVariant
             OptionState.Idle -> MaterialTheme.colorScheme.onSurface
@@ -578,8 +584,8 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
 
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
-            TaskCard(label = "ЗАПОЛНИТЕ ПРОПУСК") {
-                TaskHeader(task)
+            TaskCard(label = if (parsed.gapCount > 0) "ЗАПОЛНИТЕ ПРОПУСК" else "НАПИШИТЕ ОТВЕТ") {
+                TaskHeader(task, showTopic = verdict != null || vm.topic != null)
                 Spacer(Modifier.height(14.dp))
                 Text(
                     promptWithGap(task.prompt, filled),

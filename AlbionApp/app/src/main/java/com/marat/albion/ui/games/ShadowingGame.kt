@@ -390,7 +390,7 @@ internal fun ReportCard(r: ShadowReport, words: List<ChartWord> = emptyList(), s
             .background(MaterialTheme.colorScheme.surfaceContainerLow, shape).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, shape)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
-        SignalLabel("РАЗБОР ГОЛОСА / ANALYSIS")
+        SignalLabel("РАЗБОР ГОЛОСА")
         Spacer(Modifier.height(20.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Result label uses the same square corners as the exercise sheet.

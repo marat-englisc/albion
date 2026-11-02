@@ -83,7 +83,7 @@ fun Hairline(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorSc
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    Row(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp), verticalAlignment = Alignment.Bottom) {
+    Row(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.padding(end = 10.dp).size(4.dp).background(MaterialTheme.colorScheme.primary))
         Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
         if (trailing != null) Text(trailing, style = MaterialTheme.typography.labelMedium,

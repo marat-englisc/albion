@@ -84,7 +84,7 @@ internal fun GrammarNextCard(step: GrammarNextStep.Step, onClick: () -> Unit, on
     com.marat.albion.ui.components.BoundVolume(Modifier.fillMaxWidth().padding(top = 16.dp)) {
         Text("Следующий шаг · ${step.label}", style = MaterialTheme.typography.labelMedium,
             color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
-        Text("Урок %03d · %s".format(step.topic.number, step.topic.level.orEmpty()), style = MaterialTheme.typography.labelSmall,
+        Text("Урок %d · %s".format(step.topic.number, step.topic.level.orEmpty()), style = MaterialTheme.typography.labelSmall,
             color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
         Text(step.topic.title, style = MaterialTheme.typography.headlineSmall)
         com.marat.albion.ui.components.PrimaryButton(step.action, onClick, trailingIcon = AlbionIcons.ArrowForward, inverse = true)

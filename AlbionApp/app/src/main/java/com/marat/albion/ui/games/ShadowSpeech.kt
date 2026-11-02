@@ -52,7 +52,7 @@ internal fun SpeechCheckCard(state: ClarityState, modelReady: Boolean, onInstall
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        SignalLabel("РАЗБОРЧИВОСТЬ / CLARITY")
+        SignalLabel("РАЗБОРЧИВОСТЬ")
         when {
             !modelReady -> {
                 Text("Установите Whisper — он покажет, какие слова вашей записи узнаются, а какие звучат нечётко. Работает без интернета.",

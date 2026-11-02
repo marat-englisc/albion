@@ -97,7 +97,8 @@ fun GrammarScreen(navigator: Navigator) {
     val filtering = query.isNotBlank() || bookmarksOnly || reviewsOnly
     val listState = if (filtering) searchState else routeState
     val showNext = !filtering && nextStep != null && recommendation?.level == activeStage?.level
-    val route = activeStage?.topics.orEmpty().filterNot { showNext && it.id == recommendation?.id }
+    // Урок из «Следующего шага» остаётся в маршруте и подсвечен: нумерация не прерывается.
+    val route = activeStage?.topics.orEmpty()
     val q = query.trim().lowercase()
     val found = if (!filtering) emptyList() else (if (reviewsOnly) due.map { it.topic } else book.topics).filter { topic ->
         (topic.kind == TopicKind.Lesson || topic.kind == TopicKind.Reference) && GrammarSearch.matches(topic, q) &&
@@ -129,9 +130,9 @@ fun GrammarScreen(navigator: Navigator) {
     }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
-            if (!shortScreen) SignalLabel("02 / LANGUAGE STRUCTURE", Modifier.padding(top = 18.dp, bottom = 8.dp))
+            if (!shortScreen) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                com.marat.albion.ui.components.FitText("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.displaySmall, minSize = 18.sp)
+                com.marat.albion.ui.components.FitText("Учебник", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.displaySmall, minSize = 18.sp)
                 if (!largeText) {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
                     SettingsShortcut(navigator::openSettings)

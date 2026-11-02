@@ -114,7 +114,7 @@ fun HomeScreen(navigator: Navigator) {
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f).appear(0)) {
                         Text("albion", style = MaterialTheme.typography.titleLarge.copy(fontFamily = AlbionFonts.Display), maxLines = 1)
-                        if (!compact) SignalLabel("ENGLISH, EVERY DAY", Modifier.padding(top = 3.dp))
+                        if (!compact) SignalLabel("АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ", Modifier.padding(top = 3.dp))
                     }
                     RoundIconButton(AlbionIcons.Inventory2, "Колоды", { showDecks = true }, filled = true)
                     Spacer(Modifier.width(4.dp))
@@ -126,7 +126,7 @@ fun HomeScreen(navigator: Navigator) {
                     SignalLabel(date.uppercase(Locale.forLanguageTag("ru")))
                     Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("Ваш язык.\nВаш ритм.", Modifier.weight(1f),
-                            style = MaterialTheme.typography.displaySmall.copy(fontSize = if (compact) 25.sp else 30.sp, lineHeight = 41.sp))
+                            style = MaterialTheme.typography.displaySmall.copy(fontSize = 30.sp, lineHeight = 41.sp))
                         if (!compact) OrbitalField(Modifier.size(120.dp))
                     }
                     Spacer(Modifier.height(18.dp))
@@ -180,7 +180,7 @@ fun HomeScreen(navigator: Navigator) {
                 }
             }
             item {
-                ModuleHeading("02", "План на сегодня", "EXPLORE", Modifier.appear(3))
+                ModuleHeading("02", "План на сегодня", modifier = Modifier.appear(3))
             }
             item {
                 val topic = state.continueTopic
@@ -203,7 +203,7 @@ fun HomeScreen(navigator: Navigator) {
         }
         val decks: LazyListScope.() -> Unit = {
             item {
-                ModuleHeading("03", "Ваши колоды", if (state.loaded) "${state.decks.size.toString().padStart(2, '0')} / DECKS" else null)
+                ModuleHeading("03", "Ваши колоды", if (state.loaded) "${state.decks.size} " + com.marat.albion.ui.library.pluralRu(state.decks.size, "колода", "колоды", "колод") else null)
             }
             items(state.decks.size, key = { state.decks[it].deck.id }) { i ->
                 val summary = state.decks[i]

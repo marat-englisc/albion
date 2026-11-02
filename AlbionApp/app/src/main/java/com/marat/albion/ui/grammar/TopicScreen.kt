@@ -242,7 +242,7 @@ private fun TopicHeader(topic: Topic?, doc: MdDocument, modifier: Modifier, prer
                     TopicKind.Reference -> "Справочник"
                     TopicKind.Contents -> "О курсе"
                     TopicKind.Sources -> "Источники"
-                    else -> "Урок %03d".format(topic?.number ?: 0)
+                    else -> "Урок ${topic?.number ?: 0}"
                 },
             )
             Spacer(Modifier.width(12.dp))

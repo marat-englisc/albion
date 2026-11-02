@@ -131,8 +131,9 @@ private fun Heading(h: MdHeading, modifier: Modifier) {
 fun InlineText(text: String, modifier: Modifier = Modifier, style: TextStyle = bodyStyle()) {
     val env = LocalMdEnv.current
     val uri = LocalUriHandler.current
-    val annotated = remember(text, style.color) {
-        inlineMarkdown(text, onWiki = env.onWikiLink, onUrl = { runCatching { uri.openUri(it) } })
+    val codeBackground = MaterialTheme.colorScheme.surfaceContainerHigh
+    val annotated = remember(text, style.color, codeBackground) {
+        inlineMarkdown(text, onWiki = env.onWikiLink, onUrl = { runCatching { uri.openUri(it) } }, codeBackground = codeBackground)
     }
     Text(annotated, modifier = modifier, style = style)
 }
@@ -141,7 +142,12 @@ fun InlineText(text: String, modifier: Modifier = Modifier, style: TextStyle = b
  * Инлайн-разметка Obsidian → AnnotatedString:
  * **жирный**, *курсив*, ~~зачёркнутый~~, ==выделение==, `код`, [[ссылка|текст]], [текст](url), <br>.
  */
-fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Unit): AnnotatedString = buildAnnotatedString {
+fun inlineMarkdown(
+    text: String,
+    onWiki: (String) -> Unit,
+    onUrl: (String) -> Unit,
+    codeBackground: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
+): AnnotatedString = buildAnnotatedString {
     var bold = 0
     var italic = 0
     val emphasis = InlineEmphasis.marks(text)
@@ -169,8 +175,9 @@ fun inlineMarkdown(text: String, onWiki: (String) -> Unit, onUrl: (String) -> Un
                 val end = text.indexOf('`', i + 1)
                 if (end < 0) { sb.append(ch); i++ } else {
                     flush()
-                    withStyle(SpanStyle(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, fontWeight = if (bold > 0) FontWeight.SemiBold else null)) {
-                        append(" "); append(text.substring(i + 1, end)); append(" ")
+                    // Английский фрагмент внутри русского текста: шрифт интерфейса и тихая подложка вместо моноширинного с пробелами.
+                    withStyle(SpanStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Sans, fontWeight = FontWeight.SemiBold, background = codeBackground)) {
+                        append(text.substring(i + 1, end))
                     }
                     i = end + 1
                 }

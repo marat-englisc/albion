@@ -49,7 +49,7 @@ class PracticeDesignTest {
         c.importer.importIfNeeded()
         ActivityScenario.launch(MainActivity::class.java).use {
             activate(await { it.text?.toString() == "Практика" })
-            await { it.text?.toString() == "04 / SKILL LAB" }
+            await { it.text?.toString() == "04 / НАВЫКИ" }
             capture("practice-home")
             for (game in catalogue) {
                 capture("${game.name}-catalogue")
@@ -64,7 +64,7 @@ class PracticeDesignTest {
                 SystemClock.sleep(450)
                 capture("${game.name}-round")
                 if (game == Game.IRREGULAR) {
-                    activate(await { it.text?.toString() == "Я не знаю" })
+                    activate(await { it.text?.toString() == "Не знаю" })
                     await { it.text?.toString() == "Дальше" }
                     capture("IRREGULAR-answer")
                 }

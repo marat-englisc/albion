@@ -240,7 +240,7 @@ fun AlbionNavigation() {
                     predictivePopTransitionSpec = { backward(reduced) },
                 )
                 // Прокручиваемый контент не должен просвечивать под статус-баром.
-                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.background.copy(alpha = 0.94f)))
+                Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.background))
             }
         }
     }
@@ -302,7 +302,7 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 0.sp)
+    val labelStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, letterSpacing = 0.sp)
     val textMeasurer = rememberTextMeasurer()
     val scheme = MaterialTheme.colorScheme
     val reduced = LocalReducedMotion.current

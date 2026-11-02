@@ -142,7 +142,7 @@ enum class Game(
         listOf(Deck.WORDS, Deck.PHRASAL, Deck.IDIOMS, Deck.COLLOCATIONS),
     ),
     GRAMMAR_CHOICE(
-        "Грамматика",
+        "Грамматический тест",
         "Выберите верный вариант",
         "Задания по всем темам учебника — от A1 до C1. Выберите правильный вариант, прочитайте пояснение " +
             "и, если нужно, откройте правило. Задания, в которых вы ошибались, попадаются чаще.",
@@ -288,7 +288,7 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, filled = true)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                SignalLabel(game?.let { "%02d / %s".format(it.editionNumber, it.editionTitle) } ?: "GRAMMAR / ПРОВЕРКА")
+                SignalLabel(game?.let { "%02d / %s".format(it.editionNumber, it.editionTitle) } ?: "УЧЕБНИК / ПРОВЕРКА")
                 if (title.isNotBlank() && !typing) {
                     Spacer(Modifier.height(4.dp))
                     Text(title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
@@ -299,6 +299,29 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
         }
         SegmentedProgress(index, total, Modifier.padding(horizontal = gutter).padding(bottom = 4.dp))
     }
+}
+
+/**
+ * Выход из начатого раунда (крестик или системное «назад») спрашивает подтверждение:
+ * ответы уже сохранены, но итог сессии пропадёт. До первого ответа выходим сразу.
+ */
+@Composable
+internal fun rememberLeaveGuard(active: Boolean, onLeave: () -> Unit): () -> Unit {
+    var asking by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val request = { if (active) asking = true else onLeave() }
+    androidx.activity.compose.BackHandler(onBack = request)
+    if (asking) androidx.compose.material3.AlertDialog(
+        onDismissRequest = { asking = false },
+        title = { Text("Прервать тренировку?") },
+        text = { Text("Ответы уже сохранены, но итог этой сессии не будет показан.") },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = { asking = false; onLeave() }) {
+                Text("Прервать", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = { asking = false }) { Text("Продолжить") } },
+    )
+    return request
 }
 
 /** Прогресс сессии: сегменты по числу вопросов (до 30), иначе — сплошная полоса. */
@@ -408,7 +431,7 @@ fun GameSummary(
             else {
                 SignalLabel("СЕССИЯ ЗАВЕРШЕНА", Modifier.appear(0))
                 Spacer(Modifier.height(8.dp))
-                Text(when { correct == total -> "Excellent."; correct * 10 >= total * 7 -> "Well done."; else -> "Keep going." },
+                Text(when { correct == total -> "Безупречно."; correct * 10 >= total * 7 -> "Отличная работа."; else -> "Продолжайте." },
                     Modifier.appear(1), style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(24.dp))
                 PracticeStage(title, centered = true, modifier = Modifier.appear(2)) {
@@ -570,7 +593,7 @@ internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Да
     val offset = remember { Animatable(if (reduced) 0f else 1f) }
     LaunchedEffect(reduced) { offset.animateTo(0f, if (reduced) snap() else spring(dampingRatio = 1f, stiffness = 320f)) }
     val (bg, fg) = when (ok) {
-        true -> scheme.surfaceContainerLow to scheme.onSurface
+        true -> scheme.surfaceContainerLow to scheme.tertiary
         false -> scheme.surfaceContainerLow to scheme.error
         null -> scheme.surfaceContainerLow to scheme.onSurface
     }
@@ -588,7 +611,7 @@ internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Да
             }
             Spacer(Modifier.width(10.dp))
             Text(heading, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = fg)
-            SignalLabel(if (ok == false) "РАЗБОР" else "ГОТОВО")
+            if (ok == false) SignalLabel("РАЗБОР")
         }
         PrimaryButton(label, onClick = onNext, trailingIcon = AlbionIcons.ArrowForward)
     }

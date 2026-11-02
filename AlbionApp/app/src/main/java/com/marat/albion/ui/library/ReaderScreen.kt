@@ -282,7 +282,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
     }
     val scale = settings.readerTextScale
     val body = TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Reading, fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = MaterialTheme.colorScheme.onSurface)
-    val heading = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
+    val heading = TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Reading, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book

@@ -239,7 +239,7 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> MaterialTheme.colorScheme.primary
+            TileStyle.Correct -> MaterialTheme.colorScheme.tertiaryContainer
             TileStyle.Placed -> MaterialTheme.colorScheme.primary
             TileStyle.Wrong -> MaterialTheme.colorScheme.errorContainer
             TileStyle.Ghost -> MaterialTheme.colorScheme.surfaceContainerLow
@@ -249,7 +249,8 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     )
     val fg by animateColorAsState(
         when (style) {
-            TileStyle.Correct, TileStyle.Placed -> MaterialTheme.colorScheme.onPrimary
+            TileStyle.Correct -> MaterialTheme.colorScheme.onTertiaryContainer
+            TileStyle.Placed -> MaterialTheme.colorScheme.onPrimary
             TileStyle.Wrong -> MaterialTheme.colorScheme.error
             else -> MaterialTheme.colorScheme.onSurface
         },

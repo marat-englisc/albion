@@ -49,7 +49,6 @@ fun SettingsScreen(onBack: () -> Unit) {
             .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(bottom = 24.dp)) {
             Row(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Оформление", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
-                SignalLabel("IRIS / 01")
             }
             SegmentedPicker(ThemeMode.entries.map { it.title }, s.themeMode.ordinal, { scope.launch { repo.setThemeMode(ThemeMode.entries[it]) } })
             Spacer(Modifier.height(16.dp))

@@ -35,14 +35,14 @@ import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.theme.*
 
 internal val Game.editionTitle: String get() = when (this) {
-    Game.TYPE_ANSWER -> "WORD RECALL"
-    Game.IRREGULAR -> "VERB FORMS"
-    Game.GRAMMAR_CHOICE -> "GRAMMAR"
-    Game.GRAMMAR_GAP -> "GAP FILL"
-    Game.SENTENCE -> "WORD ORDER"
-    Game.TENSES -> "TENSES"
-    Game.PRONUNCIATION -> "SPEAKING"
-    Game.SHADOWING -> "SHADOWING"
+    Game.TYPE_ANSWER -> "СЛОВА"
+    Game.IRREGULAR -> "ФОРМЫ ГЛАГОЛА"
+    Game.GRAMMAR_CHOICE -> "ГРАММАТИКА"
+    Game.GRAMMAR_GAP -> "ПИСЬМО"
+    Game.SENTENCE -> "ПОРЯДОК СЛОВ"
+    Game.TENSES -> "ВРЕМЕНА"
+    Game.PRONUNCIATION -> "РЕЧЬ"
+    Game.SHADOWING -> "РЕЧЬ И РИТМ"
 }
 
 internal val Game.editionNumber: Int get() = when (this) {

@@ -1,5 +1,7 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.library.pluralRu
+
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -340,7 +342,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
 
     val (bg, fg, border) = when (r) {
         Rating.Again -> Triple(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
-        Rating.Hard -> Triple(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.outline)
+        Rating.Hard -> Triple(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.outlineVariant)
         Rating.Good -> Triple(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, MaterialTheme.colorScheme.primary)
         Rating.Easy -> Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
     }
@@ -366,7 +368,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
             color = if (r == Rating.Good) MaterialTheme.colorScheme.onPrimary else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
-        Text(when(r) { Rating.Again -> "Не вспомнил"; Rating.Hard -> "С усилием"; Rating.Good -> "Вспомнил"; Rating.Easy -> "Сразу" },
+        Text(when(r) { Rating.Again -> "Не помню"; Rating.Hard -> "С усилием"; Rating.Good -> "Помню"; Rating.Easy -> "Сразу" },
             style = MaterialTheme.typography.bodySmall, color = fg, textAlign = TextAlign.Center)
     }
 }
@@ -384,7 +386,7 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
     ) {
 
         Spacer(Modifier.height(24.dp))
-        Text(if (state.answered == 0) "All caught up." else "Well done.", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(if (state.answered == 0) "Всё повторено." else "Отличная работа.", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.height(10.dp))
         Text(
             if (state.answered == 0) "Сейчас в этой колоде нечего повторять."
@@ -397,9 +399,9 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
         if (state.answered > 0) {
             Spacer(Modifier.height(28.dp))
             val metrics = listOf(
-                Triple(state.answered, "ответов", ""),
-                Triple((state.answered - state.again) * 100 / state.answered, "вспомнил", "%"),
-                Triple((state.elapsedMs / 60000).toInt().coerceAtLeast(1), "минут", ""),
+                Triple(state.answered, pluralRu(state.answered, "ответ", "ответа", "ответов"), ""),
+                Triple((state.answered - state.again) * 100 / state.answered, "вспомнили", "%"),
+                (state.elapsedMs / 60000).toInt().coerceAtLeast(1).let { Triple(it, pluralRu(it, "минута", "минуты", "минут"), "") },
             )
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 if (maxWidth < 300.dp || LocalDensity.current.fontScale > 1.2f) {

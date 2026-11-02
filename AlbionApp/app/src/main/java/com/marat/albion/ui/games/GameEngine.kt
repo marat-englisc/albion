@@ -218,7 +218,7 @@ private fun GameFrame(
     round: @Composable (CardEntity) -> Unit,
 ) {
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
-    BackHandler(enabled = vm.phase == Phase.Playing || vm.phase == Phase.Summary) { vm.backToSetup() }
+    BackHandler(enabled = vm.phase == Phase.Summary) { vm.backToSetup() }
     val available by remember(vm.deck) { vm.observeAvailable(vm.deck) }.collectAsStateWithLifecycle(0)
     val mistakeCount by remember(vm.deck) { vm.observeMistakes(vm.deck) }.collectAsStateWithLifecycle(-1)
     // Ошибок не осталось — режим «только ошибки» выключаем сам.
@@ -263,7 +263,8 @@ private fun GameFrame(
                 Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
-                GameTopRow(vm.game, vm.index, vm.items.size, onClose = { vm.backToSetup() })
+                val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }
+                GameTopRow(vm.game, vm.index, vm.items.size, onClose = leave)
                 AnimatedContent(
                     targetState = vm.index,
                     transitionSpec = { practiceTransition(reduced) },

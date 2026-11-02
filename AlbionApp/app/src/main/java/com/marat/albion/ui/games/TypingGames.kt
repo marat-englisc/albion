@@ -514,7 +514,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) NextDock(result?.let { it.first == Verdict.Correct && it.second == Verdict.Correct }) { vm.next() }
-            else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Я не знаю")
+            else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Не знаю")
         }
     }
 }

@@ -126,7 +126,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             )
 
             Column(Modifier) {
-                SectionHeader("Прогресс", Modifier.padding(top = 28.dp), trailing = "${(summary.progress * 100).toInt()}%")
+                SectionHeader("Прогресс", trailing = "${(summary.progress * 100).toInt()}%")
                 Spacer(Modifier.height(8.dp))
                 ThinProgress(summary.progress)
                 Spacer(Modifier.height(16.dp))
@@ -142,7 +142,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             }
 
             Column(Modifier) {
-                SectionHeader("Как это работает", Modifier.padding(top = 28.dp))
+                SectionHeader("Как это работает")
                 Text(
                     "Посмотрите на лицевую сторону и вспомните значение. Переверните карточку и честно оцените ответ — " +
                         "FSRS рассчитает момент, когда вы начнёте забывать, и покажет карточку именно тогда.",

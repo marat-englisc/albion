@@ -37,17 +37,18 @@ class NavigationUiTest {
             dismissFeatureHelp()
             click(scrollToNode { it.text?.toString() == "Начать" })
             val check = clickableBounds(awaitNode { it.text?.toString() == "Проверить" })
-            val skip = clickableBounds(awaitNode { it.text?.toString() == "Я не знаю" })
+            val skip = clickableBounds(awaitNode { it.text?.toString() == "Не знаю" })
             assertEquals(check.width(), skip.width())
             assertEquals(check.height(), skip.height())
             assertEquals(check.top, skip.top)
             assertEquals(check.bottom, skip.bottom)
-            clickText("Я не знаю")
+            clickText("Не знаю")
             awaitNode { it.text?.toString() == "Неверно" }
             clickText("Дальше")
             awaitNode { it.text?.toString()?.startsWith("2 / ") == true }
-            awaitNode { it.text?.toString() == "Я не знаю" }
+            awaitNode { it.text?.toString() == "Не знаю" }
             clickDescription("Закрыть")
+            clickText("Прервать")
             clickDescription("Назад")
             click(awaitNode { it.text?.toString() == "Прогресс" || it.contentDescription?.toString() == "Прогресс" })
             val saved = withTimeout(5_000) {
@@ -150,7 +151,7 @@ class NavigationUiTest {
                 SystemClock.sleep(500) // Даём завершиться анимации смены вопроса с таким же вариантом «He».
                 clickText("He")
                 clickText("Дальше")
-                awaitNode { it.text?.toString() == "Excellent." }
+                awaitNode { it.text?.toString() == "Безупречно." }
                 val saved = try {
                     withTimeout(10_000) {
                         c.grammar.observeProgress(topic.id).first { it?.reviewStage == 2 && it.quizCorrect == 2 }

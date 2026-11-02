@@ -61,7 +61,7 @@ fun GamesScreen(navigator: Navigator) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            ScreenHeader("Практика", eyebrow = "04 / SKILL LAB", compact = true, trailing = {
+            ScreenHeader("Практика", eyebrow = "04 / НАВЫКИ", compact = true, trailing = {
                 Row {
                     FeatureHelp("practice", "Как заниматься",
                         "Выберите навык, затем колоду или уровень и длину занятия. Параметры каждого упражнения сохраняются.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в дневной цели и статистике; расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
@@ -128,7 +128,7 @@ fun GamesScreen(navigator: Navigator) {
         practiceGroups.filterIndexed { i, _ -> group == -1 || group == i }.forEach { (title, games) ->
             item(key = "h:$title", span = { GridItemSpan(maxLineSpan) }) {
                 ModuleHeading((practiceGroups.indexOfFirst { it.first == title } + 1).toString().padStart(2, '0'), title,
-                    games.size.toString().padStart(2, '0'), Modifier.animateItem())
+                    games.size.let { "$it " + com.marat.albion.ui.library.pluralRu(it, "упражнение", "упражнения", "упражнений") }, Modifier.animateItem())
             }
             items(games, key = { it.name }, span = { GridItemSpan(maxLineSpan) }) { game ->
                 PracticeTile(game, Modifier.animateItem()) { navigator.open(GameRoute(game)) }

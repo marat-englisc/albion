@@ -153,7 +153,7 @@ fun LibraryScreen(navigator: Navigator) {
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            ScreenHeader("Библиотека", eyebrow = "03 / READING SPACE", compact = true, trailing = {
+            ScreenHeader("Библиотека", eyebrow = "03 / КНИГИ", compact = true, trailing = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(onClick = launchPicker, enabled = !importing, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
