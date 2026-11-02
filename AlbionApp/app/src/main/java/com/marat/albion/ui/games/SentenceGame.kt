@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +84,16 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     val answer = placed.map { puzzle.tokens[it] }
     val wrong = if (verdict == Verdict.Wrong) puzzle.wrongPositions(answer) else emptySet()
     val speakKey = "sentence:${card.id}"
+    // Перевод предложения: без него порядок слов приходится угадывать. Переводит модель на устройстве, если она установлена.
+    val model by c.translator.model.collectAsStateWithLifecycle()
+    val canTranslate = model.phase == com.marat.albion.data.translation.ModelState.Ready
+    var translation by rememberSaveable(card.id) { mutableStateOf<String?>(null) }
+    androidx.compose.runtime.LaunchedEffect(card.id, canTranslate) {
+        if (!canTranslate || translation != null) return@LaunchedEffect
+        try { c.translator.translations(puzzle.original).collect { translation = it } }
+        catch (e: kotlinx.coroutines.CancellationException) { throw e }
+        catch (_: Exception) { }
+    }
 
     fun check() {
         if (verdict != null) return
@@ -109,11 +120,19 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
             TaskCard(label = "СОБЕРИТЕ ПРЕДЛОЖЕНИЕ") {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip(card.term, Modifier.weight(1f, fill = false))
+            val shownTranslation = translation?.takeIf { it.isNotBlank() }
+            if (shownTranslation != null || canTranslate) {
+                Text(shownTranslation ?: "Переводим предложение…",
+                    style = if (shownTranslation != null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodySmall,
+                    color = if (shownTranslation != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(12.dp))
+            }
+            Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Chip(card.term)
                 if (card.meaningRu.isNotBlank()) {
-                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2,
-                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    // Значение слова целиком: обрезанная подсказка («Используется перед исчисляемым существите…») не помогала.
+                    Text(card.meaningRu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f).padding(top = 4.dp))
                 }
             }
             Spacer(Modifier.height(18.dp))

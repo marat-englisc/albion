@@ -51,6 +51,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 
+/** Короткие служебные слова: отдельно их и не произносят, и не распознают. */
+private val FUNCTION_WORDS = setOf("the", "and", "but", "for", "nor", "yet", "its", "his", "her", "our", "you", "him", "she", "they", "them", "who", "was", "are", "has", "had", "did", "not", "off", "out", "per", "via")
+
 enum class Phase { Setup, Loading, Playing, Summary }
 
 /** Общее состояние мини-игры: настройка → вопросы → итог. На FSRS не влияет. */
@@ -110,6 +113,9 @@ class GameViewModel(private val c: AppContainer, val game: Game,
                 // Нужны карточки, у которых есть пример подходящей длины.
                 Game.SENTENCE -> c.study.gamePool(deck, game.name, (count * 4).coerceAtMost(500), onlyMistakes = onlyMistakes).filter { puzzle(it) != null }.take(count)
                 Game.TENSES -> c.study.gamePool(deck, game.name, (count * 2).coerceAtMost(500), onlyMistakes = onlyMistakes).filter { tense(it) != null }.take(count)
+                // Речь: служебные слова вроде «a» или «to» распознавание не узнаёт отдельно — их пропускаем.
+                Game.SHADOWING, Game.PRONUNCIATION -> c.study.gamePool(deck, game.name, (count * 2).coerceAtMost(500), withAudio = true, onlyMistakes = onlyMistakes)
+                    .filter { speakable(it.term) }.take(count)
                 else -> c.study.gamePool(deck, game.name, count.coerceAtMost(500), withAudio = needAudio, onlyMistakes = onlyMistakes)
             }
             items = pool
@@ -124,6 +130,11 @@ class GameViewModel(private val c: AppContainer, val game: Game,
     }
 
     fun retryMistakes() = start(missed.toList())
+
+    private fun speakable(term: String): Boolean {
+        val word = term.trim().lowercase()
+        return word.count(Char::isLetter) >= 3 && word !in FUNCTION_WORDS
+    }
 
     /** Засчитать текущий вопрос. */
     fun record(ok: Boolean, mistake: Mistake? = null) {

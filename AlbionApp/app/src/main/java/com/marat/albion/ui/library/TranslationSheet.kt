@@ -181,7 +181,6 @@ fun TranslationSheet(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             val dictionary = entries.orEmpty()
-            selectionControls?.invoke()
             val options = dictionary.flatMap { entry -> entry.senses.filter { it.isNotBlank() }.map { entry to it } }
                 .distinctBy { it.first.headword.lowercase() to it.second.lowercase() }
             // С моделью перевод по контексту главный; словарное значение — только если выбрать его в меню.
@@ -201,16 +200,22 @@ fun TranslationSheet(
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
             val partial = (result as? TranslationResult.Streaming)?.text
-            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: partial
+            // Пока модель думает над контекстом, сразу показываем словарь или карточку — перевод не прячется за ожиданием.
+            val provisional = if (contextual && automatic == null && partial == null && result is TranslationResult.Loading)
+                options.firstOrNull()?.second ?: cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu else null
+            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: partial ?: provisional
             Spacer(Modifier.height(12.dp))
             if (meaning != null) {
                 Text(meaning, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
+                    provisional != null -> "Словарь · уточняю по контексту…"
                     else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · значение в этом месте книги"
                 }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
+                if (provisional != null) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
+                    color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {
@@ -277,6 +282,8 @@ fun TranslationSheet(
                 }
             }
 
+            // Уточнение границ — второстепенное действие: после перевода, а не над ним.
+            selectionControls?.let { Spacer(Modifier.height(4.dp)); it() }
             if (model.phase != ModelState.Ready) {
                 Spacer(Modifier.height(12.dp))
                 com.marat.albion.ui.components.Disclosure("Модель перевода", model.summary) { TranslationModelControls() }
@@ -288,7 +295,7 @@ fun TranslationSheet(
                     BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
                         suggestedTerm = if (isWord && firstEntry != null) firstEntry.headword
                             else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
-                        suggestedMeaning = dictionaryMeaning ?: cardMeaning ?: automatic, onSaved = onBookWordSaved)
+                        suggestedMeaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: provisional, onSaved = onBookWordSaved)
                 }
                 if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
             }

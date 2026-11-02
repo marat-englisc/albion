@@ -394,15 +394,16 @@ fun SegmentedPicker(
     val feedback = LocalFeedback.current
     val scheme = MaterialTheme.colorScheme
     val track = if (inverse) scheme.background.copy(alpha = 0.12f) else scheme.surfaceContainerHigh
-    val on = scheme.onBackground
+    // Единый язык выбора: тонированный ирис с ирисовой рамкой (на акцентной плите — светлая плашка).
+    val on = if (inverse) scheme.onBackground else scheme.onPrimaryContainer
     val off = if (inverse) scheme.background.copy(alpha = 0.7f) else scheme.onSurfaceVariant
     val reduced = LocalReducedMotion.current
     val shape = MaterialTheme.shapes.small
     BoxWithConstraints(modifier.fillMaxWidth().height(56.dp).background(track, shape).padding(4.dp)) {
         val segment = maxWidth / options.size.coerceAtLeast(1)
         val x by animateDpAsState(segment * selected.coerceIn(0, (options.size - 1).coerceAtLeast(0)), if (reduced) androidx.compose.animation.core.snap() else Springs.snappy(), label = "segment")
-        Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(scheme.background, shape)
-            .border(.75.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.outlineVariant, shape))
+        Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(if (inverse) scheme.background else scheme.primaryContainer, shape)
+            .border(if (inverse) .75.dp else 1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape))
         Row(Modifier.fillMaxWidth().fillMaxHeight().selectableGroup()) {
             options.forEachIndexed { i, label ->
                 val color by animateColorAsState(if (i == selected) on else off, label = "segmentText")
@@ -422,12 +423,15 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
     val feedback = LocalFeedback.current
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
-    val bg by animateColorAsState(if (selected) scheme.inverseSurface else scheme.surfaceContainerLow, label = "choiceBg")
-    val fg by animateColorAsState(if (selected) scheme.inverseOnSurface else scheme.onSurface, label = "choiceFg")
+    val bg by animateColorAsState(if (selected) scheme.primaryContainer else scheme.surfaceContainerLow, label = "choiceBg")
+    val fg by animateColorAsState(if (selected) scheme.onPrimaryContainer else scheme.onSurface, label = "choiceFg")
+    val edge by animateColorAsState(if (selected) scheme.primary else scheme.outlineVariant, label = "choiceEdge")
+    val mark = if (selected) scheme.primary else fg
     val dot by animateFloatAsState(if (selected) 1f else 0f, Springs.bouncy(), label = "choiceDot")
     Row(
         modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.98f)
             .clip(MaterialTheme.shapes.medium).background(bg)
+            .border(if (selected) 1.dp else .75.dp, edge, MaterialTheme.shapes.medium)
             .selectable(selected, interaction, null, role = Role.RadioButton) { if (!selected) { feedback.selection(); onClick() } }
             .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -436,8 +440,8 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
             Text(label, style = MaterialTheme.typography.titleMedium, color = fg)
             if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = fg.copy(alpha = 0.7f))
         }
-        Box(Modifier.size(22.dp).border(1.5.dp, fg.copy(alpha = if (selected) 1f else 0.4f), CircleShape), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(12.dp * dot).background(fg, CircleShape))
+        Box(Modifier.size(22.dp).border(1.5.dp, mark.copy(alpha = if (selected) 1f else 0.4f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(12.dp * dot).background(mark, CircleShape))
         }
     }
 }

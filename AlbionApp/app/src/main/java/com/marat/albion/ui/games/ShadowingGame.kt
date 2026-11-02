@@ -291,8 +291,10 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 PlaybackActions(onCompare = ::compare, onPlayMine = ::playMine)
             }
         }
-        PrimaryButton(
-            when { recording -> "Остановить запись"; analyzing -> "Сравниваем…"; !originalReady -> "Готовим образец…"; !hasTake -> "Пропустить"; else -> "Следующее" },
+        // До первой записи главное действие — микрофон, поэтому «Пропустить» второстепенная, как в «Произношении».
+        if (!recording && !analyzing && originalReady && !hasTake) GhostButton("Пропустить", onClick = ::next, modifier = Modifier.padding(vertical = 12.dp))
+        else PrimaryButton(
+            when { recording -> "Остановить запись"; analyzing -> "Сравниваем…"; !originalReady -> "Готовим образец…"; else -> "Следующее" },
             onClick = { if (recording) recorder.stop() else next() },
             enabled = !analyzing && originalReady,
             trailingIcon = AlbionIcons.ArrowForward,
