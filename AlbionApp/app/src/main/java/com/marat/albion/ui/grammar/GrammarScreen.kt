@@ -119,20 +119,21 @@ fun GrammarScreen(navigator: Navigator) {
     }
     val searchAndFilters: @Composable () -> Unit = {
         SearchField(query, { query = it }, "Найти правило или пример…")
-        GrammarViewTabs(if (bookmarksOnly) 1 else if (reviewsOnly) 2 else 0, due.size) { selected ->
+        GrammarViewPicker(if (bookmarksOnly) 1 else if (reviewsOnly) 2 else 0, due.size) { selected ->
             when (selected) {
                 0 -> { query = ""; bookmarksOnly = false; reviewsOnly = false }
-                1 -> { bookmarksOnly = !bookmarksOnly; reviewsOnly = false }
-                2 -> { reviewsOnly = !reviewsOnly; bookmarksOnly = false }
+                1 -> { bookmarksOnly = true; reviewsOnly = false }
+                2 -> { reviewsOnly = true; bookmarksOnly = false }
             }
         }
     }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
+            if (!shortScreen) SignalLabel("02 / LANGUAGE STRUCTURE", Modifier.padding(top = 18.dp, bottom = 8.dp))
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
+                com.marat.albion.ui.components.FitText("Грамматика", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.displaySmall, minSize = 18.sp)
                 if (!largeText) {
-                    TextButton(onClick = { references = true }) { Text("Справочники") }
+                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
                     SettingsShortcut(navigator::openSettings)
                 } else Box {
                     com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true })
@@ -142,6 +143,7 @@ fun GrammarScreen(navigator: Navigator) {
                     }
                 }
             }
+            Spacer(Modifier.height(8.dp))
             if (!shortScreen) searchAndFilters()
         }
         LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState,

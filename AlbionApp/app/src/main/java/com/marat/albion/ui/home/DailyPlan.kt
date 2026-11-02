@@ -1,0 +1,149 @@
+package com.marat.albion.ui.home
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.marat.albion.data.repo.DeckSummary
+import com.marat.albion.ui.components.AlbionIcons
+import com.marat.albion.ui.components.Panel
+import com.marat.albion.ui.components.ThinProgress
+import androidx.compose.foundation.border
+import com.marat.albion.ui.components.SignalLabel
+import com.marat.albion.ui.theme.AnimatedNumber
+import com.marat.albion.ui.theme.LocalReducedMotion
+
+/** Кольцо дневной цели: дуга дорисовывается к доле ответов, внутри — число ответов. */
+@Composable
+internal fun GoalRing(answered: Int, goal: Int, modifier: Modifier = Modifier) {
+    val reduced = LocalReducedMotion.current
+    val target = if (goal <= 0) 0f else (answered.toFloat() / goal).coerceIn(0f, 1f)
+    val sweep = remember { Animatable(if (reduced) target else 0f) }
+    LaunchedEffect(target) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 80f)) }
+    val track = MaterialTheme.colorScheme.surfaceContainerHighest
+    val done = target >= 1f
+    val arc = if (done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    Box(modifier.size(76.dp).semantics { contentDescription = "Цель дня: $answered из $goal ответов" }, contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val stroke = Stroke(7.dp.toPx(), cap = StrokeCap.Round)
+            drawArc(track, -90f, 360f, false, style = stroke)
+            if (sweep.value > 0f) drawArc(arc, -90f, 360f * sweep.value, false, style = stroke)
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (done) Icon(AlbionIcons.Check, null, Modifier.size(22.dp), tint = arc)
+            else AnimatedNumber(answered, MaterialTheme.typography.titleLarge)
+            Text("из $goal", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** Пункт дневного плана: значок (галочка, когда выполнено), заголовок, пояснение и стрелка. */
+@Composable
+internal fun PlanRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    done: Boolean,
+    modifier: Modifier = Modifier,
+    progress: Float? = null,
+    onClick: () -> Unit,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(44.dp).background(if (done) scheme.tertiary else scheme.background, MaterialTheme.shapes.small)
+                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
+                Icon(if (done) AlbionIcons.Check else icon, null, Modifier.size(22.dp), tint = if (done) scheme.onTertiary else scheme.onSurface)
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (progress != null && progress > 0f) {
+                    Spacer(Modifier.height(8.dp))
+                    ThinProgress(progress, height = 4.dp)
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = scheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** Плитка колоды для горизонтальной ленты: сколько ждёт сегодня и общий прогресс. */
+@Composable
+internal fun DeckTile(summary: DeckSummary, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Panel(modifier.width(168.dp).heightIn(min = 152.dp), onClick = onClick, contentPadding = PaddingValues(16.dp)) {
+        Text(summary.deck.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Spacer(Modifier.weight(1f).heightIn(min = 12.dp))
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            AnimatedNumber(summary.toStudy, MaterialTheme.typography.displaySmall)
+            Text("сегодня", Modifier.padding(bottom = 6.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Spacer(Modifier.height(10.dp))
+        ThinProgress(summary.progress, height = 4.dp)
+        Spacer(Modifier.height(6.dp))
+        Text(if (summary.total == 0) summary.deck.subtitle else "${summary.started} из ${summary.total} начато",
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+}
+
+/** Строка колоды: сколько ждёт сегодня (крупно), название, прогресс и стрелка. */
+@Composable
+internal fun DeckRow(summary: DeckSummary, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(52.dp).background(scheme.background, MaterialTheme.shapes.small)
+                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
+                Text("${summary.toStudy}", style = MaterialTheme.typography.titleLarge,
+                    color = if (summary.toStudy > 0) scheme.onSurface else scheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(summary.deck.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(when {
+                    summary.total == 0 -> summary.deck.subtitle
+                    summary.toStudy == 0 -> "На сегодня всё · ${summary.started} из ${summary.total} начато"
+                    else -> "${summary.due} повторить · ${summary.newAvailable} новых"
+                }, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (summary.started > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    ThinProgress(summary.progress, height = 4.dp)
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = scheme.onSurfaceVariant)
+        }
+    }
+}

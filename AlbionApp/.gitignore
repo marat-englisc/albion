@@ -4,5 +4,6 @@ local.properties
 .idea/
 *.iml
 .kotlin/
+.cxx/
 captures/
 __pycache__/

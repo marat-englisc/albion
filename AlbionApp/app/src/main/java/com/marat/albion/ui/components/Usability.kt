@@ -15,32 +15,51 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 
-/** One disclosure pattern for secondary information, usable without animation or gestures. */
+/** Раскрывающийся блок: карточка, стрелка поворачивается, содержимое раскрывается на пружине. */
 @Composable
 fun Disclosure(
     title: String,
     summary: String? = null,
     modifier: Modifier = Modifier,
     initiallyExpanded: Boolean = false,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     var expanded by rememberSaveable(title) { mutableStateOf(initiallyExpanded) }
-    Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
+    val turn by androidx.compose.animation.core.animateFloatAsState(if (expanded) 90f else 0f,
+        com.marat.albion.ui.theme.Springs.snappy(), label = "chevron")
+    Column(modifier.fillMaxWidth().padding(vertical = 5.dp)
+        .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)
+        .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
+        .clip(MaterialTheme.shapes.large)) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp)
             .semantics { stateDescription = if (expanded) "Развёрнуто" else "Свёрнуто" }
             .clickable(role = Role.Button) { expanded = !expanded }
-            .padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            .padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Box(Modifier.size(40.dp).background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small),
+                    contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(20.dp)) }
+                Spacer(Modifier.width(14.dp))
+            }
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                if (!summary.isNullOrBlank() && !expanded) Text(summary,
+                if (!summary.isNullOrBlank()) Text(summary,
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(if (expanded) AlbionIcons.KeyboardArrowDown else AlbionIcons.ArrowForward,
-                null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 12.dp).size(20.dp))
+            Icon(AlbionIcons.ArrowForward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 12.dp).size(18.dp).graphicsLayer { rotationZ = turn })
         }
-        if (expanded) Column(Modifier.fillMaxWidth().padding(bottom = 16.dp), content = content)
-        Hairline()
+        androidx.compose.animation.AnimatedVisibility(expanded,
+            enter = if (reduced) androidx.compose.animation.EnterTransition.None else androidx.compose.animation.expandVertically(com.marat.albion.ui.theme.Springs.smooth()) + androidx.compose.animation.fadeIn(),
+            exit = if (reduced) androidx.compose.animation.ExitTransition.None else androidx.compose.animation.shrinkVertically(com.marat.albion.ui.theme.Springs.smooth()) + androidx.compose.animation.fadeOut()) {
+            Column(Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, bottom = 16.dp), content = content)
+        }
     }
 }
 

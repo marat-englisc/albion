@@ -6,12 +6,12 @@
 }
 -keep,includedescriptorclasses class com.marat.albion.**$$serializer { *; }
 
-# ML Kit (перевод фраз) находит свои компоненты через рефлексию по манифесту —
-# без этих правил R8 их вырезает и release падает при создании переводчика.
--keep class com.google.mlkit.** { *; }
--keep class com.google.android.gms.internal.mlkit_** { *; }
--keep class * implements com.google.firebase.components.ComponentRegistrar { *; }
--keep class com.google.firebase.components.** { *; }
+# JNI looks up the bridge and streaming callback by their exact names.
+-keep class com.marat.albion.data.translation.LlamaBridge { *; }
+-keep interface com.marat.albion.data.translation.LlamaBridge$TokenCallback { *; }
+-keepclassmembers class * implements com.marat.albion.data.translation.LlamaBridge$TokenCallback {
+    public boolean onTokens(byte[]);
+}
 
 # PdfBox-Android: необязательный декодер JPEG 2000 не подключён, ресурсы шрифтов грузятся по имени.
 -dontwarn com.gemalto.jp2.**

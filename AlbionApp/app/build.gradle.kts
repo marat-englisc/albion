@@ -13,6 +13,7 @@ plugins {
 android {
     namespace = "com.marat.albion"
     compileSdk = 37
+    ndkVersion = "30.0.16248370"
 
     defaultConfig {
         applicationId = "com.marat.albion"
@@ -20,7 +21,22 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = providers.gradleProperty("albion.testRunner")
+            .getOrElse("androidx.test.runner.AndroidJUnitRunner")
+        ndk {
+            abiFilters += providers.gradleProperty("albion.abis").getOrElse("arm64-v8a,x86_64")
+                .split(",").map(String::trim)
+        }
+        externalNativeBuild {
+            cmake { arguments += listOf("-DANDROID_STL=c++_static", "-DCMAKE_BUILD_TYPE=Release") }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path("src/main/cpp/CMakeLists.txt")
+            version = "3.31.6"
+        }
     }
 
     buildTypes {
@@ -152,7 +168,6 @@ dependencies {
 
     implementation(libs.datastore.preferences)
     implementation(libs.media3.exoplayer)
-    implementation(libs.mlkit.translate)
     // Текст из PDF для библиотеки (Apache 2.0).
     implementation(libs.pdfbox.android)
     implementation(libs.kotlinx.serialization.json)

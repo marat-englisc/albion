@@ -81,6 +81,9 @@ class GameUiGalleryTest {
                     GameSummary(Game.TYPE_ANSWER, 7, 10, mistakes, {}, {}, {})
                 }
             }
+            show(scenario, "summary-perfect-320-1.5-true", 320, 1.5f, true) {
+                GameSummary(Game.TYPE_ANSWER, 10, 10, emptyList(), {}, null, {})
+            }
         }
     }
 
@@ -91,7 +94,7 @@ class GameUiGalleryTest {
                 val density = LocalDensity.current.density
                 CompositionLocalProvider(LocalDensity provides Density(density, scale)) {
                     key(name) {
-                        AlbionTheme {
+                        AlbionTheme(darkTheme = dark) {
                             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 MeasureNarrow(Modifier.width(width.dp).height(760.dp)) { content() }
                             }

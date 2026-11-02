@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(albion_llm LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_COMMON OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_SERVER OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_APP OFF CACHE BOOL "" FORCE)
+set(LLAMA_OPENSSL OFF CACHE BOOL "" FORCE)
+set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
+set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
+set(GGML_CPU_KLEIDIAI OFF CACHE BOOL "" FORCE)
+set(GGML_BACKEND_DL OFF CACHE BOOL "" FORCE)
+set(GGML_CPU_ALL_VARIANTS OFF CACHE BOOL "" FORCE)
+set(GGML_AVX OFF CACHE BOOL "" FORCE)
+set(GGML_AVX2 OFF CACHE BOOL "" FORCE)
+set(GGML_AVX512 OFF CACHE BOOL "" FORCE)
+set(GGML_FMA OFF CACHE BOOL "" FORCE)
+set(GGML_F16C OFF CACHE BOOL "" FORCE)
+
+set(LLAMA_SRC "${CMAKE_CURRENT_LIST_DIR}/../../../../third_party/llama.cpp")
+add_subdirectory("${LLAMA_SRC}" "llama-build")
+
+# whisper.cpp shares the ggml runtime built above: one copy of the CPU kernels for both models.
+set(WHISPER_SRC "${CMAKE_CURRENT_LIST_DIR}/../../../../third_party/whisper.cpp")
+add_library(whisper STATIC
+        "${WHISPER_SRC}/src/whisper.cpp"
+        "${WHISPER_SRC}/src/aneforge/whisper-aneforge.cpp")
+target_include_directories(whisper PUBLIC "${WHISPER_SRC}/include" PRIVATE "${WHISPER_SRC}/src")
+target_compile_definitions(whisper PRIVATE WHISPER_VERSION="1.9.5")
+target_link_libraries(whisper PUBLIC ggml)
+
+add_library(albion_llm SHARED albion_llm.cpp albion_stt.cpp)
+target_link_libraries(albion_llm PRIVATE llama whisper android log)
+target_compile_options(albion_llm PRIVATE -Wall -Wextra)

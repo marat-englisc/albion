@@ -108,9 +108,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
 
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
-            TaskCard {
-            Eyebrow("Соберите предложение", color = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(10.dp))
+            TaskCard(label = "СОБЕРИТЕ ПРЕДЛОЖЕНИЕ") {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Chip(card.term, Modifier.weight(1f, fill = false))
                 if (card.meaningRu.isNotBlank()) {
@@ -119,6 +117,11 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                 }
             }
             Spacer(Modifier.height(18.dp))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                com.marat.albion.ui.components.SignalLabel("ВАША ФРАЗА", Modifier.weight(1f))
+                com.marat.albion.ui.components.SignalLabel("${placed.size} / ${puzzle.tokens.size}")
+            }
+            Spacer(Modifier.height(12.dp))
 
             if (verdict == null && placed.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 androidx.compose.material3.TextButton(onClick = { placed.removeAt(placed.lastIndex); validation = null }) { Text("Отменить слово") }
@@ -151,7 +154,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                         Text(puzzle.ending, style = TileText, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 9.dp))
                     }
                 }
-                Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(2.dp).background(MaterialTheme.colorScheme.outline, CircleShape))
+                com.marat.albion.ui.components.ThinProgress(placed.size.toFloat() / puzzle.tokens.size.coerceAtLeast(1),
+                    Modifier.padding(top = 14.dp), height = 2.dp)
             }
             }
 
@@ -161,9 +165,11 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                 label = "pool",
             ) { answered ->
                 if (!answered) {
+                    Column {
+                    com.marat.albion.ui.components.SignalLabel("ДОСТУПНЫЕ СЛОВА", Modifier.padding(top = 22.dp))
                     // Запас слов: поставленные остаются пустыми местами, чтобы плашки не прыгали.
                     FlowRow(
-                        Modifier.fillMaxWidth().padding(top = 22.dp),
+                        Modifier.fillMaxWidth().padding(top = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
@@ -175,6 +181,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                                 onClick = { if (!used) placed += tokenIndex },
                             )
                         }
+                    }
                     }
                 } else {
                     NoteCard(Modifier.padding(top = 18.dp), tone = if (verdict == Verdict.Correct) NoteTone.Good else NoteTone.Bad) {
@@ -213,7 +220,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
-                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
+                NextDock(verdict == Verdict.Correct) { vm.next() }
             } else {
                 GameAnswerActions(onCheck = { check() }, onSecondary = { hint() }, secondaryLabel = "Подсказка")
             }
@@ -232,35 +239,35 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> MaterialTheme.colorScheme.tertiaryContainer
-            TileStyle.Placed -> MaterialTheme.colorScheme.primaryContainer
+            TileStyle.Correct -> MaterialTheme.colorScheme.primary
+            TileStyle.Placed -> MaterialTheme.colorScheme.primary
             TileStyle.Wrong -> MaterialTheme.colorScheme.errorContainer
-            TileStyle.Ghost -> MaterialTheme.colorScheme.surfaceContainer
-            TileStyle.Idle -> MaterialTheme.colorScheme.surface
+            TileStyle.Ghost -> MaterialTheme.colorScheme.surfaceContainerLow
+            TileStyle.Idle -> MaterialTheme.colorScheme.surfaceContainerLow
         },
         tween(240), label = "tileBg",
     )
     val fg by animateColorAsState(
         when (style) {
-            TileStyle.Correct -> MaterialTheme.colorScheme.tertiary
+            TileStyle.Correct, TileStyle.Placed -> MaterialTheme.colorScheme.onPrimary
             TileStyle.Wrong -> MaterialTheme.colorScheme.error
             else -> MaterialTheme.colorScheme.onSurface
         },
         tween(240), label = "tileFg",
     )
     val border = when (style) {
-        TileStyle.Idle -> MaterialTheme.colorScheme.outline
+        TileStyle.Idle -> MaterialTheme.colorScheme.outlineVariant
         TileStyle.Placed -> MaterialTheme.colorScheme.primary
-        TileStyle.Ghost -> MaterialTheme.colorScheme.outlineVariant
+        TileStyle.Ghost -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = .4f)
         TileStyle.Correct -> MaterialTheme.colorScheme.tertiary
         TileStyle.Wrong -> MaterialTheme.colorScheme.error
     }
-    val shape = RoundedCornerShape(2.dp)
+    val shape = MaterialTheme.shapes.small
     Box(
         Modifier
             .widthIn(min = 48.dp).heightIn(min = 48.dp)
             .background(bg, shape)
-            .border(1.dp, border, shape)
+            .border(.75.dp, border, shape)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {

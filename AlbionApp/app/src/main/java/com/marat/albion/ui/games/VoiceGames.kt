@@ -12,6 +12,12 @@ import androidx.compose.ui.semantics.Role
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.components.SignalLabel
+import com.marat.albion.ui.theme.pressScale
+import androidx.compose.ui.draw.clip
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.PI
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
@@ -86,7 +92,7 @@ import kotlinx.coroutines.flow.first
 /** Термин крупно на карточке задания — общий заголовок голосовых игр. */
 @Composable
 internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: (@Composable () -> Unit)? = null) {
-    TaskCard(centered = true) {
+    TaskCard(centered = true, label = if (showMeaning) "СЛУШАЙТЕ И ПОВТОРЯЙТЕ" else "ПРОИЗНЕСИТЕ ВСЛУХ") {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (card.pos.isNotBlank()) Chip(card.pos)
             LevelBadge(card.level)
@@ -128,8 +134,9 @@ internal fun PlaybackAction(
         Box(Modifier.height(slot), contentAlignment = Alignment.Center) {
         Box(
             Modifier.size(size)
-                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(3.dp))
-                .border(.75.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(3.dp))
+                .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
+                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
+                .border(.75.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -165,17 +172,23 @@ internal fun MicButton(
     val feedback = com.marat.albion.ui.theme.LocalFeedback.current
     val interaction = remember { MutableInteractionSource() }
     val amp by animateFloatAsState(if (active && !reduced) level.coerceIn(0f, 1f) else 0f, tween(160), label = "voiceLevel")
-    val face = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-    val foreground = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+    val face = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
+    val foreground = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    val line = MaterialTheme.colorScheme.onSurface
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(size), contentAlignment = Alignment.Center) {
-            val line = MaterialTheme.colorScheme.secondary
-            if (active) Canvas(Modifier.size(size)) {
-                if (!reduced) drawLine(line, Offset(7.dp.toPx(), this.size.height - 3.dp.toPx()),
-                    Offset(7.dp.toPx() + (this.size.width - 14.dp.toPx()) * amp, this.size.height - 3.dp.toPx()), 2.dp.toPx())
+            Canvas(Modifier.size(size)) {
+                val radius = this.size.minDimension / 2 - 2.dp.toPx()
+                drawCircle(line.copy(alpha = .15f), radius, style = Stroke(.75.dp.toPx()))
+                repeat(24) { index ->
+                    val angle = (index * PI / 12).toFloat()
+                    val vector = Offset(cos(angle), sin(angle))
+                    val length = if (index % 6 == 0) 4.dp.toPx() else 2.dp.toPx()
+                    drawLine(line.copy(alpha = if (active && index < (amp * 24).toInt()) .9f else .25f),
+                        center + vector * radius, center + vector * (radius - length), .75.dp.toPx())
+                }
             }
-            Box(Modifier.size(size - 12.dp).background(face, RoundedCornerShape(3.dp))
-                .border(.75.dp, if (active) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondary.copy(alpha = .7f), RoundedCornerShape(3.dp))
+            Box(Modifier.size((size - 24.dp).coerceAtLeast(48.dp)).pressScale(interaction, .94f).clip(CircleShape).background(face, CircleShape)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,
@@ -256,10 +269,10 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
                 )
             }
             Spacer(Modifier.height(20.dp))
-
-            Spacer(Modifier.height(24.dp))
-            MicButton(active = listening, level = level, onClick = { if (listening) checker.stopListening() else listen() })
-            Spacer(Modifier.height(28.dp))
+            SignalLabel(if (listening) "МИКРОФОН АКТИВЕН" else "СЛУШАЙТЕ → ПРОИЗНЕСИТЕ")
+            Spacer(Modifier.height(20.dp))
+            MicButton(active = listening, level = level, onClick = { if (listening) checker.stopListening() else listen() }, size = 104.dp)
+            Spacer(Modifier.height(20.dp))
 
             val s = state
             Box(Modifier.fillMaxWidth().heightIn(min = 110.dp), contentAlignment = Alignment.TopCenter) {
@@ -338,6 +351,6 @@ private fun ScoreView(score: Float, heard: String) {
         Spacer(Modifier.height(10.dp))
         Text("Сравниваем распознанный текст со словом; это не фонетическая оценка.",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        ThinProgress(score, color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary, track = MaterialTheme.colorScheme.surface, height = 8.dp)
+        ThinProgress(score, color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary, track = MaterialTheme.colorScheme.surface, height = 3.dp)
     }
 }

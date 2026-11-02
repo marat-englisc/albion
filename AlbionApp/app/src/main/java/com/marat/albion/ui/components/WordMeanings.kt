@@ -30,9 +30,9 @@ fun WordMeanings(
     Column(modifier.fillMaxWidth()) {
         senses.forEachIndexed { index, sense ->
             if (index > 0) {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
                 Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = .38f))
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (senses.size > 1) {

@@ -24,6 +24,9 @@ sealed interface TopLevel : NavKey
 @Serializable data class TopicQuizRoute(val topic: Int, val topicId: String, val title: String) : NavKey
 @Serializable data class GameRoute(val game: Game, val deck: Deck? = null, val onlyMistakes: Boolean = false, val count: Int? = null) : NavKey
 @Serializable data class ReaderRoute(val bookId: String) : NavKey
+/** Разговорная практика: история бесед и выбор ситуации. */
+@Serializable data object ConversationsRoute : NavKey
+@Serializable data class ChatRoute(val conversationId: Long) : NavKey
 
 internal val primaryRoutes = listOf(HomeRoute, GrammarRoute, LibraryRoute, GamesRoute, StatsRoute)
 

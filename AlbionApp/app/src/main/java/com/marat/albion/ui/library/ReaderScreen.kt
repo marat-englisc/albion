@@ -280,13 +280,14 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
         }
     }
     val scale = settings.readerTextScale
-    val body = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = MaterialTheme.colorScheme.onSurface)
+    val body = TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Reading, fontWeight = androidx.compose.ui.text.font.FontWeight.Normal, fontSize = (18 * scale).sp, lineHeight = (29 * scale * settings.readerLineSpacing).sp, color = MaterialTheme.colorScheme.onSurface)
     val heading = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, fontSize = (32 * scale).sp, lineHeight = (39 * scale).sp, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer(cacheSize = 0)
     val density = LocalDensity.current
     val book = vm.book
     val reduced = LocalReducedMotion.current
 
+    Box(Modifier.fillMaxSize()) {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
@@ -311,7 +312,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             }
         }
 
-        Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.65f))
+        Hairline()
 
         if (!vm.loaded || book == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -433,8 +434,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     val p = BookPosition(b.chapter, b.paragraph, b.offset)
                     p >= current.start && (next == null || p < next.start)
                 }
-                FolioDivider(Modifier.height(16.dp))
-                Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.65f))
+                Spacer(Modifier.height(8.dp))
+                Hairline()
                 Row(
                     Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).height(FOOTER_HEIGHT - 17.dp).padding(start = 24.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -527,6 +528,12 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     }
                 }
             }
+        }
+    }
+        // Подсказка поверх страницы: не меняет высоту текста и не запускает перерасчёт страниц.
+        Box(Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 120.dp)) {
+            com.marat.albion.ui.components.CoachMark("reader.tap",
+                "Коснитесь слова — откроется перевод. Удерживайте — выделится предложение")
         }
     }
 

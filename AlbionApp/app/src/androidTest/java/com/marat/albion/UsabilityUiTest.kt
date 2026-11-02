@@ -50,15 +50,17 @@ class UsabilityUiTest {
                 val name = "$width-$scale"
                 val nav = navigator()
                 show(scenario, "library-$name", width, scale, false) { com.marat.albion.ui.library.LibraryScreen(nav) }
-                val add = clickableBounds(awaitText("Добавить"))
+                val add = clickableBounds(awaitNode { it.contentDescription?.toString() == "Добавить книгу" })
                 assertTrue(add.height() >= 48 * instrumentation.targetContext.resources.displayMetrics.density)
+                // Поиск стоит под блоком «Продолжить»: на узком экране с крупным шрифтом к нему нужно прокрутить.
+                scrollToDescription("Поиск книги")
                 val field = awaitNode { it.isEditable }
                 assertTrue(field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, android.os.Bundle().apply {
                     putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "no-book-matches-this-phrase")
                 }))
                 scrollToText("Книги не найдены")
                 activate(scrollToText("Показать все книги"))
-                awaitText("Статус: Все ▾")
+                scrollToText("Все")
                 capture("library-$name")
                 show(scenario, "grammar-$name", width, scale, false) { com.marat.albion.ui.grammar.GrammarScreen(nav) }
                 val search = awaitNode { it.isEditable && find(it) { child -> child.contentDescription?.toString() == "Найти правило или пример…" } != null }
@@ -207,6 +209,7 @@ class UsabilityUiTest {
 
     private fun scrollToText(text: String): AccessibilityNodeInfo {
         repeat(15) {
+            if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
             val root = instrumentation.uiAutomation.rootInActiveWindow
             find(root) { it.text?.toString() == text }?.let { return it }
             // В AlertDialog свайп должен начинаться в прокручиваемом тексте, выше кнопок.

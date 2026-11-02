@@ -87,7 +87,7 @@ internal operator fun TextUnit.times(f: Float): TextUnit = (value * f).sp
 @Composable
 private fun bodyStyle(): TextStyle {
     val s = LocalMdEnv.current.scale
-    return MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp * s, lineHeight = 29.sp * s, color = MaterialTheme.colorScheme.onSurface)
+    return com.marat.albion.ui.theme.ReadingStyle.copy(fontSize = 17.sp * s, lineHeight = 28.sp * s, color = MaterialTheme.colorScheme.onSurface)
 }
 
 /** Один верхнеуровневый блок — удобно класть по одному в LazyColumn. */
@@ -305,7 +305,7 @@ private fun TableView(table: MdTable, modifier: Modifier) {
             TableAsCards(table, headStyle, cellStyle)
         } else {
             val widths = layout.map { with(density) { it.toDp() } }
-            Column(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))) {
+            Column(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))) {
                 TableRow(table.header, widths, headStyle, MaterialTheme.colorScheme.surfaceContainerHigh, cellPadding)
                 table.rows.forEachIndexed { r, row ->
                     Hairline()
@@ -337,7 +337,7 @@ private fun TableAsCards(table: MdTable, headStyle: TextStyle, cellStyle: TextSt
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         table.rows.forEach { row ->
             Column(
-                Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 val title = row.firstOrNull().orEmpty()
@@ -384,7 +384,7 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
     var open by rememberSaveable(c.title, c.kind) { mutableStateOf(c.initiallyExpanded) }
     val arrow by animateFloatAsState(if (open) 180f else 0f, tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 320, easing = Easing.Emphasized), label = "chevron")
     val scale = LocalMdEnv.current.scale
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(14.dp)
     val container = when (l.frame) {
         Frame.Box -> modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), shape)
         Frame.Filled -> modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
@@ -427,7 +427,7 @@ private fun QuoteView(q: MdQuote, modifier: Modifier) {
 
 @Composable
 private fun CodeView(code: MdCode, modifier: Modifier) {
-    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp)) {
+    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp)) {
         Text(code.code, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface))
     }
 }

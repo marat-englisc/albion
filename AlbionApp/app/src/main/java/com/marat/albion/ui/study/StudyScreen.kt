@@ -1,5 +1,13 @@
 package com.marat.albion.ui.study
 
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.animation.core.spring
 import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.theme.LocalFeedback
 import com.marat.albion.ui.theme.LocalReducedMotion
@@ -165,12 +173,14 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
                         label = "card",
                     ) { sc ->
                         val isCurrent = sc.card.id == current.card.id
-                        FlipCard(
-                            revealed = if (isCurrent) state.revealed else true,
-                            onReveal = { feedback.reveal(); vm.reveal() },
-                            front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
-                            back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
-                        )
+                        SwipeToRate(enabled = isCurrent && state.revealed, onRate = rate) {
+                            FlipCard(
+                                revealed = if (isCurrent) state.revealed else true,
+                                onReveal = { feedback.reveal(); vm.reveal() },
+                                front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
+                                back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
+                            )
+                        }
                     }
                 }
                 Box(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 14.dp)) {
@@ -183,9 +193,13 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
                         label = "actions",
                     ) { revealed ->
                         if (!revealed) {
-                            GhostButton("Показать ответ", onClick = vm::reveal)
+                            PrimaryButton("Показать ответ", onClick = { feedback.reveal(); vm.reveal() })
                         } else {
-                            RatingBar(current.intervals, rate)
+                            Column {
+                                com.marat.albion.ui.components.CoachMark("study.swipe",
+                                    "Смахните карточку: вправо — «Хорошо», влево — «Снова». Или выберите оценку ниже")
+                                RatingBar(current.intervals, rate)
+                            }
                         }
                     }
                 }
@@ -202,16 +216,18 @@ private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: 
         Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, spin = 90f)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-                Text(title.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
+                Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
             }
             com.marat.albion.ui.components.FeatureHelp("study.ratings", "Как оценить ответ",
                 "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false)
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
         if (state.answerLimit != null) {
-            Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+            Column(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         } else Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
@@ -242,8 +258,7 @@ private fun CardStackShadow(remaining: Int) {
             Modifier.fillMaxSize()
                 .padding(horizontal = inset)
                 .offset(y = (k * 8).dp)
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f - k * 0.3f), RoundedCornerShape(6.dp))
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(6.dp)),
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 1f - k * 0.35f), MaterialTheme.shapes.extraLarge),
         )
     }
 }
@@ -259,11 +274,11 @@ private fun FlipCard(
     val reduced = LocalReducedMotion.current
     val rotation by animateFloatAsState(
         targetValue = if (revealed) 180f else 0f,
-        animationSpec = tween(if (reduced) 0 else 380, easing = Easing.Standard),
+        animationSpec = if (reduced) androidx.compose.animation.core.snap() else spring(dampingRatio = 0.78f, stiffness = 180f),
         label = "flip",
     )
-    val dip = 1f - 0.008f * sin((rotation / 180f) * PI).toFloat()
-    val shape = RoundedCornerShape(6.dp)
+    val dip = 1f - 0.06f * sin((rotation / 180f) * PI).toFloat()
+    val shape = MaterialTheme.shapes.extraLarge
 
     Surface(
         modifier = Modifier
@@ -276,8 +291,8 @@ private fun FlipCard(
             .clip(shape)
             .clickable(enabled = !revealed, interactionSource = remember { MutableInteractionSource() }, indication = androidx.compose.foundation.LocalIndication.current, onClick = onReveal),
         shape = shape,
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = androidx.compose.foundation.BorderStroke(.75.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Box(Modifier.fillMaxSize()) {
             if (rotation <= 90f) {
@@ -291,7 +306,7 @@ private fun FlipCard(
                 Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }) {
                     Box(Modifier.fillMaxSize().verticalScroll(scroll).padding(bottom = 28.dp)) { back() }
                     if (scroll.canScrollForward) Text("Ещё ниже ↓", Modifier.align(Alignment.BottomCenter)
-                        .background(MaterialTheme.colorScheme.surface).padding(horizontal = 16.dp, vertical = 5.dp),
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow).padding(horizontal = 16.dp, vertical = 5.dp),
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -339,9 +354,9 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     Column(
         modifier.fillMaxHeight().heightIn(min = 66.dp)
             .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(6.dp))
+            .border(1.dp, border, RoundedCornerShape(14.dp))
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -415,3 +430,72 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
     }
 }
 
+/**
+ * Свайп оценки: после переворота карточку можно смахнуть вправо («Хорошо») или влево («Снова»).
+ * Карточка наклоняется за пальцем, проступает подпись; короткий жест возвращает её на место.
+ */
+@Composable
+private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Composable () -> Unit) {
+    val reduced = LocalReducedMotion.current
+    val scope = rememberCoroutineScope()
+    val offset = remember { androidx.compose.animation.core.Animatable(0f) }
+    var width by remember { mutableFloatStateOf(1f) }
+    val progress = (offset.value / (width * 0.35f)).coerceIn(-1f, 1f)
+    val c = com.marat.albion.LocalAppContainer.current
+    val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
+    LaunchedEffect(enabled, viewed) {
+        val known = viewed ?: return@LaunchedEffect
+        if (!enabled || reduced || "coach.study.swipe" in known) return@LaunchedEffect
+        kotlinx.coroutines.delay(500)
+        for (target in listOf(width * 0.12f, -width * 0.12f, 0f)) {
+            offset.animateTo(target, androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 200f))
+        }
+    }
+    Box(
+        Modifier.fillMaxSize()
+            .onSizeChanged { width = it.width.toFloat().coerceAtLeast(1f) }
+            .graphicsLayer {
+                translationX = offset.value
+                rotationZ = if (reduced) 0f else progress * 6f
+            }
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        val rating = when {
+                            offset.value > width * 0.3f -> Rating.Good
+                            offset.value < -width * 0.3f -> Rating.Again
+                            else -> null
+                        }
+                        scope.launch {
+                            if (rating == null) offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy())
+                            else {
+                                offset.animateTo(if (rating == Rating.Good) width * 1.4f else -width * 1.4f,
+                                    androidx.compose.animation.core.tween(180))
+                                onRate(rating)
+                                offset.snapTo(0f)
+                            }
+                        }
+                    },
+                    onDragCancel = { scope.launch { offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy()) } },
+                ) { change, drag ->
+                    change.consume()
+                    scope.launch { offset.snapTo(offset.value + drag) }
+                }
+            },
+    ) {
+        content()
+        if (progress != 0f) {
+            val good = progress > 0
+            Text(
+                if (good) "Хорошо" else "Снова",
+                Modifier.align(Alignment.TopEnd).padding(24.dp)
+                    .graphicsLayer { alpha = kotlin.math.abs(progress); rotationZ = if (good) -8f else 8f }
+                    .background(if (good) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error, MaterialTheme.shapes.small)
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.background,
+            )
+        }
+    }
+}

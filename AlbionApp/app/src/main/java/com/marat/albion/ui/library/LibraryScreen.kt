@@ -1,11 +1,32 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.marat.albion.ui.theme.pressScale
+import com.marat.albion.ui.theme.appear
+import com.marat.albion.ui.components.Disclosure
+import com.marat.albion.ui.components.FieldError
+import com.marat.albion.ui.components.LoadingState
+import com.marat.albion.ui.components.RoundIconButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.Surface
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.GridCells
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.EmptyState
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -36,7 +57,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import com.marat.albion.ui.components.*
@@ -60,7 +80,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.library.LibraryBook
-import com.marat.albion.data.library.ModelState
 import com.marat.albion.ui.components.CatalogueCard
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
@@ -83,15 +102,13 @@ fun LibraryScreen(navigator: Navigator) {
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(null)
     val model by c.translator.model.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val shelfState = rememberLazyListState()
+    val shelfState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     var importError by remember { mutableStateOf<String?>(null) }
     var importing by remember { mutableStateOf(false) }
     var toDelete by remember { mutableStateOf<LibraryBook?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf("Все") }
     var sort by rememberSaveable { mutableStateOf("Недавние") }
-    var filterMenu by remember { mutableStateOf(false) }
-    var sortMenu by remember { mutableStateOf(false) }
     val list = books.orEmpty()
     val continueBook = list.firstOrNull { it.lastRead != null && it.progress < 0.999f }
     val shown = list.filter { b ->
@@ -126,67 +143,82 @@ fun LibraryScreen(navigator: Navigator) {
     }
 
     val launchPicker = { picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream")) }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(Modifier.fillMaxWidth().windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.statusBars).padding(horizontal = gutter, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Библиотека", Modifier.weight(1f), style = if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium)
-            SettingsShortcut(navigator::openSettings)
-        }
-        LazyColumn(Modifier.fillMaxSize(), state = shelfState, contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp)) {
-            item {
-                PrimaryButton(if (importing) "Открываю книгу…" else "Добавить", onClick = launchPicker, enabled = !importing, icon = AlbionIcons.Add)
-                Text("TXT · EPUB · PDF", style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 12.dp))
-                FieldError(importError)
-                if (importError != null) TextButton(onClick = launchPicker) { Text("Выбрать другой файл") }
-                OutlinedTextField(query, { query = it }, label = { Text("Поиск книги") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box {
-                        TextButton(onClick = { filterMenu = true }) { Text("Статус: $filter ▾") }
-                        DropdownMenu(filterMenu, { filterMenu = false }) {
-                            listOf("Все", "Не начаты", "Читаю", "Прочитаны").forEach { option ->
-                                DropdownMenuItem(text = { Text(option) }, onClick = { filter = option; filterMenu = false })
-                            }
+    val filters = listOf("Все", "Читаю", "Не начаты", "Прочитаны")
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(136.dp),
+        state = shelfState,
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ScreenHeader("Библиотека", eyebrow = "03 / READING SPACE", compact = true, trailing = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(onClick = launchPicker, enabled = !importing, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(48.dp).semantics { contentDescription = if (importing) "Открываю книгу" else "Добавить книгу" }) {
+                        Box(contentAlignment = Alignment.Center) {
+                            if (importing) androidx.compose.material3.CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary)
+                            else Icon(AlbionIcons.Add, null, Modifier.size(22.dp))
                         }
                     }
-                    Box {
-                        TextButton(onClick = { sortMenu = true }) { Text("Порядок: $sort ▾") }
-                        DropdownMenu(sortMenu, { sortMenu = false }) {
-                            listOf("Недавние", "По названию", "По прогрессу").forEach { option ->
-                                DropdownMenuItem(text = { Text(option) }, onClick = { sort = option; sortMenu = false })
-                            }
-                        }
-                    }
+                    Spacer(Modifier.width(4.dp))
+                    SettingsShortcut(navigator::openSettings)
                 }
+            })
+        }
+        if (importError != null) item(span = { GridItemSpan(maxLineSpan) }) {
+            Column {
+                FieldError(importError)
+                TextButton(onClick = launchPicker) { Text("Выбрать другой файл") }
             }
-            if (books == null) item { LoadingState("Загружаю библиотеку") }
-            if (continueBook != null && query.isBlank() && filter == "Все") item {
-                CatalogueCard(label = "Продолжить", title = continueBook.book.title, compact = true,
-                    description = "Прочитано ${(continueBook.progress * 100).toInt()}%", progress = continueBook.progress,
-                    onClick = { navigator.open(ReaderRoute(continueBook.book.id)) })
+        }
+        if (continueBook != null && query.isBlank() && filter == "Все") item(span = { GridItemSpan(maxLineSpan) }) {
+            ContinueReading(continueBook, Modifier.appear(2)) { navigator.open(ReaderRoute(continueBook.book.id)) }
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Column(Modifier.appear(3), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.marat.albion.ui.browse.SearchField(query, { query = it }, "Поиск книги")
+                OptionPicker("Статус чтения", filters, filters.indexOf(filter), { filter = filters[it] })
+                val sorts = listOf("Недавние", "По названию", "По прогрессу")
+                OptionPicker("Порядок книг", sorts, sorts.indexOf(sort), { sort = sorts[it] })
             }
-            val rows = if (query.isBlank() && filter == "Все") shown.filter { it.book.id != continueBook?.book?.id } else shown
-            if (books != null && shown.isEmpty()) item {
+        }
+        if (books == null) item(span = { GridItemSpan(maxLineSpan) }) { LoadingState("Загружаю библиотеку") }
+        val rows = if (query.isBlank() && filter == "Все") shown.filter { it.book.id != continueBook?.book?.id } else shown
+        if (books != null && shown.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 EmptyState(if (list.isEmpty()) "Полка пока пустая" else "Книги не найдены",
-                    if (list.isEmpty()) "Добавьте книгу: слова из неё можно переводить и сохранять." else "Измените запрос или сбросьте фильтр.")
+                    if (list.isEmpty()) "Добавьте книгу: TXT, EPUB или PDF. Слова из неё можно переводить и сохранять." else "Измените запрос или сбросьте фильтр.")
                 if (list.isNotEmpty()) TextButton(onClick = { query = ""; filter = "Все"; scope.launch { shelfState.scrollToItem(0) } }) { Text("Показать все книги") }
             }
-            if (rows.isNotEmpty()) item { SectionHeader(if (continueBook != null && query.isBlank() && filter == "Все") "Другие книги" else "Книги", trailing = "${rows.size}") }
-            itemsIndexed(rows, key = { _, b -> b.book.id }) { _, b ->
-                BookRow(b, Modifier, { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
+        }
+        if (rows.isNotEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
+            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
+                Text(if (continueBook != null && query.isBlank() && filter == "Все") "Другие книги" else "Книги", Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge)
+                Text("${rows.size}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            item {
-                Disclosure("Офлайн-перевод", when(model) {
-                    ModelState.Ready -> "Слова и предложения готовы"
-                    ModelState.Downloading -> "Загружаю перевод предложений…"
-                    else -> "Словарь готов · перевод предложений можно загрузить"
-                }) {
-                    Text("Словарь работает без интернета. Для перевода предложений один раз загрузите языковую модель.", style = MaterialTheme.typography.bodyMedium)
-                    if (model == ModelState.Failed) FieldError("Не удалось загрузить модель. Проверьте интернет и свободное место.")
-                    if (model == ModelState.Missing || model == ModelState.Failed) TextButton(onClick = { scope.launch { c.translator.ensureModel() } }) {
-                        Text(if (model == ModelState.Failed) "Повторить загрузку" else "Загрузить перевод предложений")
-                    }
+        }
+        if (rows.any { it.book.source == "user" }) item(span = { GridItemSpan(maxLineSpan) }) {
+            com.marat.albion.ui.components.CoachMark("library.longpress", "Удерживайте обложку своей книги, чтобы удалить её")
+        }
+        items(rows, key = { it.book.id }) { b ->
+            BookTile(b, Modifier.animateItem(), { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Column(Modifier.padding(top = 12.dp)) {
+                GhostButton("Добавить книгу", launchPicker, icon = AlbionIcons.Add)
+                Text("TXT · EPUB · PDF", Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 12.dp), style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Disclosure("Офлайн-перевод", model.summary) { TranslationModelControls() }
+                Disclosure("Подсказки по чтению", "Перевод касанием, выделение и заметки", icon = AlbionIcons.HelpOutline) {
+                    Text("Коснитесь слова — откроется перевод. Долгое нажатие выбирает предложение, протяжка — любой фрагмент. " +
+                        "В панели перевода можно выбрать значение и сохранить слово в карточки. В меню читалки — поиск, закладки, заметки и оформление. " +
+                        "Удерживайте обложку своей книги, чтобы удалить её.", style = MaterialTheme.typography.bodyMedium)
                 }
-                FeatureHelp("library", "Как читать", text = "Коснитесь слова для перевода. Долгое нажатие выбирает предложение, протяжка — фрагмент. В панели перевода можно уточнить выделение и выбрать значение для сохранения. Меню читалки содержит поиск, закладки, заметки и оформление.")
             }
         }
     }
@@ -204,55 +236,85 @@ fun LibraryScreen(navigator: Navigator) {
     }
 }
 
+/** «Продолжить чтение»: инверсный блок с обложкой, процентом и кнопкой. */
 @Composable
-private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
+private fun ContinueReading(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
-    var menu by remember { mutableStateOf(false) }
-    Column(modifier.fillMaxWidth().clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onOpen)) {
-        Row(Modifier.padding(vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            BookCover(item.book.title, Modifier.size(width = 64.dp, height = 92.dp))
-            Spacer(Modifier.width(16.dp))
+    com.marat.albion.ui.components.BoundVolume(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clip(MaterialTheme.shapes.extraLarge)
+        .clickable(interaction, null, onClickLabel = "Читать", onClick = onOpen)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BookCover(item.book.title, Modifier.size(width = 76.dp, height = 112.dp), inverse = true)
+            Spacer(Modifier.width(18.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.book.title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text("Продолжить", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
                 Spacer(Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        listOf(item.book.author, "${item.book.chapters} ${pluralRu(item.book.chapters, "глава", "главы", "глав")}").filter { it.isNotBlank() }.joinToString(" · "),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
-                    if (item.book.level.isNotBlank()) {
-                        Spacer(Modifier.width(8.dp))
-                        LevelBadge(item.book.level)
-                    }
-                }
+                Text(item.book.title, style = MaterialTheme.typography.titleLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.7f), maxLines = 1)
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ThinProgress(item.progress, modifier = Modifier.weight(1f))
+                    ThinProgress(item.progress, Modifier.weight(1f), color = LocalContentColor.current,
+                        track = LocalContentColor.current.copy(alpha = 0.18f), height = 4.dp)
                     Spacer(Modifier.width(10.dp))
-                    Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.titleMedium)
-                }
-            }
-            if (onDelete != null) {
-                Box {
-                    IconButton(onClick = { menu = true }) { Icon(AlbionIcons.MoreHoriz, "Ещё", tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                        DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete() })
-                    }
+                    Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
-        Hairline()
+        PrimaryButton("Читать", onOpen, trailingIcon = AlbionIcons.ArrowForward, inverse = true)
     }
 }
 
+/** Книга на полке: обложка 2:3, название и прогресс. Долгое нажатие на свою книгу — удаление. */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun BookCover(title: String, modifier: Modifier = Modifier) {
-    androidx.compose.material3.Surface(modifier.clearAndSetSemantics {}, color = MaterialTheme.colorScheme.secondaryContainer) {
-        Text(title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)
+private fun BookTile(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
+    val interaction = remember { MutableInteractionSource() }
+    val feedback = com.marat.albion.ui.theme.LocalFeedback.current
+    var menu by remember { mutableStateOf(false) }
+    Column(modifier.fillMaxWidth().pressScale(interaction, 0.95f)
+        .combinedClickable(interaction, indication = null, onClick = onOpen,
+            onLongClick = onDelete?.let { { feedback.reveal(); menu = true } }, onLongClickLabel = onDelete?.let { "Удалить книгу" })) {
+        Box {
+            BookCover(item.book.title, Modifier.fillMaxWidth().aspectRatio(2f / 3f))
+            if (item.book.level.isNotBlank()) LevelBadge(item.book.level, Modifier.align(Alignment.TopEnd).padding(8.dp)
+                .background(MaterialTheme.colorScheme.background, CircleShape))
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete?.invoke() },
+                    leadingIcon = { Icon(AlbionIcons.Delete, null, Modifier.size(18.dp)) })
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(item.book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (item.progress > 0f) {
+            Spacer(Modifier.height(8.dp))
+            ThinProgress(item.progress, height = 3.dp)
+        }
+    }
+}
+
+/** Типографская обложка: тонированная плашка, название акцентным шрифтом и тонкая линия-корешок. */
+@Composable
+fun BookCover(title: String, modifier: Modifier = Modifier, inverse: Boolean = false) {
+    val scheme = MaterialTheme.colorScheme
+    val tones = listOf(scheme.surfaceContainerHighest, scheme.surfaceContainerHigh, scheme.secondaryContainer)
+    val bg = if (inverse) scheme.inverseOnSurface.copy(alpha = 0.12f) else tones[Math.floorMod(title.hashCode(), tones.size)]
+    val fg = if (inverse) scheme.inverseOnSurface else scheme.onSurface
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier.clearAndSetSemantics {}.clip(MaterialTheme.shapes.medium)
+        .background(bg).border(.75.dp, fg.copy(alpha = .16f), MaterialTheme.shapes.medium)) {
+        val thumbnail = maxWidth < 100.dp
+        // На миниатюре сфера меньше и выше, чтобы не заходить под название.
+        if (thumbnail) OrbitalField(Modifier.fillMaxWidth(.56f).aspectRatio(1f).align(Alignment.TopCenter).padding(top = 10.dp), color = fg, animated = false)
+        else OrbitalField(Modifier.fillMaxWidth().aspectRatio(1f).align(Alignment.Center).padding(8.dp), color = fg, animated = false)
+        if (maxWidth >= 100.dp) SignalLabel("ALBION / READ", Modifier.align(Alignment.TopStart).padding(14.dp), color = fg.copy(alpha = .6f))
+        // Полупрозрачная плашка на акцентной плите легла бы вторым слоем и дала полосу — подложка только у непрозрачной обложки.
+        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().then(if (inverse) Modifier else Modifier.background(bg)).padding(if (thumbnail) 10.dp else 14.dp)) {
+            Box(Modifier.width(24.dp).height(1.dp).background(fg.copy(alpha = .5f)))
+            Spacer(Modifier.height(if (thumbnail) 6.dp else 8.dp))
+            Text(title, style = MaterialTheme.typography.titleSmall,
+                color = fg, maxLines = if (thumbnail) 2 else 4, overflow = TextOverflow.Ellipsis)
+        }
     }
 }
 

@@ -57,7 +57,7 @@ private fun termStyle(term: String, large: Boolean): TextStyle {
         term.length <= 28 -> 34
         else -> 28
     }
-    return TextStyle(fontWeight = FontWeight.SemiBold, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
+    return TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Sans, fontWeight = FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -91,6 +91,8 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        com.marat.albion.ui.components.SignalLabel("ВСПОМНИТЕ ЗНАЧЕНИЕ")
+        Spacer(Modifier.height(28.dp))
         TermHeader(card, audio, large = true, showIpa = showIpa)
         if (card.senses.size > 1) {
             Spacer(Modifier.height(14.dp))
@@ -101,7 +103,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(3.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = MaterialTheme.typography.titleMedium)
@@ -144,10 +146,12 @@ fun CardBack(
             Text("Оцените знание всех ${senses.size} значений", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
             com.marat.albion.ui.components.WordMeanings(card, showRussian)
+            Spacer(Modifier.height(20.dp))
             com.marat.albion.ui.components.Disclosure("Определения и примеры · ${senses.size}") {
                 senses.forEachIndexed { index, sense ->
-                    if (index > 0) { Spacer(Modifier.height(16.dp)); Hairline(); Spacer(Modifier.height(12.dp)) }
-                    SenseContent(sense, index, senses.size, audio, showRussian, irregular == null, header = card)
+                    if (index > 0) { Spacer(Modifier.height(20.dp)); Hairline(); Spacer(Modifier.height(16.dp)) }
+                    // Внутри раскрытого списка примеры сразу видны — без второго уровня раскрытия.
+                    SenseContent(sense, index, senses.size, audio, showRussian, irregular == null, header = card, inlineExamples = true)
                 }
             }
         } else SenseContent(senses.first(), 0, 1, audio, showRussian, irregular == null)
@@ -166,7 +170,7 @@ fun CardBack(
                 Spacer(Modifier.height(22.dp))
                 Column(
                     Modifier.fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(3.dp)).padding(14.dp),
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))
@@ -180,7 +184,7 @@ fun CardBack(
 @Composable
 private fun SenseContent(
     sense: CardEntity, index: Int, total: Int, audio: CardAudio,
-    showRussian: Boolean, showExamples: Boolean, header: CardEntity? = null,
+    showRussian: Boolean, showExamples: Boolean, header: CardEntity? = null, inlineExamples: Boolean = false,
 ) {
     if (total > 1) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
@@ -212,7 +216,11 @@ private fun SenseContent(
         val examples = listOf(sense.example1, sense.example2).filter { it.isNotBlank() }.distinct()
         if (examples.isNotEmpty()) {
             Spacer(Modifier.height(14.dp))
-            com.marat.albion.ui.components.Disclosure("Примеры · ${examples.size}") {
+            if (inlineExamples) {
+                Eyebrow("Examples")
+                Spacer(Modifier.height(4.dp))
+                examples.forEach { ExampleLine(it, listOf(sense.term)) }
+            } else com.marat.albion.ui.components.Disclosure("Примеры · ${examples.size}") {
                 examples.forEach { ExampleLine(it, listOf(sense.term)) }
             }
         }
@@ -230,7 +238,7 @@ private fun SenseContent(
 @Composable
 private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAudio, modifier: Modifier) {
     val deck = deckOf(card)
-    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))) {
         data.forms.forEachIndexed { index, form ->
             if (index > 0) Hairline()
             Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {

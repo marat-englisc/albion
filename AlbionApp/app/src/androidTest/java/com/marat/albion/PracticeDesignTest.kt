@@ -49,13 +49,14 @@ class PracticeDesignTest {
         c.importer.importIfNeeded()
         ActivityScenario.launch(MainActivity::class.java).use {
             activate(await { it.text?.toString() == "Практика" })
-            await { it.text?.toString() == "The Practice Room" }
+            await { it.text?.toString() == "04 / SKILL LAB" }
             capture("practice-home")
             for (game in catalogue) {
                 capture("${game.name}-catalogue")
-                activate(scrollTo { it.text?.toString() == game.title && hasActionTarget(it) })
+                // Фильтр «Грамматика» и упражнение «Грамматика» совпадают по тексту: у карточки есть описание.
+                activate(scrollTo { it.text?.toString() == game.title && hasActionTarget(it) && hasSibling(it, game.tagline) })
                 dismissHelp()
-                await { it.text?.toString() == game.editionTitle }
+                await { it.text?.toString() == game.tagline }
                 assertMinimumTarget(await { it.text?.toString() == "Начать" }, "${game.name} start")
                 capture("${game.name}-setup")
                 activate(await { it.text?.toString() == "Начать" })
@@ -106,7 +107,7 @@ class PracticeDesignTest {
                 val density = instrumentation.targetContext.resources.displayMetrics.density
                 assertTrue("Start escaped the viewport ($name)", bounds.bottom <= 741 * density)
                 capture("$name-header")
-                val count = scrollTo { it.text?.toString() == "10 ${game.unit}" }
+                val count = scrollTo { it.text?.toString() == "10" }
                 assertMinimumTarget(count, "$name length")
                 if (!target(count).isSelected && !target(count).isChecked) activate(count)
                 capture("$name-options")
@@ -142,6 +143,10 @@ class PracticeDesignTest {
         val node = await { it.text?.toString() in setOf("Понятно", "Начать") }
         if (node.text?.toString() == "Понятно") activate(node)
     }
+    private fun hasSibling(node: AccessibilityNodeInfo, text: String): Boolean {
+        val parent = node.parent ?: return false
+        return (0 until parent.childCount).any { parent.getChild(it)?.text?.toString() == text }
+    }
     private fun hasActionTarget(node: AccessibilityNodeInfo): Boolean {
         var current: AccessibilityNodeInfo? = node
         while (current != null) {
@@ -169,7 +174,10 @@ class PracticeDesignTest {
                 val density = instrumentation.targetContext.resources.displayMetrics.density
                 if (visible.height() / density >= 48f && visible.width() / density >= 48f) return node
             }
-            val bounds = Rect().also { root?.getBoundsInScreen(it) }
+            // Narrow test surfaces can be shorter than the emulator window. Start the
+            // gesture inside the actual scroller, above the fixed action dock.
+            val viewport = find(root) { it.isScrollable && !it.isEditable } ?: root
+            val bounds = Rect().also { viewport?.getBoundsInScreen(it) }
             val time = SystemClock.uptimeMillis()
             for (step in 0..15) {
                 val event = MotionEvent.obtain(time, SystemClock.uptimeMillis(),

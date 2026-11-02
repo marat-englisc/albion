@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import java.util.zip.CRC32
 
@@ -39,7 +40,10 @@ class ContentImporter(
     private val _status = MutableStateFlow<ImportStatus>(ImportStatus.Checking)
     val status: StateFlow<ImportStatus> = _status.asStateFlow()
 
-    suspend fun importIfNeeded(force: Boolean = false) = withContext(Dispatchers.IO) {
+    /** Одновременные вызовы (старт приложения, повтор из настроек) идут по очереди, а не дублируют работу. */
+    private val running = kotlinx.coroutines.sync.Mutex()
+
+    suspend fun importIfNeeded(force: Boolean = false) = withContext(Dispatchers.IO) { running.withLock {
         try {
             _status.value = ImportStatus.Checking
             val available = Deck.bundled.filter { assetExists(COLLECTIONS, requireNotNull(it.file)) }
@@ -71,10 +75,12 @@ class ContentImporter(
             db.reviews().deleteOrphanStates()
             settings.setContentVersion(version)
             _status.value = ImportStatus.Ready
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (t: Throwable) {
             _status.value = ImportStatus.Failed(t.message ?: t.javaClass.simpleName)
         }
-    }
+    } }
 
     private fun assetExists(dir: String, name: String) =
         runCatching { assets.list(dir)?.contains(name) == true }.getOrDefault(false)

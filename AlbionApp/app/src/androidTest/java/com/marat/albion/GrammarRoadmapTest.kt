@@ -54,7 +54,7 @@ class GrammarRoadmapTest {
             levels.forEach { await { node -> node.text?.toString() == it } }
             capture("grammar-atlas")
             activate(await { it.text?.toString() == "C1" })
-            await { it.text?.toString() == stages.last().title }
+            scrollTo { it.text?.toString() == stages.last().title }
             capture("grammar-c1")
             activate(scrollTo { it.text?.toString()?.contains(target.title) == true })
             await { it.contentDescription?.toString() == "Размер текста" }
@@ -133,7 +133,7 @@ class GrammarRoadmapTest {
     }
     private fun scrollTo(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo {
         repeat(35) {
-            val root = instrumentation.uiAutomation.rootInActiveWindow
+            val root = freshRoot()
             find(root, predicate)?.let { return it }
             val list = find(root) { it.isScrollable && !it.isEditable } ?: error("Missing scrollable list")
             list.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
@@ -144,7 +144,7 @@ class GrammarRoadmapTest {
     private fun await(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo {
         val until = SystemClock.uptimeMillis() + 15_000
         while (SystemClock.uptimeMillis() < until) {
-            find(instrumentation.uiAutomation.rootInActiveWindow, predicate)?.let { return it }
+            find(freshRoot(), predicate)?.let { return it }
             SystemClock.sleep(100)
         }
         error("Expected grammar content did not appear")
@@ -163,4 +163,10 @@ class GrammarRoadmapTest {
         File(directory, "$name.png").outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) }
         image.recycle()
     }
+    /** Начиная с Android 13 узлы кэшируются: после анимаций и пересоздания экрана читаем дерево заново. */
+    private fun freshRoot(): AccessibilityNodeInfo? {
+        if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
+        return instrumentation.uiAutomation.rootInActiveWindow
+    }
+
 }

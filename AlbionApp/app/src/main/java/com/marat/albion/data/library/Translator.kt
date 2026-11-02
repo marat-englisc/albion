@@ -1,128 +1,44 @@
 package com.marat.albion.data.library
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import com.google.android.gms.tasks.Task
-import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.common.model.RemoteModelManager
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.TranslateRemoteModel
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.TranslatorOptions
+import com.marat.albion.data.translation.LlamaEngine
+import com.marat.albion.data.translation.TranslationModels
+import com.marat.albion.data.translation.TranslationProtocol
 import kotlinx.coroutines.CoroutineScope
-import java.util.Collections
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import java.util.Collections
 
-enum class ModelState { Unknown, Missing, Downloading, Ready, Failed }
-
-/**
- * Перевод фраз EN → RU на устройстве через Google ML Kit. Бесплатно и без лимитов.
- *
- * Google не разрешает класть модель (~30 МБ) внутрь APK, поэтому приложение само скачивает её
- * в фоне при первом запуске — как только появляется сеть, без участия пользователя.
- * Перевод отдельных слов от модели не зависит: для них есть встроенный словарь [Dictionary].
- */
-class Translator(private val context: Context, private val scope: CoroutineScope) {
-    // Клиенты создаются лениво: приложение запускается, даже если с ML Kit что-то не так.
-    private val client by lazy {
-        Translation.getClient(
-            TranslatorOptions.Builder()
-                .setSourceLanguage(TranslateLanguage.ENGLISH)
-                .setTargetLanguage(TranslateLanguage.RUSSIAN)
-                .build()
-        )
-    }
-    private val russian by lazy { TranslateRemoteModel.Builder(TranslateLanguage.RUSSIAN).build() }
-    private val models by lazy { RemoteModelManager.getInstance() }
-    private val mutex = Mutex()
-    // LinkedHashMap в порядке доступа меняется даже при чтении, а перевод вызывают из разных корутин.
-    private val cache: MutableMap<String, String> = Collections.synchronizedMap(object : LinkedHashMap<String, String>(256, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?) = size > 500
+/** Offline EN → RU through Qwen3.5; dictionary lookup remains independent of the model. */
+class Translator(context: Context, private val scope: CoroutineScope,
+                 /** Shared with conversation practice: one Qwen3.5 in memory at a time. */
+                 val engine: LlamaEngine = LlamaEngine(context.applicationContext, scope)) {
+    val models = TranslationModels(context.applicationContext, scope)
+    val model = models.state
+    val loading = engine.loading
+    private val cache: MutableMap<String, String> = Collections.synchronizedMap(object : LinkedHashMap<String, String>(64, .75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?) = size > 200
     })
-    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    /** Restore downloads, never silently download hundreds of megabytes or load weights at startup. */
+    fun preload() { scope.launch { models.refresh() } }
+    fun releaseMemory() { scope.launch { engine.unload() } }
+    suspend fun unload() = engine.unload()
 
-    private val _model = MutableStateFlow(ModelState.Unknown)
-    val model: StateFlow<ModelState> = _model.asStateFlow()
-
-    suspend fun refresh() {
-        if (_model.value == ModelState.Downloading) return
-        _model.value = runCatching { if (models.isModelDownloaded(russian).await()) ModelState.Ready else ModelState.Missing }
-            .getOrDefault(ModelState.Missing)
-    }
-
-    /**
-     * Фоновая подготовка при запуске приложения: если модели нет — скачиваем сразу,
-     * а без сети ждём её появления и пробуем снова.
-     */
-    fun preload() {
-        scope.launch {
-            refresh()
-            if (_model.value == ModelState.Ready) return@launch
-            if (!ensureModel()) watchNetwork()
+    fun translations(text: String, context: String = ""): Flow<String> = flow {
+        val prompt = TranslationProtocol.prompt(text, context)
+        val (file, identity) = models.activeModel()
+            ?: error("Установите модель Qwen3.5 для перевода предложений. Словарь уже доступен.")
+        val key = identity + "\n" + prompt
+        cache[key]?.let { emit(it); return@flow }
+        var complete = ""
+        engine.generate(file, prompt).collect { raw ->
+            complete = TranslationProtocol.clean(raw)
+            if (complete.isNotBlank()) emit(complete)
         }
+        check(complete.isNotBlank()) { "Модель вернула пустой перевод. Попробуйте другой фрагмент." }
+        cache[key] = complete
     }
-
-    private fun watchNetwork() {
-        if (networkCallback != null) return
-        val cm = context.getSystemService(ConnectivityManager::class.java) ?: return
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                val self = this
-                scope.launch {
-                    if (ensureModel()) {
-                        runCatching { cm.unregisterNetworkCallback(self) }
-                        networkCallback = null
-                    }
-                }
-            }
-        }
-        networkCallback = callback
-        runCatching { cm.registerDefaultNetworkCallback(callback) }.onFailure { networkCallback = null }
-    }
-
-    /** Скачивает модель, если её ещё нет. true — можно переводить. */
-    suspend fun ensureModel(): Boolean = mutex.withLock {
-        if (_model.value == ModelState.Ready) return true
-        _model.value = ModelState.Downloading
-        return runCatching { client.downloadModelIfNeeded(DownloadConditions.Builder().build()).await() }
-            .fold(
-                onSuccess = { _model.value = ModelState.Ready; true },
-                onFailure = { _model.value = ModelState.Failed; false },
-            )
-    }
-
-    /** Ждёт окончания фоновой загрузки, если она идёт. */
-    suspend fun awaitDownload(): Boolean =
-        model.first { it != ModelState.Downloading && it != ModelState.Unknown } == ModelState.Ready
-
-    suspend fun translate(text: String): String {
-        val key = text.trim()
-        cache[key]?.let { return it }
-        val ready = when (_model.value) {
-            ModelState.Ready -> true
-            ModelState.Downloading, ModelState.Unknown -> awaitDownload() || ensureModel()
-            else -> ensureModel()
-        }
-        if (!ready) error("Модель перевода фраз ещё не загружена — она скачается сама, как только появится интернет")
-        val result = runCatching { client.translate(key).await() }.getOrElse { error("Не удалось перевести фразу") }
-        cache[key] = result
-        return result
-    }
-
-}
-
-private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { cont ->
-    addOnSuccessListener { cont.resume(it) }
-    addOnFailureListener { cont.resumeWithException(it) }
-    addOnCanceledListener { cont.cancel() }
+    suspend fun translate(text: String, context: String = ""): String = translations(text, context).last()
 }

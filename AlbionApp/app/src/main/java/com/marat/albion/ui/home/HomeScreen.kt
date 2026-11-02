@@ -1,5 +1,15 @@
 package com.marat.albion.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LocalContentColor
+import com.marat.albion.ui.components.AlbionIcons
+import com.marat.albion.ui.components.RoundIconButton
+import com.marat.albion.ui.components.SegmentedPicker
+import com.marat.albion.ui.theme.AlbionFonts
+import com.marat.albion.ui.theme.AnimatedNumber
+import com.marat.albion.ui.theme.appear
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
@@ -44,7 +54,6 @@ import com.marat.albion.ui.theme.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -82,13 +91,6 @@ class HomeViewModel(c: AppContainer) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeState())
 }
 
-private fun greeting(): String = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
-    in 5..11 -> "Good morning."
-    in 12..17 -> "Good afternoon."
-    in 18..23 -> "Good evening."
-    else -> "Welcome back."
-}
-
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navigator: Navigator) {
@@ -102,27 +104,52 @@ fun HomeScreen(navigator: Navigator) {
     val date = SimpleDateFormat("d MMMM · EEEE", Locale.forLanguageTag("ru")).format(Date())
 
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        val compact = maxWidth < 360.dp || LocalDensity.current.fontScale > 1.2f
-        val showTagline = !compact && maxWidth >= 500.dp
+        val compact = maxWidth < 360.dp || maxHeight < 640.dp || LocalDensity.current.fontScale > 1.2f
         val overview: LazyListScope.() -> Unit = {
             item {
                 Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     
-                    Text("Albion", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, maxLines = 1)
-                    androidx.compose.material3.TextButton(onClick = { showDecks = true }) { Text("Колоды") }
+                    AlbionMark(Modifier.appear(0))
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f).appear(0)) {
+                        Text("albion", style = MaterialTheme.typography.titleLarge.copy(fontFamily = AlbionFonts.Display), maxLines = 1)
+                        if (!compact) SignalLabel("ENGLISH, EVERY DAY", Modifier.padding(top = 3.dp))
+                    }
+                    RoundIconButton(AlbionIcons.Inventory2, "Колоды", { showDecks = true }, filled = true)
+                    Spacer(Modifier.width(4.dp))
                     SettingsShortcut(navigator::openSettings)
                 }
             }
             if (!compact) item {
-                Row(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(date.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Spacer(Modifier.height(3.dp))
-                        Text(greeting(), style = MaterialTheme.typography.headlineSmall)
+                Column(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 20.dp).appear(1)) {
+                    SignalLabel(date.uppercase(Locale.forLanguageTag("ru")))
+                    Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Ваш язык.\nВаш ритм.", Modifier.weight(1f),
+                            style = MaterialTheme.typography.displaySmall.copy(fontSize = if (compact) 25.sp else 30.sp, lineHeight = 41.sp))
+                        if (!compact) OrbitalField(Modifier.size(120.dp))
+                    }
+                    Spacer(Modifier.height(18.dp))
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                AnimatedNumber(state.answersToday, MaterialTheme.typography.titleLarge)
+                                Text(" / ${state.dailyGoal}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Text("цель дня", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text("${state.streak} дн.", style = MaterialTheme.typography.titleLarge)
+                            Text("ваша серия", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+                            SignalLabel(if (state.answersToday >= state.dailyGoal) "ВЫПОЛНЕНО" else "В ПРОЦЕССЕ")
+                            Spacer(Modifier.height(8.dp))
+                            ThinProgress(if (state.dailyGoal > 0) state.answersToday.toFloat() / state.dailyGoal else 0f, Modifier.width(76.dp), height = 2.dp)
+                        }
                     }
                 }
-            } else item { Spacer(Modifier.height(16.dp)) }
+            }
             item {
                 when (val s = status) {
                     is ImportStatus.Importing -> Row(Modifier.padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -139,63 +166,48 @@ fun HomeScreen(navigator: Navigator) {
                 }
             }
             item {
-                TodayCard(state, sessionSize, Modifier, compact, status is ImportStatus.Checking || status is ImportStatus.Importing,
+                TodayCard(state, sessionSize, Modifier.appear(2), compact, status is ImportStatus.Checking || status is ImportStatus.Importing,
                     onSize = { sessionSize = it; vm.setSessionSize(it) },
                     onStart = { navigator.open(StudyRoute(answerLimit = minOf(sessionSize, state.decks.sumOf { it.toStudy }).coerceAtLeast(1))) },
                     onRead = { navigator.switchTab(LibraryRoute) })
             }
-            item {
-                Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                    val done = state.answersToday >= state.dailyGoal
-                    val progress = if (state.dailyGoal > 0) state.answersToday.toFloat() / state.dailyGoal else 0f
-                    Text(if (done) "✓ Цель выполнена" else "Цель дня", style = MaterialTheme.typography.labelMedium,
-                        color = if (done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant)
-                    androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(if (done) "${state.answersToday} ответов · цель ${state.dailyGoal}" else "${state.answersToday} из ${state.dailyGoal} ответов",
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        if (state.streak > 0) Text("Серия: ${state.streak} дн.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    if (done && state.answersToday > state.dailyGoal) Text("Ещё ${answerLabel(state.answersToday - state.dailyGoal)} сверх цели",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(6.dp))
-                    ThinProgress(progress)
+            if (compact) item {
+                Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                    Text("Цель дня · ${state.answersToday} / ${state.dailyGoal}", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
+                    ThinProgress(if (state.dailyGoal > 0) state.answersToday.toFloat() / state.dailyGoal else 0f, height = 2.dp)
                 }
             }
-            item { ReadingBlock(navigator) }
+            item {
+                ModuleHeading("02", "План на сегодня", "EXPLORE", Modifier.appear(3))
+            }
             item {
                 val topic = state.continueTopic
                 val step = state.grammarStep
-                CatalogueCard(
+                PlanRow(
+                    AlbionIcons.MenuBook,
                     title = topic?.title ?: "Открыть учебник",
-                    description = topic?.let { listOfNotNull(step?.label, it.number?.let { n -> "Урок $n" }, it.level).joinToString(" · ") }
+                    subtitle = topic?.let { listOfNotNull(step?.label, it.number?.let { n -> "Урок $n" }, it.level).joinToString(" · ") }
                         ?: "Короткие уроки и проверка знаний",
-                    label = "Грамматика", compact = true,
-                    onClick = {
-                        if (topic != null && step != null && step.kind != GrammarNextStep.Kind.Read && topic.number != null)
-                            navigator.open(TopicQuizRoute(topic.number, topic.id, topic.title))
-                        else if (topic != null) navigator.open(TopicRoute(topic.id)) else navigator.switchTab(GrammarRoute)
-                    },
-                )
+                    done = false,
+                    modifier = Modifier.padding(bottom = 10.dp).appear(4),
+                ) {
+                    if (topic != null && step != null && step.kind != GrammarNextStep.Kind.Read && topic.number != null)
+                        navigator.open(TopicQuizRoute(topic.number, topic.id, topic.title))
+                    else if (topic != null) navigator.open(TopicRoute(topic.id)) else navigator.switchTab(GrammarRoute)
+                }
             }
+            item { Box(Modifier.padding(bottom = 10.dp).appear(5)) { ReadingBlock(navigator) } }
+            item { Box(Modifier.appear(6)) { PracticeBlock(navigator) } }
         }
         val decks: LazyListScope.() -> Unit = {
             item {
-                SectionHeader("Словарная коллекция", Modifier.padding(top = 14.dp))
-                if (state.loaded) Text("${state.decks.sumOf { it.due }} повторений · ${state.decks.sumOf { it.newAvailable }} новых слов",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
+                ModuleHeading("03", "Ваши колоды", if (state.loaded) "${state.decks.size.toString().padStart(2, '0')} / DECKS" else null)
             }
-            itemsIndexed(state.decks, key = { _, s -> s.deck.id }) { i, summary ->
-                EditorialLink(
-                    title = summary.deck.title, index = "%02d".format(i + 1),
-                    description = when {
-                        summary.total == 0 -> summary.deck.subtitle
-                        summary.toStudy == 0 -> "${summary.started} из ${summary.total} начато · на сегодня всё"
-                        else -> "${summary.due} повторить · ${summary.newAvailable} новых доступно"
-                    },
-                    progress = summary.progress.takeIf { summary.started > 0 },
-                    onClick = { navigator.open(DeckRoute(summary.deck)) },
-                )
+            items(state.decks.size, key = { state.decks[it].deck.id }) { i ->
+                val summary = state.decks[i]
+                DeckRow(summary, Modifier.padding(bottom = 8.dp).appear(7 + i)) { navigator.open(DeckRoute(summary.deck)) }
             }
         }
         val padding = PaddingValues(start = gutter, end = gutter, bottom = 28.dp)
@@ -225,25 +237,40 @@ fun HomeScreen(navigator: Navigator) {
 private fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, compact: Boolean, preparing: Boolean, onSize: (Int) -> Unit, onStart: () -> Unit, onRead: () -> Unit) {
     val available = state.decks.sumOf { it.toStudy }
     val planned = minOf(sessionSize, available)
-    val feedback = LocalFeedback.current
     val loaded = state.loaded && !preparing
-    BoundVolume(modifier.fillMaxWidth()) {
-        Text("На сегодня", style = MaterialTheme.typography.titleLarge)
+    val sizes = listOf(5, 10, 20)
+    val scheme = MaterialTheme.colorScheme
+    Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(if (compact) 16.dp else 22.dp), borderColor = scheme.outlineVariant) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            SignalLabel("01 / ФОКУС")
+            if (!compact) SignalLabel("НА СЕГОДНЯ")
+        }
+        Spacer(Modifier.height(if (compact) 12.dp else 24.dp))
+        Text(when {
+            !loaded -> "Готовим занятие"
+            available > 0 && compact -> "На сегодня"
+            available > 0 -> "Маленький шаг.\nНовый уровень."
+            else -> "Отличная работа."
+        }, style = if (compact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(10.dp))
+        Text(when {
+            !loaded -> "Собираем ваши карточки"
+            available > 0 -> "${answerLabel(planned)} за занятие · $available ${com.marat.albion.ui.library.pluralRu(available, "карточка доступна", "карточки доступны", "карточек доступно")}"
+            else -> "Все карточки на сегодня повторены. Время для книги."
+        }, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         if (!loaded || available > 0) {
-            Text(if (loaded && available < sessionSize) "Доступно ${answerLabel(planned)}" else answerLabel(sessionSize),
-                style = MaterialTheme.typography.bodyMedium)
-            Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(5, 10, 20).forEach { count ->
-                    androidx.compose.material3.FilterChip(selected = count == sessionSize,
-                        onClick = { feedback.selection(); onSize(count) }, label = { Text("$count") })
-                }
+            Spacer(Modifier.height(if (compact) 12.dp else 22.dp))
+            if (!compact) {
+                SignalLabel("ОБЪЁМ ЗАНЯТИЯ")
+                Spacer(Modifier.height(8.dp))
             }
+            SegmentedPicker(sizes.map { "$it" }, sizes.indexOf(sessionSize).coerceAtLeast(0), { onSize(sizes[it]) })
+            Spacer(Modifier.height(14.dp))
             PrimaryButton(if (!loaded) "Готовим занятие…" else "Начать", onClick = onStart,
-                enabled = loaded && planned > 0)
+                enabled = loaded && planned > 0, trailingIcon = AlbionIcons.ArrowForward)
         } else {
-            Text("Всё повторено. Продолжим с хорошей книгой?", style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(8.dp))
-            PrimaryButton("Открыть библиотеку", onRead)
+            Spacer(Modifier.height(18.dp))
+            PrimaryButton("Открыть библиотеку", onRead, trailingIcon = AlbionIcons.ArrowForward)
         }
     }
 }
@@ -260,11 +287,29 @@ private fun ReadingBlock(navigator: Navigator) {
     val c = LocalAppContainer.current
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(emptyList())
     val current = books.firstOrNull { it.lastRead != null && it.progress < 0.999f }
-    CatalogueCard(
-        label = "Чтение", compact = true, title = current?.book?.title ?: "Открыть библиотеку",
-        description = if (current != null) "Продолжить чтение · ${(current.progress * 100).toInt()}%" else "Книги с переводом касанием",
+    PlanRow(
+        AlbionIcons.AutoStories,
+        title = current?.book?.title ?: "Открыть библиотеку",
+        subtitle = if (current != null) "Продолжить чтение · ${(current.progress * 100).toInt()}%" else "Книги с переводом касанием",
+        done = false,
         progress = current?.progress,
-        modifier = Modifier.padding(bottom = 10.dp),
-        onClick = { if (current != null) navigator.open(ReaderRoute(current.book.id)) else navigator.switchTab(LibraryRoute) },
-    )
+    ) { if (current != null) navigator.open(ReaderRoute(current.book.id)) else navigator.switchTab(LibraryRoute) }
+}
+
+/** Практика в плане дня: если накопились ошибки — повторить их, иначе открыть каталог. */
+@Composable
+private fun PracticeBlock(navigator: Navigator) {
+    val c = LocalAppContainer.current
+    val needs by remember { c.study.observePracticeNeeds() }.collectAsStateWithLifecycle(emptyList())
+    val top = needs.maxByOrNull { it.count }
+    val game = top?.let { n -> com.marat.albion.ui.games.Game.entries.firstOrNull { it.name == n.game } }
+    PlanRow(
+        AlbionIcons.EditNote,
+        title = if (game != null) "Повторить ошибки" else "Практика",
+        subtitle = if (game != null) "${game.title} · ${top.count}" else "Упражнения на слова, грамматику и речь",
+        done = false,
+    ) {
+        if (game != null) navigator.open(com.marat.albion.ui.nav.GameRoute(game, com.marat.albion.data.content.Deck.byId(top.deck), onlyMistakes = true))
+        else navigator.switchTab(com.marat.albion.ui.nav.GamesRoute)
+    }
 }

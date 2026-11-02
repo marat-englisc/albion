@@ -1,30 +1,70 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import com.marat.albion.ui.theme.Hero
 import androidx.compose.ui.unit.dp
-import com.marat.albion.ui.theme.LocalFeedback
 
+/**
+ * Акцентная плита: ирисовый градиент с мягким свечением, одинаковый в обеих темах.
+ * Внутри действует локальная схема — белый текст, белые «инверсные» кнопки. Одна на экран.
+ */
 @Composable
 fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
-    Card(modifier) { Column(Modifier.padding(16.dp), content = content) }
+    val scheme = MaterialTheme.colorScheme
+    val onHero = Hero.Content
+    val heroScheme = scheme.copy(
+        primary = onHero, onPrimary = Hero.Deep,
+        background = onHero, onBackground = Hero.Deep,
+        surface = Hero.Base, onSurface = onHero, onSurfaceVariant = onHero.copy(alpha = .78f),
+        inverseSurface = Hero.Base, inverseOnSurface = onHero,
+        surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero.copy(alpha = .4f), outlineVariant = onHero.copy(alpha = .22f),
+    )
+    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = Color.Transparent, contentColor = onHero) {
+        MaterialTheme(colorScheme = heroScheme) {
+            CompositionLocalProvider(LocalContentColor provides onHero) {
+                Column(Modifier.background(Hero.Gradient).drawBehind {
+                    // Холодный блик в правом верхнем углу — «свечение» плиты.
+                    drawRect(Brush.radialGradient(listOf(Color(0xFF7FE7FF).copy(alpha = .28f), Color.Transparent),
+                        center = Offset(size.width * .95f, 0f), radius = size.maxDimension * .7f))
+                }.constructionLines(onHero).padding(if (compact) 20.dp else 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+            }
+        }
+    }
 }
 
 @Composable
 fun CatalogueTab(label: String, modifier: Modifier = Modifier) {
-    Text(label, modifier, style = MaterialTheme.typography.labelMedium)
+    Eyebrow(label, modifier)
 }
 
+/** Карточка продолжения: подпись, заголовок, описание, стрелка в круге и прогресс. */
 @Composable
 fun CatalogueCard(
     label: String,
@@ -36,24 +76,36 @@ fun CatalogueCard(
     progress: Float? = null,
     compact: Boolean = false,
 ) {
-    val feedback = LocalFeedback.current
-    Card(onClick = { feedback.selection(); onClick() }, modifier = modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth().padding(16.dp)) {
-            Text(label, style = MaterialTheme.typography.labelMedium)
-            Text(title, style = MaterialTheme.typography.titleLarge)
-            Text(description, style = MaterialTheme.typography.bodyMedium)
-            if (progress != null && progress > 0f) {
-                Spacer(Modifier.height(8.dp))
-                ThinProgress(progress)
+    Panel(modifier.fillMaxWidth(), onClick = onClick) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f)) {
+                Eyebrow(label)
+                Spacer(Modifier.height(6.dp))
+                Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(4.dp))
+                Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            Spacer(Modifier.width(12.dp))
+            ArrowBadge()
         }
+        if (progress != null && progress > 0f) {
+            Spacer(Modifier.height(16.dp))
+            ThinProgress(progress)
+        }
+    }
+}
+
+/** Стрелка «перейти» в круге. */
+@Composable
+fun ArrowBadge(modifier: Modifier = Modifier) {
+    Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, CircleShape), contentAlignment = Alignment.Center) {
+        Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp))
     }
 }
 
 @Composable
 fun FolioDivider(modifier: Modifier = Modifier, label: String? = null) {
-    if (label != null) Text(label, modifier, style = MaterialTheme.typography.labelMedium)
-    else HorizontalDivider(modifier)
+    if (label != null) Eyebrow(label, modifier) else Hairline(modifier)
 }
 
 fun romanNumeral(value: Int): String {

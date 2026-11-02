@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +45,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.marat.albion.ui.components.SignalLabel
+import com.marat.albion.ui.theme.AlbionFonts
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -181,6 +185,8 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TermBlock(card)
+            Spacer(Modifier.height(16.dp))
+            ShadowSteps(active = when { recording -> 1; hasTake -> 2; else -> 0 })
 
             val micSize = if (LocalNarrow.current) 76.dp else 84.dp
             FlowRow(
@@ -197,9 +203,12 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 )
             }
 
-            // Волна: живая во время записи — красная, как кнопка записи.
+            // The level strip follows the microphone signal; idle is a quiet baseline.
             AnimatedVisibility(recording || (!hasTake && report == null)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(Modifier.fillMaxWidth().border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium)
+                    .padding(horizontal = 14.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    SignalLabel(if (recording) "УРОВЕНЬ ЗАПИСИ" else "ГОТОВО К ЗАПИСИ", Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(10.dp))
                     Row(
                         Modifier.fillMaxWidth().height(44.dp).padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -207,7 +216,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                     ) {
                         wave.forEach { v ->
                             val h by animateFloatAsState(if (recording && !reduced) v.coerceAtLeast(0.1f) else 0.1f, tween(160), label = "bar")
-                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline, CircleShape))
+                            Box(Modifier.weight(1f).fillMaxHeight(h).background(if (recording) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant))
                         }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -223,7 +232,7 @@ fun ShadowingRound(vm: GameViewModel, card: CardEntity) {
                 unclear -> ShadowStatus("Не удалось разобрать запись — говорите громче и ближе к телефону", warm = true)
                 report != null -> ShadowStatus("Попытка $takes" + (best?.takeIf { takes > 1 }?.let { " · лучшая $it%" } ?: ""))
                 hasTake && original == null -> ShadowStatus("Для этой карточки нет записи диктора — сравните на слух")
-                else -> ShadowSteps()
+                else -> ShadowStatus("Послушайте диктора, затем запишите свой голос")
             }
 
             AnimatedVisibility(report != null && !recording, enter = fadeIn(tween(320)) + expandVertically()) {
@@ -258,7 +267,7 @@ private fun PlaybackActions(onCompare: () -> Unit, onPlayMine: () -> Unit) {
     }
 }
 
-/** Подсказка-статус под кнопками: обычный текст, красный — когда идёт запись или что-то не так. */
+/** Текстовый статус записи, анализа или следующего действия. */
 @Composable
 private fun ShadowStatus(text: String, warm: Boolean = false) {
     Text(
@@ -273,22 +282,21 @@ private fun ShadowStatus(text: String, warm: Boolean = false) {
 /** Три шага занятия — пронумерованные «фишки», переносятся на узком экране. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ShadowSteps() {
+private fun ShadowSteps(active: Int = 0) {
+    val minStepWidth = 88.dp * LocalDensity.current.fontScale
     FlowRow(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         listOf("Послушайте", "Повторите", "Сравните").forEachIndexed { i, step ->
-            Row(
-                Modifier.border(.65.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                Modifier.widthIn(min = minStepWidth).weight(1f).background(if (i == active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.small)
+                    .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small).padding(horizontal = 8.dp, vertical = 10.dp),
             ) {
-                Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
-                    Text(romanNumeral(i + 1), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
-                }
-                Spacer(Modifier.width(6.dp))
-                Text(step, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                SignalLabel("0${i + 1}", color = if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(6.dp))
+                Text(step, style = MaterialTheme.typography.labelSmall, color = if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -297,21 +305,17 @@ private fun ShadowSteps() {
 /** Разбор попытки: общий процент, три шкалы, график мелодики и советы — на мягкой карточке. */
 @Composable
 internal fun ReportCard(r: ShadowReport) {
-    val good = r.overall >= PASS
-    val shape = RoundedCornerShape(3.dp)
+    val shape = MaterialTheme.shapes.large
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
-            .background(MaterialTheme.colorScheme.surface, shape).border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, shape).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, shape)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
+        SignalLabel("РАЗБОР ГОЛОСА / ANALYSIS")
+        Spacer(Modifier.height(20.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Result label uses the same square corners as the exercise sheet.
-            Box(
-                Modifier.background(if (good) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(2.dp))
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
-            ) {
-                AnimatedNumber(r.overall, MaterialTheme.typography.headlineMedium, color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, suffix = "%")
-            }
+            AnimatedNumber(r.overall, MaterialTheme.typography.displayMedium, suffix = "%")
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -363,7 +367,7 @@ internal fun ReportCard(r: ShadowReport) {
     }
 }
 
-/** Result scales use crimson and muted gold, with explicit numeric values. */
+/** Monochrome signal scales keep exact values visible next to each measure. */
 @Composable
 private fun Scale(label: String, value: Int, note: String?) {
     Column(Modifier.padding(vertical = 5.dp)) {
@@ -377,7 +381,7 @@ private fun Scale(label: String, value: Int, note: String?) {
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f),
             )
             Spacer(Modifier.width(10.dp))
-            Text("$value%", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
+            Text("$value%", style = MaterialTheme.typography.titleSmall.copy(fontFamily = AlbionFonts.Tech), color = MaterialTheme.colorScheme.onSurface)
         }
         Spacer(Modifier.height(6.dp))
         ThinProgress(value / 100f, color = if (value >= PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary, height = 3.dp)

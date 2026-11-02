@@ -8,33 +8,67 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
-/** Albion's own 24-unit pen-stroke icon family. No filled or mixed-weight glyphs. */
+/**
+ * Собственный набор иконок Albion: сетка 24, линия 1.6, круглые концы и скругления.
+ * У вкладок есть пары «контур / заливка» для выбранного состояния.
+ */
 object AlbionIcons {
-    private fun pen(name: String, data: String, mirror: Boolean = false) = ImageVector.Builder(
-        name = "Albion.$name", defaultWidth = 24.dp, defaultHeight = 24.dp,
-        viewportWidth = 24f, viewportHeight = 24f, autoMirror = mirror,
-    ).addPath(
-        pathData = PathParser().parsePathString(data).toNodes(),
-        fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = 1.45f,
-        strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
-    ).build()
+    private const val STROKE = 1.6f
 
-    val Layers = pen("Cards", "M4 5h16v12H4z M7 20h10 M7 9h7 M7 12h10")
-    val MenuBook = pen("Grammar", "M12 5v15 M12 6C9 3 5 3 2 4v14c4-1 7 0 10 2 3-2 6-3 10-2V4c-3-1-7-1-10 2 M5 8h3 M5 11h3 M16 8h3 M16 11h3", true)
-    val AutoStories = pen("Reading", "M5 3h13v18H5c-2 0-2-4 0-4h13 M5 3v14 M9 7h5 M9 10h5 M18 3h2v18H5")
-    val EditNote = pen("Practice", "M4 4h11 M4 9h8 M4 14h5 M4 19h5 M12 20l1-5 7-7 3 3-7 7z M18 10l3 3")
-    val Insights = pen("Progress", "M3 3v18h18 M7 16v-4 M12 16V8 M17 16V5")
-    val Settings = pen("Settings", "M4 6h16 M4 12h16 M4 18h16 M8 3v6 M16 9v6 M10 15v6")
-    val ArrowForward = pen("Forward", "M4 12h16 M14 6l6 6-6 6", true)
-    val ArrowBack = pen("Back", "M20 12H4 M10 6l-6 6 6 6", true)
+    private fun glyph(name: String, stroke: String? = null, fill: String? = null, mirror: Boolean = false): ImageVector {
+        val b = ImageVector.Builder(
+            name = "Albion.$name", defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f, autoMirror = mirror,
+        )
+        if (fill != null) b.addPath(pathData = PathParser().parsePathString(fill).toNodes(), fill = SolidColor(Color.Black))
+        if (stroke != null) b.addPath(
+            pathData = PathParser().parsePathString(stroke).toNodes(),
+            fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = STROKE,
+            strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+        )
+        return b.build()
+    }
+
+    private fun pen(name: String, data: String, mirror: Boolean = false) = glyph(name, stroke = data, mirror = mirror)
+
+    // ---- вкладки: контур и заливка ----
+    private const val CARD = "M6.5 9.5h11a2.5 2.5 0 0 1 2.5 2.5v5.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5V12a2.5 2.5 0 0 1 2.5-2.5z"
+    val Layers = pen("Today", "M8 4h8 M6 6.75h12 $CARD")
+    val LayersFilled = glyph("TodayFilled", stroke = "M8 4h8 M6 6.75h12", fill = CARD)
+
+    private const val BOOK = "M12 6.5C10 5 7.5 4.5 3.75 4.75v13.5c3.75-.25 6.25.25 8.25 1.75 2-1.5 4.5-2 8.25-1.75V4.75C16.5 4.5 14 5 12 6.5z"
+    val MenuBook = pen("Grammar", "$BOOK M12 6.5V20")
+    val MenuBookFilled = glyph("GrammarFilled",
+        fill = "M11.2 6.05C9.3 4.85 7 4.45 3.75 4.6v13.65c3.3-.15 5.6.3 7.45 1.45z M12.8 6.05c1.9-1.2 4.2-1.6 7.45-1.45v13.65c-3.3-.15-5.6.3-7.45 1.45z")
+
+    private const val COVER = "M7 3.75h10.5a1.75 1.75 0 0 1 1.75 1.75v10.75H7A2.25 2.25 0 0 0 4.75 18.5V6A2.25 2.25 0 0 1 7 3.75z"
+    val AutoStories = pen("Reading", "$COVER M4.75 18.5A2 2 0 0 0 6.75 20.25h12.5 M9 3.75v5.5l1.75-1.25 1.75 1.25v-5.5")
+    val AutoStoriesFilled = glyph("ReadingFilled", stroke = "M4.75 18.5A2 2 0 0 0 6.75 20.25h12.5", fill = COVER)
+
+    private const val PENCIL = "M14.75 19.25l-3.25.75.75-3.25 6.9-6.9a1.77 1.77 0 0 1 2.5 2.5z"
+    val EditNote = pen("Practice", "M3.75 6h10 M3.75 11h6.5 M3.75 16h4 $PENCIL")
+    val EditNoteFilled = glyph("PracticeFilled", stroke = "M3.75 6h10 M3.75 11h6.5 M3.75 16h4", fill = PENCIL)
+
+    private const val BARS = "M5.75 12h1.5a1 1 0 0 1 1 1v6.25a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1z " +
+        "M11.25 7.75h1.5a1 1 0 0 1 1 1v10.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V8.75a1 1 0 0 1 1-1z " +
+        "M16.75 3.75h1.5a1 1 0 0 1 1 1v14.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V4.75a1 1 0 0 1 1-1z"
+    val Insights = pen("Progress", BARS)
+    val InsightsFilled = glyph("ProgressFilled", fill = BARS)
+
+    // ---- действия ----
+    val Settings = pen("Settings", "M4 7.5h9 M19 7.5h1 M4 16.5h1 M11 16.5h9 M16 5.25a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 0 1 0-4.5z M8 14.25a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 0 1 0-4.5z")
+    val Moon = pen("Moon", "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z")
+    val Sun = pen("Sun", "M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M12 2.75v1.5 M12 19.75v1.5 M2.75 12h1.5 M19.75 12h1.5 M5.5 5.5l1.05 1.05 M17.45 17.45l1.05 1.05 M5.5 18.5l1.05-1.05 M17.45 6.55l1.05-1.05")
+    val ArrowForward = pen("Forward", "M4.5 12h15 M13.5 6l6 6-6 6", true)
+    val ArrowBack = pen("Back", "M19.5 12h-15 M10.5 6l-6 6 6 6", true)
     val East = ArrowForward
     val West = ArrowBack
-    val Close = pen("Close", "M6 6l12 12 M18 6L6 18")
+    val Close = pen("Close", "M6.5 6.5l11 11 M17.5 6.5l-11 11")
     val Clear = Close
-    val Check = pen("Check", "M4 12l5 5L20 6")
+    val Check = pen("Check", "M4.5 12.5l4.75 4.75L19.5 7")
     val TaskAlt = pen("Mastered", "M20 11v1a8 8 0 1 1-4-7 M9 10l3 3 8-9")
-    val Add = pen("Add", "M12 4v16 M4 12h16")
-    val Search = pen("Search", "M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M15 15l6 6")
+    val Add = pen("Add", "M12 5v14 M5 12h14")
+    val Search = pen("Search", "M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0 M15.25 15.25l4.75 4.75")
     val BookmarkBorder = pen("Bookmark", "M6 3h12v18l-6-4-6 4z")
     val Bookmark = pen("Saved", "M6 3h12v18l-6-4-6 4z M9 9l2 2 4-4")
     val Delete = pen("Delete", "M4 6h16 M9 6V3h6v3 M6 6l1 15h10l1-15 M10 10v7 M14 10v7")
@@ -42,8 +76,8 @@ object AlbionIcons {
     val VolumeUp = pen("Listen", "M3 9h4l5-5v16l-5-5H3z M16 8c2 2 2 6 0 8 M19 5c4 4 4 10 0 14", true)
     val Mic = pen("Microphone", "M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0z M5 11v1a7 7 0 0 0 14 0v-1 M12 19v3 M8 22h8")
     val RecordVoiceOver = pen("Speech", "M8 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6 M2 21v-3a6 6 0 0 1 12 0v3 M17 5c3 2 3 6 0 8 M20 2c5 4 5 10 0 14")
-    val PlayArrow = pen("Play", "M7 4l13 8-13 8z")
-    val Stop = pen("Stop", "M6 6h12v12H6z")
+    val PlayArrow = pen("Play", "M8 5.2v13.6a1 1 0 0 0 1.5.85l10.4-6.8a1 1 0 0 0 0-1.7L9.5 4.35A1 1 0 0 0 8 5.2z")
+    val Stop = pen("Stop", "M8 6.5h8A1.5 1.5 0 0 1 17.5 8v8a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 16V8A1.5 1.5 0 0 1 8 6.5z")
     val SlowMotionVideo = pen("Slow", "M20 12a8 8 0 1 1-8-8 M12 1v6 M18 3l-3 4 M23 7l-5 2 M10 9l5 3-5 3z")
     val Undo = pen("Undo", "M8 4L3 9l5 5 M3 9h11a6 6 0 0 1 0 12", true)
     val Redo = pen("Redo", "M16 4l5 5-5 5 M21 9H10a6 6 0 0 0 0 12", true)

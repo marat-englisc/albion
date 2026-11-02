@@ -1,5 +1,9 @@
 package com.marat.albion.ui.settings
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import com.marat.albion.ui.components.SegmentedPicker
+import com.marat.albion.data.settings.ThemeMode
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -43,7 +47,13 @@ fun SettingsScreen(onBack: () -> Unit) {
         TopBar(onBack, "Настройки")
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
             .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(bottom = 24.dp)) {
-            Disclosure("Занятия и цель", "${s.dailyGoal} ответов в день") {
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Оформление", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+                SignalLabel("IRIS / 01")
+            }
+            SegmentedPicker(ThemeMode.entries.map { it.title }, s.themeMode.ordinal, { scope.launch { repo.setThemeMode(ThemeMode.entries[it]) } })
+            Spacer(Modifier.height(16.dp))
+            Disclosure("Занятия и цель", "${s.dailyGoal} ответов в день", icon = com.marat.albion.ui.components.AlbionIcons.Insights) {
                 GoalReminderSection(s)
                 SliderSetting("Новых карточек в день", "${s.newPerDay}",
                     "На каждую колоду. Для шести колод — до ${s.newPerDay * 6} новых карточек в день.",
@@ -56,7 +66,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     } }
                 }
             }
-            Disclosure("Карточки и озвучка", "Перевод, транскрипция и воспроизведение") {
+            Disclosure("Карточки и озвучка", "Перевод, транскрипция и воспроизведение", icon = com.marat.albion.ui.components.AlbionIcons.VolumeUp) {
                 SwitchSetting("Озвучивать слово при показе", s.autoplayFront) { scope.launch { repo.setAutoplayFront(it) } }
                 SwitchSetting("Озвучивать при перевороте", s.autoplayBack) { scope.launch { repo.setAutoplayBack(it) } }
                 SwitchSetting("Транскрипция на лицевой стороне", s.showIpaOnFront) { scope.launch { repo.setShowIpaOnFront(it) } }
@@ -71,7 +81,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
                 ActionRow("Прослушать пример") { c.audio.speak("A little, every day.", "settings-preview") }
             }
-            Disclosure("Чтение и учебник", "Размер текста, интервал и поля") {
+            Disclosure("Чтение и учебник", "Размер текста, интервал и поля", icon = com.marat.albion.ui.components.AlbionIcons.AutoStories) {
                 SliderSetting("Текст учебника", "${(s.grammarTextScale * 100).roundToInt()}%", null,
                     s.grammarTextScale, 0.85f..1.4f, 10) { scope.launch { repo.setGrammarTextScale(it) } }
                 Text("Английский — маленькими шагами каждый день.",
@@ -84,16 +94,19 @@ fun SettingsScreen(onBack: () -> Unit) {
                     scope.launch { repo.setReaderMargin(it.roundToInt()) }
                 }
                 Text("A little, every day. A good book is always a good companion.", Modifier.padding(horizontal = s.readerMargin.dp),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = (18 * s.readerTextScale).sp, lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
+                    style = com.marat.albion.ui.theme.ReadingStyle.copy(fontSize = (18 * s.readerTextScale).sp, lineHeight = (29 * s.readerTextScale * s.readerLineSpacing).sp))
                 SwitchSetting("Подчёркивать изучаемые слова в книге", s.readerMarkWords) { scope.launch { repo.setReaderMarkWords(it) } }
             }
-            Disclosure("Звук и доступность", "Тактильный отклик и движение") {
+            Disclosure("Звук и доступность", "Тактильный отклик и движение", icon = com.marat.albion.ui.components.AlbionIcons.Lightbulb) {
                 SwitchSetting("Звук завершения занятия", s.interfaceSounds) { scope.launch { repo.setInterfaceSounds(it) } }
                 Text("Тихое созвучие с учётом беззвучного режима телефона.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
                 SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
             }
-            Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка") {
+            Disclosure("Перевод книг", "Qwen3.5 · офлайн-модель", icon = AlbionIcons.AutoStories) {
+                com.marat.albion.ui.library.TranslationModelControls()
+            }
+            Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка", icon = com.marat.albion.ui.components.AlbionIcons.Timeline) {
                 SliderSetting("Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",
                     "Вероятность вспомнить карточку при показе. Рекомендуется 90%.", s.desiredRetention, 0.80f..0.97f, 16) {
                     scope.launch { repo.setRetention((it * 100).roundToInt() / 100f) }
@@ -104,7 +117,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
                 FsrsTuningBlock(s)
             }
-            Disclosure("Материалы и данные", "Состояние курса и управление прогрессом") {
+            Disclosure("Материалы и данные", "Состояние курса и управление прогрессом", icon = com.marat.albion.ui.components.AlbionIcons.Inventory2) {
                 when (val st = status) {
                     ImportStatus.Checking -> LoadingState("Проверяем материалы")
                     is ImportStatus.Importing -> LoadingState("Подготавливаем ${st.deck.title} · ${st.index}/${st.total}")

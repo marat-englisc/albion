@@ -82,6 +82,8 @@ import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.lerpColor
+import com.marat.albion.ui.components.SignalLabel
+import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.study.rememberCardAudio
 
 // ------------------------------------------------------------------ поле ввода
@@ -104,23 +106,21 @@ internal fun AnswerField(
     var focused by remember { mutableStateOf(false) }
     val on by animateFloatAsState(if (focused) 1f else 0f, tween(220), label = "focus")
     val narrow = LocalNarrow.current
-    val shape = RoundedCornerShape(3.dp)
+    val shape = MaterialTheme.shapes.medium
     val border = when {
         struck -> MaterialTheme.colorScheme.error
-        else -> lerpColor(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.primary, on)
+        else -> lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, on)
     }
     Column(modifier.fillMaxWidth()) {
-        Text(placeholder, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 6.dp))
     BasicTextField(
         value = value,
         onValueChange = onChange,
         enabled = enabled,
         singleLine = true,
-        textStyle = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+        textStyle = TextStyle(fontFamily = AlbionFonts.Sans, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             fontSize = if (narrow) 24.sp else 28.sp,
             color = if (struck) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
             textDecoration = if (struck) TextDecoration.LineThrough else null,
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -133,24 +133,30 @@ internal fun AnswerField(
         keyboardActions = KeyboardActions(onAny = { onIme() }),
         modifier = Modifier.fillMaxWidth().semantics { contentDescription = placeholder }.focusRequester(focus).onFocusChanged { focused = it.isFocused },
         decorationBox = { inner ->
-            Box(
+            Row(
                 Modifier.fillMaxWidth()
-                    .background(if (struck) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface, shape)
-                    .border(if (on > 0.5f || struck) 1.dp else .65.dp, border, shape)
-                    .heightIn(min = 60.dp)
+                    .background(if (struck) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow, shape)
+                    .border(if (focused) 1.25.dp else .75.dp, border, shape)
+                    .heightIn(min = 64.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
-                contentAlignment = Alignment.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Icon(AlbionIcons.EditNote, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.width(12.dp))
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 if (value.isEmpty() && !focused) {
                     Text(
                         placeholder,
-                        style = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                        textAlign = TextAlign.Start,
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
                 }
                 inner()
+                }
+                Spacer(Modifier.width(10.dp))
+                SignalLabel("EN")
             }
         },
     )
@@ -195,12 +201,7 @@ private fun hintLetters(term: String) =
 internal fun VerdictLine(verdict: Verdict) {
     val good = verdict != Verdict.Wrong
     val fg = if (good) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
-    Row(
-        Modifier.background(if (good) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(2.dp))
-            .border(.65.dp, fg.copy(alpha = .4f), RoundedCornerShape(2.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(if (good) AlbionIcons.Check else AlbionIcons.Close, null, tint = fg, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
         Eyebrow(
@@ -220,8 +221,6 @@ internal fun VerdictLine(verdict: Verdict) {
 @Composable
 private fun WrongAnswerFeedback(answer: String, correct: String) {
     NoteCard(Modifier.semantics { liveRegion = LiveRegionMode.Polite }, tone = NoteTone.Bad) {
-        VerdictLine(Verdict.Wrong)
-        Spacer(Modifier.height(12.dp))
         Eyebrow("Ваш ответ", color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.height(2.dp))
         Text(
@@ -275,16 +274,18 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TaskCard(centered = true) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (card.pos.isNotBlank()) Chip(card.pos)
-                    LevelBadge(card.level)
+            TaskCard(centered = true, label = "ПЕРЕВЕДИТЕ НА АНГЛИЙСКИЙ") {
+                if (!imeOpen()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        if (card.pos.isNotBlank()) Chip(card.pos)
+                        LevelBadge(card.level)
+                    }
+                    Spacer(Modifier.height(12.dp))
                 }
-                Spacer(Modifier.height(12.dp))
                 Text(
                     card.meaningRu,
-                    style = if (LocalNarrow.current) MaterialTheme.typography.bodyMedium
-                        else MaterialTheme.typography.bodyLarge,
+                    style = if (imeOpen() || card.meaningRu.length > 90) MaterialTheme.typography.bodyLarge
+                        else MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = if (card.meaningRu.length > 80) TextAlign.Start else TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -306,7 +307,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(2.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(12.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -383,7 +384,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
-                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
+                NextDock(verdict != Verdict.Wrong, title = when { verdict == Verdict.Typo -> "Почти"; verdict == Verdict.Wrong -> "Неверно"; else -> "Верно" }) { vm.next() }
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     val hintLabel = if (hints < letters - 1) "Буква" else "Определение"
@@ -452,7 +453,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TaskCard(centered = true) {
+            TaskCard(centered = true, label = "ВОССТАНОВИТЕ ФОРМЫ ГЛАГОЛА") {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Eyebrow("V1 · Infinitive", color = MaterialTheme.colorScheme.primary)
                     LevelBadge(card.level)
@@ -512,7 +513,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
             label = "actions",
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
-            if (answered) PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
+            if (answered) NextDock(result?.let { it.first == Verdict.Correct && it.second == Verdict.Correct }) { vm.next() }
             else GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) }, secondaryLabel = "Я не знаю")
         }
     }

@@ -55,7 +55,7 @@ private fun buildForest(graph: FlowGraph): List<TreeNode> {
 @Composable
 fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
     val forest = remember(graph) { buildForest(graph) }
-    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(16.dp)) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)).padding(16.dp)) {
         Eyebrow("Схема")
         Spacer(Modifier.height(14.dp))
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { forest.forEach { TreeView(it) } }

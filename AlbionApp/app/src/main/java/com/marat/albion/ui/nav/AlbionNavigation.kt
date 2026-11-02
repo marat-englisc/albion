@@ -72,6 +72,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import com.marat.albion.ui.theme.Springs
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -120,21 +129,26 @@ import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.LocalFeedback
 
-private data class Tab(val route: TopLevel, val label: String, val icon: ImageVector)
+private data class Tab(val route: TopLevel, val label: String, val icon: ImageVector, val selectedIcon: ImageVector)
 
 private val tabs = listOf(
-    Tab(HomeRoute, "Сегодня", AlbionIcons.Layers),
-    Tab(GrammarRoute, "Учебник", AlbionIcons.MenuBook),
-    Tab(LibraryRoute, "Чтение", AlbionIcons.AutoStories),
-    Tab(GamesRoute, "Практика", AlbionIcons.EditNote),
-    Tab(StatsRoute, "Прогресс", AlbionIcons.Insights),
+    Tab(HomeRoute, "Сегодня", AlbionIcons.Layers, AlbionIcons.LayersFilled),
+    Tab(GrammarRoute, "Учебник", AlbionIcons.MenuBook, AlbionIcons.MenuBookFilled),
+    Tab(LibraryRoute, "Чтение", AlbionIcons.AutoStories, AlbionIcons.AutoStoriesFilled),
+    Tab(GamesRoute, "Практика", AlbionIcons.EditNote, AlbionIcons.EditNoteFilled),
+    Tab(StatsRoute, "Прогресс", AlbionIcons.Insights, AlbionIcons.InsightsFilled),
 )
 
-// A short page movement and dissolve, without spring or depth effects.
-private fun forward(reduced: Boolean): ContentTransform =
-    if (reduced) ContentTransform(androidx.compose.animation.EnterTransition.None, androidx.compose.animation.ExitTransition.None, sizeTransform = null) else (fadeIn(tween(220)) + slideInHorizontally(tween(280, easing = Easing.Standard)) { if (reduced) 0 else it / 22 }) togetherWith fadeOut(tween(160))
-private fun backward(reduced: Boolean): ContentTransform =
-    if (reduced) ContentTransform(androidx.compose.animation.EnterTransition.None, androidx.compose.animation.ExitTransition.None, sizeTransform = null) else fadeIn(tween(200)) togetherWith (fadeOut(tween(160)) + slideOutHorizontally(tween(240, easing = Easing.Standard)) { if (reduced) 0 else it / 22 })
+private val none = ContentTransform(androidx.compose.animation.EnterTransition.None, androidx.compose.animation.ExitTransition.None, sizeTransform = null)
+
+// Общая ось X: новый экран въезжает справа на пружине, прежний чуть уходит в глубину.
+private fun forward(reduced: Boolean): ContentTransform = if (reduced) none else
+    (slideInHorizontally(Springs.smooth()) { it / 5 } + fadeIn(tween(220, 40))) togetherWith
+        (slideOutHorizontally(Springs.smooth()) { -it / 12 } + fadeOut(tween(160)) + scaleOut(Springs.smooth(), targetScale = 0.97f))
+
+private fun backward(reduced: Boolean): ContentTransform = if (reduced) none else
+    (slideInHorizontally(Springs.smooth()) { -it / 12 } + fadeIn(tween(220)) + scaleIn(Springs.smooth(), initialScale = 0.97f)) togetherWith
+        (slideOutHorizontally(Springs.smooth()) { it / 5 } + fadeOut(tween(160)))
 
 @Composable
 fun AlbionNavigation() {
@@ -146,7 +160,7 @@ fun AlbionNavigation() {
     val backStack = navigator.backStack
     val current = backStack.lastOrNull()
     val showBar = current !is StudyRoute && current !is ReaderRoute && current !is GameRoute &&
-        current !is TopicQuizRoute && current != SettingsRoute
+        current !is TopicQuizRoute && current != SettingsRoute && current !is ChatRoute
     BackHandler(enabled = backStack.size == 1 && navigator.selectedTab != HomeRoute) { navigator.back() }
 
     val provider = entryProvider<NavKey> {
@@ -164,6 +178,8 @@ fun AlbionNavigation() {
         entry<CardRoute> { CardDetailScreen(it.cardId, navigator) }
         entry<TopicRoute> { TopicScreen(it.topicId, navigator, fromQuiz = it.fromQuiz) }
         entry<TopicQuizRoute> { TopicQuizHost(it.topic, it.topicId, it.title, navigator) }
+        entry<ConversationsRoute> { com.marat.albion.ui.conversation.ConversationsScreen(navigator) }
+        entry<ChatRoute> { com.marat.albion.ui.conversation.ChatScreen(it.conversationId, navigator) }
     }
     // Декораторы всех стеков остаются в композиции, даже когда отображается другой раздел.
     val entries = stacks.mapValues { (tab, stack) ->
@@ -236,15 +252,23 @@ private fun maxWidthFor(route: NavKey): Dp = when (route) {
     is ReaderRoute -> Dp.Infinity
     // Главная на планшете делится на две колонки: сегодня и колоды.
     HomeRoute -> DashboardWidth
-    is StudyRoute, is GameRoute, is TopicQuizRoute -> FocusWidth
+    is StudyRoute, is GameRoute, is TopicQuizRoute, is ChatRoute -> FocusWidth
     else -> ReadableWidth
 }
 
-/** Selected tabs change tone without displacing the icon. */
+/** Иконка вкладки: контур и заливка сменяют друг друга с лёгким пружинным «прыжком». */
 @Composable
-private fun TabIcon(icon: ImageVector, selected: Boolean, description: String?) {
-    val tone by androidx.compose.animation.animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, tween(if (LocalReducedMotion.current) 0 else 180), label = "tabTint")
-    Icon(icon, description, tint = tone, modifier = Modifier.size(23.dp))
+private fun TabIcon(tab: Tab, selected: Boolean, tint: Color) {
+    val reduced = LocalReducedMotion.current
+    if (reduced) {
+        Icon(if (selected) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.size(22.dp))
+        return
+    }
+    val scale by animateFloatAsState(if (selected && !reduced) 1.08f else 1f, Springs.bouncy(), label = "tabScale")
+    androidx.compose.animation.Crossfade(selected, label = "tabIcon",
+        modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale }) { active ->
+        Icon(if (active) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.size(22.dp))
+    }
 }
 
 @Composable
@@ -254,16 +278,19 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     Row(Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))) {
         Column(Modifier.width(railWidth).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(top = 12.dp).selectableGroup()) {
+            com.marat.albion.ui.components.AlbionMark(Modifier.align(Alignment.CenterHorizontally).padding(vertical = 24.dp))
             tabs.forEach { tab ->
                 val active = tab.route == selected
                 Column(Modifier.fillMaxWidth().heightIn(min = 80.dp)
-                    .background(if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
                     .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) })
                     .padding(horizontal = 6.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    TabIcon(tab.icon, active, null)
+                    TabIcon(tab, active, if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
                     Text(tab.label, style = MaterialTheme.typography.labelMedium,
-                        textAlign = TextAlign.Center, color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                        textAlign = TextAlign.Center, color = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -271,15 +298,21 @@ private fun SideRail(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     }
 }
 
-/** Quiet full-width navigation, with a fine crimson selection rule. */
+/** Плавающая капсула, инверсная к фону; выбранную вкладку подсвечивает «перетекающая» плашка. */
 @Composable
 private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     val index = tabs.indexOfFirst { it.route == selected }.coerceAtLeast(0)
-    val labelStyle = MaterialTheme.typography.labelMedium
+    val labelStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 0.sp)
     val textMeasurer = rememberTextMeasurer()
-    Column(Modifier.background(MaterialTheme.colorScheme.surface).windowInsetsPadding(WindowInsets.navigationBars)) {
-        Hairline()
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val scheme = MaterialTheme.colorScheme
+    val reduced = LocalReducedMotion.current
+    BoxWithConstraints(Modifier.fillMaxWidth().background(scheme.background).windowInsetsPadding(WindowInsets.navigationBars)) {
+        // На узких экранах капсула почти во всю ширину, чтобы подписи пяти вкладок помещались.
+        val narrow = maxWidth < 360.dp
+        BoxWithConstraints(Modifier.fillMaxWidth()
+            .padding(start = if (narrow) 8.dp else 16.dp, end = if (narrow) 8.dp else 16.dp, top = 8.dp, bottom = 8.dp)
+            .clip(RoundedCornerShape(20.dp)).background(scheme.surfaceContainerLow)
+            .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(20.dp)).padding(5.dp)) {
             val tabWidth = maxWidth / tabs.size
             val availablePx = with(LocalDensity.current) { (tabWidth - 4.dp).roundToPx() }
             val needsMenu = tabs.any { textMeasurer.measure(it.label, labelStyle, softWrap = false).size.width > availablePx }
@@ -287,21 +320,21 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 NavigationMenu(selected, onSelect)
                 return@BoxWithConstraints
             }
-            val markerWidth = 28.dp.coerceAtMost(tabWidth)
-            val indicatorX by animateDpAsState(tabWidth * index + (tabWidth - markerWidth) / 2,
-                tween(if (LocalReducedMotion.current) 0 else 220, easing = Easing.Standard), label = "indicator")
-            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(markerWidth).height(2.dp).background(MaterialTheme.colorScheme.secondary))
-            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup()) {
+            val indicatorX by animateDpAsState(tabWidth * index, if (reduced) snap() else Springs.snappy(), label = "indicator")
+            Box(Modifier.offset { IntOffset(indicatorX.roundToPx(), 0) }.width(tabWidth).height(58.dp)
+                .background(scheme.primary, RoundedCornerShape(14.dp)))
+            Row(Modifier.fillMaxWidth().height(58.dp).selectableGroup()) {
                 tabs.forEachIndexed { i, tab ->
                     val active = i == index
-                    Column(Modifier.weight(1f).fillMaxHeight().heightIn(min = 74.dp)
-                        .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) })
-                        .padding(horizontal = 2.dp, vertical = 12.dp),
+                    val tint by androidx.compose.animation.animateColorAsState(
+                        if (active) scheme.onPrimary else scheme.onSurfaceVariant,
+                        animationSpec = if (reduced) snap() else tween(180), label = "tabTint")
+                    Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp))
+                        .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab.route) }),
                         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        TabIcon(tab.icon, active, null)
-                        Spacer(Modifier.height(7.dp))
-                        Text(tab.label, style = labelStyle.copy(fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium),
-                            maxLines = 1, softWrap = false, textAlign = TextAlign.Center, color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                        TabIcon(tab, active, tint)
+                        Spacer(Modifier.height(3.dp))
+                        com.marat.albion.ui.components.FitText(tab.label, Modifier.padding(horizontal = 2.dp), style = labelStyle, color = tint, minSize = 8.sp, textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -319,12 +352,12 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 68.dp)
         .clickable(role = Role.Button, onClick = { open = true }).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(current.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+        Icon(current.selectedIcon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
         Column(Modifier.weight(1f)) {
             Text(current.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
             Text("Все разделы", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(AlbionIcons.Menu, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+        Icon(AlbionIcons.Menu, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
     }
     if (open) ModalBottomSheet(
         onDismissRequest = { open = false },
@@ -343,7 +376,7 @@ private fun NavigationMenu(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                     tabs.forEach { tab ->
                         val active = tab.route == selected
                         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                            .background(if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .background(if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
                             .selectable(selected = active, role = Role.Tab, onClick = {
                                 open = false
                                 onSelect(tab.route)

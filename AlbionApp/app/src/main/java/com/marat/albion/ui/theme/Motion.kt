@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -39,14 +40,74 @@ object Easing {
     val Standard = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 }
 
-/** Число, которое «набегает» при появлении и плавно меняется дальше. */
+/** Пружины приложения: короткие, без «желе», с чётким финишем. */
+object Springs {
+    fun <T> snappy() = spring<T>(dampingRatio = 0.96f, stiffness = 560f)
+    fun <T> smooth() = spring<T>(dampingRatio = 1f, stiffness = 240f)
+    fun <T> bouncy() = spring<T>(dampingRatio = 0.84f, stiffness = 420f)
+}
+
+/** Отклик на нажатие: элемент слегка «проседает» и пружинит обратно. */
+fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.96f): Modifier = composed {
+    val reduced = LocalReducedMotion.current
+    val isPressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        if (isPressed && !reduced) pressed else 1f,
+        if (isPressed) spring(dampingRatio = 1f, stiffness = 1400f) else Springs.bouncy(),
+        label = "press",
+    )
+    graphicsLayer { scaleX = scale; scaleY = scale }
+}
+
+/**
+ * Каскадное появление при первом показе: снизу вверх с растворением.
+ * Элементы, появившиеся позже (при прокрутке), анимируются коротко, без задержки.
+ */
+fun Modifier.appear(index: Int = 0, step: Long = 45): Modifier = composed {
+    val reduced = LocalReducedMotion.current
+    var shown by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(reduced) }
+    val progress = remember { Animatable(if (shown) 1f else 0f) }
+    val distance = with(LocalDensity.current) { 18.dp.toPx() }
+    LaunchedEffect(reduced) {
+        if (reduced) {
+            progress.snapTo(1f)
+            shown = true
+        } else if (!shown) {
+            delay((index * step).coerceAtMost(360))
+            progress.animateTo(1f, spring(dampingRatio = 0.86f, stiffness = 220f))
+            shown = true
+        }
+    }
+    graphicsLayer {
+        val p = progress.value
+        alpha = p.coerceIn(0f, 1f)
+        translationY = (1f - p) * distance
+    }
+}
+
+/** Число, которое «катится»: каждая цифра въезжает снизу или сверху при изменении. */
 @Composable
 fun AnimatedNumber(value: Int, style: TextStyle, color: Color = Color.Unspecified, suffix: String = "") {
     val reduced = LocalReducedMotion.current
-    var target by remember { mutableStateOf(if (reduced) value else 0) }
-    LaunchedEffect(value) { target = value }
-    val shown by animateIntAsState(target, tween(if (reduced) 0 else 360, easing = Easing.Standard), label = "number")
-    Text("$shown$suffix", style = style, color = color)
+    if (reduced) { Text("$value$suffix", style = style, color = color); return }
+    var previous by remember { mutableStateOf(value) }
+    val up = value >= previous
+    LaunchedEffect(value) { previous = value }
+    androidx.compose.foundation.layout.Row {
+        val text = value.toString()
+        text.forEachIndexed { i, ch ->
+            androidx.compose.animation.AnimatedContent(
+                targetState = ch,
+                transitionSpec = {
+                    val dir = if (up) 1 else -1
+                    (androidx.compose.animation.slideInVertically(Springs.smooth()) { it * dir } + androidx.compose.animation.fadeIn()) togetherWith
+                        (androidx.compose.animation.slideOutVertically(Springs.smooth()) { -it * dir } + androidx.compose.animation.fadeOut())
+                },
+                label = "digit$i",
+            ) { digit -> Text(digit.toString(), style = style, color = color) }
+        }
+        if (suffix.isNotEmpty()) Text(suffix, style = style, color = color)
+    }
 }
 
 /** Central motion policy also covers expanding panels and changing exercise answers. */

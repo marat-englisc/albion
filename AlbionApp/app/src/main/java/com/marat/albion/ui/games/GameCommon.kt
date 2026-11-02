@@ -1,5 +1,14 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.foundation.layout.isImeVisible
+import com.marat.albion.ui.theme.appear
+import com.marat.albion.ui.components.SegmentedPicker
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.items
+import androidx.compose.animation.core.snap
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
@@ -86,6 +95,10 @@ import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.TopBar
+import com.marat.albion.ui.components.SignalLabel
+import com.marat.albion.ui.components.OrbitalField
+import com.marat.albion.ui.components.Panel
+import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.LocalReducedMotion
@@ -183,7 +196,7 @@ enum class Game(
     val modes: List<String> get() = if (this == TENSES) listOf("Выбор формы", "Ввод") else emptyList()
 }
 
-/** Экран перед началом: описание, выбор колоды и длины занятия. */
+/** Экран перед началом: крупная плитка упражнения, параметры капсулами, «Начать» у большого пальца. */
 @Composable
 fun GameSetup(
     game: Game,
@@ -208,45 +221,42 @@ fun GameSetup(
         }
         SetupBody(
             start = {
-                PrimaryButton("Начать", onClick = onStart, trailingIcon = AlbionIcons.ArrowForward,
-                    modifier = Modifier)
+                val length = if (count == Int.MAX_VALUE) "${available ?: ""} ${game.unit}".trim() else "$count ${game.unit}"
+                PrimaryButton("Начать", onClick = onStart, trailingIcon = AlbionIcons.ArrowForward)
+                Text(length, Modifier.fillMaxWidth().padding(top = 8.dp), style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             },
         ) {
-            GameSetupHeader(game, Modifier) {
+            GameSetupHeader(game) {
                 if (game.decks.size > 1) {
-                    Column(Modifier) {
-                        SectionHeader("Колода", Modifier.padding(top = 0.dp))
-                        OptionGrid(game.decks.map { it.title }, game.decks.indexOf(deck)) { onDeck(game.decks[it]) }
+                    SetupLabel("Колода")
+                    Column(Modifier.fillMaxWidth().selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        game.decks.forEach { d -> com.marat.albion.ui.components.ChoiceRow(d.title, d == deck, { onDeck(d) }) }
                     }
                 }
                 if (game.modes.isNotEmpty()) {
-                    Column(Modifier) {
-                        SectionHeader("Режим", Modifier.padding(top = 8.dp))
-                        ChipFlow {
-                            game.modes.forEachIndexed { i, m -> PracticeOption(m, mode == i) { onMode(i) } }
-                        }
-                    }
+                    SetupLabel("Режим", if (game.decks.size > 1) 2 else 1)
+                    SegmentedPicker(game.modes, mode, onMode)
                 }
+                SetupLabel("Длина", 1 + (if (game.decks.size > 1) 1 else 0) + (if (game.modes.isNotEmpty()) 1 else 0))
+                val labels = counts.map { n -> if (n == Int.MAX_VALUE) "Все" else "$n" }
+                SegmentedPicker(labels, counts.indexOf(count).coerceAtLeast(0), { onCount(counts[it]) })
+                if (count == Int.MAX_VALUE) Text("${available ?: "Все"} ${game.unit} · около ${((available ?: 0) / 4).coerceAtLeast(1)} мин. Можно закончить раньше.",
+                    Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (mistakes > 0) {
-                    Column(Modifier) {
-                        SectionHeader("Ошибки", Modifier.padding(top = 4.dp), trailing = "%02d".format(mistakes))
-                        ChipFlow {
-                            PracticeOption("Все слова", !onlyMistakes) { onOnlyMistakes(false) }
-                            PracticeOption("Только ошибки", onlyMistakes) { onOnlyMistakes(true) }
-                        }
+                    Spacer(Modifier.height(20.dp))
+                    com.marat.albion.ui.components.Panel(contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp)) {
+                        com.marat.albion.ui.settings.SwitchSetting("Только ошибки · $mistakes", onlyMistakes, onOnlyMistakes)
                     }
-                }
-                Column(Modifier) {
-                    SectionHeader("Длина", Modifier.padding(top = 4.dp))
-                    ChipFlow {
-                        counts.forEach { n -> PracticeOption(if (n == Int.MAX_VALUE) "Все · ${available ?: "…"}" else "$n ${game.unit}", count == n) { onCount(n) } }
-                    }
-                    if (count == Int.MAX_VALUE) Text("${available ?: "Все"} ${game.unit} · около ${((available ?: 0) / 4).coerceAtLeast(1)} мин. Можно закончить раньше.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SetupLabel(text: String, number: Int = 1) {
+    PracticeSectionLabel(number.toString().padStart(2, '0'), text)
 }
 
 /**
@@ -261,59 +271,53 @@ internal fun ColumnScope.SetupBody(start: (@Composable () -> Unit)?, content: @C
         content = content,
     )
     if (start != null) {
-        com.marat.albion.ui.components.Hairline(color = MaterialTheme.colorScheme.secondary.copy(alpha = .65f))
-        Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(top = 4.dp, bottom = 16.dp)) {
-            start()
+        Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(top = 8.dp, bottom = 16.dp)) {
+            PracticeActionShelf { start() }
         }
     } else {
         Spacer(Modifier.windowInsetsPadding(WindowInsets.navigationBars))
     }
 }
 
-/** Ряд фишек-вариантов, который переносится на новую строку вместо горизонтальной прокрутки. */
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+/** Шапка во время игры: закрыть, сегментированный прогресс и счётчик. */
 @Composable
-internal fun ChipFlow(content: @Composable () -> Unit) {
-    androidx.compose.foundation.layout.FlowRow(
-        Modifier.fillMaxWidth().padding(vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) { content() }
-}
-
-/** Catalogue entries: rectangular choices with an explicit selection mark. */
-@Composable
-private fun OptionGrid(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
-    var open by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    Box(Modifier.fillMaxWidth()) {
-        GhostButton(options.getOrNull(selected) ?: "Выберите колоду", { open = true }, icon = AlbionIcons.ExpandMore)
-        androidx.compose.material3.DropdownMenu(open, { open = false }) {
-            options.forEachIndexed { index, label -> androidx.compose.material3.DropdownMenuItem(
-                text = { Text(label) }, modifier = Modifier.semantics { this.selected = index == selected },
-                onClick = { onSelect(index); open = false }) }
+fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: String = game?.title.orEmpty()) {
+    val typing = imeOpen()
+    Column(Modifier.windowInsetsPadding(WindowInsets.statusBars).semantics(mergeDescendants = false) {}) {
+        Row(Modifier.fillMaxWidth().padding(start = 8.dp, end = gutter, top = 8.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, filled = true)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                SignalLabel(game?.let { "%02d / %s".format(it.editionNumber, it.editionTitle) } ?: "GRAMMAR / ПРОВЕРКА")
+                if (title.isNotBlank() && !typing) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Text("${(index + 1).coerceAtMost(total)} / $total", style = MaterialTheme.typography.labelLarge.copy(fontFamily = AlbionFonts.Tech), maxLines = 1)
         }
+        SegmentedProgress(index, total, Modifier.padding(horizontal = gutter).padding(bottom = 4.dp))
     }
 }
 
-/** Шапка во время игры: закрыть, название, «3 / 10», линия прогресса. */
+/** Прогресс сессии: сегменты по числу вопросов (до 30), иначе — сплошная полоса. */
 @Composable
-fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: String = game?.title.orEmpty()) {
-    Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
-        Row(Modifier.fillMaxWidth().padding(start = 10.dp, end = gutter, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            // Кнопка не принимает фокус: клавиатура по «Готово» не должна перескакивать на неё.
-            PracticeIconButton(AlbionIcons.Close, "Закрыть", onClose, Modifier)
-            Spacer(Modifier.width(12.dp))
-            Eyebrow(title, Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-            Spacer(Modifier.width(10.dp))
-            // Счётчик — маленькая «фишка», как счётчики секций.
-            Text(
-                "${(index + 1).coerceAtMost(total)} / $total",
-                style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                maxLines = 1,
-                modifier = Modifier.border(.65.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 6.dp),
-            )
+internal fun SegmentedProgress(index: Int, total: Int, modifier: Modifier = Modifier) {
+    if (total <= 0 || total > 30) {
+        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier, height = 3.dp)
+        return
+    }
+    val reduced = LocalReducedMotion.current
+    Row(modifier.height(3.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        repeat(total) { i ->
+            val fill by androidx.compose.animation.animateColorAsState(
+                if (i < index) MaterialTheme.colorScheme.primary
+                else if (i == index) MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                else MaterialTheme.colorScheme.surfaceContainerHighest,
+                if (reduced) snap() else com.marat.albion.ui.theme.Springs.smooth(), label = "segment$i")
+            Box(Modifier.weight(1f).fillMaxHeight().background(fill, RoundedCornerShape(1.dp)))
         }
-        ThinProgress(if (total == 0) 0f else index.toFloat() / total, modifier = Modifier.padding(horizontal = gutter), color = MaterialTheme.colorScheme.secondary, height = 1.dp)
     }
 }
 
@@ -366,20 +370,28 @@ internal fun ButtonPair(
 
 data class Mistake(val prompt: String, val answer: String, val correct: String)
 
-/** Editorial exercise introduction and configuration. */
+/** Шапка настройки: крупная плитка-иконка, название акцентным шрифтом, описание. */
 @Composable
 internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options: @Composable ColumnScope.() -> Unit) {
-    Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
-        Text(game.title, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
-        Text(game.editionTitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
-        Spacer(Modifier.height(8.dp))
-        Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(12.dp))
-        Column(Modifier.fillMaxWidth(), content = options)
+    Column(modifier.fillMaxWidth().padding(top = 8.dp)) {
+        Panel(Modifier.fillMaxWidth().appear(0), contentPadding = PaddingValues(20.dp)) {
+            SignalLabel("%02d / %s".format(game.editionNumber, game.editionTitle))
+            Spacer(Modifier.height(16.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(game.title, Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
+                if (!LocalNarrow.current && LocalDensity.current.fontScale <= 1.3f) {
+                    Spacer(Modifier.width(12.dp))
+                    OrbitalField(Modifier.size(64.dp), animated = false)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(game.tagline, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Column(Modifier.fillMaxWidth().appear(3), content = options)
     }
 }
 
-/** Итог: кольцо результата прорисовывается, проценты набегают. */
+/** Итог: кольцо результата прорисовывается на пружине, проценты катятся, ошибки — карточками. */
 @Composable
 fun GameSummary(
     game: Game?, correct: Int, total: Int, mistakes: List<Mistake>,
@@ -390,46 +402,91 @@ fun GameSummary(
     LaunchedEffect(Unit) { if (total > 0) feedback.complete() }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.statusBars)
         .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter)) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp, bottom = 16.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp, bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             if (total == 0) com.marat.albion.ui.components.EmptyState("Нет заданий для этих параметров", "Измените колоду, уровень или режим упражнения.")
             else {
-                Eyebrow("Итоги практики", color = MaterialTheme.colorScheme.secondary)
-                Text(title, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
-                Spacer(Modifier.height(16.dp))
-                Text("${correct * 100 / total}%", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
-                Text("$correct из $total · $scoreLabel", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                ThinProgress(correct.toFloat() / total, Modifier.padding(top = 12.dp), color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.height(16.dp))
+                SignalLabel("СЕССИЯ ЗАВЕРШЕНА", Modifier.appear(0))
+                Spacer(Modifier.height(8.dp))
                 Text(when { correct == total -> "Excellent."; correct * 10 >= total * 7 -> "Well done."; else -> "Keep going." },
-                    style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
+                    Modifier.appear(1), style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(24.dp))
+                PracticeStage(title, centered = true, modifier = Modifier.appear(2)) {
+                    ResultRing(correct, total)
+                    Spacer(Modifier.height(18.dp))
+                    Text("$correct из $total · $scoreLabel", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Spacer(Modifier.height(12.dp))
+                if (LocalDensity.current.fontScale > 1.3f) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        SummaryMetric("БЕЗ ОШИБОК", correct, Modifier.fillMaxWidth())
+                        SummaryMetric("К ПОВТОРЕНИЮ", (total - correct).coerceAtLeast(0), Modifier.fillMaxWidth())
+                    }
+                } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SummaryMetric("БЕЗ ОШИБОК", correct, Modifier.weight(1f))
+                    SummaryMetric("К ПОВТОРЕНИЮ", (total - correct).coerceAtLeast(0), Modifier.weight(1f))
+                }
                 if (mistakes.isNotEmpty()) {
-                    SectionHeader("Ошибки", trailing = mistakes.size.toString())
-                    Text("Сохранены для следующей практики.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    mistakes.take(3).forEach { SummaryMistake(it) }
-                    if (mistakes.size > 3) com.marat.albion.ui.components.Disclosure("Ещё ошибок: ${mistakes.size - 3}") {
-                        mistakes.drop(3).forEach { SummaryMistake(it) }
+                    Row(Modifier.fillMaxWidth().padding(top = 32.dp, bottom = 12.dp), verticalAlignment = Alignment.Bottom) {
+                        Text("Ошибки", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+                        Text("сохранены для повтора", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        mistakes.forEachIndexed { i, m -> SummaryMistake(m, Modifier.appear(3 + i)) }
                     }
                 }
             }
         }
         if (total == 0) PrimaryButton("Другие упражнения", onDone, Modifier.padding(bottom = 16.dp))
         else {
-            if (mistakes.isNotEmpty() && onRetryMistakes != null) ButtonPair(listOf("Повторить ошибки", "Готово"),
-                first = { PrimaryButton("Повторить ошибки", onRetryMistakes, it) },
-                second = { GhostButton("Готово", onDone, it) })
-            else PrimaryButton("Готово", onDone)
-            androidx.compose.material3.TextButton(onClick = onRestart, modifier = Modifier.fillMaxWidth()) { Text(restartLabel) }
+            if (mistakes.isNotEmpty() && onRetryMistakes != null) {
+                PrimaryButton("Повторить ошибки", onRetryMistakes, icon = AlbionIcons.Undo)
+                Spacer(Modifier.height(8.dp))
+                GhostButton("Готово", onDone)
+            } else PrimaryButton("Готово", onDone)
+            androidx.compose.material3.TextButton(onClick = onRestart, modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) { Text(restartLabel) }
         }
     }
 }
 
 @Composable
-private fun SummaryMistake(m: Mistake) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-        if (m.prompt.isNotBlank()) Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(m.correct, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+private fun SummaryMetric(label: String, value: Int, modifier: Modifier = Modifier) {
+    Panel(modifier, contentPadding = PaddingValues(16.dp)) {
+        SignalLabel(label)
+        Spacer(Modifier.height(8.dp))
+        AnimatedNumber(value, MaterialTheme.typography.headlineMedium)
+    }
+}
+
+/** Кольцо результата: дуга дорисовывается от 0 до доли верных ответов. */
+@Composable
+private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) {
+    val reduced = LocalReducedMotion.current
+    val target = if (total == 0) 0f else correct.toFloat() / total
+    val sweep = remember { Animatable(if (reduced) target else 0f) }
+    LaunchedEffect(target) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 60f)) }
+    val track = MaterialTheme.colorScheme.surfaceContainerHighest
+    val arc = MaterialTheme.colorScheme.primary
+    Box(modifier.size(164.dp), contentAlignment = Alignment.Center) {
+        androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+            val inset = 8.dp.toPx()
+            val diameter = Size(size.width - inset * 2, size.height - inset * 2)
+            val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
+            drawArc(track, -90f, 360f, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
+            if (sweep.value > 0f) drawArc(arc, -90f, 360f * sweep.value, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
+            drawCircle(track.copy(alpha = .5f), size.minDimension / 2 - 18.dp.toPx(), style = Stroke(.5.dp.toPx()))
+        }
+        com.marat.albion.ui.theme.AnimatedNumber(if (total == 0) 0 else correct * 100 / total,
+            if (LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium, suffix = "%")
+    }
+}
+
+@Composable
+private fun SummaryMistake(m: Mistake, modifier: Modifier = Modifier) {
+    com.marat.albion.ui.components.Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
+        if (m.prompt.isNotBlank()) Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+        Text(m.correct, style = MaterialTheme.typography.titleMedium)
         if (m.answer.isNotBlank()) Text("Ваш ответ: ${m.answer}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-        Hairline(Modifier.padding(top = 10.dp))
     }
 }
 
@@ -465,50 +522,79 @@ fun Modifier.shakeOn(trigger: Int): Modifier = composed {
 
 // ------------------------------------------------------------------ общие элементы раунда
 
-/**
- * Нейтральная карточка задания. Поля уменьшаются на узком экране.
- */
+/** Контурная рабочая поверхность; при открытой клавиатуре убирает второстепенные отступы. */
 @Composable
 internal fun TaskCard(
     modifier: Modifier = Modifier,
     centered: Boolean = false,
+    label: String = "ЗАДАНИЕ",
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val pad = if (LocalNarrow.current) 16.dp else 20.dp
-    PracticeSheet(modifier.fillMaxWidth(), padding = pad) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
-            content = content,
-        )
-    }
+    PracticeStage(label, modifier.appear(), centered = centered, compact = imeOpen(), content = content)
 }
 
 /** Тон плашки разбора. */
 internal enum class NoteTone { Neutral, Good, Bad }
 
-/** Плашка разбора после ответа: правило, пояснение, верный ответ. Мягкая заливка без жёстких рамок. */
+/** Разбор ответа: отдельная контурная панель с правилом или правильной формой. */
 @Composable
 internal fun NoteCard(
     modifier: Modifier = Modifier,
     tone: NoteTone = NoteTone.Neutral,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(3.dp)
     val bg = when (tone) {
-        NoteTone.Neutral -> MaterialTheme.colorScheme.surfaceContainer
+        NoteTone.Neutral -> MaterialTheme.colorScheme.surfaceContainerLow
         NoteTone.Good -> MaterialTheme.colorScheme.tertiaryContainer
         NoteTone.Bad -> MaterialTheme.colorScheme.errorContainer
     }
     Column(
-        modifier.fillMaxWidth().clip(shape).background(bg)
-            .border(.65.dp, if (tone == NoteTone.Neutral) MaterialTheme.colorScheme.outlineVariant else if (tone == NoteTone.Good) MaterialTheme.colorScheme.tertiary.copy(alpha = .4f) else MaterialTheme.colorScheme.error.copy(alpha = .4f), shape)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(bg)
+            .border(.75.dp, when (tone) {
+                NoteTone.Neutral -> MaterialTheme.colorScheme.outlineVariant
+                NoteTone.Good -> MaterialTheme.colorScheme.onSurface.copy(alpha = .4f)
+                NoteTone.Bad -> MaterialTheme.colorScheme.error.copy(alpha = .5f)
+            }, MaterialTheme.shapes.large).padding(horizontal = 18.dp, vertical = 16.dp),
         content = content,
     )
 }
 
-/** Текст задания антиквой: на узком экране чуть мельче, чтобы предложение не превращалось в столбик. */
+/**
+ * Нижняя панель после ответа: тонированная полоса выезжает снизу — значок, вердикт и «Дальше».
+ * [ok] = null — нейтральный итог (например, после разбора шэдоуинга).
+ */
+@Composable
+internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Дальше", onNext: () -> Unit) {
+    val reduced = LocalReducedMotion.current
+    val scheme = MaterialTheme.colorScheme
+    val offset = remember { Animatable(if (reduced) 0f else 1f) }
+    LaunchedEffect(reduced) { offset.animateTo(0f, if (reduced) snap() else spring(dampingRatio = 1f, stiffness = 320f)) }
+    val (bg, fg) = when (ok) {
+        true -> scheme.surfaceContainerLow to scheme.onSurface
+        false -> scheme.surfaceContainerLow to scheme.error
+        null -> scheme.surfaceContainerLow to scheme.onSurface
+    }
+    val heading = title ?: when (ok) { true -> "Верно"; false -> "Неверно"; null -> "Готово" }
+    Column(
+        Modifier.fillMaxWidth()
+            .graphicsLayer { translationY = offset.value * size.height; alpha = 1f - offset.value * 0.6f }
+            .clip(MaterialTheme.shapes.large).background(bg)
+            .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large).padding(16.dp)
+            .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite },
+    ) {
+        Row(Modifier.padding(start = 4.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(24.dp).background(fg, MaterialTheme.shapes.extraSmall), contentAlignment = Alignment.Center) {
+                Icon(if (ok == false) AlbionIcons.Close else AlbionIcons.Check, null, Modifier.size(16.dp), tint = bg)
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(heading, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = fg)
+            SignalLabel(if (ok == false) "РАЗБОР" else "ГОТОВО")
+        }
+        PrimaryButton(label, onClick = onNext, trailingIcon = AlbionIcons.ArrowForward)
+    }
+}
+
+/** Крупный текст условия: на узком экране чуть мельче, чтобы предложение не превращалось в столбик. */
 internal val promptStyle: TextStyle
     @Composable get() = if (LocalNarrow.current) MaterialTheme.typography.headlineSmall
     else MaterialTheme.typography.headlineMedium
@@ -521,5 +607,10 @@ internal fun termStyle(text: String, max: Int = 48): TextStyle {
         text.length <= 20 -> max * 4 / 5
         else -> max * 5 / 8
     }.let { if (LocalNarrow.current) it * 5 / 6 else it }
-    return TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
+    return TextStyle(fontFamily = AlbionFonts.Sans, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
 }
+
+/** Открыта ли клавиатура: пока пользователь печатает, раунд прячет второстепенное, чтобы задание оставалось видно. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+internal fun imeOpen(): Boolean = WindowInsets.isImeVisible

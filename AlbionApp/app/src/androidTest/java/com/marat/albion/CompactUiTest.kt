@@ -122,7 +122,7 @@ class CompactUiTest {
                     bookSource = BookWordSource("ui-layout", "Test book", "Chapter one"))
             }
             awaitText(entries.first().senses.first())
-            activate(scrollToText("Другие значения и подробности"))
+            activate(scrollToText("Словарь, автоперевод и ваши карточки"))
             scrollToText(additional)
             capture("translation-details")
         }
@@ -136,7 +136,7 @@ class CompactUiTest {
                 CompositionLocalProvider(LocalAppContainer provides container,
                     LocalDensity provides Density(density, scale)) {
                     key(name) {
-                        AlbionTheme {
+                        AlbionTheme(darkTheme = dark) {
                             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 Box(Modifier.width(width.dp).height(640.dp)) { content() }
                             }

@@ -1,6 +1,7 @@
 package com.marat.albion.ui.games
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
@@ -43,7 +44,7 @@ internal fun MelodyChart(report: ShadowReport) {
     val muted = MaterialTheme.colorScheme.secondary
     val grid = MaterialTheme.colorScheme.outlineVariant
     val center = MaterialTheme.colorScheme.outline
-    val band = MaterialTheme.colorScheme.surfaceContainer
+    val band = MaterialTheme.colorScheme.surfaceContainerLow
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (original.available || mine.available) {
@@ -52,7 +53,8 @@ internal fun MelodyChart(report: ShadowReport) {
                 if (mine.available) MelodyLegend(dashed = true, label = "Вы")
             }
             Row(
-                Modifier.fillMaxWidth().background(band, RoundedCornerShape(3.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
+                Modifier.fillMaxWidth().background(band, RoundedCornerShape(12.dp))
+                    .border(.75.dp, grid, RoundedCornerShape(12.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Column(
@@ -136,7 +138,7 @@ internal fun MelodyChart(report: ShadowReport) {
 private fun MelodyLegend(dashed: Boolean, label: String) {
     val color = if (dashed) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     Row(
-        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(2.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
+        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Canvas(Modifier.size(width = 24.dp, height = 8.dp)) {

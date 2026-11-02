@@ -45,7 +45,7 @@ class NavigationUiTest {
             clickText("Я не знаю")
             awaitNode { it.text?.toString() == "Неверно" }
             clickText("Дальше")
-            awaitNode { it.text?.toString() == "2 / 20" }
+            awaitNode { it.text?.toString()?.startsWith("2 / ") == true }
             awaitNode { it.text?.toString() == "Я не знаю" }
             clickDescription("Закрыть")
             clickDescription("Назад")
@@ -177,6 +177,7 @@ class NavigationUiTest {
 
     private fun scrollToNode(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo {
         repeat(20) {
+            if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
             val root = instrumentation.uiAutomation.rootInActiveWindow ?: error("No active window")
             find(root, predicate)?.let { return it }
             val bounds = Rect().also(root::getBoundsInScreen)

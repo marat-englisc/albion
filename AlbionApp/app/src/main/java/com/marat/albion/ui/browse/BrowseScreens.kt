@@ -2,15 +2,13 @@ package com.marat.albion.ui.browse
 
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
+import com.marat.albion.ui.components.OptionPicker
 import com.marat.albion.ui.components.selectedRow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.*
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -101,8 +99,6 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableIntStateOf(0) }
-    var filterMenu by remember { mutableStateOf(false) }
-    var levelMenu by remember { mutableStateOf(false) }
     var level by rememberSaveable { mutableStateOf("") }
     var detailed by rememberSaveable { mutableStateOf(false) }
     val queryFlow = remember { MutableStateFlow(query) }
@@ -119,26 +115,17 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         TopBar(onBack = navigator::back, title = deck.title)
         SearchField(query, { query = it }, "Слово или перевод", Modifier.padding(horizontal = gutter))
-        androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth().padding(horizontal = gutter),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box {
-                TextButton(onClick = { filterMenu = true }) { Text("Статус: ${filters[filter]}") }
-                androidx.compose.material3.DropdownMenu(filterMenu, { filterMenu = false }) {
-                    filters.forEachIndexed { i, label -> androidx.compose.material3.DropdownMenuItem(
-                        text = { Text(label) }, modifier = Modifier.semantics { selected = filter == i },
-                        onClick = { filter = i; filterMenu = false }) }
-                }
+        Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(top = 12.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OptionPicker("Статус карточек", filters, filter, { filter = it })
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val levels = listOf("", "A1", "A2", "B1", "B2", "C1")
+                OptionPicker("Уровень", levels.map { it.ifEmpty { "Все уровни" } }, levels.indexOf(level),
+                    { level = levels[it] }, Modifier.weight(1f))
+                com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                    if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
             }
-            Box {
-                TextButton(onClick = { levelMenu = true }) { Text(if (level.isEmpty()) "Все уровни" else level) }
-                androidx.compose.material3.DropdownMenu(levelMenu, { levelMenu = false }) {
-                    listOf("", "A1", "A2", "B1", "B2", "C1").forEach { lv -> androidx.compose.material3.DropdownMenuItem(
-                        text = { Text(lv.ifEmpty { "Все уровни" }) }, onClick = { level = lv; levelMenu = false }) }
-                }
-            }
-            TextButton(onClick = { detailed = !detailed }) { Text(if (detailed) "Кратко" else "Подробно") }
         }
-        Hairline()
         val shownCards = cards?.filter { level.isEmpty() || it.level == level }
         if (shownCards == null) com.marat.albion.ui.components.LoadingState("Ищем слова")
         else if (shownCards.isEmpty()) {
@@ -147,7 +134,8 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
             val shownCard = (navigator.shownDetail as? CardRoute)?.cardId
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
                 item {
-                    Eyebrow("${shownCards.size} карточ.", Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
+                    Eyebrow(if (level.isEmpty()) "${shownCards.size} карточ." else "${shownCards.size} карточ. · $level",
+                        Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
                 }
                 items(shownCards, key = { it.id }) { card ->
                     CardRow(
@@ -172,10 +160,13 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
     val focus = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.medium)
+            .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium)
+            .padding(start = 18.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(AlbionIcons.Search, null, tint = lerpColor(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onSurface, active), modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
-            Box(Modifier.weight(1f)) {
+            Box(Modifier.weight(1f).heightIn(min = 52.dp), contentAlignment = Alignment.CenterStart) {
                 if (value.isEmpty()) Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.clearAndSetSemantics {})
                 BasicTextField(
@@ -186,7 +177,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
                     keyboardActions = KeyboardActions(onSearch = { keyboard?.hide(); focus.clearFocus() }),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.semantics { contentDescription = placeholder }.fillMaxWidth().heightIn(min = 48.dp).padding(vertical = 10.dp),
+                    modifier = Modifier.semantics { contentDescription = placeholder }.fillMaxWidth(),
                 )
             }
             if (value.isNotEmpty()) {
@@ -195,29 +186,8 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
                 }
             }
         }
-        Hairline(color = lerpColor(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.onSurface, active))
     }
 }
-
-/** Выбранный фильтр выделяется crimson-заливкой. */
-@Composable
-fun TextTab(label: String, selected: Boolean, onClick: () -> Unit) {
-    val t by animateFloatAsState(if (selected) 1f else 0f, androidx.compose.animation.core.tween(180), label = "tab")
-    val interaction = remember { MutableInteractionSource() }
-    val shape = androidx.compose.foundation.shape.RoundedCornerShape(3.dp)
-    Box(
-        Modifier
-            .background(lerpColor(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.primary, t), shape)
-            .border(1.dp, lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, t), shape)
-            .heightIn(min = 48.dp)
-            .selectable(selected, interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = androidx.compose.ui.semantics.Role.Tab, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(label.uppercase(), style = MaterialTheme.typography.labelMedium, color = lerpColor(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onPrimary, t))
-    }
-}
-
 
 @Composable
 private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, query: String, playing: Boolean, selected: Boolean, onPlay: () -> Unit, onClick: () -> Unit, modifier: Modifier) {

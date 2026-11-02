@@ -284,7 +284,7 @@ private fun TopicFooter(
             Column(
                 Modifier.fillMaxWidth()
 
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp)).padding(20.dp),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверь себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))

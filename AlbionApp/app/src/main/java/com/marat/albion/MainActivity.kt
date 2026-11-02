@@ -8,6 +8,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
+import android.graphics.Color
+import androidx.compose.runtime.LaunchedEffect
+import com.marat.albion.ui.theme.isAppInDarkTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +38,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
             CompositionLocalProvider(LocalAppContainer provides container) {
-                AlbionTheme {
+                val dark = isAppInDarkTheme(settings.themeMode)
+                // Иконки статус-бара и навигации следуют теме приложения, а не только системе.
+                LaunchedEffect(dark) {
+                    val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                    enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                }
+                AlbionTheme(darkTheme = dark) {
                     AlbionExperience(settings) {
                         AlbionNavigation()
                     }

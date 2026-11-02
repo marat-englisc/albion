@@ -11,6 +11,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.marat.albion.data.content.ImportStatus
 import com.marat.albion.ui.theme.AlbionTheme
+import com.marat.albion.data.settings.ThemeMode
+import android.graphics.Color
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
@@ -18,23 +20,25 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 
-/** Reading Room navigation and rendering stay ivory even with Android night mode enabled. */
+/** Full user journey in both monochrome themes, including study and reduced motion. */
 @RunWith(AndroidJUnit4::class)
 class EditorialDesignTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val c get() = (instrumentation.targetContext.applicationContext as AlbionApp).container
 
-    @Test fun primaryScreensAndSensoryPreferencesWorkInReadingRoom(): Unit = runBlocking {
+    @Test fun primaryScreensAndSensoryPreferencesWorkInMonochrome(): Unit = runBlocking {
         c.importer.importIfNeeded()
         val original = c.settings.current()
         val manager = instrumentation.targetContext.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         val originalNight = manager.nightMode
         try {
             for (night in listOf(false, true)) {
+                c.settings.setThemeMode(if (night) ThemeMode.DARK else ThemeMode.LIGHT)
                 shell("cmd uimode night ${if (night) "yes" else "no"}")
-                val edition = if (night) "system-night" else "reading-room"
+                val edition = if (night) "monochrome-dark" else "monochrome-light"
                 ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                     await { it.text?.toString() == "Начать" || it.text?.toString() == "Открыть библиотеку" }
+                    assertThemeBackground(night)
                     capture("home-$edition")
                     click { it.text?.toString() == "Учебник" && it.isVisibleToUser }
                     await { it.isEditable }
@@ -69,7 +73,6 @@ class EditorialDesignTest {
                     capture("progress-$edition")
                     click { it.contentDescription?.toString() == "Настройки" }
                     await { it.text?.toString() == "Звук и доступность" }
-                    assertNull(find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() in setOf("Тема", "Тёмная", "Как в системе") })
                     capture("settings-$edition")
                     click { it.contentDescription?.toString() == "Назад" }
                     await { it.text?.toString() == "Карточки и практика" }
@@ -99,7 +102,18 @@ class EditorialDesignTest {
             c.settings.setInterfaceSounds(original.interfaceSounds)
             c.settings.setHapticsEnabled(original.hapticsEnabled)
             c.settings.setReduceMotion(original.reduceMotion)
+            c.settings.setThemeMode(original.themeMode)
         }
+    }
+
+    private fun assertThemeBackground(dark: Boolean) {
+        instrumentation.waitForIdleSync()
+        SystemClock.sleep(600)
+        val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("Screenshot unavailable")
+        try {
+            val background = Color.red(bitmap.getPixel(2, bitmap.height / 2))
+            assertTrue("Theme background did not apply: $background", if (dark) background < 30 else background > 220)
+        } finally { bitmap.recycle() }
     }
 
     private fun shell(command: String) {
@@ -123,7 +137,7 @@ class EditorialDesignTest {
     private fun await(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo {
         val until = SystemClock.uptimeMillis() + 20_000
         while (SystemClock.uptimeMillis() < until) {
-            find(instrumentation.uiAutomation.rootInActiveWindow, predicate)?.let { return it }
+            find(freshRoot(), predicate)?.let { return it }
             SystemClock.sleep(100)
         }
         error("Expected UI element did not appear")
@@ -143,4 +157,10 @@ class EditorialDesignTest {
         File(directory, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()
     }
+    /** Начиная с Android 13 узлы кэшируются: после анимаций и пересоздания экрана читаем дерево заново. */
+    private fun freshRoot(): AccessibilityNodeInfo? {
+        if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
+        return instrumentation.uiAutomation.rootInActiveWindow
+    }
+
 }

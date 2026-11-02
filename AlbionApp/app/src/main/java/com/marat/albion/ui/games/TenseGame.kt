@@ -103,7 +103,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
 
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
-            TaskCard(Modifier.shakeOn(shake)) {
+            TaskCard(Modifier.shakeOn(shake), label = "НАЙДИТЕ НУЖНУЮ ФОРМУ") {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Eyebrow("Какая форма нужна?", Modifier.weight(1f), color = MaterialTheme.colorScheme.primary)
                     LevelBadge(card.level)
@@ -130,10 +130,11 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                 )
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    options.forEach { option ->
+                    options.forEachIndexed { index, option ->
                         val isAnswer = task.accepted.any { it.equals(option, ignoreCase = true) }
                         OptionButton(
                             text = option,
+                            index = index,
                             state = when {
                                 verdict == null -> OptionState.Idle
                                 isAnswer -> OptionState.Correct
@@ -191,7 +192,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             when {
-                answered -> PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
+                answered -> NextDock(verdict != Verdict.Wrong) { vm.next() }
                 typing -> GameAnswerActions(onCheck = { checkTyped() }, onSecondary = { checkTyped(giveUp = true) })
                 else -> Spacer(Modifier.height(1.dp))
             }

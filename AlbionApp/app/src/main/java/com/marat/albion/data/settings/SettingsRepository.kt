@@ -17,6 +17,10 @@ import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "albion_settings")
 
+enum class ThemeMode(val title: String) {
+    SYSTEM("Как в системе"), LIGHT("Светлая"), DARK("Тёмная")
+}
+
 enum class NewCardOrder(val title: String) {
     LEVEL("По уровню CEFR"), FILE("Как в таблице"), RANDOM("Случайно")
 }
@@ -61,6 +65,7 @@ data class Settings(
     val interfaceSounds: Boolean = true,
     val hapticsEnabled: Boolean = true,
     val reduceMotion: Boolean = false,
+    val themeMode: ThemeMode = ThemeMode.DARK,
 )
 
 data class PracticeOptions(val deckId: String? = null, val count: Int = 10, val mode: Int = 0, val level: String = "")
@@ -104,6 +109,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val interfaceSounds = booleanPreferencesKey("interface_sounds")
         val hapticsEnabled = booleanPreferencesKey("haptics_enabled")
         val reduceMotion = booleanPreferencesKey("reduce_motion")
+        val themeMode = stringPreferencesKey("theme_mode_v2")
     }
 
     val settings: Flow<Settings> = store.data.map { p ->
@@ -138,6 +144,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
             interfaceSounds = p[Keys.interfaceSounds] ?: true,
             hapticsEnabled = p[Keys.hapticsEnabled] ?: true,
             reduceMotion = p[Keys.reduceMotion] ?: false,
+            themeMode = p[Keys.themeMode]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.DARK,
             shortSessionAnswers = (p[Keys.shortSessionAnswers] ?: 10).takeIf { it in listOf(5, 10, 20) } ?: 10,
         )
     }.distinctUntilChanged()
@@ -185,6 +192,7 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
     suspend fun setInterfaceSounds(v: Boolean) = edit { it[Keys.interfaceSounds] = v }
     suspend fun setHapticsEnabled(v: Boolean) = edit { it[Keys.hapticsEnabled] = v }
     suspend fun setReduceMotion(v: Boolean) = edit { it[Keys.reduceMotion] = v }
+    suspend fun setThemeMode(v: ThemeMode) = edit { it[Keys.themeMode] = v.name }
     suspend fun setShowRussian(v: Boolean) = edit { it[Keys.showRussian] = v }
     suspend fun setBrowseShowRussian(v: Boolean) = edit { it[Keys.browseRussian] = v }
     suspend fun setDailyGoal(v: Int) = edit { it[Keys.dailyGoal] = v }

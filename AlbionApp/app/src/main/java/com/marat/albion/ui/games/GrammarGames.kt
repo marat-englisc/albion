@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.pressScale
 import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +59,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalFocusManager
@@ -329,18 +332,13 @@ private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Uni
                     )
                     return@GameSetupHeader
                 }
-                Column(Modifier) {
-                    SectionHeader("Уровень", Modifier.padding(top = 0.dp), trailing = "$total")
-                    ChipFlow {
-                        LEVELS.forEach { lv -> PracticeOption(lv.ifEmpty { "Все" }, vm.level == lv) { vm.level = lv; vm.saveOptions() } }
-                    }
-                }
-                Column(Modifier) {
-                    SectionHeader("Длина", Modifier.padding(top = 4.dp))
-                    ChipFlow {
-                        listOf(10, 20, 30).forEach { n -> PracticeOption("$n заданий", vm.count == n) { vm.count = n; vm.saveOptions() } }
-                    }
-                }
+                PracticeSectionLabel("01", "Уровень · $total заданий")
+                com.marat.albion.ui.components.OptionPicker("Уровень заданий", LEVELS.map { it.ifEmpty { "Все уровни" } },
+                    LEVELS.indexOf(vm.level), { vm.level = LEVELS[it]; vm.saveOptions() })
+                PracticeSectionLabel("02", "Длина")
+                val lengths = listOf(10, 20, 30)
+                com.marat.albion.ui.components.SegmentedPicker(lengths.map { "$it" }, lengths.indexOf(vm.count).coerceAtLeast(0),
+                    { vm.count = lengths[it]; vm.saveOptions() })
             }
         }
     }
@@ -393,12 +391,12 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
         task.topic?.let { n ->
 
             Row(
-                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(3.dp))
+                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(12.dp))
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
 
                     .clickable { openRule(n) }
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(3.dp))
-                    .border(.65.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -423,7 +421,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
 
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
-            TaskCard(Modifier.shakeOn(shake)) {
+            TaskCard(Modifier.shakeOn(shake), label = "ВЫБЕРИТЕ ВЕРНЫЙ ВАРИАНТ") {
                 TaskHeader(task)
                 Spacer(Modifier.height(14.dp))
                 Text(
@@ -434,9 +432,10 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
             }
             Spacer(Modifier.height(20.dp))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                options.forEach { option ->
+                options.forEachIndexed { index, option ->
                     OptionButton(
                         text = option,
+                        index = index,
                         state = when {
                             !answered -> OptionState.Idle
                             option == task.answer -> OptionState.Correct
@@ -459,7 +458,7 @@ private fun ChoiceRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openR
             }
         }
         AnimatedVisibility(answered, enter = fadeIn(tween(240)) + slideInVertically { it / 2 }) {
-            PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward, modifier = Modifier.padding(vertical = 12.dp))
+            Box(Modifier.padding(vertical = 12.dp)) { NextDock(picked == task.answer) { vm.next() } }
         }
     }
 }
@@ -468,19 +467,19 @@ internal enum class OptionState { Idle, Correct, Wrong, Dim }
 
 /** An answer slip with a readable check/cross and a restrained state change. */
 @Composable
-internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit) {
+internal fun OptionButton(text: String, state: OptionState, index: Int? = null, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> MaterialTheme.colorScheme.tertiaryContainer
+            OptionState.Correct -> MaterialTheme.colorScheme.primary
             OptionState.Wrong -> MaterialTheme.colorScheme.errorContainer
-            else -> MaterialTheme.colorScheme.surface
+            else -> MaterialTheme.colorScheme.surfaceContainerLow
         },
         tween(260), label = "bg",
     )
     val fg by animateColorAsState(
         when (state) {
-            OptionState.Correct -> MaterialTheme.colorScheme.tertiary
+            OptionState.Correct -> MaterialTheme.colorScheme.onPrimary
             OptionState.Wrong -> MaterialTheme.colorScheme.error
             OptionState.Dim -> MaterialTheme.colorScheme.onSurfaceVariant
             OptionState.Idle -> MaterialTheme.colorScheme.onSurface
@@ -491,8 +490,8 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
         when (state) {
             OptionState.Correct -> MaterialTheme.colorScheme.tertiary
             OptionState.Wrong -> MaterialTheme.colorScheme.error
-            OptionState.Dim -> MaterialTheme.colorScheme.outlineVariant
-            OptionState.Idle -> MaterialTheme.colorScheme.outline
+            OptionState.Dim -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f)
+            OptionState.Idle -> MaterialTheme.colorScheme.outlineVariant
         },
         tween(260), label = "border",
     )
@@ -500,31 +499,43 @@ internal fun OptionButton(text: String, state: OptionState, onClick: () -> Unit)
     val pop = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(state) {
         if (state == OptionState.Correct && !reduced) {
-            pop.snapTo(0.99f)
-            pop.animateTo(1f, androidx.compose.animation.core.tween(180))
+            pop.snapTo(.985f)
+            pop.animateTo(1f, com.marat.albion.ui.theme.Springs.bouncy())
         }
     }
-    val shape = RoundedCornerShape(3.dp)
+    val shape = MaterialTheme.shapes.medium
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp)
+        Modifier.fillMaxWidth().heightIn(min = 64.dp)
             .graphicsLayer { scaleX = pop.value; scaleY = pop.value }
+            .pressScale(interaction, 0.97f)
             .background(bg, shape)
-            .border(if (state == OptionState.Idle) .65.dp else 1.dp, border, shape)
+            .border(.75.dp, border, shape)
+            .clip(shape)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = state == OptionState.Idle, onClick = onClick)
+            .semantics { stateDescription = when (state) {
+                OptionState.Correct -> "Верный ответ"
+                OptionState.Wrong -> "Неверный ответ"
+                OptionState.Dim -> "Другой вариант"
+                OptionState.Idle -> "Вариант ответа"
+            } }
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Box(Modifier.size(30.dp).border(.75.dp, fg.copy(alpha = .3f), MaterialTheme.shapes.extraSmall), contentAlignment = Alignment.Center) {
+            when (state) {
+                OptionState.Correct -> Icon(AlbionIcons.Check, null, tint = fg, modifier = Modifier.size(16.dp))
+                OptionState.Wrong -> Icon(AlbionIcons.Close, null, tint = fg, modifier = Modifier.size(16.dp))
+                else -> Text(index?.let { ('A'.code + it).toChar().toString() } ?: "—",
+                    style = MaterialTheme.typography.labelMedium.copy(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Tech), color = fg)
+            }
+        }
+        Spacer(Modifier.width(14.dp))
         Text(
             text,
             style = MaterialTheme.typography.bodyLarge.copy(textDecoration = if (state == OptionState.Wrong) TextDecoration.LineThrough else null),
             color = fg,
             modifier = Modifier.weight(1f),
         )
-        when (state) {
-            OptionState.Correct -> Icon(AlbionIcons.Check, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(18.dp))
-            OptionState.Wrong -> Icon(AlbionIcons.Close, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
-            else -> {}
-        }
     }
 }
 
@@ -567,7 +578,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
 
     Column(Modifier.fillMaxSize().padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp)) {
-            TaskCard {
+            TaskCard(label = "ЗАПОЛНИТЕ ПРОПУСК") {
                 TaskHeader(task)
                 Spacer(Modifier.height(14.dp))
                 Text(
@@ -620,7 +631,7 @@ private fun GapRound(vm: GrammarGameViewModel, task: GrammarTaskEntity, openRule
             modifier = Modifier.padding(vertical = 12.dp),
         ) { answered ->
             if (answered) {
-                PrimaryButton("Дальше", onClick = { vm.next() }, trailingIcon = AlbionIcons.ArrowForward)
+                NextDock(verdict != Verdict.Wrong) { vm.next() }
             } else {
                 GameAnswerActions(onCheck = { check() }, onSecondary = { check(giveUp = true) })
             }

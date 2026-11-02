@@ -1,27 +1,28 @@
 package com.marat.albion.ui.components
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.marat.albion.ui.theme.AnimatedNumber
 
 @Composable
 fun HeroCard(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    contentPadding: PaddingValues = PaddingValues(20.dp),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Card(modifier) { Column(Modifier.padding(contentPadding), content = content) }
+    Panel(modifier, contentPadding = contentPadding, content = content)
 }
 
+/** Показатель: крупная «катящаяся» цифра акцентным шрифтом и подпись. */
 @Composable
 fun StatPill(
     value: Int?,
@@ -31,8 +32,10 @@ fun StatPill(
     tint: Color = Color.Unspecified,
     valueColor: Color = Color.Unspecified,
 ) {
-    Column(modifier.padding(8.dp)) {
-        Text(value?.let { "$it$suffix" } ?: "—", style = MaterialTheme.typography.headlineSmall)
-        Text(label, style = MaterialTheme.typography.bodySmall)
+    Panel(modifier) {
+        if (value == null) Text("—", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        else AnimatedNumber(value, MaterialTheme.typography.displaySmall, suffix = suffix)
+        Spacer(Modifier.height(6.dp))
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

@@ -1,0 +1,10 @@
+Whisper speech recognition models
+
+Copyright OpenAI. Model weights are released under the MIT License.
+https://github.com/openai/whisper/blob/main/LICENSE
+
+GGML conversions (ggml-base.en-q5_1.bin, ggml-small.en-q5_1.bin):
+https://huggingface.co/ggerganov/whisper.cpp
+
+Weights are downloaded separately and are not embedded in the application.
+whisper.cpp uses the MIT license; see whisper.cpp-MIT.txt.

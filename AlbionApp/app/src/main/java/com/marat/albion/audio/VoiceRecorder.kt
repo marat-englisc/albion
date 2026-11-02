@@ -50,11 +50,11 @@ class VoiceRecorder(private val context: Context) {
     }
 
     /**
-     * Начинает запись в [file]. [onStopped] вызывается на главном потоке, когда запись
-     * завершилась — сама (тишина, лимит) или по [stop].
+     * Начинает запись в [file] (null — только [samples]). [onStopped] вызывается на главном потоке, когда запись
+     * завершилась — сама (пауза [silenceMs] после речи, лимит) или по [stop].
      */
     @SuppressLint("MissingPermission") // доступ к микрофону проверяет экран перед вызовом
-    fun start(file: File, maxMs: Long = 10_000, onStopped: () -> Unit = {}): Boolean {
+    fun start(file: File?, maxMs: Long = 10_000, silenceMs: Int = 1_100, onStopped: () -> Unit = {}): Boolean {
         stop()
         val rate = ProsodyAnalyzer.RATE
         val minBuf = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -71,13 +71,13 @@ class VoiceRecorder(private val context: Context) {
         job = scope.launch {
             try {
                 val pcm = try {
-                    withContext(Dispatchers.IO) { capture(record, rate, maxMs, stopped) }
+                    withContext(Dispatchers.IO) { capture(record, rate, maxMs, silenceMs, stopped) }
                 } finally {
                     // Микрофон освобождаем всегда — и при отмене (уход с экрана посреди записи).
                     record.release()
                 }
                 samples = FloatArray(pcm.size) { pcm[it] / 32768f }
-                withContext(Dispatchers.IO) { writeWav(file, pcm, rate) }
+                if (file != null) withContext(Dispatchers.IO) { writeWav(file, pcm, rate) }
                 onStopped()
             } finally {
                 // Поздно завершившаяся прежняя запись не гасит индикатор новой.
@@ -91,7 +91,7 @@ class VoiceRecorder(private val context: Context) {
     }
 
     /** Чтение с микрофона до тишины после речи, лимита или [stop]. */
-    private fun capture(record: AudioRecord, rate: Int, maxMs: Long, stopped: AtomicBoolean): ShortArray {
+    private fun capture(record: AudioRecord, rate: Int, maxMs: Long, silenceLimitMs: Int, stopped: AtomicBoolean): ShortArray {
         val out = ShortArrayBuilder(rate * 4)
         val chunk = ShortArray(rate / 50) // 20 мс
         val maxSamples = rate * maxMs / 1000
@@ -117,7 +117,7 @@ class VoiceRecorder(private val context: Context) {
                 if (out.size <= rate / 5) { noise = maxOf(noise, rms); continue }
                 val loud = rms > maxOf(0.012f, noise * 3f)
                 if (loud) { speechMs += 20; silenceMs = 0 } else silenceMs += 20
-                if (speechMs >= 300 && silenceMs >= 1_100) break
+                if (speechMs >= 300 && silenceMs >= silenceLimitMs) break
             }
         } finally {
             runCatching { record.stop() }

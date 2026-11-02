@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.foundation.border
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,7 +63,8 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.library.DictEntry
 import com.marat.albion.data.library.BookWordSource
-import com.marat.albion.data.library.ModelState
+import com.marat.albion.data.translation.ModelState
+import com.marat.albion.data.translation.TranslationProtocol
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
@@ -72,6 +75,7 @@ import com.marat.albion.ui.study.rememberCardAudio
 private sealed interface TranslationResult {
     data object Loading : TranslationResult
     data object Skipped : TranslationResult
+    data class Streaming(val text: String) : TranslationResult
     data class Done(val text: String) : TranslationResult
     data class Failed(val message: String) : TranslationResult
 }
@@ -79,7 +83,7 @@ private sealed interface TranslationResult {
 /**
  * Перевод слова или выделенного фрагмента. Слово сразу ищется во встроенном словаре
  * и в ваших карточках (с транскрипцией и озвучкой) — это работает без интернета.
- * Фразы переводит ML Kit; пока его модель не загружена, фрагмент разбирается по словам.
+ * Фразы переводит Qwen3.5; пока модель не установлена, фрагмент разбирается по словам.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,9 +104,9 @@ fun TranslationSheet(
     onBookWordSaved: (com.marat.albion.data.library.SavedBookWord) -> Unit = {},
 ) {
     val c = LocalAppContainer.current
-    val scope = rememberCoroutineScope()
     val audio = rememberCardAudio(c.audio)
     val model by c.translator.model.collectAsStateWithLifecycle()
+    val loadingModel by c.translator.loading.collectAsStateWithLifecycle()
     var result by remember(text) { mutableStateOf<TranslationResult>(TranslationResult.Loading) }
     var cards by remember(text) { mutableStateOf<List<CardEntity>>(emptyList()) }
     var entries by remember(text) { mutableStateOf<List<DictEntry>?>(null) }
@@ -111,19 +115,19 @@ fun TranslationSheet(
 
     var retry by remember(text) { mutableStateOf(0) }
     var chosen by remember(text) { mutableStateOf(0) }
-    var choiceMenu by remember { mutableStateOf(false) }
-    LaunchedEffect(text, retry, model) {
+    LaunchedEffect(text, bookExample, retry, model.phase, model.selected) {
+        result = TranslationResult.Loading
         if (isWord) {
             cards = c.library.lookup(text)
             entries = c.dictionary.lookup(text)
             // Для слова машинный перевод — дополнение: не ждём загрузки модели, если есть словарь.
-            if (model != ModelState.Ready && (entries.orEmpty().isNotEmpty() || cards.isNotEmpty())) {
+            if (model.phase != ModelState.Ready && (entries.orEmpty().isNotEmpty() || cards.isNotEmpty())) {
                 result = TranslationResult.Skipped
                 return@LaunchedEffect
             }
         }
         // Пока модели фраз нет, сразу разбираем фрагмент по словам встроенным словарём.
-        if (!isWord && model != ModelState.Ready) {
+        if (!isWord && model.phase != ModelState.Ready) {
             glosses = WORD.findAll(text).map { it.value }.distinctBy { it.lowercase() }
                 .filter { it.lowercase() !in ARTICLES }.take(16).toList().mapNotNull { w ->
                     // Две первые группы значений, по два слова — коротко, но без случайного «узкого» смысла.
@@ -132,10 +136,16 @@ fun TranslationSheet(
                     }
                 }
         }
-        result = runCatching { c.translator.translate(text) }.fold(
-            onSuccess = { TranslationResult.Done(it) },
-            onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it; TranslationResult.Failed("Не удалось получить перевод. Проверьте загрузку модели и повторите попытку.") },
-        )
+        if (model.phase != ModelState.Ready) { result = TranslationResult.Skipped; return@LaunchedEffect }
+        try {
+            var completed = ""
+            c.translator.translations(text, bookExample).collect {
+                completed = it
+                result = TranslationResult.Streaming(it)
+            }
+            result = TranslationResult.Done(completed)
+        } catch (error: kotlinx.coroutines.CancellationException) { throw error }
+        catch (error: Exception) { result = TranslationResult.Failed(TranslationProtocol.errorMessage(error)) }
     }
 
     ModalBottomSheet(
@@ -143,7 +153,7 @@ fun TranslationSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
-            Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp).navigationBarsPadding().imePadding().padding(bottom = 20.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -175,14 +185,6 @@ fun TranslationSheet(
             val selected = options.getOrNull(chosen) ?: options.firstOrNull()
             val firstEntry = selected?.first
             val dictionaryMeaning = selected?.second
-            if (options.size > 1) Box {
-                TextButton(onClick = { choiceMenu = true }) { Text("Выбрать значение · ${options.size}", color = MaterialTheme.colorScheme.primary) }
-                DropdownMenu(choiceMenu, { choiceMenu = false }) {
-                    options.forEachIndexed { i, option -> DropdownMenuItem(text = {
-                        Text("${if (chosen == i) "✓ " else ""}${option.first.headword} · ${option.first.posLabel} — ${option.second}")
-                    }, onClick = { chosen = i; choiceMenu = false }) }
-                }
-            }
             val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu
             val automatic = (result as? TranslationResult.Done)?.text?.takeIf { it.isNotBlank() }
             val ipa = cards.firstOrNull { it.ipa.isNotBlank() }?.ipa
@@ -194,21 +196,22 @@ fun TranslationSheet(
                 }
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
-            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic
+            val partial = (result as? TranslationResult.Streaming)?.text
+            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: partial
             Spacer(Modifier.height(12.dp))
             if (meaning != null) {
                 Text(meaning, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
                     cardMeaning != null -> "Из ваших карточек"
-                    else -> "Автоперевод"
+                    else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · перевод на устройстве"
                 }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {
                         Text(if (isWord && entries == null) "Ищу перевод…"
-                            else if (model == ModelState.Downloading) "Загружается перевод предложений…" else "Перевожу…",
+                            else if (loadingModel) "Открываю Qwen3.5…" else "Перевожу…",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                             color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
@@ -220,7 +223,8 @@ fun TranslationSheet(
                     else -> Text("Перевод не найден. Значение можно указать при сохранении.",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (model == ModelState.Missing || model == ModelState.Failed) TextButton(onClick = { scope.launch { c.translator.ensureModel() } }) { Text("Загрузить перевод предложений") }
+                if (result == TranslationResult.Skipped) Text("Для перевода фрагмента установите модель Qwen3.5. Пока доступен перевод по словам.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (glosses.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Eyebrow("Перевод по словам")
@@ -228,30 +232,26 @@ fun TranslationSheet(
                 }
             }
 
-            if (bookSource != null || onHighlight != null) {
-                Spacer(Modifier.height(16.dp))
-                Hairline()
-                if (bookSource != null) {
-                    BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
-                        suggestedTerm = if (dictionaryMeaning != null) requireNotNull(firstEntry).headword
-                            else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
-                        suggestedMeaning = meaning, onSaved = onBookWordSaved)
-                }
-                if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
-            }
 
+            // Полное значение в меню; выбранное уходит в карточку при сохранении.
+            if (options.size > 1) {
+                Spacer(Modifier.height(14.dp))
+                com.marat.albion.ui.components.OptionPicker("Значение · ${options.size}", options.map { it.second },
+                    chosen.coerceAtLeast(0), { chosen = it })
+            }
             val hasDetails = dictionary.sumOf { it.senses.size } > 1 || cards.isNotEmpty() ||
                 (isWord && automatic != null && !automatic.equals(meaning, ignoreCase = true)) ||
                 (meaning == null && glosses.size > 4) ||
                 dictionary.any { !it.headword.equals(text, ignoreCase = true) }
             if (hasDetails) {
                 Spacer(Modifier.height(12.dp))
-                TextButton(onClick = { details = !details }, modifier = Modifier.fillMaxWidth().semantics {
-                    stateDescription = if (details) "Развёрнуто" else "Свёрнуто"
-                }) {
-                    Text("Другие значения и подробности", modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.primary)
-                    Icon(AlbionIcons.ExpandMore, null, tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 8.dp).rotate(if (details) 180f else 0f))
+                val turn by androidx.compose.animation.core.animateFloatAsState(if (details) 180f else 0f,
+                    com.marat.albion.ui.theme.Springs.snappy(), label = "details")
+                Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable { details = !details }.semantics { stateDescription = if (details) "Развёрнуто" else "Свёрнуто" }
+                    .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Словарь, автоперевод и ваши карточки", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    Icon(AlbionIcons.ExpandMore, null, modifier = Modifier.padding(start = 8.dp).rotate(turn))
                 }
                 AnimatedVisibility(details) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(top = 8.dp)) {
@@ -270,6 +270,23 @@ fun TranslationSheet(
                     }
                 }
             }
+
+            if (model.phase != ModelState.Ready) {
+                Spacer(Modifier.height(12.dp))
+                com.marat.albion.ui.components.Disclosure("Модель перевода", model.summary) { TranslationModelControls() }
+            }
+            if (bookSource != null || onHighlight != null) {
+                Spacer(Modifier.height(16.dp))
+                Hairline()
+                if (bookSource != null) {
+                    BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
+                        suggestedTerm = if (dictionaryMeaning != null) requireNotNull(firstEntry).headword
+                            else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
+                        suggestedMeaning = dictionaryMeaning ?: cardMeaning ?: automatic, onSaved = onBookWordSaved)
+                }
+                if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
+            }
+
         }
     }
 }
@@ -308,7 +325,7 @@ private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
 
 @Composable
 private fun DictionaryEntry(card: CardEntity) {
-    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(card.term, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(10.dp))
@@ -347,7 +364,7 @@ private fun HighlightSection(
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         if (highlight != null) {
-            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(8.dp)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(14.dp)).padding(14.dp)) {
                 Eyebrow("Выделено")
                 Spacer(Modifier.height(6.dp))
                 Text(highlight.text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 4)
@@ -372,7 +389,7 @@ private fun HighlightSection(
             )
         }
         Spacer(Modifier.height(10.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             when {
                 editing -> {
                     SmallAction("Сохранить", AlbionIcons.Check) {
@@ -395,15 +412,17 @@ private fun HighlightSection(
     }
 }
 
+/** Действие над фрагментом: пара таких кнопок делит строку поровну. */
 @Composable
-private fun SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun RowScope.SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp)).clickable(onClick = onClick)
-            .heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick).heightIn(min = 48.dp).padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
     ) {
         Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
 }

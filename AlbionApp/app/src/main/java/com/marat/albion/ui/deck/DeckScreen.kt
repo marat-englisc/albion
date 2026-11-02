@@ -1,5 +1,8 @@
 package com.marat.albion.ui.deck
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.LocalContentColor
+import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -94,28 +97,32 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 return@deckContent
             }
 
-            // Те же «камешки» с цифрами, что на главной и в «Прогрессе».
-            Row(Modifier.padding(top = 28.dp).height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatPill(summary.due, "к повторению", Modifier.weight(1f).fillMaxHeight(), tint = MaterialTheme.colorScheme.secondaryContainer,
-                    valueColor = if (summary.due == 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.secondary)
-                StatPill(summary.newAvailable, "новых сегодня", Modifier.weight(1f).fillMaxHeight(), tint = MaterialTheme.colorScheme.primaryContainer)
+            // Главное действие колоды — инверсный блок: что ждёт сегодня и «Начать занятие».
+            com.marat.albion.ui.components.BoundVolume(Modifier.fillMaxWidth().padding(top = 24.dp).appear(2)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Column {
+                        com.marat.albion.ui.theme.AnimatedNumber(summary.due, MaterialTheme.typography.displayMedium)
+                        Text("к повторению", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
+                    }
+                    Column {
+                        com.marat.albion.ui.theme.AnimatedNumber(summary.newAvailable, MaterialTheme.typography.displayMedium)
+                        Text("новых сегодня", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
+                    }
+                }
+                PrimaryButton(
+                    text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
+                    onClick = { navigator.open(StudyRoute(deck)) },
+                    enabled = summary.toStudy > 0,
+                    trailingIcon = AlbionIcons.ArrowForward,
+                    inverse = true,
+                )
             }
-
-            Spacer(Modifier.height(24.dp))
-            PrimaryButton(
-                text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
-                onClick = { navigator.open(StudyRoute(deck)) },
-                enabled = summary.toStudy > 0,
-                trailingIcon = AlbionIcons.ArrowForward,
-
-                modifier = Modifier,
-            )
             Spacer(Modifier.height(12.dp))
             GhostButton(
                 "Все карточки и поиск",
                 onClick = { navigator.open(BrowseRoute(deck)) },
                 icon = AlbionIcons.Search,
-                modifier = Modifier,
+                modifier = Modifier.appear(3),
             )
 
             Column(Modifier) {
@@ -124,7 +131,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 ThinProgress(summary.progress)
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatPill(summary.total, "всего", Modifier.weight(1f).fillMaxHeight())
+                    StatPill(summary.total, "всего", Modifier.weight(1f).fillMaxHeight().appear(4))
                     StatPill(summary.total - summary.started, "не начато", Modifier.weight(1f).fillMaxHeight())
                 }
                 Spacer(Modifier.height(8.dp))

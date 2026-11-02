@@ -1,126 +1,206 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.progressSemantics
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.theme.LocalFeedback
+import com.marat.albion.ui.theme.LocalReducedMotion
+import com.marat.albion.ui.theme.Springs
+import com.marat.albion.ui.theme.appear
+import com.marat.albion.ui.theme.pressScale
 
+/** Мелкая подпись над заголовком. */
 @Composable
 fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines: Int = Int.MAX_VALUE) {
     Text(
-        text, modifier = modifier, style = MaterialTheme.typography.labelMedium, color = color, maxLines = maxLines,
-        overflow = if (maxLines == Int.MAX_VALUE) androidx.compose.ui.text.style.TextOverflow.Clip else androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+        text, modifier = modifier, style = MaterialTheme.typography.labelMedium.copy(letterSpacing = .6.sp), color = color, maxLines = maxLines,
+        overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
     )
 }
 
+/** Волосяная линия-разделитель. */
 @Composable
-fun Hairline(modifier: Modifier = Modifier, color: Color = DividerDefaults.color) {
-    HorizontalDivider(modifier, color = color)
+fun Hairline(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.outlineVariant) {
+    Box(modifier.fillMaxWidth().height(1.dp).background(color))
 }
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    Row(modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-        if (trailing != null) Text(trailing, style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false)
+    Row(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp), verticalAlignment = Alignment.Bottom) {
+        Box(Modifier.padding(end = 10.dp).size(4.dp).background(MaterialTheme.colorScheme.primary))
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        if (trailing != null) Text(trailing, style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
     }
 }
 
+/** Заголовок экрана: крупный акцентный шрифт, подпись и действия справа. Появляется каскадом. */
 @Composable
 fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, compact: Boolean = false, trailing: @Composable (() -> Unit)? = null) {
-    Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier).padding(top = 16.dp, bottom = 8.dp)) {
+    Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier)
+        .padding(top = if (compact) 18.dp else 24.dp, bottom = 20.dp)) {
+        // Подпись над заголовком, действия — справа в одной строке с названием экрана.
+        if (eyebrow != null) { SignalLabel(eyebrow, Modifier.appear(0)); Spacer(Modifier.height(10.dp)) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                if (eyebrow != null) Eyebrow(eyebrow)
-                Text(title, style = if (compact) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium)
-            }
-            trailing?.invoke()
+            FitText(title, Modifier.weight(1f).appear(1), style = MaterialTheme.typography.displaySmall, minSize = 18.sp)
+            if (trailing != null) { Spacer(Modifier.width(8.dp)); trailing() }
         }
-        if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (subtitle != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(subtitle, Modifier.appear(2), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 
+/** Круглая кнопка-иконка; [filled] — с тонкой подложкой. */
 @Composable
 fun RoundIconButton(
     icon: ImageVector,
     contentDescription: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     spin: Float = 0f,
     enabled: Boolean = true,
+    filled: Boolean = false,
 ) {
     val feedback = LocalFeedback.current
-    IconButton(onClick = { feedback.selection(); onClick() }, modifier = modifier, enabled = enabled) {
-        Icon(icon, contentDescription, tint = if (enabled) tint else LocalContentColor.current)
+    val interaction = remember { MutableInteractionSource() }
+    Box(
+        modifier.size(48.dp).pressScale(interaction, 0.94f).clip(MaterialTheme.shapes.medium)
+            .clickable(interaction, ripple(), enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier.size(42.dp).background(if (filled) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent, MaterialTheme.shapes.medium)
+                .then(if (filled) Modifier.border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium) else Modifier),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, contentDescription, tint = if (enabled) tint else tint.copy(alpha = 0.38f), modifier = Modifier.size(22.dp))
+        }
     }
 }
 
 @Composable
 fun SettingsShortcut(onClick: () -> Unit) {
-    RoundIconButton(AlbionIcons.Settings, "Настройки", onClick)
+    RoundIconButton(AlbionIcons.Settings, "Настройки", onClick, filled = true)
 }
 
+/** Карточка-поверхность: мягкий тон без теней, крупное скругление, пружинный отклик. */
 @Composable
 fun Panel(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    contentPadding: PaddingValues = PaddingValues(20.dp),
     borderColor: Color = Color.Unspecified,
-    color: Color = Color.Unspecified,
+    color: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = if (color == Color.Unspecified) CardDefaults.cardColors() else CardDefaults.cardColors(containerColor = color)
+    val shape = MaterialTheme.shapes.large
+    val border = BorderStroke(.75.dp, if (borderColor == Color.Unspecified) MaterialTheme.colorScheme.outlineVariant else borderColor)
     if (onClick != null) {
-        Card(onClick = onClick, modifier = modifier, colors = colors) { Column(Modifier.padding(contentPadding), content = content) }
+        val feedback = LocalFeedback.current
+        val interaction = remember { MutableInteractionSource() }
+        Surface(onClick = { feedback.selection(); onClick() }, modifier = modifier.pressScale(interaction, 0.97f), shape = shape,
+            color = color, border = border, interactionSource = interaction) {
+            Column(Modifier.padding(contentPadding), content = content)
+        }
     } else {
-        Card(modifier = modifier, colors = colors) { Column(Modifier.padding(contentPadding), content = content) }
+        Surface(modifier = modifier, shape = shape, color = color, border = border) {
+            Column(Modifier.padding(contentPadding), content = content)
+        }
     }
 }
 
 fun Modifier.softShadow(shape: androidx.compose.ui.graphics.Shape, elevation: Dp = 2.dp): Modifier =
-    shadow(elevation, shape)
+    shadow(elevation, shape, ambientColor = Color.Black.copy(alpha = 0.08f), spotColor = Color.Black.copy(alpha = 0.08f))
 
 enum class ButtonTone { Accent, Warm, Error }
 
+@Composable
+private fun PillButton(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    container: Color,
+    content: Color,
+    border: Color?,
+    enabled: Boolean,
+    contentPadding: PaddingValues,
+    body: @Composable RowScope.() -> Unit,
+) {
+    val feedback = LocalFeedback.current
+    val interaction = remember { MutableInteractionSource() }
+    val bg by animateColorAsState(if (enabled) container else MaterialTheme.colorScheme.surfaceContainerHigh, label = "pillBg")
+    val fg by animateColorAsState(if (enabled) content else MaterialTheme.colorScheme.onSurfaceVariant, label = "pillFg")
+    Surface(
+        onClick = { feedback.selection(); onClick() }, enabled = enabled, interactionSource = interaction,
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.97f),
+        shape = MaterialTheme.shapes.medium, color = bg, contentColor = fg,
+        border = border?.let { BorderStroke(1.dp, it) },
+    ) {
+        Row(Modifier.padding(contentPadding), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center, content = body)
+    }
+}
+
+/** Главное действие экрана: капсула цвета чернил. [inverse] — для тёмных подложек. */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -132,102 +212,145 @@ fun PrimaryButton(
     tone: ButtonTone = ButtonTone.Accent,
     inverse: Boolean = false,
 ) {
-    val feedback = LocalFeedback.current
-    val colors = when (tone) {
-        ButtonTone.Accent -> ButtonDefaults.buttonColors()
-        ButtonTone.Warm -> ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = MaterialTheme.colorScheme.onSecondary)
-        ButtonTone.Error -> ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = MaterialTheme.colorScheme.onError)
+    val scheme = MaterialTheme.colorScheme
+    val (container, content) = when {
+        inverse -> scheme.background to scheme.onBackground
+        tone == ButtonTone.Error -> scheme.error to scheme.onError
+        else -> scheme.primary to scheme.onPrimary
     }
-    Button(onClick = { feedback.selection(); onClick() }, modifier = modifier.fillMaxWidth(), enabled = enabled, colors = colors) {
-        if (icon != null) {
-            Icon(icon, null, Modifier.size(ButtonDefaults.IconSize))
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-        }
-        Text(text, textAlign = TextAlign.Center)
-        if (trailingIcon != null) {
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Icon(trailingIcon, null, Modifier.size(ButtonDefaults.IconSize))
-        }
+    PillButton(onClick, modifier, container, content, null, enabled, PaddingValues(horizontal = 24.dp, vertical = 16.dp)) {
+        if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(10.dp)) }
+        Text(text, modifier = if (trailingIcon != null) Modifier.weight(1f) else Modifier,
+            style = MaterialTheme.typography.labelLarge, textAlign = if (trailingIcon != null) TextAlign.Start else TextAlign.Center)
+        if (trailingIcon != null) { Spacer(Modifier.width(10.dp)); Icon(trailingIcon, null, Modifier.size(20.dp)) }
     }
 }
 
+/** Второстепенное действие: прозрачная капсула с тонкой обводкой. */
 @Composable
 fun GhostButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
-    val feedback = LocalFeedback.current
-    OutlinedButton(onClick = { feedback.selection(); onClick() }, modifier = modifier.fillMaxWidth(), contentPadding = contentPadding) {
-        if (icon != null) {
-            Icon(icon, null, Modifier.size(ButtonDefaults.IconSize))
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-        }
-        Text(text, textAlign = TextAlign.Center)
+    PillButton(onClick, modifier, Color.Transparent, MaterialTheme.colorScheme.onSurface,
+        MaterialTheme.colorScheme.outlineVariant, true, contentPadding) {
+        if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(10.dp)) }
+        Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
     }
 }
 
 fun lerpColor(a: Color, b: Color, t: Float) = androidx.compose.ui.graphics.lerp(a, b, t.coerceIn(0f, 1f))
 
+/** Озвучка: круглая кнопка; во время звучания — залитая, с расходящимся кольцом. */
 @Composable
 fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 44.dp, primary: Boolean = true) {
     val player = com.marat.albion.LocalAppContainer.current.audio
-    IconButton(onClick = { if (playing) player.stop() else onClick() }, modifier = modifier) {
-        Icon(
-            if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
-            contentDescription = if (playing) "Остановить озвучку" else "Озвучить",
-        )
+    val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val reduced = LocalReducedMotion.current
+    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "audio")
+    val wave by transition.animateFloat(0f, 1f,
+        androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(1000)), label = "pulse")
+    val pulse = if (playing && !reduced) wave else 0f
+    val bg by animateColorAsState(if (playing) scheme.primary else if (primary) scheme.surfaceContainerHigh else Color.Transparent, label = "audioBg")
+    val fg by animateColorAsState(if (playing) scheme.onPrimary else scheme.onSurface, label = "audioFg")
+    val ring = scheme.primary
+    Box(
+        modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.88f)
+            .clickable(interaction, null, role = Role.Button) { if (playing) player.stop() else onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (pulse > 0f) Canvas(Modifier.size(size)) {
+            drawCircle(ring.copy(alpha = 0.3f * (1f - pulse)), radius = this.size.minDimension / 2 * (1f + 0.4f * pulse))
+        }
+        Box(Modifier.size(size).background(bg, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(
+                if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
+                contentDescription = if (playing) "Остановить озвучку" else "Озвучить",
+                tint = fg, modifier = Modifier.size(size * 0.46f),
+            )
+        }
     }
 }
 
 @Composable
 fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
     if (level.isNullOrBlank()) return
-    Text(level.uppercase(), modifier = modifier, style = MaterialTheme.typography.labelSmall)
+    Text(
+        level.uppercase(),
+        modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outline, CircleShape).padding(horizontal = 8.dp, vertical = 2.dp),
+        style = MaterialTheme.typography.labelSmall,
+    )
 }
 
 @Composable
 fun Chip(text: String, modifier: Modifier = Modifier) {
-    Text(text, modifier = modifier, style = MaterialTheme.typography.labelMedium)
+    Text(
+        text,
+        modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape).padding(horizontal = 12.dp, vertical = 5.dp),
+        style = MaterialTheme.typography.labelMedium,
+    )
 }
 
+/** Прогресс: скруглённая дорожка, заполнение догоняет значение на пружине. */
 @Composable
 fun ThinProgress(
     progress: Float,
     modifier: Modifier = Modifier,
-    color: Color = ProgressIndicatorDefaults.linearColor,
-    track: Color = ProgressIndicatorDefaults.linearTrackColor,
-    height: Dp = 4.dp,
+    color: Color = MaterialTheme.colorScheme.primary,
+    track: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    height: Dp = 3.dp,
 ) {
-    LinearProgressIndicator(progress = { progress.coerceIn(0f, 1f) }, modifier = modifier.fillMaxWidth(), color = color, trackColor = track)
+    val reduced = LocalReducedMotion.current
+    val p by animateFloatAsState(progress.coerceIn(0f, 1f),
+        if (reduced) androidx.compose.animation.core.snap() else Springs.smooth(), label = "progress")
+    Canvas(modifier.fillMaxWidth().height(height).progressSemantics(progress.coerceIn(0f, 1f))) {
+        val r = CornerRadius(size.height / 2)
+        drawRoundRect(track, cornerRadius = r)
+        val w = size.width * p
+        if (w > 0f) drawRoundRect(color, size = Size(w.coerceAtLeast(size.height), size.height), cornerRadius = r)
+    }
 }
 
 @Composable
 fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
+    Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 40.dp).appear(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(AlbionIcons.Inventory2, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
-        Text(message, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+        Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
     }
 }
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+/** Верхняя панель вложенных экранов: круглая «назад», заголовок и действия. */
 @Composable
 fun TopBar(
     onBack: () -> Unit,
     title: String? = null,
-    actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
-    TopAppBar(
-        title = { if (title != null) Text(title, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
-        navigationIcon = { RoundIconButton(AlbionIcons.ArrowBack, "Назад", onBack) },
-        actions = actions,
-    )
+    Row(
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RoundIconButton(AlbionIcons.ArrowBack, "Назад", onBack, filled = true)
+        if (title != null) Text(
+            title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(start = 12.dp),
+        ) else Spacer(Modifier.weight(1f))
+        actions()
+    }
 }
 
+/** Слайдер: тонкая дорожка и вертикальная риска, которая утолщается при перетаскивании. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ThinSlider(
     value: Float,
@@ -236,5 +359,117 @@ fun ThinSlider(
     steps: Int,
     modifier: Modifier = Modifier,
 ) {
-    Slider(value = value, onValueChange = onValueChange, valueRange = valueRange, steps = steps, modifier = modifier)
+    val interaction = remember { MutableInteractionSource() }
+    val dragged by interaction.collectIsDraggedAsState()
+    val thumbWidth by animateDpAsState(if (dragged) 8.dp else 4.dp, Springs.snappy(), label = "thumb")
+    val colors = SliderDefaults.colors(
+        thumbColor = MaterialTheme.colorScheme.primary,
+        activeTrackColor = MaterialTheme.colorScheme.primary,
+        inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent,
+    )
+    Slider(
+        value = value, onValueChange = onValueChange, valueRange = valueRange, steps = steps,
+        modifier = modifier, colors = colors, interactionSource = interaction,
+        thumb = { Box(Modifier.size(width = thumbWidth, height = 28.dp).background(MaterialTheme.colorScheme.primary, CircleShape)) },
+        track = { state ->
+            SliderDefaults.Track(sliderState = state, colors = colors, modifier = Modifier.height(6.dp),
+                drawStopIndicator = null, drawTick = { _, _ -> }, thumbTrackGapSize = 4.dp)
+        },
+    )
+}
+
+/**
+ * Сегментированный выбор: подложка-«ползунок» перетекает к выбранному варианту на пружине.
+ * [inverse] — для тёмных подложек (карточка дня).
+ */
+@Composable
+fun SegmentedPicker(
+    options: List<String>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    inverse: Boolean = false,
+) {
+    val feedback = LocalFeedback.current
+    val scheme = MaterialTheme.colorScheme
+    val track = if (inverse) scheme.background.copy(alpha = 0.12f) else scheme.surfaceContainerHigh
+    val on = scheme.onBackground
+    val off = if (inverse) scheme.background.copy(alpha = 0.7f) else scheme.onSurfaceVariant
+    val reduced = LocalReducedMotion.current
+    val shape = MaterialTheme.shapes.small
+    BoxWithConstraints(modifier.fillMaxWidth().height(56.dp).background(track, shape).padding(4.dp)) {
+        val segment = maxWidth / options.size.coerceAtLeast(1)
+        val x by animateDpAsState(segment * selected.coerceIn(0, (options.size - 1).coerceAtLeast(0)), if (reduced) androidx.compose.animation.core.snap() else Springs.snappy(), label = "segment")
+        Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(scheme.background, shape)
+            .border(.75.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.outlineVariant, shape))
+        Row(Modifier.fillMaxWidth().fillMaxHeight().selectableGroup()) {
+            options.forEachIndexed { i, label ->
+                val color by animateColorAsState(if (i == selected) on else off, label = "segmentText")
+                Box(
+                    Modifier.weight(1f).fillMaxHeight().clip(shape)
+                        .selectable(i == selected, role = Role.RadioButton) { if (i != selected) { feedback.selection(); onSelect(i) } },
+                    contentAlignment = Alignment.Center,
+                ) { FitText(label, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.labelLarge, color = color, textAlign = TextAlign.Center) }
+            }
+        }
+    }
+}
+
+/** Вариант в вертикальном списке выбора: строка-карточка, кружок отметки заполняется на пружине. */
+@Composable
+fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, supporting: String? = null) {
+    val feedback = LocalFeedback.current
+    val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val bg by animateColorAsState(if (selected) scheme.inverseSurface else scheme.surfaceContainerLow, label = "choiceBg")
+    val fg by animateColorAsState(if (selected) scheme.inverseOnSurface else scheme.onSurface, label = "choiceFg")
+    val dot by animateFloatAsState(if (selected) 1f else 0f, Springs.bouncy(), label = "choiceDot")
+    Row(
+        modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.98f)
+            .clip(MaterialTheme.shapes.medium).background(bg)
+            .selectable(selected, interaction, null, role = Role.RadioButton) { if (!selected) { feedback.selection(); onClick() } }
+            .padding(horizontal = 18.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.titleMedium, color = fg)
+            if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = fg.copy(alpha = 0.7f))
+        }
+        Box(Modifier.size(22.dp).border(1.5.dp, fg.copy(alpha = if (selected) 1f else 0.4f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(12.dp * dot).background(fg, CircleShape))
+        }
+    }
+}
+
+/**
+ * Текст, который уменьшается до ширины контейнера, а не ломает слово и не обрезается:
+ * заголовки на узких экранах, подписи вкладок и сегментов при крупном шрифте.
+ */
+@Composable
+fun FitText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: androidx.compose.ui.text.TextStyle = androidx.compose.material3.LocalTextStyle.current,
+    color: Color = Color.Unspecified,
+    minSize: androidx.compose.ui.unit.TextUnit = 9.sp,
+    textAlign: TextAlign? = null,
+) {
+    BoxWithConstraints(modifier) {
+        val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+        val width = constraints.maxWidth
+        val base = style.fontSize
+        val size = remember(text, width, style) {
+            if (!base.isSp || width == androidx.compose.ui.unit.Constraints.Infinity) return@remember base
+            var s = base.value
+            while (s > minSize.value && measurer.measure(text, style.copy(fontSize = s.sp), softWrap = false, maxLines = 1)
+                    .size.width > width * 0.95f) s -= 0.5f
+            s.sp
+        }
+        val ratio = if (base.isSp && base.value > 0f) size.value / base.value else 1f
+        Text(text, style = style.copy(fontSize = size,
+            lineHeight = if (style.lineHeight.isSp) (style.lineHeight.value * ratio).sp else style.lineHeight),
+            color = color, maxLines = 1, softWrap = false, textAlign = textAlign,
+            overflow = TextOverflow.Clip)
+    }
 }
