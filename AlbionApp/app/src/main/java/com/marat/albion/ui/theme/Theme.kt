@@ -37,7 +37,7 @@ private val LightScheme = lightColorScheme(
     surfaceContainerHigh = Color(0xFFE8EAEF),
     surfaceContainerHighest = Color(0xFFDFE2E8),
     inverseSurface = Color(0xFF16171D), inverseOnSurface = Color(0xFFF5F6F8),
-    outline = Color(0xFF858A97), outlineVariant = Color(0xFFE0E2E8),
+    outline = Color(0xFF697080), outlineVariant = Color(0xFFE0E2E8),
     scrim = Color.Black,
 )
 
@@ -63,11 +63,14 @@ private val DarkScheme = darkColorScheme(
     surfaceContainerHigh = Color(0xFF1D2028),
     surfaceContainerHighest = Color(0xFF262A34),
     inverseSurface = Color(0xFFECEEF4), inverseOnSurface = Ink,
-    outline = Color(0xFF5A6070), outlineVariant = Color(0xFF252832),
+    outline = Color(0xFF8B92A3), outlineVariant = Color(0xFF252832),
     scrim = Color.Black,
 )
 
 private fun scheme(dark: Boolean): ColorScheme = if (dark) DarkScheme else LightScheme
+
+/** Functional boundaries share Material's outline; outlineVariant remains decorative. */
+val ColorScheme.controlBorder: Color get() = outline
 
 private val AlbionShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),

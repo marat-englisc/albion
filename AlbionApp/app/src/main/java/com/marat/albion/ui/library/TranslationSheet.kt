@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.QuietLinearProgressIndicator as LinearProgressIndicator
+import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
@@ -20,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -195,7 +196,7 @@ fun TranslationSheet(
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.padding(top = 6.dp)) {
                     firstEntry?.posLabel?.takeIf { it.isNotBlank() }?.let { Chip(it) }
-                    if (ipa != null) Text(ipa, style = MaterialTheme.typography.bodyLarge)
+                    if (ipa != null) Text(ipa, style = IpaStyle)
                 }
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
@@ -266,7 +267,7 @@ fun TranslationSheet(
                 dictionary.any { !it.headword.equals(text, ignoreCase = true) }
             if (hasDetails) {
                 Spacer(Modifier.height(12.dp))
-                val turn by androidx.compose.animation.core.animateFloatAsState(if (details) 180f else 0f,
+                val turn by com.marat.albion.ui.theme.quietFloatAsState(if (details) 180f else 0f,
                     com.marat.albion.ui.theme.Springs.snappy(), label = "details")
                 Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clickable { details = !details }.semantics { stateDescription = if (details) "Развёрнуто" else "Свёрнуто" }
@@ -352,7 +353,7 @@ private fun DictionaryEntry(card: CardEntity) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(card.term, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(10.dp))
-            if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodyLarge)
+            if (card.ipa.isNotBlank()) Text(card.ipa, style = IpaStyle)
             Spacer(Modifier.weight(1f))
             LevelBadge(card.level)
         }

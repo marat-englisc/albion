@@ -1,7 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
+import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.pressScale
-import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
@@ -497,13 +498,14 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
             OptionState.Correct -> MaterialTheme.colorScheme.tertiary
             OptionState.Wrong -> MaterialTheme.colorScheme.error
             OptionState.Dim -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f)
-            OptionState.Idle -> MaterialTheme.colorScheme.outlineVariant
+            OptionState.Idle -> MaterialTheme.colorScheme.controlBorder
         },
         tween(260), label = "border",
     )
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val pop = remember { androidx.compose.animation.core.Animatable(1f) }
-    LaunchedEffect(state) {
+    LaunchedEffect(state, reduced) {
+        if (reduced) pop.snapTo(1f)
         if (state == OptionState.Correct && !reduced) {
             pop.snapTo(.985f)
             pop.animateTo(1f, com.marat.albion.ui.theme.Springs.bouncy())
@@ -512,10 +514,10 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
     val shape = MaterialTheme.shapes.medium
     Row(
         Modifier.fillMaxWidth().heightIn(min = 64.dp)
-            .graphicsLayer { scaleX = pop.value; scaleY = pop.value }
+            .graphicsLayer { scaleX = if (reduced) 1f else pop.value; scaleY = if (reduced) 1f else pop.value }
             .pressScale(interaction, 0.97f)
             .background(bg, shape)
-            .border(.75.dp, border, shape)
+            .border(1.dp, border, shape)
             .clip(shape)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = state == OptionState.Idle, onClick = onClick)
             .semantics { stateDescription = when (state) {

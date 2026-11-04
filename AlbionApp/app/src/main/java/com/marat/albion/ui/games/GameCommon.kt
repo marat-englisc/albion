@@ -21,7 +21,7 @@ import com.marat.albion.ui.components.RoundIconButton
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.ButtonTone
 import com.marat.albion.ui.components.lerpColor
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
 import androidx.compose.foundation.selection.selectable
@@ -391,7 +391,7 @@ internal fun ButtonPair(
     }
 }
 
-data class Mistake(val prompt: String, val answer: String, val correct: String)
+data class Mistake(val prompt: String, val answer: String, val correct: String, val promptIsIpa: Boolean = false)
 
 /** Шапка настройки: крупная плитка-иконка, название акцентным шрифтом, описание. */
 @Composable
@@ -487,7 +487,7 @@ private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) 
     val reduced = LocalReducedMotion.current
     val target = if (total == 0) 0f else correct.toFloat() / total
     val sweep = remember { Animatable(if (reduced) target else 0f) }
-    LaunchedEffect(target) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 60f)) }
+    LaunchedEffect(target, reduced) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 60f)) }
     val track = MaterialTheme.colorScheme.surfaceContainerHighest
     val arc = MaterialTheme.colorScheme.primary
     Box(modifier.size(164.dp), contentAlignment = Alignment.Center) {
@@ -496,7 +496,7 @@ private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) 
             val diameter = Size(size.width - inset * 2, size.height - inset * 2)
             val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
             drawArc(track, -90f, 360f, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
-            if (sweep.value > 0f) drawArc(arc, -90f, 360f * sweep.value, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
+            if ((if (reduced) target else sweep.value) > 0f) drawArc(arc, -90f, 360f * (if (reduced) target else sweep.value), false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
             drawCircle(track.copy(alpha = .5f), size.minDimension / 2 - 18.dp.toPx(), style = Stroke(.5.dp.toPx()))
         }
         com.marat.albion.ui.theme.AnimatedNumber(if (total == 0) 0 else correct * 100 / total,
@@ -507,7 +507,9 @@ private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) 
 @Composable
 private fun SummaryMistake(m: Mistake, modifier: Modifier = Modifier) {
     com.marat.albion.ui.components.Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)) {
-        if (m.prompt.isNotBlank()) Text(m.prompt, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+        if (m.prompt.isNotBlank()) Text(m.prompt,
+            style = if (m.promptIsIpa) com.marat.albion.ui.theme.IpaStyle else MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = if (m.promptIsIpa) Int.MAX_VALUE else 2)
         Text(m.correct, style = MaterialTheme.typography.titleMedium)
         if (m.answer.isNotBlank()) Text("Ваш ответ: ${m.answer}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
     }
@@ -536,11 +538,11 @@ fun Modifier.shakeOn(trigger: Int): Modifier = composed {
     val reduced = LocalReducedMotion.current
     val offset = remember { Animatable(0f) }
     val px = with(LocalDensity.current) { 3.dp.toPx() }
-    LaunchedEffect(trigger) {
-        if (trigger == 0 || reduced) return@LaunchedEffect
+    LaunchedEffect(trigger, reduced) {
+        if (trigger == 0 || reduced) { offset.snapTo(0f); return@LaunchedEffect }
         for (k in listOf(1f, -0.5f, 0f)) offset.animateTo(k * px, tween(55))
     }
-    graphicsLayer { translationX = offset.value }
+    graphicsLayer { translationX = if (reduced) 0f else offset.value }
 }
 
 // ------------------------------------------------------------------ общие элементы раунда
@@ -600,7 +602,7 @@ internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Да
     val heading = title ?: when (ok) { true -> "Верно"; false -> "Неверно"; null -> "Готово" }
     Column(
         Modifier.fillMaxWidth()
-            .graphicsLayer { translationY = offset.value * size.height; alpha = 1f - offset.value * 0.6f }
+            .graphicsLayer { translationY = if (reduced) 0f else offset.value * size.height; alpha = if (reduced) 1f else 1f - offset.value * 0.6f }
             .clip(MaterialTheme.shapes.large).background(bg)
             .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large).padding(16.dp)
             .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite },

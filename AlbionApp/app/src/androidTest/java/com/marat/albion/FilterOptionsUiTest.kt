@@ -50,7 +50,9 @@ class FilterOptionsUiTest {
             assertNull(find(root()) { it.text?.toString() == "Соберите предложение" })
             capture("practice-selected")
             scenario.recreate()
-            assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Навык" }).contains("Речь и слух"))
+            val restoredSkill = scrollTo { it.contentDescription?.toString() == "Навык" && visibleText(it).contains("Речь и слух") }
+            capture("practice-restored")
+            assertTrue("Restored skill: ${visibleText(restoredSkill)}", visibleText(restoredSkill).contains("Речь и слух"))
             choose("Навык", "Все")
             scrollTo { it.text?.toString() == "Словарный запас" }
 
@@ -58,8 +60,8 @@ class FilterOptionsUiTest {
             choose("Статус чтения", "Не начаты", "library-menu")
             choose("Порядок книг", "По названию")
             scenario.recreate()
-            assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Статус чтения" }).contains("Не начаты"))
-            assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Порядок книг" }).contains("По названию"))
+            assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Статус чтения" && visibleText(it).contains("Не начаты") }).contains("Не начаты"))
+            assertTrue(visibleText(scrollTo { it.contentDescription?.toString() == "Порядок книг" && visibleText(it).contains("По названию") }).contains("По названию"))
             capture("library-selected")
         }
     }
@@ -97,6 +99,7 @@ class FilterOptionsUiTest {
                     }
                     val label = when (screen) { "practice" -> "Навык"; "library" -> "Статус чтения"; "grammar" -> "Уровень заданий"; else -> "Статус карточек" }
                     val option = when (screen) { "practice" -> "Речь и слух"; "library" -> "Прочитаны"; "grammar" -> "C1"; else -> "Пора повторить" }
+                    if (screen == "cards") find(root()) { it.text?.toString() == "Фильтры" }?.let(::activate)
                     choose(label, option, "$name-menu")
                     assertTrue("Selected value was lost ($name)", visibleText(scrollTo { it.contentDescription?.toString() == label }).contains(option))
                     if (screen == "cards") choose("Уровень", "C1", "$name-level-menu")

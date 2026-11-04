@@ -67,7 +67,8 @@ import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.library.pluralRu
 import androidx.compose.foundation.border
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.components.StatPill
+import com.marat.albion.ui.components.StatPair
+import com.marat.albion.ui.components.StatMetric
 import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
 import java.time.LocalDate
@@ -110,20 +111,17 @@ fun StatsScreen(navigator: Navigator) {
             WeekStrip(month.takeLast(7))
         }
         Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatPill(s.answersToday, "ответов сегодня", Modifier.weight(1f).appear(3))
-            StatPill((s.timeTodayMs / 60000).toInt(), "минут сегодня", Modifier.weight(1f).appear(3))
-        }
+        StatPair(StatMetric(s.answersToday, "ответов сегодня"), StatMetric((s.timeTodayMs / 60000).toInt(), "минут сегодня"), Modifier.appear(3))
         Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatPill(s.retention?.let { (it * 100).toInt() }, "вспомнили при повторении · 30 дней", Modifier.weight(1f).appear(4), suffix = "%")
-            StatPill(s.totalReviews + s.totalGameAnswers, "ответов за всё время · карточки и практика", Modifier.weight(1f).appear(4))
-        }
+        StatPair(StatMetric(s.retention?.let { (it * 100).toInt() }, "вспомнили · 30 дней", "%"),
+            StatMetric(s.totalReviews + s.totalGameAnswers, "ответов за всё время"), Modifier.appear(4))
+        Text("Ответы в карточках и упражнениях.", Modifier.padding(top = 8.dp),
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (s.retention == null) Text("Удержание появится после повторений изученных карточек.", Modifier.padding(top = 8.dp),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier) {
             SectionHeader("Активность · 30 дней", trailing = "${month.sum()} ${pluralRu(month.sum(), "ответ", "ответа", "ответов")}")
-            Heatmap(month)
+            ActivityCalendar(month, s.today)
             Text("Ответы в карточках и упражнениях", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp))
         }
@@ -170,10 +168,8 @@ private fun GameBreakdown(s: Stats) {
     SectionHeader("Практика · за всё время", trailing = "${s.totalGameAnswers} ${pluralRu(s.totalGameAnswers, "ответ", "ответа", "ответов")}")
     Spacer(Modifier.height(12.dp))
     // «Ответов сегодня» уже есть вверху экрана — здесь только то, что относится к практике.
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        StatPill(s.games.sumOf { it.wrong }, "ошибок за всё время", Modifier.weight(1f))
-        StatPill(s.gameAccuracy?.let { (it * 100).toInt() }, "точность · всё время", Modifier.weight(1f), suffix = "%", tint = MaterialTheme.colorScheme.primaryContainer)
-    }
+    StatPair(StatMetric(s.games.sumOf { it.wrong }, "ошибок за всё время"),
+        StatMetric(s.gameAccuracy?.let { (it * 100).toInt() }, "точность · всё время", "%"))
     Spacer(Modifier.height(18.dp))
     val totals = s.games.associateBy { it.game }
     var showAll by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
@@ -275,7 +271,7 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
                     i == selected -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
                 }
-                Box(Modifier.fillMaxWidth().fillMaxHeight(h * grow.value).background(color, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 1.dp, bottomEnd = 1.dp)))
+                Box(Modifier.fillMaxWidth().fillMaxHeight(h * if (reduced) 1f else grow.value).background(color, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 1.dp, bottomEnd = 1.dp)))
             }
         }
     }
@@ -370,43 +366,6 @@ private fun WeekStrip(week: List<Int>) {
                 Spacer(Modifier.height(6.dp))
                 Text(names[dayIndex], style = MaterialTheme.typography.labelSmall,
                     color = if (today) MaterialTheme.colorScheme.primary else content.copy(alpha = 0.6f))
-            }
-        }
-    }
-}
-
-/**
- * Тепловая карта: 30 дней календарём по неделям (столбцы пн…вс), тон клетки — от числа ответов.
- * Дни до начала периода и после сегодня — пустые места; сегодня обведено.
- */
-@Composable
-private fun Heatmap(month: List<Int>) {
-    val max = (month.maxOrNull() ?: 0).coerceAtLeast(1)
-    val ink = MaterialTheme.colorScheme.primary
-    val empty = MaterialTheme.colorScheme.surfaceContainerHigh
-    val names = listOf("пн", "вт", "ср", "чт", "пт", "сб", "вс")
-    val todayIndex = (java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7
-    val lead = ((todayIndex - (month.size - 1)) % 7 + 7) % 7
-    val cells: List<Int?> = List(lead) { null } + month + List(6 - todayIndex) { null }
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            names.forEach { Text(it, Modifier.weight(1f), style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
-        }
-        cells.chunked(7).forEachIndexed { row, week ->
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                week.forEachIndexed { col, count ->
-                    val index = row * 7 + col
-                    if (count == null) { Spacer(Modifier.weight(1f).height(24.dp)); return@forEachIndexed }
-                    val level = if (count == 0) 0f else 0.25f + 0.75f * count / max
-                    val cell by androidx.compose.animation.core.animateFloatAsState(level,
-                        com.marat.albion.ui.theme.Springs.smooth(), label = "cell$index")
-                    val today = index == lead + month.lastIndex
-                    Box(Modifier.weight(1f).height(24.dp).background(
-                        if (cell <= 0.01f) empty else androidx.compose.ui.graphics.lerp(empty, ink, cell),
-                        MaterialTheme.shapes.extraSmall)
-                        .then(if (today) Modifier.border(1.5.dp, ink, MaterialTheme.shapes.extraSmall) else Modifier))
-                }
             }
         }
     }

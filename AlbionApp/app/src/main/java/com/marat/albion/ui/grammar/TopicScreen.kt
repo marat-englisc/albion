@@ -1,10 +1,10 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.layout.heightIn
 
-import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.CatalogueTab

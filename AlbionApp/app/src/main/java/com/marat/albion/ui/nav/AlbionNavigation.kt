@@ -6,8 +6,8 @@ import androidx.activity.compose.BackHandler
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietDpAsState as animateDpAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -72,7 +72,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -334,7 +334,7 @@ private fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                         TabIcon(tab, active, tint)
                         Spacer(Modifier.height(3.dp))
-                        com.marat.albion.ui.components.FitText(tab.label, Modifier.padding(horizontal = 2.dp), style = labelStyle, color = tint, minSize = 8.sp, textAlign = TextAlign.Center)
+                        Text(tab.label, Modifier.padding(horizontal = 2.dp), style = labelStyle, color = tint, maxLines = 1, softWrap = false, textAlign = TextAlign.Center)
                     }
                 }
             }

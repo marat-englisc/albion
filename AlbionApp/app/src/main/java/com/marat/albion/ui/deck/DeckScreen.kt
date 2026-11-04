@@ -4,15 +4,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalContentColor
 import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import com.marat.albion.ui.components.StatPill
+import com.marat.albion.ui.components.StatPair
+import com.marat.albion.ui.components.StatMetric
+import com.marat.albion.ui.components.AdaptivePair
+import com.marat.albion.ui.components.metricMinWidth
 import com.marat.albion.ui.components.gutter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -99,16 +98,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
 
             // Главное действие колоды — инверсный блок: что ждёт сегодня и «Начать занятие».
             com.marat.albion.ui.components.BoundVolume(Modifier.fillMaxWidth().padding(top = 24.dp).appear(2)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Column {
-                        com.marat.albion.ui.theme.AnimatedNumber(summary.due, MaterialTheme.typography.displayMedium)
-                        Text("к повторению", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
-                    }
-                    Column {
-                        com.marat.albion.ui.theme.AnimatedNumber(summary.newAvailable, MaterialTheme.typography.displayMedium)
-                        Text("новых сегодня", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
-                    }
-                }
+                DeckStudyMetrics(summary.due, summary.newAvailable)
                 PrimaryButton(
                     text = if (summary.toStudy > 0) "Начать занятие" else "На сегодня всё",
                     onClick = { navigator.open(StudyRoute(deck)) },
@@ -130,15 +120,9 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
                 Spacer(Modifier.height(8.dp))
                 ThinProgress(summary.progress)
                 Spacer(Modifier.height(16.dp))
-                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatPill(summary.total, "всего", Modifier.weight(1f).fillMaxHeight().appear(4))
-                    StatPill(summary.total - summary.started, "не начато", Modifier.weight(1f).fillMaxHeight())
-                }
+                StatPair(StatMetric(summary.total, "всего"), StatMetric(summary.total - summary.started, "не начато"), Modifier.appear(4))
                 Spacer(Modifier.height(8.dp))
-                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatPill(summary.learning, "изучаются", Modifier.weight(1f).fillMaxHeight())
-                    StatPill(summary.mature, "выучено · 21+ дн", Modifier.weight(1f).fillMaxHeight())
-                }
+                StatPair(StatMetric(summary.learning, "изучаются"), StatMetric(summary.mature, "выучено · 21+ дн"))
             }
 
             Column(Modifier) {
@@ -167,4 +151,18 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         )
     }
+}
+
+@Composable
+internal fun DeckStudyMetrics(due: Int, newAvailable: Int) {
+    val first = StatMetric(due, "к повторению")
+    val second = StatMetric(newAvailable, "новых сегодня")
+    val minWidth = metricMinWidth(listOf(first, second), MaterialTheme.typography.displayMedium, MaterialTheme.typography.labelMedium)
+    val metric: @Composable (StatMetric, Modifier) -> Unit = { item, modifier ->
+        Column(modifier) {
+            com.marat.albion.ui.theme.AnimatedNumber(item.value!!, MaterialTheme.typography.displayMedium)
+            Text(item.label, style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
+        }
+    }
+    AdaptivePair(minWidth, spacing = 24.dp, first = { metric(first, it) }, second = { metric(second, it) })
 }

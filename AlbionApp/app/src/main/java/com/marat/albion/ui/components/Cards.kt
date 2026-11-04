@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,24 +36,25 @@ import androidx.compose.ui.unit.dp
  * Внутри действует локальная схема — белый текст, белые «инверсные» кнопки. Одна на экран.
  */
 @Composable
-fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
+    contentPadding: PaddingValues = PaddingValues(if (compact) 20.dp else 24.dp), content: @Composable ColumnScope.() -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val onHero = Hero.Content
     val heroScheme = scheme.copy(
         primary = onHero, onPrimary = Hero.Deep,
         background = onHero, onBackground = Hero.Deep,
-        surface = Hero.Base, onSurface = onHero, onSurfaceVariant = onHero.copy(alpha = .78f),
+        surface = Hero.Base, onSurface = onHero, onSurfaceVariant = onHero,
         inverseSurface = Hero.Base, inverseOnSurface = onHero,
-        surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero.copy(alpha = .4f), outlineVariant = onHero.copy(alpha = .22f),
+        surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero, outlineVariant = onHero.copy(alpha = .22f),
     )
     Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = Color.Transparent, contentColor = onHero) {
         MaterialTheme(colorScheme = heroScheme) {
             CompositionLocalProvider(LocalContentColor provides onHero) {
                 Column(Modifier.background(Hero.Gradient).drawBehind {
                     // Холодный блик в правом верхнем углу — «свечение» плиты.
-                    drawRect(Brush.radialGradient(listOf(Color(0xFF7FE7FF).copy(alpha = .28f), Color.Transparent),
+                    drawRect(Brush.radialGradient(listOf(Hero.Glow, Color.Transparent),
                         center = Offset(size.width * .95f, 0f), radius = size.maxDimension * .7f))
-                }.constructionLines(onHero).padding(if (compact) 20.dp else 24.dp),
+                }.constructionLines(onHero).padding(contentPadding),
                     verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
             }
         }

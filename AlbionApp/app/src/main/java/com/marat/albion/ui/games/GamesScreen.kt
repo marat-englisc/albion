@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.quietItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -83,12 +84,12 @@ fun GamesScreen(navigator: Navigator) {
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(if (lastGame != null) "Продолжить" else "Первое занятие", style = MaterialTheme.typography.labelMedium,
-                            color = LocalContentColor.current.copy(alpha = 0.7f))
+                            color = LocalContentColor.current)
                         Text(featured.title, style = MaterialTheme.typography.titleLarge)
                     }
                 }
                 Text(if (lastGame != null) listOf(scope.takeUnless { it == featured.title }, length).filterNotNull().joinToString(" · ")
-                    else featured.tagline, style = MaterialTheme.typography.bodyMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
+                    else featured.tagline, style = MaterialTheme.typography.bodyMedium, color = LocalContentColor.current)
                 PrimaryButton(if (lastGame != null) "Продолжить" else "Попробовать", { navigator.open(GameRoute(featured)) }, trailingIcon = AlbionIcons.ArrowForward, inverse = true)
             }
         }
@@ -128,10 +129,10 @@ fun GamesScreen(navigator: Navigator) {
         practiceGroups.filterIndexed { i, _ -> group == -1 || group == i }.forEach { (title, games) ->
             item(key = "h:$title", span = { GridItemSpan(maxLineSpan) }) {
                 ModuleHeading((practiceGroups.indexOfFirst { it.first == title } + 1).toString().padStart(2, '0'), title,
-                    games.size.let { "$it " + com.marat.albion.ui.library.pluralRu(it, "упражнение", "упражнения", "упражнений") }, Modifier.animateItem())
+                    games.size.let { "$it " + com.marat.albion.ui.library.pluralRu(it, "упражнение", "упражнения", "упражнений") }, quietItem())
             }
             items(games, key = { it.name }, span = { GridItemSpan(maxLineSpan) }) { game ->
-                PracticeTile(game, Modifier.animateItem()) { navigator.open(GameRoute(game)) }
+                PracticeTile(game, quietItem()) { navigator.open(GameRoute(game)) }
             }
         }
     }

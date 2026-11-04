@@ -1,11 +1,13 @@
 package com.marat.albion.ui.launch
 
+import com.marat.albion.ui.theme.Typography
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -114,7 +116,8 @@ fun LaunchScreen(
     val readyNow by rememberUpdatedState(ready)
     var skip by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reduced) {
+        if (reduced) intro.snapTo(1f)
         val play = if (!reduced) launch {
             intro.animateTo(1f, tween(if (warm) WARM_INTRO_MS else INTRO_MS, easing = LinearEasing))
         } else null
@@ -127,16 +130,15 @@ fun LaunchScreen(
     }
 
     // Петли идут с первого кадра: к концу вступления движение уже «разогнано» и не стартует рывком.
-    val loop = rememberInfiniteTransition(label = "launch")
-    val spinLoop by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(16_000, easing = LinearEasing)), label = "spin")
-    val orbitLoop by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(3_600, easing = LinearEasing)), label = "orbit")
-    val dialLoop by loop.animateFloat(0f, 360f, infiniteRepeatable(tween(60_000, easing = LinearEasing)), label = "dial")
-    val breatheLoop by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_600, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "breathe")
-    val barLoop by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(1_400, easing = FastOutSlowInEasing)), label = "bar")
-    val spin = if (reduced) .38f else spinLoop
-    val orbit = if (reduced) .6f else orbitLoop
-    val dial = if (reduced) 0f else dialLoop
-    val breathe = if (reduced) .5f else breatheLoop
+    val (spin, orbit, dial, breathe, barLoop) = if (reduced) floatArrayOf(.38f, .6f, 0f, .5f, 0f) else {
+        val loop = rememberInfiniteTransition(label = "launch")
+        val spin by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(16_000, easing = LinearEasing)), label = "spin")
+        val orbit by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(3_600, easing = LinearEasing)), label = "orbit")
+        val dial by loop.animateFloat(0f, 360f, infiniteRepeatable(tween(60_000, easing = LinearEasing)), label = "dial")
+        val breathe by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_600, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "breathe")
+        val bar by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(1_400, easing = FastOutSlowInEasing)), label = "bar")
+        floatArrayOf(spin, orbit, dial, breathe, bar)
+    }
 
     val statusAlpha by animateFloatAsState(if (intro.value >= 1f && !ready && exit.value == 0f) 1f else 0f, tween(400), label = "status")
 
@@ -156,8 +158,8 @@ fun LaunchScreen(
             }
             .semantics { contentDescription = "Albion загружается" },
     ) {
-        val p = intro.value
-        val e = exit.value
+        val p = if (reduced) 1f else intro.value
+        val e = if (reduced) 0f else exit.value
         val sphere = min(maxWidth, maxHeight * .8f) * .30f
         val lift = 52.dp * ease(seg(p, .45f, .8f))
 
@@ -187,7 +189,7 @@ fun LaunchScreen(
             Text(
                 "АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ",
                 Modifier.graphicsLayer { alpha = ta },
-                style = TextStyle(fontFamily = AlbionFonts.Tech, fontSize = 10.sp, color = IrisLight, letterSpacing = (.22f + .3f * (1f - ta)).em),
+                style = Typography.labelMedium.copy(color = IrisLight, letterSpacing = (.02f + .3f * (1f - ta)).em),
             )
         }
 
@@ -197,7 +199,7 @@ fun LaunchScreen(
                 .padding(bottom = 40.dp).graphicsLayer { alpha = statusAlpha }.clearAndSetSemantics {},
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(status ?: "ЗАГРУЗКА", style = TextStyle(fontFamily = AlbionFonts.Tech, fontSize = 10.sp, color = Color.White.copy(alpha = .62f), letterSpacing = .2.em))
+            Text(status ?: "ЗАГРУЗКА", style = Typography.labelMedium.copy(color = Color.White.copy(alpha = .62f)))
             Spacer(Modifier.height(12.dp))
             Canvas(Modifier.size(132.dp, 2.dp)) {
                 drawLine(Color.White.copy(alpha = .1f), Offset(0f, size.height / 2), Offset(size.width, size.height / 2), size.height, StrokeCap.Round)

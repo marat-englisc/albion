@@ -13,7 +13,7 @@ import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -321,16 +321,10 @@ private fun stressTip(r: ShadowReport, words: List<ChartWord>): String? {
     return "Диктор сильнее всего выделяет «${theirs.text}», а вы — «${yours.text}». Сделайте ударным «${theirs.text}», остальные слова — легче и короче."
 }
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun SpeechInstallSheet(onDismiss: () -> Unit) {
-    androidx.compose.material3.ModalBottomSheet(onDismiss,
-        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(bottom = 24.dp).navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            com.marat.albion.ui.components.SheetHeader("Распознавание речи", onDismiss)
-            com.marat.albion.ui.conversation.SpeechModelControls()
-        }
+    com.marat.albion.ui.components.ScrollableSheet("Распознавание речи", onDismiss) {
+        com.marat.albion.ui.conversation.SpeechModelControls()
     }
 }
 

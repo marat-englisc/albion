@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
@@ -177,7 +178,7 @@ fun TenseRound(vm: GameViewModel, card: CardEntity) {
                         }
                         answerVariant?.ipa?.takeIf { it.isNotBlank() }?.let {
                             Spacer(Modifier.height(4.dp))
-                            Text("${task.answer}  $it", style = MaterialTheme.typography.bodyLarge)
+                            Text("${task.answer}  $it", style = IpaStyle)
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.library.pluralRu
 
 import androidx.compose.runtime.setValue
@@ -19,7 +20,7 @@ import com.marat.albion.ui.components.gutter
 import androidx.activity.compose.BackHandler
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -76,6 +77,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -144,94 +146,136 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
         )
     }
 
-    Column(
+    BoxWithConstraints(
         Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
-        TopRow(deck, state, onClose = { c.audio.stop(); navigator.back() }, onUndo = vm::undo)
-        ThinProgress(state.progress, modifier = Modifier.padding(horizontal = gutter))
+        val compact = maxHeight < 480.dp || LocalDensity.current.fontScale > 1.3f
+        Column(Modifier.fillMaxSize()) {
+            TopRow(deck, state, compact, onClose = { c.audio.stop(); navigator.back() }, onUndo = vm::undo)
+            ThinProgress(state.progress, modifier = Modifier.padding(horizontal = gutter))
 
-        when {
-            state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                com.marat.albion.ui.components.LoadingState("Готовим карточки")
-            }
-            state.finished -> Finished(state, onDone = { navigator.back() }, onUndo = vm::undo)
-            current != null -> {
-                Box(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 20.dp, vertical = 18.dp)) {
-                    CardStackShadow(remaining = state.remaining)
-                    AnimatedContent(
-                        targetState = current,
-                        contentKey = { it.card.id + it.isNew },
-                        transitionSpec = {
-                            val dir = if (state.lastRating == Rating.Again) -1 else 1
-                            (fadeIn(tween(180, delayMillis = 30)) +
-                                scaleIn(tween(240, easing = Easing.Emphasized), initialScale = if (reduced) 1f else 0.995f) +
-                                slideInVertically(tween(240, easing = Easing.Emphasized)) { if (reduced) 0 else it / 40 }) togetherWith
-                                (slideOutHorizontally(tween(220, easing = Easing.EmphasizedAccelerate)) { if (reduced) 0 else dir * it / 7 } +
-                                    fadeOut(tween(160)) +
-                                    scaleOut(tween(220), targetScale = if (reduced) 1f else 0.995f))
-                        },
-                        label = "card",
-                    ) { sc ->
-                        val isCurrent = sc.card.id == current.card.id
-                        SwipeToRate(enabled = isCurrent && state.revealed, onRate = rate) {
-                            FlipCard(
-                                revealed = if (isCurrent) state.revealed else true,
-                                onReveal = { feedback.reveal(); vm.reveal() },
-                                front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
-                                back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
-                            )
-                        }
-                    }
+            when {
+                state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    com.marat.albion.ui.components.LoadingState("Готовим карточки")
                 }
-                Box(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 14.dp)) {
-                    AnimatedContent(
-                        targetState = state.revealed,
-                        transitionSpec = {
-                            (fadeIn(tween(160, delayMillis = 30)) + slideInVertically(tween(200, easing = Easing.Emphasized)) { if (reduced) 0 else it / 12 }) togetherWith
-                                (fadeOut(tween(100)) + slideOutVertically(tween(140)) { if (reduced) 0 else it / 12 })
-                        },
-                        label = "actions",
-                    ) { revealed ->
-                        if (!revealed) {
-                            PrimaryButton("Показать ответ", onClick = { feedback.reveal(); vm.reveal() })
-                        } else {
-                            Column {
-                                com.marat.albion.ui.components.CoachMark("study.swipe",
-                                    "Смахните карточку: вправо — «Хорошо», влево — «Снова». Или выберите оценку ниже")
-                                RatingBar(current.intervals, rate)
+                state.finished -> Finished(state, onDone = { navigator.back() }, onUndo = vm::undo)
+                current != null -> {
+                    StudyWorkspace(Modifier.weight(1f), card = { modifier ->
+                        Box(modifier.padding(horizontal = if (compact) 12.dp else 20.dp, vertical = if (compact) 8.dp else 18.dp)) {
+                            CardStackShadow(remaining = state.remaining)
+                            AnimatedContent(
+                                targetState = current,
+                                contentKey = { it.card.id + it.isNew },
+                                transitionSpec = {
+                                    val dir = if (state.lastRating == Rating.Again) -1 else 1
+                                    (fadeIn(tween(180, delayMillis = 30)) +
+                                        scaleIn(tween(240, easing = Easing.Emphasized), initialScale = if (reduced) 1f else 0.995f) +
+                                        slideInVertically(tween(240, easing = Easing.Emphasized)) { if (reduced) 0 else it / 40 }) togetherWith
+                                        (slideOutHorizontally(tween(220, easing = Easing.EmphasizedAccelerate)) { if (reduced) 0 else dir * it / 7 } +
+                                            fadeOut(tween(160)) +
+                                            scaleOut(tween(220), targetScale = if (reduced) 1f else 0.995f))
+                                },
+                                label = "card",
+                            ) { sc ->
+                                val isCurrent = sc.card.id == current.card.id
+                                SwipeToRate(enabled = isCurrent && state.revealed, onRate = rate) {
+                                    FlipCard(
+                                        revealed = if (isCurrent) state.revealed else true,
+                                        onReveal = { feedback.reveal(); vm.reveal() },
+                                        showHint = !compact,
+                                        front = { CardFront(sc.card, sc.irregular, audio, settings.showIpaOnFront) },
+                                        back = { CardBack(sc.card, sc.irregular, audio, showRussian = settings.showRussian) },
+                                    )
+                                }
                             }
                         }
-                    }
+                    }, actions = { modifier ->
+                        Box(modifier.padding(start = if (compact) 12.dp else 20.dp, end = if (compact) 12.dp else 20.dp, bottom = 14.dp, top = 4.dp)) {
+                            AnimatedContent(
+                                targetState = state.revealed,
+                                transitionSpec = {
+                                    (fadeIn(tween(160, delayMillis = 30)) + slideInVertically(tween(200, easing = Easing.Emphasized)) { if (reduced) 0 else it / 12 }) togetherWith
+                                        (fadeOut(tween(100)) + slideOutVertically(tween(140)) { if (reduced) 0 else it / 12 })
+                                },
+                                label = "actions",
+                            ) { revealed ->
+                                if (!revealed) {
+                                    PrimaryButton("Показать ответ", onClick = { feedback.reveal(); vm.reveal() })
+                                } else {
+                                    Column {
+                                        if (!compact) com.marat.albion.ui.components.CoachMark("study.swipe",
+                                            "Смахните карточку: вправо — «Хорошо», влево — «Снова». Или выберите оценку ниже")
+                                        RatingBar(current.intervals, rate, compact)
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
             }
         }
     }
 }
 
+/** Reserve reading space; tall actions scroll independently instead of squeezing the card away. */
 @Composable
-private fun TopRow(deck: Deck?, state: StudyState, onClose: () -> Unit, onUndo: () -> Unit) {
+private fun StudyWorkspace(
+    modifier: Modifier = Modifier,
+    card: @Composable (Modifier) -> Unit,
+    actions: @Composable (Modifier) -> Unit,
+) {
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val maxActionsHeight = maxHeight / 2
+        when {
+            maxWidth >= 560.dp && maxHeight < 360.dp -> Row(Modifier.fillMaxSize()) {
+                card(Modifier.weight(1f).fillMaxHeight())
+                actions(Modifier.width(216.dp).fillMaxHeight().verticalScroll(rememberScrollState()))
+            }
+            maxHeight < 240.dp -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                card(Modifier.fillMaxWidth().height(280.dp))
+                actions(Modifier.fillMaxWidth())
+            }
+            else -> Column(Modifier.fillMaxSize()) {
+                card(Modifier.weight(1f).fillMaxWidth())
+                actions(Modifier.fillMaxWidth().heightIn(max = maxActionsHeight).verticalScroll(rememberScrollState()))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopRow(deck: Deck?, state: StudyState, compact: Boolean, onClose: () -> Unit, onUndo: () -> Unit) {
     // В общем занятии подписываем колоду текущей карточки: от неё зависит, что вспоминать.
     val title = deck?.title ?: listOfNotNull("Все колоды", state.current?.let { Deck.byId(it.card.deck)?.title }).joinToString(" · ")
     Column {
         Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, spin = 90f)
             Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
-                Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center, maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis)
+                    if (compact) Text(
+                        if (state.answerLimit != null) "${state.answered} / ${state.targetAnswers} ответов"
+                        else "Осталось: ${state.remaining + if (state.current != null) 1 else 0}",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
             com.marat.albion.ui.components.FeatureHelp("study.ratings", "Как оценить ответ",
-                "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.", showOnFirstUse = false, filled = false)
+                "Снова — не вспомнили.\n\nТрудно — вспомнили с усилием.\n\nХорошо — вспомнили уверенно.\n\nЛегко — вспомнили сразу. Для многозначного слова оцените знание всех значений.\n\nПосле раскрытия можно смахнуть карточку: вправо — «Хорошо», влево — «Снова».", showOnFirstUse = false, filled = false)
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Undo, "Отменить ответ", onUndo, spin = -60f, enabled = state.canUndo)
         }
-        if (state.answerLimit != null) {
+        if (!compact && state.answerLimit != null) {
             Column(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Короткое занятие", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${state.answered} / ${state.targetAnswers} ответов", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
-        } else Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        } else if (!compact) Row(Modifier.fillMaxWidth().padding(start = gutter, end = gutter, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             QueueCount(state.newCount + if (state.current?.isNew == true) 1 else 0, "новые", Modifier.weight(1f))
             QueueCount(state.learningCount + if (state.current?.fromLearning == true) 1 else 0, "учу", Modifier.weight(1f))
             QueueCount(
@@ -270,6 +314,7 @@ private fun CardStackShadow(remaining: Int) {
 private fun FlipCard(
     revealed: Boolean,
     onReveal: () -> Unit,
+    showHint: Boolean,
     front: @Composable () -> Unit,
     back: @Composable () -> Unit,
 ) {
@@ -279,7 +324,7 @@ private fun FlipCard(
         animationSpec = if (reduced) androidx.compose.animation.core.snap() else spring(dampingRatio = 0.78f, stiffness = 180f),
         label = "flip",
     )
-    val dip = 1f - 0.06f * sin((rotation / 180f) * PI).toFloat()
+    val dip = if (reduced) 1f else 1f - 0.06f * sin((rotation / 180f) * PI).toFloat()
     val shape = MaterialTheme.shapes.extraLarge
 
     Surface(
@@ -298,11 +343,13 @@ private fun FlipCard(
     ) {
         Box(Modifier.fillMaxSize()) {
             if (rotation <= 90f) {
-                Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
-                    Box(Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) { front() }
+                Column(Modifier.fillMaxSize()) {
+                    Box(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
+                        Box(Modifier.fillMaxWidth().padding(vertical = if (showHint) 24.dp else 8.dp), contentAlignment = Alignment.Center) { front() }
+                    }
+                    if (showHint) Text("Нажмите, чтобы перевернуть", Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
+                        style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Text("Нажмите, чтобы перевернуть", Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
-                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val scroll = rememberScrollState()
                 Box(Modifier.fillMaxSize().graphicsLayer { rotationY = if (reduced) 0f else 180f }) {
@@ -318,18 +365,22 @@ private fun FlipCard(
 
 /** «Хорошо» — основное действие; остальные оценки сохраняют равную область нажатия. */
 @Composable
-private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) {
+private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit, compact: Boolean) {
     val measurer = rememberTextMeasurer()
     val labelWidth = with(LocalDensity.current) {
         Rating.entries.maxOf { measurer.measure(it.label, MaterialTheme.typography.labelLarge).size.width }.toDp() + 12.dp
     }
     BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val columns = if (labelWidth * 4 + 24.dp <= maxWidth) 4 else 2
+        val columns = when {
+            labelWidth * 4 + 24.dp <= maxWidth -> 4
+            labelWidth * 2 + 8.dp <= maxWidth -> 2
+            else -> 1
+        }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Rating.entries.chunked(columns).forEach { ratings ->
                 Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ratings.forEach { r ->
-                        RatingButton(r, Rating.entries.indexOf(r), intervals[r].orEmpty(), onRate, Modifier.weight(1f))
+                        RatingButton(r, Rating.entries.indexOf(r), intervals[r].orEmpty(), onRate, Modifier.weight(1f), compact)
                     }
                 }
             }
@@ -338,24 +389,24 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) 
 }
 
 @Composable
-private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
+private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
 
     val (bg, fg, border) = when (r) {
         Rating.Again -> Triple(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
-        Rating.Hard -> Triple(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.outlineVariant)
+        Rating.Hard -> Triple(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.controlBorder)
         Rating.Good -> Triple(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, MaterialTheme.colorScheme.primary)
         Rating.Easy -> Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
     }
     val interaction = remember { MutableInteractionSource() }
     val reduced = LocalReducedMotion.current
     val appear = remember { Animatable(if (reduced) 1f else 0f) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reduced) {
         if (!reduced) delay(index * 20L)
         appear.animateTo(1f, tween(if (reduced) 0 else 180, easing = Easing.EmphasizedDecelerate))
     }
     Column(
         modifier.fillMaxHeight().heightIn(min = 66.dp)
-            .graphicsLayer { alpha = appear.value; translationY = (1f - appear.value) * 12f }
+            .graphicsLayer { alpha = if (reduced) 1f else appear.value; translationY = if (reduced) 0f else (1f - appear.value) * 12f }
             .clip(RoundedCornerShape(14.dp))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(14.dp))
@@ -368,7 +419,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
             color = if (r == Rating.Good) MaterialTheme.colorScheme.onPrimary else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
-        Text(when(r) { Rating.Again -> "Не помню"; Rating.Hard -> "С усилием"; Rating.Good -> "Помню"; Rating.Easy -> "Сразу" },
+        if (!compact) Text(when(r) { Rating.Again -> "Не помню"; Rating.Hard -> "С усилием"; Rating.Good -> "Помню"; Rating.Easy -> "Сразу" },
             style = MaterialTheme.typography.bodySmall, color = fg, textAlign = TextAlign.Center)
     }
 }
@@ -437,22 +488,13 @@ private fun Finished(state: StudyState, onDone: () -> Unit, onUndo: () -> Unit) 
  * Карточка наклоняется за пальцем, проступает подпись; короткий жест возвращает её на место.
  */
 @Composable
-private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Composable () -> Unit) {
+internal fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Composable () -> Unit) {
     val reduced = LocalReducedMotion.current
     val scope = rememberCoroutineScope()
     val offset = remember { androidx.compose.animation.core.Animatable(0f) }
     var width by remember { mutableFloatStateOf(1f) }
     val progress = (offset.value / (width * 0.35f)).coerceIn(-1f, 1f)
-    val c = com.marat.albion.LocalAppContainer.current
-    val viewed by c.settings.viewedHelp.collectAsStateWithLifecycle(null)
-    LaunchedEffect(enabled, viewed) {
-        val known = viewed ?: return@LaunchedEffect
-        if (!enabled || reduced || "coach.study.swipe" in known) return@LaunchedEffect
-        kotlinx.coroutines.delay(500)
-        for (target in listOf(width * 0.12f, -width * 0.12f, 0f)) {
-            offset.animateTo(target, androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 200f))
-        }
-    }
+    LaunchedEffect(enabled, reduced) { offset.snapTo(0f) }
     Box(
         Modifier.fillMaxSize()
             .onSizeChanged { width = it.width.toFloat().coerceAtLeast(1f) }
@@ -460,7 +502,7 @@ private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Co
                 translationX = offset.value
                 rotationZ = if (reduced) 0f else progress * 6f
             }
-            .pointerInput(enabled) {
+            .pointerInput(enabled, reduced) {
                 if (!enabled) return@pointerInput
                 detectHorizontalDragGestures(
                     onDragEnd = {
@@ -470,7 +512,10 @@ private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Co
                             else -> null
                         }
                         scope.launch {
-                            if (rating == null) offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy())
+                            if (rating == null) {
+                                if (reduced) offset.snapTo(0f) else offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy())
+                            }
+                            else if (reduced) { offset.snapTo(0f); onRate(rating) }
                             else {
                                 offset.animateTo(if (rating == Rating.Good) width * 1.4f else -width * 1.4f,
                                     androidx.compose.animation.core.tween(180))
@@ -479,7 +524,7 @@ private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Co
                             }
                         }
                     },
-                    onDragCancel = { scope.launch { offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy()) } },
+                    onDragCancel = { scope.launch { if (reduced) offset.snapTo(0f) else offset.animateTo(0f, com.marat.albion.ui.theme.Springs.bouncy()) } },
                 ) { change, drag ->
                     change.consume()
                     scope.launch { offset.snapTo(offset.value + drag) }
@@ -492,7 +537,7 @@ private fun SwipeToRate(enabled: Boolean, onRate: (Rating) -> Unit, content: @Co
             Text(
                 if (good) "Хорошо" else "Снова",
                 Modifier.align(Alignment.TopEnd).padding(24.dp)
-                    .graphicsLayer { alpha = kotlin.math.abs(progress); rotationZ = if (good) -8f else 8f }
+                    .graphicsLayer { alpha = kotlin.math.abs(progress); rotationZ = if (reduced) 0f else if (good) -8f else 8f }
                     .background(if (good) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error, MaterialTheme.shapes.small)
                     .padding(horizontal = 14.dp, vertical = 6.dp),
                 style = MaterialTheme.typography.titleMedium,

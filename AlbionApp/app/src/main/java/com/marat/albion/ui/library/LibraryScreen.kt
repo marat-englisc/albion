@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.theme.quietItem
+import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.marat.albion.ui.theme.pressScale
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -73,6 +76,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -159,7 +164,7 @@ fun LibraryScreen(navigator: Navigator) {
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(48.dp).semantics { contentDescription = if (importing) "Открываю книгу" else "Добавить книгу" }) {
                         Box(contentAlignment = Alignment.Center) {
-                            if (importing) androidx.compose.material3.CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp,
+                            if (importing) com.marat.albion.ui.components.QuietCircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp,
                                 color = MaterialTheme.colorScheme.onPrimary)
                             else Icon(AlbionIcons.Add, null, Modifier.size(22.dp))
                         }
@@ -206,7 +211,7 @@ fun LibraryScreen(navigator: Navigator) {
             com.marat.albion.ui.components.CoachMark("library.longpress", "Удерживайте обложку своей книги, чтобы удалить её")
         }
         items(rows, key = { it.book.id }) { b ->
-            BookTile(b, Modifier.animateItem(), { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
+            BookTile(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             // Добавление книги — кнопкой «+» в шапке; здесь вторая такая же кнопка не нужна.
@@ -236,26 +241,42 @@ fun LibraryScreen(navigator: Navigator) {
 
 /** «Продолжить чтение»: инверсный блок с обложкой, процентом и кнопкой. */
 @Composable
-private fun ContinueReading(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit) {
+internal fun ContinueReading(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
+    val measurer = rememberTextMeasurer()
+    val titleStyle = MaterialTheme.typography.titleLarge
+    val labelStyle = MaterialTheme.typography.labelMedium
+    val minTextWidth = with(LocalDensity.current) {
+        maxOf(measurer.measure("Продолжить", labelStyle).size.width,
+            item.book.title.split(Regex("\\s+")).maxOf { measurer.measure(it, titleStyle).size.width }).toDp()
+    }.coerceAtLeast(132.dp)
     com.marat.albion.ui.components.BoundVolume(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clip(MaterialTheme.shapes.extraLarge)
         .clickable(interaction, null, onClickLabel = "Читать", onClick = onOpen)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            BookCover(item.book.title, Modifier.size(width = 76.dp, height = 112.dp), inverse = true)
-            Spacer(Modifier.width(18.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Продолжить", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.7f))
-                Spacer(Modifier.height(4.dp))
-                Text(item.book.title, style = MaterialTheme.typography.titleLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
-                    color = LocalContentColor.current.copy(alpha = 0.7f), maxLines = 1)
-                Spacer(Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ThinProgress(item.progress, Modifier.weight(1f), color = LocalContentColor.current,
-                        track = LocalContentColor.current.copy(alpha = 0.18f), height = 4.dp)
-                    Spacer(Modifier.width(10.dp))
-                    Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val description: @Composable () -> Unit = {
+                Column {
+                    Text("Продолжить", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
+                    Spacer(Modifier.height(4.dp))
+                    Text(item.book.title, style = MaterialTheme.typography.titleLarge)
+                    if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
+                        color = LocalContentColor.current)
+                    Spacer(Modifier.height(12.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ThinProgress(item.progress, Modifier.weight(1f), color = LocalContentColor.current,
+                            track = LocalContentColor.current.copy(alpha = 0.18f), height = 4.dp)
+                        Spacer(Modifier.width(10.dp))
+                        Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
+                    }
                 }
+            }
+            if (maxWidth >= 76.dp + 18.dp + minTextWidth) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    BookCover(item.book.title, Modifier.size(width = 76.dp, height = 112.dp), inverse = true)
+                    Spacer(Modifier.width(18.dp))
+                    Box(Modifier.weight(1f)) { description() }
+                }
+            } else {
+                description()
             }
         }
         PrimaryButton("Читать", onOpen, trailingIcon = AlbionIcons.ArrowForward, inverse = true)
@@ -302,17 +323,16 @@ fun BookCover(title: String, modifier: Modifier = Modifier, inverse: Boolean = f
     androidx.compose.foundation.layout.BoxWithConstraints(modifier.clearAndSetSemantics {}.clip(MaterialTheme.shapes.medium)
         .background(bg).border(.75.dp, fg.copy(alpha = .16f), MaterialTheme.shapes.medium)) {
         val thumbnail = maxWidth < 100.dp
-        // На миниатюре сфера меньше и выше, чтобы не заходить под название.
+        // Миниатюра остаётся декоративной: полное название уже есть рядом с обложкой.
         if (thumbnail) OrbitalField(Modifier.fillMaxWidth(.56f).aspectRatio(1f).align(Alignment.TopCenter).padding(top = 10.dp), color = fg, animated = false)
         else OrbitalField(Modifier.fillMaxWidth().aspectRatio(1f).align(Alignment.Center).padding(8.dp), color = fg, animated = false)
         if (maxWidth >= 100.dp) SignalLabel("ALBION / READ", Modifier.align(Alignment.TopStart).padding(14.dp), color = fg.copy(alpha = .6f))
         // Полупрозрачная плашка на акцентной плите легла бы вторым слоем и дала полосу — подложка только у непрозрачной обложки.
-        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().then(if (inverse) Modifier else Modifier.background(bg)).padding(if (thumbnail) 10.dp else 14.dp)) {
+        if (!thumbnail) Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().then(if (inverse) Modifier else Modifier.background(bg)).padding(14.dp)) {
             Box(Modifier.width(24.dp).height(1.dp).background(fg.copy(alpha = .5f)))
-            Spacer(Modifier.height(if (thumbnail) 6.dp else 8.dp))
-            // На миниатюре мельче и в три строки: «The Keeper of Gull Island» больше не обрезается до «The Keepe…».
-            Text(title, style = if (thumbnail) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleSmall,
-                color = fg, maxLines = if (thumbnail) 3 else 4, overflow = TextOverflow.Ellipsis)
+            Spacer(Modifier.height(8.dp))
+            Text(title, style = MaterialTheme.typography.titleSmall,
+                color = fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
         }
     }
 }

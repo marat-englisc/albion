@@ -1,16 +1,21 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.theme.quietItem
+import com.marat.albion.ui.theme.IpaStyle
+import com.marat.albion.ui.theme.controlBorder
+import androidx.compose.ui.focus.onFocusChanged
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.components.OptionPicker
 import com.marat.albion.ui.components.selectedRow
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.semantics.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,8 +26,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -52,10 +59,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Constraints
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
@@ -70,7 +80,9 @@ import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.Panel
+import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
+import com.marat.albion.ui.components.ScrollableSheet
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.WordMeanings
 import com.marat.albion.ui.components.lerpColor
@@ -91,16 +103,19 @@ import java.text.DateFormat
 import java.util.Date
 
 private val filters = listOf("Все", "Не начаты", "Учу", "На повторении", "Пора повторить")
+private val cardLevels = listOf("", "A1", "A2", "B1", "B2", "C1")
 
-@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val c = LocalAppContainer.current
-    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableIntStateOf(0) }
     var level by rememberSaveable { mutableStateOf("") }
     var detailed by rememberSaveable { mutableStateOf(false) }
+    var filtersOpen by rememberSaveable { mutableStateOf(false) }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focus = LocalFocusManager.current
     val queryFlow = remember { MutableStateFlow(query) }
     val filterFlow = remember { MutableStateFlow(filter) }
     LaunchedEffect(query) { queryFlow.value = query }
@@ -111,29 +126,24 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
     val cards by remember(results) { results.map { it as List<CardEntity>? } }.collectAsStateWithLifecycle(null)
     val audio = rememberCardAudio(c.audio)
     val showRussian by remember { c.settings.settings.map { it.browseShowRussian } }.collectAsStateWithLifecycle(true)
+    val activeFilters = (if (filter != 0) 1 else 0) + (if (level.isNotEmpty()) 1 else 0)
+    val openFilters = {
+        focus.clearFocus()
+        keyboard?.hide()
+        filtersOpen = true
+    }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
-        TopBar(onBack = navigator::back, title = deck.title)
-        SearchField(query, { query = it }, "Слово или перевод", Modifier.padding(horizontal = gutter))
-        Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(top = 12.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OptionPicker("Статус карточек", filters, filter, { filter = it })
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val levels = listOf("", "A1", "A2", "B1", "B2", "C1")
-                OptionPicker("Уровень", levels.map { it.ifEmpty { "Все уровни" } }, levels.indexOf(level),
-                    { level = levels[it] }, Modifier.weight(1f))
-                com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
-                    if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
-            }
-        }
-        val shownCards = cards?.filter { level.isEmpty() || it.level == level }
-        if (shownCards == null) com.marat.albion.ui.components.LoadingState("Ищем слова")
+    val shownCards = cards?.filter { level.isEmpty() || it.level == level }
+    val cardList: @Composable (Modifier, Boolean) -> Unit = { modifier, showCount ->
+        if (shownCards == null) Box(modifier) { com.marat.albion.ui.components.LoadingState("Ищем слова") }
         else if (shownCards.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { EmptyState("Ничего не найдено", "Измените запрос или фильтр.") }
+            Box(modifier.fillMaxWidth().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
+                EmptyState("Ничего не найдено", "Измените запрос или фильтр.")
+            }
         } else {
             val shownCard = (navigator.shownDetail as? CardRoute)?.cardId
-            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
-                item {
+            LazyColumn(modifier.fillMaxWidth(), contentPadding = PaddingValues(bottom = 24.dp)) {
+                if (showCount) item {
                     Eyebrow(if (level.isEmpty()) "${shownCards.size} карточ." else "${shownCards.size} карточ. · $level",
                         Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
                 }
@@ -145,10 +155,103 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
                         selected = card.id == shownCard,
                         onPlay = { audio.play(deck, card.audio, card.term, "term:${card.id}") },
                         onClick = { navigator.openDetail(CardRoute(card.id)) },
-                        modifier = if (reduced) Modifier else Modifier.animateItem(),
+                        modifier = quietItem(),
                     )
                 }
             }
+        }
+    }
+    val searchBar: @Composable (Modifier, Boolean) -> Unit = { modifier, showViewToggle ->
+        Row(modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back, filled = true)
+            SearchField(query, { query = it }, "Слово или перевод", Modifier.weight(1f).padding(horizontal = 8.dp))
+            BrowseFilterButton((if (filter != 0) 1 else 0) + (if (level.isNotEmpty()) 1 else 0), openFilters)
+            if (showViewToggle) com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
+        }
+    }
+
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
+        val compactFilters = WindowInsets.isImeVisible || maxHeight < 600.dp || LocalDensity.current.fontScale > 1.3f
+        val shortWindow = maxWidth >= 560.dp && maxHeight < 360.dp
+        if (shortWindow) {
+            val split = WindowInsets.isImeVisible && maxHeight < 240.dp
+            CompactBrowseWorkspace(split, Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars),
+                search = { searchBar(Modifier, !split) },
+                results = { cardList(Modifier.fillMaxSize(), !split) })
+        } else Column(Modifier.fillMaxSize()) {
+            TopBar(onBack = navigator::back, title = deck.title)
+            SearchField(query, { query = it }, "Слово или перевод", Modifier.padding(horizontal = gutter))
+            if (compactFilters) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(top = 4.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    BrowseFilterButton(activeFilters, openFilters, Modifier.weight(1f))
+                    com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                        if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
+                }
+            } else {
+                BrowseFilterFields(filter, level, { filter = it }, { level = it },
+                    Modifier.padding(horizontal = gutter).padding(top = 12.dp, bottom = 8.dp)) {
+                    com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                        if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
+                }
+            }
+            cardList(Modifier.weight(1f), true)
+        }
+    }
+    if (filtersOpen) ScrollableSheet("Фильтры карточек", { filtersOpen = false }) {
+        BrowseFilterFields(filter, level, { filter = it }, { level = it })
+        if (filter != 0 || level.isNotEmpty()) TextButton(onClick = { filter = 0; level = "" }) {
+            Text("Сбросить фильтры")
+        }
+        PrimaryButton("Показать карточки", { filtersOpen = false })
+    }
+}
+
+/** Reposition the same input node, preserving focus and the IME as the usable height changes. */
+@Composable
+private fun CompactBrowseWorkspace(
+    split: Boolean,
+    modifier: Modifier,
+    search: @Composable () -> Unit,
+    results: @Composable () -> Unit,
+) {
+    Layout(content = { search(); results() }, modifier = modifier) { children, constraints ->
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        val searchWidth = if (split) width / 2 else width
+        val searchArea = children[0].measure(Constraints(minWidth = searchWidth, maxWidth = searchWidth, maxHeight = height))
+        val resultsArea = children[1].measure(Constraints.fixed(
+            width = if (split) width - searchWidth else width,
+            height = if (split) height else (height - searchArea.height).coerceAtLeast(0),
+        ))
+        layout(width, height) {
+            searchArea.placeRelative(0, 0)
+            resultsArea.placeRelative(if (split) searchWidth else 0, if (split) 0 else searchArea.height)
+        }
+    }
+}
+
+@Composable
+private fun BrowseFilterButton(active: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    TextButton(onClick, modifier) { Text(if (active == 0) "Фильтры" else "Фильтры · $active") }
+}
+
+@Composable
+private fun BrowseFilterFields(
+    filter: Int,
+    level: String,
+    onFilter: (Int) -> Unit,
+    onLevel: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit = {},
+) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OptionPicker("Статус карточек", filters, filter, onFilter)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OptionPicker("Уровень", cardLevels.map { it.ifEmpty { "Все уровни" } }, cardLevels.indexOf(level),
+                { onLevel(cardLevels[it]) }, Modifier.weight(1f))
+            trailing()
         }
     }
 }
@@ -156,13 +259,14 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
 /** Строгое поле поиска: только нижняя линия, которая светлеет при вводе. */
 @Composable
 fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, modifier: Modifier = Modifier) {
+    var focused by remember { mutableStateOf(false) }
     val active by animateFloatAsState(if (value.isNotEmpty()) 1f else 0f, label = "search")
     val focus = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     Column(modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().heightIn(min = 52.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.medium)
-            .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium)
+            .border(if (focused) 2.dp else 1.dp, if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.controlBorder, MaterialTheme.shapes.medium)
             .padding(start = 18.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(AlbionIcons.Search, null, tint = lerpColor(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onSurface, active), modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
@@ -177,7 +281,7 @@ fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String, 
                     keyboardActions = KeyboardActions(onSearch = { keyboard?.hide(); focus.clearFocus() }),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.semantics { contentDescription = placeholder }.fillMaxWidth(),
+                    modifier = Modifier.semantics { contentDescription = placeholder }.onFocusChanged { focused = it.isFocused }.fillMaxWidth(),
                 )
             }
             if (value.isNotEmpty()) {
@@ -209,7 +313,7 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
                         LevelBadge(card.level)
                     }
                     Spacer(Modifier.height(2.dp))
-                    if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (card.ipa.isNotBlank()) Text(card.ipa, style = IpaStyle.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize, lineHeight = MaterialTheme.typography.bodySmall.lineHeight), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.width(12.dp))
                 AudioButton(playing = playing, onClick = onPlay, size = 48.dp, primary = false)

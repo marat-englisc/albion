@@ -1,5 +1,6 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.theme.quietItem
 import android.content.Context
 import android.text.format.DateUtils
 import androidx.compose.foundation.border
@@ -62,10 +63,10 @@ fun ConversationsScreen(navigator: Navigator) {
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 BoundVolume(Modifier.fillMaxWidth().appear(1)) {
-                    Eyebrow("На устройстве · без интернета", color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
+                    Eyebrow("На устройстве · без интернета", color = androidx.compose.material3.LocalContentColor.current)
                     Text("Говорите по-английски\nс собеседником-ИИ", style = MaterialTheme.typography.headlineSmall)
                     Text("Пишите или говорите — модель ответит, поправит ошибки и подскажет. Бесплатно, без лимитов и интернета.",
-                        style = MaterialTheme.typography.bodyMedium, color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.75f))
+                        style = MaterialTheme.typography.bodyMedium, color = androidx.compose.material3.LocalContentColor.current)
                     SegmentedPicker(CONVERSATION_LEVELS, CONVERSATION_LEVELS.indexOf(level).coerceAtLeast(0), {
                         level = CONVERSATION_LEVELS[it]
                         prefs.edit().putString("level", level).apply()
@@ -86,7 +87,7 @@ fun ConversationsScreen(navigator: Navigator) {
             }
             item(span = { GridItemSpan(maxLineSpan) }) { ModuleHeading("01", "Ситуации", (Scenario.entries.size - 1).toString().padStart(2, '0')) }
             items(Scenario.entries.filter { it != Scenario.FREE }, key = { it.id }) { scenario ->
-                Panel(Modifier.fillMaxWidth().heightIn(min = 132.dp).animateItem(),
+                Panel(quietItem(Modifier.fillMaxWidth().heightIn(min = 132.dp)),
                     onClick = if (model.ready) ({ start(scenario) }) else null, contentPadding = PaddingValues(18.dp)) {
                     Box(Modifier.size(36.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small),
                         contentAlignment = Alignment.Center) {
@@ -109,7 +110,7 @@ fun ConversationsScreen(navigator: Navigator) {
                     EmptyState("Бесед пока нет", "Выберите ситуацию выше — разговор сохранится здесь, и к нему можно вернуться.")
                 }
                 else -> items(conversations, key = { "c${it.conversation.id}" }, span = { GridItemSpan(maxLineSpan) }) { summary ->
-                    HistoryRow(summary, Modifier.animateItem(), onOpen = { navigator.open(ChatRoute(summary.conversation.id)) },
+                    HistoryRow(summary, quietItem(), onOpen = { navigator.open(ChatRoute(summary.conversation.id)) },
                         onDelete = { deleting = summary })
                 }
             }

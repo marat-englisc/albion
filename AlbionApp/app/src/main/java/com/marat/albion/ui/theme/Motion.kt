@@ -2,6 +2,10 @@ package com.marat.albion.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,10 +18,14 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +37,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -47,11 +57,36 @@ object Springs {
     fun <T> bouncy() = spring<T>(dampingRatio = 0.84f, stiffness = 420f)
 }
 
+/** Removing the animation state also stops an in-flight transition when the setting changes. */
+@Composable
+fun quietFloatAsState(targetValue: Float, animationSpec: AnimationSpec<Float> = Springs.snappy(), label: String = "float"): State<Float> =
+    if (LocalReducedMotion.current) rememberUpdatedState(targetValue)
+    else animateFloatAsState(targetValue, animationSpec, label = label)
+
+@Composable
+fun quietDpAsState(targetValue: Dp, animationSpec: AnimationSpec<Dp> = Springs.snappy(), label: String = "dp"): State<Dp> =
+    if (LocalReducedMotion.current) rememberUpdatedState(targetValue)
+    else animateDpAsState(targetValue, animationSpec, label = label)
+
+fun Modifier.quietContentSize(animationSpec: FiniteAnimationSpec<IntSize> = Springs.smooth()): Modifier = composed {
+    if (LocalReducedMotion.current) this else animateContentSize(animationSpec)
+}
+
+@Composable
+@Suppress("ModifierFactoryExtensionFunction") // animateItem requires the enclosing lazy scope.
+fun LazyItemScope.quietItem(modifier: Modifier = Modifier): Modifier =
+    if (LocalReducedMotion.current) modifier else modifier.animateItem()
+
+@Composable
+@Suppress("ModifierFactoryExtensionFunction") // animateItem requires the enclosing lazy grid scope.
+fun LazyGridItemScope.quietItem(modifier: Modifier = Modifier): Modifier =
+    if (LocalReducedMotion.current) modifier else modifier.animateItem()
+
 /** Отклик на нажатие: элемент слегка «проседает» и пружинит обратно. */
 fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.96f): Modifier = composed {
     val reduced = LocalReducedMotion.current
     val isPressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(
+    val scale by quietFloatAsState(
         if (isPressed && !reduced) pressed else 1f,
         if (isPressed) spring(dampingRatio = 1f, stiffness = 1400f) else Springs.bouncy(),
         label = "press",
@@ -79,7 +114,7 @@ fun Modifier.appear(index: Int = 0, step: Long = 45): Modifier = composed {
         }
     }
     graphicsLayer {
-        val p = progress.value
+        val p = if (reduced) 1f else progress.value
         alpha = p.coerceIn(0f, 1f)
         translationY = (1f - p) * distance
     }

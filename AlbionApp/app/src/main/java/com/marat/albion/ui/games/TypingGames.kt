@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.controlBorder
+import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.semantics.contentDescription
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -9,7 +11,7 @@ import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -112,7 +114,7 @@ internal fun AnswerField(
     val border = when {
         struck -> MaterialTheme.colorScheme.error
         accepted -> MaterialTheme.colorScheme.tertiary
-        else -> lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, on)
+        else -> lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on)
     }
     Column(modifier.fillMaxWidth()) {
     BasicTextField(
@@ -143,7 +145,7 @@ internal fun AnswerField(
                         accepted -> MaterialTheme.colorScheme.tertiaryContainer
                         else -> MaterialTheme.colorScheme.surfaceContainerLow
                     }, shape)
-                    .border(if (focused) 1.25.dp else .75.dp, border, shape)
+                    .border(if (focused) 2.dp else 1.dp, border, shape)
                     .heightIn(min = 64.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -368,7 +370,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                     Spacer(Modifier.height(10.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (card.ipa.isNotBlank()) {
-                            Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                            Text(card.ipa, style = IpaStyle, modifier = Modifier.weight(1f, fill = false))
                             Spacer(Modifier.width(12.dp))
                         }
                         PracticeAudioButton(
@@ -488,7 +490,7 @@ fun IrregularRound(vm: GameViewModel, card: CardEntity) {
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (card.ipa.isNotBlank()) {
-                        Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                        Text(card.ipa, style = IpaStyle, modifier = Modifier.weight(1f, fill = false))
                         Spacer(Modifier.width(12.dp))
                     }
                     PracticeAudioButton(

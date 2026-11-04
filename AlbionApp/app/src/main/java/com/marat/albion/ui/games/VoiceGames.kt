@@ -1,9 +1,11 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.controlBorder
+import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
+import com.marat.albion.ui.theme.quietDpAsState as animateDpAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.draw.drawBehind
@@ -24,7 +26,7 @@ import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -102,7 +104,7 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
         if (card.ipa.isNotBlank() || trailing != null) {
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (card.ipa.isNotBlank()) Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                if (card.ipa.isNotBlank()) Text(card.ipa, style = IpaStyle, modifier = Modifier.weight(1f, fill = false))
                 if (trailing != null) {
                     Spacer(Modifier.width(12.dp))
                     trailing()
@@ -136,7 +138,7 @@ internal fun PlaybackAction(
             Modifier.size(size)
                 .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
                 .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
-                .border(.75.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.outlineVariant, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
+                .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -302,7 +304,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
             if (!tried) {
                 GhostButton("Пропустить", onClick = {
                     checker.reset()
-                    vm.record(false, Mistake(card.ipa, "пропущено", card.term))
+                    vm.record(false, Mistake(card.ipa, "пропущено", card.term, promptIsIpa = true))
                     vm.next()
                 })
             } else {
@@ -311,7 +313,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
                     PrimaryButton("Дальше", onClick = {
                         checker.reset()
                         val ok = best >= PASS
-                        vm.record(ok, Mistake(card.ipa, lastHeard, card.term))
+                        vm.record(ok, Mistake(card.ipa, lastHeard, card.term, promptIsIpa = true))
                         vm.next()
                     }, trailingIcon = AlbionIcons.ArrowForward)
                 }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.components
 
+import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -32,7 +33,7 @@ fun Disclosure(
 ) {
     var expanded by rememberSaveable(title) { mutableStateOf(initiallyExpanded) }
     val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
-    val turn by androidx.compose.animation.core.animateFloatAsState(if (expanded) 90f else 0f,
+    val turn by com.marat.albion.ui.theme.quietFloatAsState(if (expanded) 90f else 0f,
         com.marat.albion.ui.theme.Springs.snappy(), label = "chevron")
     Column(modifier.fillMaxWidth().padding(vertical = 5.dp)
         .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)

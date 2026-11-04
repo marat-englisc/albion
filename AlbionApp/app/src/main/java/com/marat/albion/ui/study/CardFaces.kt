@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,7 +71,7 @@ private fun TermHeader(card: CardEntity, audio: CardAudio, large: Boolean, showI
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (showIpa && card.ipa.isNotBlank()) {
-                Text(card.ipa, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false))
+                Text(card.ipa, style = IpaStyle, modifier = Modifier.weight(1f, fill = false))
                 Spacer(Modifier.width(10.dp))
             }
             AudioButton(audio.playingKey == key, { audio.play(deck, card.audio, card.term, key) }, size = 48.dp)
@@ -192,7 +193,7 @@ private fun SenseContent(
             Text("%02d".format(index + 1), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.secondary)
             Column(Modifier.weight(1f)) {
                 Text(sense.pos, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (sense.ipa.isNotBlank() && sense.ipa != header?.ipa) Text(sense.ipa, style = MaterialTheme.typography.bodyLarge)
+                if (sense.ipa.isNotBlank() && sense.ipa != header?.ipa) Text(sense.ipa, style = IpaStyle)
             }
             if (sense.audio != null && sense.audio != header?.audio) {
                 val key = "sense:${sense.id}"
@@ -253,7 +254,7 @@ private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAud
                             verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Column {
                                 Text(v.text, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
-                                if (v.ipa.isNotBlank()) Text(v.ipa, style = MaterialTheme.typography.bodyLarge)
+                                if (v.ipa.isNotBlank()) Text(v.ipa, style = IpaStyle)
                             }
                             v.audio.ifEmpty { listOf(null) }.forEachIndexed { k, file ->
                                 val key = "form:${card.id}:${form.label}:${v.text}:$k"

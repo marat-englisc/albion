@@ -133,11 +133,12 @@ fun GrammarScreen(navigator: Navigator) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
             if (!shortScreen && !largeText) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
-            Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                com.marat.albion.ui.components.FitText("Учебник", Modifier.weight(1f), style = if (largeText) MaterialTheme.typography.titleLarge else MaterialTheme.typography.displaySmall, minSize = 18.sp)
+            AdaptiveScreenTitle("Учебник", Modifier.heightIn(min = 56.dp)) {
                 if (!largeText) {
-                    com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
-                    SettingsShortcut(navigator::openSettings)
+                    Row {
+                        com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Bookmarks, "Справочники", { references = true }, filled = true)
+                        SettingsShortcut(navigator::openSettings)
+                    }
                 } else Box {
                     Row {
                         // При крупном шрифте поле поиска занимало треть экрана — теперь оно открывается лупой.

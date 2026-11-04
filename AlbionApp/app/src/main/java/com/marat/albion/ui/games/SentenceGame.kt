@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextOverflow
@@ -7,7 +8,7 @@ import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
+import com.marat.albion.ui.theme.quietContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -150,7 +151,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             }
             // Ответ: поставленные плашки на линии «тетради».
             Column(
-                Modifier.fillMaxWidth().heightIn(min = 104.dp).shakeOn(shake).animateContentSize(tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 220)),
+                Modifier.fillMaxWidth().heightIn(min = 104.dp).shakeOn(shake).quietContentSize(tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 220)),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 FlowRow(
@@ -295,7 +296,7 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
         tween(240), label = "tileFg",
     )
     val border = when (style) {
-        TileStyle.Idle -> MaterialTheme.colorScheme.outlineVariant
+        TileStyle.Idle -> MaterialTheme.colorScheme.controlBorder
         TileStyle.Placed -> MaterialTheme.colorScheme.primary
         TileStyle.Ghost -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = .4f)
         TileStyle.Correct -> MaterialTheme.colorScheme.tertiary
@@ -306,7 +307,7 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
         Modifier
             .widthIn(min = 48.dp).heightIn(min = 48.dp)
             .background(bg, shape)
-            .border(.75.dp, border, shape)
+            .border(1.dp, border, shape)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {

@@ -1,10 +1,11 @@
 package com.marat.albion.ui.components
 
+import com.marat.albion.ui.theme.controlBorder
 import androidx.compose.foundation.layout.wrapContentHeight
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietDpAsState as animateDpAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -56,7 +57,10 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -85,34 +89,41 @@ fun Hairline(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorSc
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    // При крупном шрифте счётчик уходит под заголовок: иначе он теснит название и рвёт слово («Активност|ь»).
-    val large = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
-    Column(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.padding(end = 10.dp).size(4.dp).background(MaterialTheme.colorScheme.primary))
-            Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-            if (trailing != null && !large) Text(trailing, style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
-        }
-        if (trailing != null && large) Text(trailing, Modifier.padding(start = 14.dp, top = 2.dp), style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+    SectionHeading(title, trailing, modifier, leadingGap = 10.dp) {
+        Box(Modifier.size(4.dp).background(MaterialTheme.colorScheme.primary))
     }
 }
 
-/** Заголовок экрана: крупный акцентный шрифт, подпись и действия справа. Появляется каскадом. */
+/** Заголовок сохраняет системный размер шрифта; действия уступают ему полную строку при нехватке места. */
 @Composable
 fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, compact: Boolean = false, trailing: @Composable (() -> Unit)? = null) {
     Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier)
         .padding(top = if (compact) 18.dp else 24.dp, bottom = 20.dp)) {
         // Подпись над заголовком, действия — справа в одной строке с названием экрана.
         if (eyebrow != null) { SignalLabel(eyebrow, Modifier.appear(0)); Spacer(Modifier.height(10.dp)) }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            FitText(title, Modifier.weight(1f).appear(1), style = MaterialTheme.typography.displaySmall, minSize = 18.sp)
-            if (trailing != null) { Spacer(Modifier.width(8.dp)); trailing() }
-        }
+        AdaptiveScreenTitle(title, trailing = trailing)
         if (subtitle != null) {
             Spacer(Modifier.height(8.dp))
             Text(subtitle, Modifier.appear(2), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+internal fun AdaptiveScreenTitle(title: String, modifier: Modifier = Modifier, trailing: @Composable (() -> Unit)? = null) {
+    Layout(content = {
+        Text(title, Modifier.appear(1).semantics { heading() }, style = MaterialTheme.typography.displaySmall)
+        if (trailing != null) Box { trailing() }
+    }, modifier = modifier.fillMaxWidth()) { children, constraints ->
+        val actions = children.getOrNull(1)?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val gap = if (actions == null) 0 else 8.dp.roundToPx()
+        val inline = actions != null && children[0].maxIntrinsicWidth(constraints.maxHeight) + actions.width + gap <= constraints.maxWidth
+        val heading = children[0].measure(constraints.copy(minWidth = 0, minHeight = 0,
+            maxWidth = if (inline) constraints.maxWidth - actions!!.width - gap else constraints.maxWidth))
+        val height = if (inline) maxOf(heading.height, actions!!.height) else heading.height + (actions?.height ?: 0) + gap
+        layout(constraints.maxWidth, height) {
+            heading.placeRelative(0, if (inline) (height - heading.height) / 2 else 0)
+            actions?.placeRelative(constraints.maxWidth - actions.width, if (inline) (height - actions.height) / 2 else heading.height + gap)
         }
     }
 }
@@ -138,7 +149,7 @@ fun RoundIconButton(
     ) {
         Box(
             Modifier.size(42.dp).background(if (filled) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent, MaterialTheme.shapes.medium)
-                .then(if (filled) Modifier.border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.medium) else Modifier),
+                .then(if (filled) Modifier.border(1.dp, MaterialTheme.colorScheme.controlBorder, MaterialTheme.shapes.medium) else Modifier),
             contentAlignment = Alignment.Center,
         ) {
             Icon(icon, contentDescription, tint = if (enabled) tint else tint.copy(alpha = 0.38f), modifier = Modifier.size(22.dp))
@@ -162,7 +173,8 @@ fun Panel(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = MaterialTheme.shapes.large
-    val border = BorderStroke(.75.dp, if (borderColor == Color.Unspecified) MaterialTheme.colorScheme.outlineVariant else borderColor)
+    val edge = if (borderColor != Color.Unspecified) borderColor else if (onClick != null) MaterialTheme.colorScheme.controlBorder else MaterialTheme.colorScheme.outlineVariant
+    val border = BorderStroke(if (onClick != null) 1.dp else .75.dp, edge)
     if (onClick != null) {
         val feedback = LocalFeedback.current
         val interaction = remember { MutableInteractionSource() }
@@ -244,7 +256,7 @@ fun GhostButton(
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
     PillButton(onClick, modifier, Color.Transparent, MaterialTheme.colorScheme.onSurface,
-        MaterialTheme.colorScheme.outlineVariant, true, contentPadding) {
+        MaterialTheme.colorScheme.controlBorder, true, contentPadding) {
         if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(10.dp)) }
         Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
     }
@@ -259,10 +271,11 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     val reduced = LocalReducedMotion.current
-    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "audio")
-    val wave by transition.animateFloat(0f, 1f,
-        androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(1000)), label = "pulse")
-    val pulse = if (playing && !reduced) wave else 0f
+    val pulse = if (playing && !reduced) {
+        val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "audio")
+        transition.animateFloat(0f, 1f,
+            androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(1000)), label = "pulse").value
+    } else 0f
     val bg by animateColorAsState(if (playing) scheme.primary else if (primary) scheme.surfaceContainerHigh else Color.Transparent, label = "audioBg")
     val fg by animateColorAsState(if (playing) scheme.onPrimary else scheme.onSurface, label = "audioFg")
     val ring = scheme.primary
@@ -391,7 +404,7 @@ fun ThinSlider(
 }
 
 /**
- * Сегментированный выбор: подложка-«ползунок» перетекает к выбранному варианту на пружине.
+ * Сегменты сохраняют кегль; если полные подписи не помещаются, выбор становится вертикальным.
  * [inverse] — для тёмных подложек (карточка дня).
  */
 @Composable
@@ -404,25 +417,50 @@ fun SegmentedPicker(
 ) {
     val feedback = LocalFeedback.current
     val scheme = MaterialTheme.colorScheme
-    val track = if (inverse) scheme.background.copy(alpha = 0.12f) else scheme.surfaceContainerHigh
+    val track = if (inverse) scheme.onBackground.copy(alpha = 0.18f) else scheme.surfaceContainerHigh
     // Единый язык выбора: тонированный ирис с ирисовой рамкой (на акцентной плите — светлая плашка).
     val on = if (inverse) scheme.onBackground else scheme.onPrimaryContainer
-    val off = if (inverse) scheme.background.copy(alpha = 0.7f) else scheme.onSurfaceVariant
+    val off = if (inverse) scheme.background else scheme.onSurfaceVariant
     val reduced = LocalReducedMotion.current
     val shape = MaterialTheme.shapes.small
-    BoxWithConstraints(modifier.fillMaxWidth().height(56.dp).background(track, shape).padding(4.dp)) {
-        val segment = maxWidth / options.size.coerceAtLeast(1)
-        val x by animateDpAsState(segment * selected.coerceIn(0, (options.size - 1).coerceAtLeast(0)), if (reduced) androidx.compose.animation.core.snap() else Springs.snappy(), label = "segment")
-        Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(if (inverse) scheme.background else scheme.primaryContainer, shape)
-            .border(if (inverse) .75.dp else 1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape))
-        Row(Modifier.fillMaxWidth().fillMaxHeight().selectableGroup()) {
-            options.forEachIndexed { i, label ->
-                val color by animateColorAsState(if (i == selected) on else off, label = "segmentText")
-                Box(
-                    Modifier.weight(1f).fillMaxHeight().clip(shape)
-                        .selectable(i == selected, role = Role.RadioButton) { if (i != selected) { feedback.selection(); onSelect(i) } },
-                    contentAlignment = Alignment.Center,
-                ) { FitText(label, Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.labelLarge, color = color, textAlign = TextAlign.Center) }
+    val style = MaterialTheme.typography.labelLarge
+    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        if (options.isEmpty()) return@BoxWithConstraints
+        val labels = options.map { measurer.measure(it, style, softWrap = false, maxLines = 1) }
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val fits = with(density) { labels.maxOf { it.size.width }.toDp() + 20.dp <= (maxWidth - 8.dp) / options.size }
+        if (!fits) {
+            Column(Modifier.fillMaxWidth().selectableGroup().background(track, shape).padding(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                options.forEachIndexed { i, label ->
+                    val active = i == selected
+                    Box(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(shape)
+                        .background(if (active) { if (inverse) scheme.background else scheme.primaryContainer } else Color.Transparent)
+                        .then(if (active) Modifier.border(1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape) else Modifier)
+                        .selectable(active, role = Role.RadioButton) { if (!active) { feedback.selection(); onSelect(i) } }
+                        .padding(horizontal = 12.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
+                        Text(label, Modifier.fillMaxWidth(), style = style, color = if (active) on else off, textAlign = TextAlign.Center)
+                    }
+                }
+            }
+            return@BoxWithConstraints
+        }
+        val height = with(density) { labels.maxOf { it.size.height }.toDp() + 24.dp }.coerceAtLeast(48.dp)
+        BoxWithConstraints(Modifier.fillMaxWidth().height(height + 8.dp).background(track, shape).padding(4.dp)) {
+            val segment = maxWidth / options.size.coerceAtLeast(1)
+            val x by animateDpAsState(segment * selected.coerceIn(0, (options.size - 1).coerceAtLeast(0)), if (reduced) androidx.compose.animation.core.snap() else Springs.snappy(), label = "segment")
+            Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(if (inverse) scheme.background else scheme.primaryContainer, shape)
+                .border(if (inverse) .75.dp else 1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape))
+            Row(Modifier.fillMaxWidth().fillMaxHeight().selectableGroup()) {
+                options.forEachIndexed { i, label ->
+                    val color by animateColorAsState(if (i == selected) on else off, label = "segmentText")
+                    Box(
+                        Modifier.weight(1f).fillMaxHeight().clip(shape)
+                            .selectable(i == selected, role = Role.RadioButton) { if (i != selected) { feedback.selection(); onSelect(i) } },
+                        contentAlignment = Alignment.Center,
+                    ) { Text(label, Modifier.fillMaxWidth().padding(horizontal = 10.dp), style = style, color = color, maxLines = 1, softWrap = false, textAlign = TextAlign.Center) }
+                }
             }
         }
     }
@@ -436,13 +474,13 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
     val interaction = remember { MutableInteractionSource() }
     val bg by animateColorAsState(if (selected) scheme.primaryContainer else scheme.surfaceContainerLow, label = "choiceBg")
     val fg by animateColorAsState(if (selected) scheme.onPrimaryContainer else scheme.onSurface, label = "choiceFg")
-    val edge by animateColorAsState(if (selected) scheme.primary else scheme.outlineVariant, label = "choiceEdge")
+    val edge by animateColorAsState(if (selected) scheme.primary else scheme.controlBorder, label = "choiceEdge")
     val mark = if (selected) scheme.primary else fg
     val dot by animateFloatAsState(if (selected) 1f else 0f, Springs.bouncy(), label = "choiceDot")
     Row(
         modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.98f)
             .clip(MaterialTheme.shapes.medium).background(bg)
-            .border(if (selected) 1.dp else .75.dp, edge, MaterialTheme.shapes.medium)
+            .border(1.dp, edge, MaterialTheme.shapes.medium)
             .selectable(selected, interaction, null, role = Role.RadioButton) { if (!selected) { feedback.selection(); onClick() } }
             .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -451,15 +489,14 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
             Text(label, style = MaterialTheme.typography.titleMedium, color = fg)
             if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = fg.copy(alpha = 0.7f))
         }
-        Box(Modifier.size(22.dp).border(1.5.dp, mark.copy(alpha = if (selected) 1f else 0.4f), CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(22.dp).border(1.5.dp, if (selected) mark else scheme.controlBorder, CircleShape), contentAlignment = Alignment.Center) {
             Box(Modifier.size(12.dp * dot).background(mark, CircleShape))
         }
     }
 }
 
 /**
- * Текст, который уменьшается до ширины контейнера, а не ломает слово и не обрезается:
- * заголовки на узких экранах, подписи вкладок и сегментов при крупном шрифте.
+ * Подгонка декоративного логотипа. Информационный текст должен перестраиваться без уменьшения кегля.
  */
 @Composable
 fun FitText(
@@ -467,18 +504,19 @@ fun FitText(
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = androidx.compose.material3.LocalTextStyle.current,
     color: Color = Color.Unspecified,
-    minSize: androidx.compose.ui.unit.TextUnit = 9.sp,
+    minSize: androidx.compose.ui.unit.TextUnit = 14.sp,
     textAlign: TextAlign? = null,
 ) {
     BoxWithConstraints(modifier) {
         val measurer = androidx.compose.ui.text.rememberTextMeasurer()
         val width = constraints.maxWidth
         val base = style.fontSize
-        val size = remember(text, width, style) {
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val size = remember(text, width, style, minSize, density) {
             if (!base.isSp || width == androidx.compose.ui.unit.Constraints.Infinity) return@remember base
             var s = base.value
             while (s > minSize.value && measurer.measure(text, style.copy(fontSize = s.sp), softWrap = false, maxLines = 1)
-                    .size.width > width * 0.95f) s -= 0.5f
+                    .size.width > width * 0.95f) s = (s - 0.5f).coerceAtLeast(minSize.value)
             s.sp
         }
         val ratio = if (base.isSp && base.value > 0f) size.value / base.value else 1f

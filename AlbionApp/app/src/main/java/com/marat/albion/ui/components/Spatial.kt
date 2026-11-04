@@ -22,20 +22,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.theme.LocalReducedMotion
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** Quiet technical labels give each section a place in the same visual system. */
+/** Informational labels keep the interface font and follow the system text scale. */
 @Composable
 fun SignalLabel(text: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
-    Text(text, modifier, color = color, style = MaterialTheme.typography.labelSmall.copy(
-        fontFamily = AlbionFonts.Tech, fontWeight = FontWeight.Normal, fontSize = 9.5.sp, letterSpacing = 1.1.sp,
-    ))
+    Text(text, modifier, color = color, style = MaterialTheme.typography.labelMedium)
 }
 
 @Composable
@@ -57,10 +52,8 @@ fun AlbionMark(modifier: Modifier = Modifier, color: Color = MaterialTheme.color
 
 @Composable
 fun ModuleHeading(number: String, title: String, trailing: String? = null, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(top = 26.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-        SignalLabel(number, Modifier.padding(end = 12.dp), color = MaterialTheme.colorScheme.primary)
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-        if (trailing != null) SignalLabel(trailing)
+    SectionHeading(title, trailing, modifier, leadingGap = 12.dp) {
+        SignalLabel(number, color = MaterialTheme.colorScheme.primary)
     }
 }
 

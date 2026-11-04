@@ -66,7 +66,7 @@ class EditorialDesignTest {
                     click { it.contentDescription?.toString() == "Назад" }
                     await { it.text?.toString() == "Библиотека" }
                     click { it.text?.toString() == "Практика" }
-                    await { it.text?.toString() == "Словарный запас" }
+                    scrollTo { it.text?.toString() == "Словарный запас" }
                     capture("practice-$edition")
                     click { it.text?.toString() == "Прогресс" }
                     await { it.text?.toString() == "05 / ДИНАМИКА" }
@@ -127,6 +127,17 @@ class EditorialDesignTest {
         find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() == "Понятно" }?.let(::activate)
     }
     private fun click(predicate: (AccessibilityNodeInfo) -> Boolean) = activate(await(predicate))
+    private fun scrollTo(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo {
+        repeat(15) {
+            if (android.os.Build.VERSION.SDK_INT >= 33) instrumentation.uiAutomation.clearCache()
+            val root = instrumentation.uiAutomation.rootInActiveWindow
+            find(root, predicate)?.let { return it }
+            find(root) { it.isScrollable }?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+            instrumentation.waitForIdleSync()
+            SystemClock.sleep(500)
+        }
+        error("Expected UI element is not reachable by scrolling")
+    }
     private fun activate(node: AccessibilityNodeInfo) {
         var target = node
         while (!target.isClickable) target = target.parent ?: error("Missing clickable parent")

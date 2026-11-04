@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
  * У вкладок есть пары «контур / заливка» для выбранного состояния.
  */
 object AlbionIcons {
+    val Hourglass = pen("Hourglass", "M6 3h12 M6 21h12 M7 3v4l5 5-5 5v4 M17 3v4l-5 5 5 5v4")
     private const val STROKE = 1.6f
 
     private fun glyph(name: String, stroke: String? = null, fill: String? = null, mirror: Boolean = false): ImageVector {

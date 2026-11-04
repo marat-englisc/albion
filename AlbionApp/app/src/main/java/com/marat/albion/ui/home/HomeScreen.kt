@@ -1,5 +1,6 @@
 package com.marat.albion.ui.home
 
+import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.semantics.semantics
@@ -27,7 +28,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -314,7 +314,7 @@ private fun StreakChip(streak: Int, showIcon: Boolean, onClick: () -> Unit) {
     Row(
         Modifier.heightIn(min = 48.dp).clip(shape)
             .background(if (streak > 0) scheme.primaryContainer else scheme.surfaceContainerLow)
-            .border(.75.dp, if (streak > 0) scheme.primary else scheme.outlineVariant, shape)
+            .border(1.dp, if (streak > 0) scheme.primary else scheme.controlBorder, shape)
             .clickable(role = androidx.compose.ui.semantics.Role.Button, onClickLabel = "Открыть прогресс", onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = "Серия: $streak ${com.marat.albion.ui.library.pluralRu(streak, "день", "дня", "дней")}" }
             .padding(horizontal = 12.dp),

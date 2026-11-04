@@ -31,8 +31,11 @@ object AlbionFonts {
     /** Акцент: крупные заголовки экранов и цифры. */
     val Display = FontFamily(weights.map { variable(R.font.unbounded, it) })
 
-    /** Технические подписи, индексы и счётчики: тот же широкий гротеск, мелким кеглем — «приборная» нота. */
-    val Tech = Display
+    /** Информационные подписи и счётчики используют тот же читаемый гротеск, что и интерфейс. */
+    val Tech = Sans
+
+    /** Транскрипции целиком набраны одной встроенной гарнитурой, включая IPA и диакритику. */
+    val Ipa = FontFamily(Font(R.font.noto_sans, FontWeight.Normal))
 
     /** Книги и учебник: шрифт, созданный для долгого чтения с экрана. */
     val Reading = FontFamily(
@@ -75,4 +78,10 @@ val Typography = Typography(
 /** Текст книг и правил: Literata, щедрый интерлиньяж. */
 val ReadingStyle = TextStyle(
     fontFamily = AlbionFonts.Reading, fontWeight = FontWeight.Normal, fontSize = 18.sp, lineHeight = 29.sp,
+)
+
+/** Отдельная роль: Noto Sans сохраняет единые метрики всех символов транскрипции. */
+val IpaStyle = TextStyle(
+    fontFamily = AlbionFonts.Ipa, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 25.sp,
+    platformStyle = trim, lineHeightStyle = centered,
 )

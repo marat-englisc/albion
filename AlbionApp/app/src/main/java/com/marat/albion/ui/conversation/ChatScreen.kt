@@ -1,6 +1,7 @@
 package com.marat.albion.ui.conversation
 
-import androidx.compose.animation.animateContentSize
+import com.marat.albion.ui.theme.quietItem
+import com.marat.albion.ui.theme.quietContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,12 +24,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,11 +45,14 @@ import com.marat.albion.ui.games.rememberMicAccess
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.appear
+import com.marat.albion.ui.theme.controlBorder
+import androidx.compose.ui.focus.onFocusChanged
 
 /** Беседа: реплики, потоковый ответ модели, разбор ошибок под фразами ученика, ввод текстом и голосом. */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(id: Long, navigator: Navigator) {
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
     val c = LocalAppContainer.current
     val context = LocalContext.current.applicationContext
     val vm = viewModel(key = "chat-$id") { ChatViewModel(c, context, id) }
@@ -65,110 +73,103 @@ fun ChatScreen(id: Long, navigator: Navigator) {
 
     val items = messages.orEmpty()
     // Новые реплики и растущий ответ держат ленту внизу, если ученик не листает историю.
-    LaunchedEffect(items.size, vm.streaming?.length) {
-        if (list.firstVisibleItemIndex <= 1) list.animateScrollToItem(0)
+    LaunchedEffect(items.size, vm.streaming?.length, reduced) {
+        if (list.firstVisibleItemIndex <= 1) { if (reduced) list.scrollToItem(0) else list.animateScrollToItem(0) }
     }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
-        TopBar(navigator::back, conversation?.title) {
-            Box {
-                RoundIconButton(AlbionIcons.MoreHoriz, "Действия с беседой", { menu = true }, filled = true)
-                DropdownMenu(menu, { menu = false }) {
-                    DropdownMenuItem({ Text("Другой ответ") }, { menu = false; vm.regenerate() },
-                        enabled = !vm.busy && items.lastOrNull()?.fromUser == false && items.any { it.fromUser },
-                        leadingIcon = { Icon(AlbionIcons.Undo, null) })
-                    DropdownMenuItem({ Text("Переименовать") }, { menu = false; renaming = true },
-                        leadingIcon = { Icon(AlbionIcons.BorderColor, null) })
-                    DropdownMenuItem({ Text("Удалить беседу") }, { menu = false; deleting = true },
-                        leadingIcon = { Icon(AlbionIcons.Delete, null) })
-                }
-            }
-        }
-        conversation?.let {
-            Row(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Chip(Scenario.of(it.scenario).title)
-                Chip(it.level)
-                Spacer(Modifier.weight(1f))
-                if (loading) SignalLabel("Загружаю модель…")
-                else if (vm.compacting) SignalLabel("Сжимаю начало беседы…")
-            }
-        }
-        Hairline()
-        LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = list, reverseLayout = true,
-            contentPadding = PaddingValues(horizontal = gutter, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom)) {
-            vm.streaming?.let { text ->
-                item(key = "streaming") { PartnerBubble(text, Modifier.animateItem()) { if (text.isEmpty()) TypingDots() } }
-            }
-            val last = items.lastOrNull()
-            if (!vm.busy && last != null && last.fromUser && vm.error == null) item(key = "retry") {
-                Row(Modifier.fillMaxWidth().animateItem(), horizontalArrangement = Arrangement.Start) {
-                    GhostButton("Получить ответ", vm::retry, icon = AlbionIcons.ArrowForward)
-                }
-            }
-            items(items.asReversed(), key = { it.id }) { message ->
-                Column(Modifier.animateItem(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (message.fromUser) UserBubble(message, vm.checking[message.id] == true) { vm.check(message.id) }
-                    else PartnerBubble(message.text) {
-                        val translating = vm.translating[message.id] == true
-                        if (vm.shownTranslations[message.id] == true) {
-                            if (translating) Text("Перевожу…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            message.translation?.let {
-                                Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                        Row(Modifier.offset(x = (-10).dp), verticalAlignment = Alignment.CenterVertically) {
-                            TextButton({ vm.toggleTranslation(message) }, contentPadding = PaddingValues(horizontal = 10.dp)) {
-                                Text(if (vm.shownTranslations[message.id] == true) "Скрыть перевод" else "Перевод",
-                                    style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
+        val maxInputHeight = (maxHeight / 3).coerceIn(52.dp, 160.dp)
+        Column(Modifier.fillMaxSize()) {
+            TopBar(navigator::back, conversation?.title) {
+                Box {
+                    RoundIconButton(AlbionIcons.MoreHoriz, "Действия с беседой", { menu = true }, filled = true)
+                    DropdownMenu(menu, { menu = false }) {
+                        DropdownMenuItem({ Text("Другой ответ") }, { menu = false; vm.regenerate() },
+                            enabled = !vm.busy && items.lastOrNull()?.fromUser == false && items.any { it.fromUser },
+                            leadingIcon = { Icon(AlbionIcons.Undo, null) })
+                        DropdownMenuItem({ Text("Переименовать") }, { menu = false; renaming = true },
+                            leadingIcon = { Icon(AlbionIcons.BorderColor, null) })
+                        DropdownMenuItem({ Text("Удалить беседу") }, { menu = false; deleting = true },
+                            leadingIcon = { Icon(AlbionIcons.Delete, null) })
                     }
-                    // Граница пересказа: реплики выше модель помнит только в кратком изложении.
-                    conversation?.takeIf { it.summaryUpTo == message.id && it.summary.isNotBlank() }?.let { SummaryMarker(it.summary) }
                 }
             }
-        }
-        vm.error?.let { message ->
-            Row(Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = 4.dp)
-                .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.medium)
-                .padding(start = 14.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
-                .semantics { liveRegion = LiveRegionMode.Polite }, verticalAlignment = Alignment.CenterVertically) {
-                Text(message, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
-                if (items.lastOrNull()?.fromUser == true && !vm.busy) TextButton(vm::retry) { Text("Повторить") }
-                RoundIconButton(AlbionIcons.Close, "Скрыть ошибку", vm::dismissError, tint = MaterialTheme.colorScheme.onErrorContainer)
+            if (!WindowInsets.isImeVisible) conversation?.let {
+                ChatContext(Scenario.of(it.scenario).title, it.level,
+                    if (loading) "Загружаю модель…" else if (vm.compacting) "Сжимаю начало беседы…" else null)
             }
-        }
-        if (vm.hint != null || vm.hintLoading) HintCard(vm.hint, vm::useHint, vm::dismissHint)
-        if (micDenied) Row(Modifier.fillMaxWidth().padding(horizontal = gutter), verticalAlignment = Alignment.CenterVertically) {
-            Text("Нет доступа к микрофону.", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            AppSettingsButton()
-        }
-        if (!model.ready) ModelMissingBar("Для ответов нужна модель Qwen3.5") { setup = SetupSheet.Qwen }
-        Composer(
-            draft = vm.draft, onDraft = vm::edit, busy = vm.busy, recording = recording, level = level,
-            transcribing = vm.transcribing, hintLoading = vm.hintLoading, enabled = model.ready,
-            onSend = vm::send, onStop = vm::stop, onHint = vm::requestHint,
-            onMic = {
-                when {
-                    recording -> vm.stopRecording()
-                    !speechModel.ready -> setup = SetupSheet.Whisper
-                    else -> micAccess { micDenied = false; if (!vm.startRecording()) micDenied = true }
+            Hairline()
+            LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = list, reverseLayout = true,
+                contentPadding = PaddingValues(horizontal = gutter, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom)) {
+                vm.streaming?.let { text ->
+                    item(key = "streaming") { PartnerBubble(text, quietItem()) { if (text.isEmpty()) TypingDots() } }
                 }
-            },
-        )
+                val last = items.lastOrNull()
+                if (!vm.busy && last != null && last.fromUser && vm.error == null) item(key = "retry") {
+                    Row(quietItem(Modifier.fillMaxWidth()), horizontalArrangement = Arrangement.Start) {
+                        GhostButton("Получить ответ", vm::retry, icon = AlbionIcons.ArrowForward)
+                    }
+                }
+                items(items.asReversed(), key = { it.id }) { message ->
+                    Column(quietItem(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        if (message.fromUser) UserBubble(message, vm.checking[message.id] == true) { vm.check(message.id) }
+                        else PartnerBubble(message.text) {
+                            val translating = vm.translating[message.id] == true
+                            if (vm.shownTranslations[message.id] == true) {
+                                if (translating) Text("Перевожу…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                message.translation?.let {
+                                    Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                            Row(Modifier.offset(x = (-10).dp), verticalAlignment = Alignment.CenterVertically) {
+                                TextButton({ vm.toggleTranslation(message) }, contentPadding = PaddingValues(horizontal = 10.dp)) {
+                                    Text(if (vm.shownTranslations[message.id] == true) "Скрыть перевод" else "Перевод",
+                                        style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
+                        }
+                        // Граница пересказа: реплики выше модель помнит только в кратком изложении.
+                        conversation?.takeIf { it.summaryUpTo == message.id && it.summary.isNotBlank() }?.let { SummaryMarker(it.summary) }
+                    }
+                }
+            }
+            vm.error?.let { message ->
+                Row(Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = 4.dp)
+                    .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.medium)
+                    .padding(start = 14.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite }, verticalAlignment = Alignment.CenterVertically) {
+                    Text(message, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                    if (items.lastOrNull()?.fromUser == true && !vm.busy) TextButton(vm::retry) { Text("Повторить") }
+                    RoundIconButton(AlbionIcons.Close, "Скрыть ошибку", vm::dismissError, tint = MaterialTheme.colorScheme.onErrorContainer)
+                }
+            }
+            if (vm.hint != null || vm.hintLoading) HintCard(vm.hint, vm::useHint, vm::dismissHint)
+            if (micDenied) Row(Modifier.fillMaxWidth().padding(horizontal = gutter), verticalAlignment = Alignment.CenterVertically) {
+                Text("Нет доступа к микрофону.", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                AppSettingsButton()
+            }
+            if (!model.ready) ModelMissingBar("Для ответов нужна модель Qwen3.5") { setup = SetupSheet.Qwen }
+            ChatComposer(
+                draft = vm.draft, onDraft = vm::edit, busy = vm.busy, recording = recording, level = level,
+                transcribing = vm.transcribing, hintLoading = vm.hintLoading, enabled = model.ready,
+                onSend = vm::send, onStop = vm::stop, onHint = vm::requestHint,
+                onMic = {
+                    when {
+                        recording -> vm.stopRecording()
+                        !speechModel.ready -> setup = SetupSheet.Whisper
+                        else -> micAccess { micDenied = false; if (!vm.startRecording()) micDenied = true }
+                    }
+                }, maxInputHeight = maxInputHeight,
+            )
+        }
     }
 
     setup?.let { sheet ->
-        ModalBottomSheet({ setup = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(bottom = 24.dp).navigationBarsPadding(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                SheetHeader(if (sheet == SetupSheet.Qwen) "Модель собеседника" else "Голосовой ввод") { setup = null }
-                if (sheet == SetupSheet.Qwen) com.marat.albion.ui.library.TranslationModelControls() else SpeechModelControls()
-            }
+        ScrollableSheet(if (sheet == SetupSheet.Qwen) "Модель собеседника" else "Голосовой ввод", { setup = null }) {
+            if (sheet == SetupSheet.Qwen) com.marat.albion.ui.library.TranslationModelControls() else SpeechModelControls()
         }
     }
     if (renaming) {
@@ -186,12 +187,24 @@ fun ChatScreen(id: Long, navigator: Navigator) {
 
 private enum class SetupSheet { Qwen, Whisper }
 
+@Composable
+internal fun ChatContext(scenario: String, level: String, status: String? = null) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Chip(scenario)
+            Chip(level, Modifier.width(IntrinsicSize.Max))
+        }
+        if (status != null) Text(status, Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
 private val bubbleShape = RoundedCornerShape(20.dp)
 
 /** Реплика собеседника: слева, на поверхности с тонкой рамкой. */
 @Composable
-private fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: @Composable ColumnScope.() -> Unit = {}) {
-    Column(modifier.fillMaxWidth(0.88f).animateContentSize()) {
+internal fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: @Composable ColumnScope.() -> Unit = {}) {
+    Column(modifier.fillMaxWidth(0.88f).quietContentSize()) {
         Column(Modifier.clip(bubbleShape.copy(topStart = CornerSizeSmall))
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, bubbleShape.copy(topStart = CornerSizeSmall))
@@ -235,15 +248,16 @@ private fun UserBubble(message: ConversationMessageEntity, checking: Boolean, mo
 }
 
 @Composable
-private fun CorrectionCard(correction: String, modifier: Modifier = Modifier) {
+internal fun CorrectionCard(correction: String, modifier: Modifier = Modifier) {
     val corrected = correction.substringBefore('\n')
     val why = correction.substringAfter('\n', "").trim()
-    Column(modifier.clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+    val scheme = MaterialTheme.colorScheme
+    Column(modifier.clip(MaterialTheme.shapes.medium).background(scheme.tertiaryContainer)
         .padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Eyebrow("Лучше сказать")
+        Eyebrow("Лучше сказать", color = scheme.onTertiaryContainer)
         Text(corrected, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
-            color = MaterialTheme.colorScheme.tertiary)
-        if (why.isNotEmpty()) Text(why, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            color = scheme.onTertiaryContainer)
+        if (why.isNotEmpty()) Text(why, style = MaterialTheme.typography.bodySmall, color = scheme.onTertiaryContainer)
     }
 }
 
@@ -267,12 +281,14 @@ private fun SummaryMarker(summary: String) {
 @Composable
 private fun TypingDots() {
     val reduced = LocalReducedMotion.current
-    val transition = rememberInfiniteTransition(label = "typing")
     Row(Modifier.height(22.dp).semantics { contentDescription = "Собеседник печатает" },
         horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
         repeat(3) { i ->
-            val alpha by transition.animateFloat(0.25f, 1f, infiniteRepeatable(
-                keyframes { durationMillis = 1200; 0.25f at 0; 1f at 200 + i * 150; 0.25f at 700 + i * 150 }), label = "dot$i")
+            val alpha = if (reduced) .6f else {
+                val transition = rememberInfiniteTransition(label = "typing")
+                transition.animateFloat(0.25f, 1f, infiniteRepeatable(
+                    keyframes { durationMillis = 1200; 0.25f at 0; 1f at 200 + i * 150; 0.25f at 700 + i * 150 }), label = "dot$i").value
+            }
             Box(Modifier.size(7.dp).alpha(if (reduced) 0.6f else alpha).background(MaterialTheme.colorScheme.onSurface, CircleShape))
         }
     }
@@ -306,35 +322,51 @@ internal fun ModelMissingBar(text: String, onSetup: () -> Unit) {
 
 /** Поле ввода: текст, подсказка, микрофон; при записи — уровень голоса и «стоп». */
 @Composable
-private fun Composer(
+internal fun ChatComposer(
     draft: String, onDraft: (String) -> Unit, busy: Boolean, recording: Boolean, level: Float, transcribing: Boolean,
     hintLoading: Boolean, enabled: Boolean, onSend: () -> Unit, onStop: () -> Unit, onHint: () -> Unit, onMic: () -> Unit,
+    maxInputHeight: Dp = 160.dp,
 ) {
     val scheme = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxWidth().background(scheme.background).navigationBarsPadding()
-        .padding(horizontal = gutter - 4.dp, vertical = 8.dp), verticalAlignment = Alignment.Bottom) {
-        RoundIconButton(AlbionIcons.Lightbulb, "Подсказать, что ответить", onHint, enabled = enabled && !busy && !hintLoading && !recording)
-        Box(Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(scheme.surfaceContainerLow)
-            .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(26.dp)).padding(horizontal = 18.dp, vertical = 14.dp),
-            contentAlignment = Alignment.CenterStart) {
-            when {
-                recording -> RecordingLevel(level)
-                transcribing -> Text("Распознаю речь…", style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant)
-                else -> {
-                    if (draft.isEmpty()) Text("Напишите по-английски…", style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant)
-                    BasicTextField(draft, onDraft, Modifier.fillMaxWidth(), enabled = enabled,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = scheme.onSurface), maxLines = 6,
-                        cursorBrush = SolidColor(scheme.onSurface),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences))
+    var toolsOpen by remember { mutableStateOf(false) }
+    var focused by remember { mutableStateOf(false) }
+    val minInputHeight = with(LocalDensity.current) { MaterialTheme.typography.bodyLarge.lineHeight.toDp() } + 24.dp
+    BoxWithConstraints(Modifier.fillMaxWidth().background(scheme.background).navigationBarsPadding()) {
+        val horizontalPadding = if (maxWidth < 360.dp || LocalDensity.current.fontScale > 1.3f) 12.dp else gutter - 4.dp
+        Row(Modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = 8.dp), verticalAlignment = Alignment.Bottom) {
+            Box {
+                RoundIconButton(AlbionIcons.Add, "Действия сообщения", { toolsOpen = true }, enabled = enabled && !busy && !recording && !transcribing)
+                DropdownMenu(toolsOpen, { toolsOpen = false }) {
+                    DropdownMenuItem(text = { Text("Подсказать ответ") }, onClick = { toolsOpen = false; onHint() },
+                        enabled = !hintLoading, leadingIcon = { Icon(AlbionIcons.Lightbulb, null) })
+                    DropdownMenuItem(text = { Text("Сказать голосом") }, onClick = { toolsOpen = false; onMic() },
+                        leadingIcon = { Icon(AlbionIcons.Mic, null) })
                 }
             }
-        }
-        Spacer(Modifier.width(8.dp))
-        when {
-            busy -> ActionButton(AlbionIcons.Stop, "Остановить ответ", onStop)
-            draft.isNotBlank() && !recording -> ActionButton(AlbionIcons.ArrowForward, "Отправить", onSend, enabled = enabled)
-            else -> ActionButton(if (recording) AlbionIcons.Stop else AlbionIcons.Mic,
-                if (recording) "Закончить запись" else "Сказать голосом", onMic, enabled = enabled && !transcribing, pulse = recording)
+            Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RoundedCornerShape(26.dp)).background(scheme.surfaceContainerLow)
+                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(26.dp)).padding(horizontal = 12.dp, vertical = 12.dp),
+                contentAlignment = Alignment.CenterStart) {
+                when {
+                    recording -> RecordingLevel(level)
+                    transcribing -> Text("Распознаю…", style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    else -> {
+                        if (draft.isEmpty()) Text("Ваш ответ…", Modifier.clearAndSetSemantics {}, style = MaterialTheme.typography.bodyLarge,
+                            color = scheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        BasicTextField(draft, onDraft, Modifier.fillMaxWidth().semantics { contentDescription = "Ваш ответ" }.onFocusChanged { focused = it.isFocused }, enabled = enabled,
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = scheme.onSurface), maxLines = 6,
+                            cursorBrush = SolidColor(scheme.onSurface),
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences))
+                    }
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            when {
+                busy -> ActionButton(AlbionIcons.Stop, "Остановить ответ", onStop)
+                draft.isNotBlank() && !recording -> ActionButton(AlbionIcons.ArrowForward, "Отправить", onSend, enabled = enabled)
+                else -> ActionButton(if (recording) AlbionIcons.Stop else AlbionIcons.Mic,
+                    if (recording) "Закончить запись" else "Сказать голосом", onMic, enabled = enabled && !transcribing, pulse = recording)
+            }
         }
     }
 }
@@ -361,6 +393,11 @@ private fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, 
 /** Полоски уровня громкости: видно, что микрофон слышит. Пауза в 2,5 с завершает запись. */
 @Composable
 private fun RecordingLevel(level: Float) {
+    if (LocalReducedMotion.current) {
+        Text("Запись…", Modifier.clearAndSetSemantics { contentDescription = "Идёт запись. Пауза завершит её" },
+            style = MaterialTheme.typography.bodyLarge)
+        return
+    }
     val history = remember { mutableStateListOf<Float>().apply { repeat(28) { add(0f) } } }
     LaunchedEffect(level) { history.removeAt(0); history.add(level) }
     Row(Modifier.fillMaxWidth().height(24.dp).semantics { contentDescription = "Идёт запись. Пауза завершит её" },

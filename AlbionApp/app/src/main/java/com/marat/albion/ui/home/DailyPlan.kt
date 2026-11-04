@@ -49,7 +49,7 @@ internal fun GoalRing(answered: Int, goal: Int, modifier: Modifier = Modifier) {
     val reduced = LocalReducedMotion.current
     val target = if (goal <= 0) 0f else (answered.toFloat() / goal).coerceIn(0f, 1f)
     val sweep = remember { Animatable(if (reduced) target else 0f) }
-    LaunchedEffect(target) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 80f)) }
+    LaunchedEffect(target, reduced) { sweep.animateTo(target, if (reduced) snap() else spring(dampingRatio = 0.9f, stiffness = 80f)) }
     val track = MaterialTheme.colorScheme.surfaceContainerHighest
     val done = target >= 1f
     val arc = if (done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
@@ -57,7 +57,7 @@ internal fun GoalRing(answered: Int, goal: Int, modifier: Modifier = Modifier) {
         Canvas(Modifier.fillMaxSize()) {
             val stroke = Stroke(7.dp.toPx(), cap = StrokeCap.Round)
             drawArc(track, -90f, 360f, false, style = stroke)
-            if (sweep.value > 0f) drawArc(arc, -90f, 360f * sweep.value, false, style = stroke)
+            if ((if (reduced) target else sweep.value) > 0f) drawArc(arc, -90f, 360f * (if (reduced) target else sweep.value), false, style = stroke)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (done) Icon(AlbionIcons.Check, null, Modifier.size(22.dp), tint = arc)

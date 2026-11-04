@@ -2,7 +2,7 @@ package com.marat.albion.ui.grammar
 
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn

@@ -1,6 +1,7 @@
 package com.marat.albion.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
+import com.marat.albion.ui.theme.controlBorder
+import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -49,7 +50,7 @@ fun OptionPicker(
                 .semantics { contentDescription = label },
             shape = MaterialTheme.shapes.medium,
             color = scheme.surfaceContainerLow,
-            border = BorderStroke(.75.dp, if (expanded) scheme.onSurface else scheme.outlineVariant),
+            border = BorderStroke(if (expanded) 2.dp else 1.dp, if (expanded) scheme.primary else scheme.controlBorder),
         ) {
             Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -67,7 +68,7 @@ fun OptionPicker(
             shape = MaterialTheme.shapes.medium,
             containerColor = scheme.surfaceContainer,
             tonalElevation = 0.dp,
-            border = BorderStroke(.75.dp, scheme.outlineVariant),
+            border = BorderStroke(1.dp, scheme.controlBorder),
         ) {
             options.forEachIndexed { index, option ->
                 DropdownMenuItem(
