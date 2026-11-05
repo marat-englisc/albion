@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.contentDescription
@@ -51,8 +52,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
+import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -102,6 +102,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 
 @Composable
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 fun LibraryScreen(navigator: Navigator) {
     val c = LocalAppContainer.current
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(null)
@@ -149,6 +150,15 @@ fun LibraryScreen(navigator: Navigator) {
 
     val launchPicker = { picker.launch(arrayOf("text/plain", "text/markdown", "application/epub+zip", "application/pdf", "application/octet-stream")) }
     val filters = listOf("Все", "Читаю", "Не начаты", "Прочитаны")
+    val controls: androidx.compose.foundation.lazy.grid.LazyGridScope.() -> Unit = {
+        item(key = "library-filters", span = { GridItemSpan(maxLineSpan) }) {
+            Column(Modifier.appear(3), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OptionPicker("Статус чтения", filters, filters.indexOf(filter), { filter = filters[it] })
+                val sorts = listOf("Недавние", "По названию", "По прогрессу")
+                OptionPicker("Порядок книг", sorts, sorts.indexOf(sort), { sort = sorts[it] })
+            }
+        }
+    }
     LazyVerticalGrid(
         columns = GridCells.Adaptive(136.dp),
         state = shelfState,
@@ -174,6 +184,9 @@ fun LibraryScreen(navigator: Navigator) {
                 }
             })
         }
+        item(key = "book-search", span = { GridItemSpan(maxLineSpan) }) {
+            com.marat.albion.ui.browse.SearchField(query, { query = it }, "Поиск книги")
+        }
         if (importError != null) item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 FieldError(importError)
@@ -181,16 +194,11 @@ fun LibraryScreen(navigator: Navigator) {
             }
         }
         if (continueBook != null && query.isBlank() && filter == "Все") item(span = { GridItemSpan(maxLineSpan) }) {
-            ContinueReading(continueBook, Modifier.appear(2)) { navigator.open(ReaderRoute(continueBook.book.id)) }
+            ContinueReading(continueBook, Modifier.appear(2),
+                onDelete = if (continueBook.book.source == "user") ({ toDelete = continueBook }) else null,
+                onOpen = { navigator.open(ReaderRoute(continueBook.book.id)) })
         }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Column(Modifier.appear(3), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                com.marat.albion.ui.browse.SearchField(query, { query = it }, "Поиск книги")
-                OptionPicker("Статус чтения", filters, filters.indexOf(filter), { filter = filters[it] })
-                val sorts = listOf("Недавние", "По названию", "По прогрессу")
-                OptionPicker("Порядок книг", sorts, sorts.indexOf(sort), { sort = sorts[it] })
-            }
-        }
+        if (query.isBlank()) controls()
         if (books == null) item(span = { GridItemSpan(maxLineSpan) }) { LoadingState("Загружаю библиотеку") }
         val rows = if (query.isBlank() && filter == "Все") shown.filter { it.book.id != continueBook?.book?.id } else shown
         if (books != null && shown.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
@@ -200,19 +208,19 @@ fun LibraryScreen(navigator: Navigator) {
                 if (list.isNotEmpty()) TextButton(onClick = { query = ""; filter = "Все"; scope.launch { shelfState.scrollToItem(0) } }) { Text("Показать все книги") }
             }
         }
-        if (rows.isNotEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
+        if (rows.isNotEmpty() && query.isBlank()) item(span = { GridItemSpan(maxLineSpan) }) {
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
                 Text(if (continueBook != null && query.isBlank() && filter == "Все") "Другие книги" else "Книги", Modifier.weight(1f),
                     style = MaterialTheme.typography.titleLarge)
                 Text("${rows.size}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        if (rows.any { it.book.source == "user" }) item(span = { GridItemSpan(maxLineSpan) }) {
-            com.marat.albion.ui.components.CoachMark("library.longpress", "Удерживайте обложку своей книги, чтобы удалить её")
+        items(rows, key = { it.book.id }, span = { if (query.isBlank()) GridItemSpan(1) else GridItemSpan(maxLineSpan) }) { b ->
+            val onDelete: (() -> Unit)? = if (b.book.source == "user") ({ toDelete = b }) else null
+            if (query.isBlank()) BookTile(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, onDelete)
+            else BookSearchRow(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, onDelete)
         }
-        items(rows, key = { it.book.id }) { b ->
-            BookTile(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, if (b.book.source == "user") ({ toDelete = b }) else null)
-        }
+        if (query.isNotBlank()) controls()
         item(span = { GridItemSpan(maxLineSpan) }) {
             // Добавление книги — кнопкой «+» в шапке; здесь вторая такая же кнопка не нужна.
             Column(Modifier.padding(top = 12.dp)) {
@@ -220,42 +228,46 @@ fun LibraryScreen(navigator: Navigator) {
                 Disclosure("Подсказки по чтению", "Перевод касанием, выделение и заметки", icon = AlbionIcons.HelpOutline) {
                     Text("Коснитесь слова — откроется перевод. Долгое нажатие выбирает предложение, протяжка — любой фрагмент. " +
                         "В панели перевода можно выбрать значение и сохранить слово в карточки. В меню читалки — поиск, закладки, заметки и оформление. " +
-                        "Удерживайте обложку своей книги, чтобы удалить её.", style = MaterialTheme.typography.bodyMedium)
+                        "Откройте меню действий рядом со своей книгой, чтобы удалить её вместе с заметками.", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
     }
 
     toDelete?.let { b ->
-        AlertDialog(
-            onDismissRequest = { toDelete = null },
-            title = { Text("Удалить книгу?", style = MaterialTheme.typography.headlineSmall) },
-            text = { Text("«${b.book.title}», закладки, выделения и заметки к ней будут удалены из библиотеки.") },
-            confirmButton = {
-                TextButton(onClick = { toDelete = null; scope.launch { c.library.delete(b.book.id) } }) { Text("Удалить", color = MaterialTheme.colorScheme.error) }
-            },
-            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+        DestructiveConfirmationDialog(
+            title = "Удалить книгу?",
+            message = "«${b.book.title}», закладки, выделения и заметки к ней будут удалены из библиотеки. Отменить удаление нельзя.",
+            onConfirm = { toDelete = null; scope.launch { c.library.delete(b.book.id) } },
+            onDismiss = { toDelete = null },
         )
     }
 }
 
 /** «Продолжить чтение»: инверсный блок с обложкой, процентом и кнопкой. */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-internal fun ContinueReading(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit) {
+internal fun ContinueReading(item: LibraryBook, modifier: Modifier, onDelete: (() -> Unit)? = null, onOpen: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
     val interaction = remember { MutableInteractionSource() }
     val measurer = rememberTextMeasurer()
     val titleStyle = MaterialTheme.typography.titleLarge
     val labelStyle = MaterialTheme.typography.labelMedium
     val minTextWidth = with(LocalDensity.current) {
-        maxOf(measurer.measure("Продолжить", labelStyle).size.width,
+        maxOf(measurer.measure("Продолжить", labelStyle).size.width + if (onDelete != null) 48.dp.roundToPx() else 0,
             item.book.title.split(Regex("\\s+")).maxOf { measurer.measure(it, titleStyle).size.width }).toDp()
     }.coerceAtLeast(132.dp)
     com.marat.albion.ui.components.BoundVolume(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clip(MaterialTheme.shapes.extraLarge)
-        .clickable(interaction, null, onClickLabel = "Читать", onClick = onOpen)) {
+        .combinedClickable(interaction, indication = null, onClickLabel = "Читать", onClick = onOpen,
+            onLongClick = onDelete?.let { { menu = true } }, onLongClickLabel = onDelete?.let { "Действия с книгой" })) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val description: @Composable () -> Unit = {
                 Column {
-                    Text("Продолжить", style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Продолжить", Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
+                        if (onDelete != null) BookActionsMenu(item.book.title, menu, { menu = it }, onDelete,
+                            tint = MaterialTheme.colorScheme.inverseOnSurface)
+                    }
                     Spacer(Modifier.height(4.dp))
                     Text(item.book.title, style = MaterialTheme.typography.titleLarge)
                     if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
@@ -283,7 +295,7 @@ internal fun ContinueReading(item: LibraryBook, modifier: Modifier, onOpen: () -
     }
 }
 
-/** Книга на полке: обложка 2:3, название и прогресс. Долгое нажатие на свою книгу — удаление. */
+/** Книга на полке: обложка, название и доступное меню для своей книги. */
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun BookTile(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
@@ -292,17 +304,14 @@ private fun BookTile(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, 
     var menu by remember { mutableStateOf(false) }
     Column(modifier.fillMaxWidth().pressScale(interaction, 0.95f)
         .combinedClickable(interaction, indication = null, onClick = onOpen,
-            onLongClick = onDelete?.let { { feedback.reveal(); menu = true } }, onLongClickLabel = onDelete?.let { "Удалить книгу" })) {
+            onLongClick = onDelete?.let { { feedback.reveal(); menu = true } }, onLongClickLabel = onDelete?.let { "Действия с книгой" })) {
         Box {
             BookCover(item.book.title, Modifier.fillMaxWidth().aspectRatio(2f / 3f))
             if (item.book.level.isNotBlank()) LevelBadge(item.book.level, Modifier.align(Alignment.TopEnd).padding(8.dp)
                 .background(MaterialTheme.colorScheme.background, CircleShape))
-            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                DropdownMenuItem(text = { Text("Удалить") }, onClick = { menu = false; onDelete?.invoke() },
-                    leadingIcon = { Icon(AlbionIcons.Delete, null, Modifier.size(18.dp)) })
-            }
         }
-        Spacer(Modifier.height(10.dp))
+        if (onDelete != null) UserBookToolbar(item.book.title, menu, { menu = it }, onDelete)
+        else Spacer(Modifier.height(10.dp))
         Text(item.book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -310,6 +319,53 @@ private fun BookTile(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, 
             Spacer(Modifier.height(8.dp))
             ThinProgress(item.progress, height = 3.dp)
         }
+    }
+}
+
+/** One visible action target for a user book, in the shelf, search and continuation. */
+@Composable
+private fun BookActionsMenu(
+    title: String, expanded: Boolean, onExpandedChange: (Boolean) -> Unit, onDelete: () -> Unit,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Box {
+        RoundIconButton(AlbionIcons.MoreHoriz, "Действия с книгой «$title»", { onExpandedChange(true) }, tint = tint)
+        DropdownMenu(expanded, { onExpandedChange(false) }) {
+            DropdownMenuItem(
+                text = { Text("Удалить книгу") },
+                onClick = { onExpandedChange(false); onDelete() },
+                leadingIcon = { Icon(AlbionIcons.Delete, null, Modifier.size(20.dp)) },
+                modifier = Modifier.heightIn(min = 52.dp),
+                colors = androidx.compose.material3.MenuDefaults.itemColors(
+                    textColor = MaterialTheme.colorScheme.error, leadingIconColor = MaterialTheme.colorScheme.error),
+            )
+        }
+    }
+}
+
+@Composable
+private fun UserBookToolbar(title: String, expanded: Boolean, onExpandedChange: (Boolean) -> Unit, onDelete: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text("Своя книга", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        BookActionsMenu(title, expanded, onExpandedChange, onDelete)
+    }
+}
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+private fun BookSearchRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
+    var menu by remember { mutableStateOf(false) }
+    Panel(modifier.fillMaxWidth().combinedClickable(onClick = onOpen,
+        onLongClick = onDelete?.let { { menu = true } },
+        onLongClickLabel = onDelete?.let { "Действия с книгой" }, role = androidx.compose.ui.semantics.Role.Button),
+        contentPadding = PaddingValues(14.dp)) {
+        if (onDelete != null) UserBookToolbar(item.book.title, menu, { menu = it }, onDelete)
+        Text(item.book.title, style = MaterialTheme.typography.titleMedium)
+        if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (item.book.level.isNotBlank()) Text(item.book.level, style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

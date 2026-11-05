@@ -6,6 +6,7 @@ composeBom = "2026.09.00"
 activityCompose = "1.13.0"
 lifecycle = "2.11.0"
 navigation3 = "1.2.0"
+window = "1.5.0"
 room = "2.8.5"
 datastore = "1.2.1"
 media3 = "1.11.1"
@@ -25,6 +26,7 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+androidx-window = { module = "androidx.window:window", version.ref = "window" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }

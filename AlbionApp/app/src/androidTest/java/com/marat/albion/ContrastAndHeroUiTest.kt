@@ -161,7 +161,7 @@ class ContrastAndHeroUiTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             show(scenario, "library-caption") {
                 Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
-                    .verticalScroll(rememberScrollState()).padding(gutter)) { ContinueReading(book, Modifier, {}) }
+                    .verticalScroll(rememberScrollState()).padding(gutter)) { ContinueReading(book, Modifier, onOpen = {}) }
             }
             for (label in listOf("Продолжить", "Alex Morgan")) assertEquals(Color.White, text(label).layout.layoutInput.style.color)
             capture("library-caption")
@@ -171,10 +171,14 @@ class ContrastAndHeroUiTest {
             }
             for (label in listOf("к повторению", "новых сегодня")) assertEquals(Color.White, text(label).layout.layoutInput.style.color)
             capture("deck-caption")
-            show(scenario, "practice-caption") { GamesScreen(navigator()) }
-            await { it.text?.toString() in listOf("Первое занятие", "Продолжить") }
-            val caption = runCatching { text("Первое занятие") }.getOrElse { text("Продолжить") }
-            assertEquals(Color.White, caption.layout.layoutInput.style.color)
+            show(scenario, "practice-caption") {
+                Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
+                    .verticalScroll(rememberScrollState()).padding(gutter)) {
+                    com.marat.albion.ui.games.PracticeContinuation(com.marat.albion.ui.games.Game.GRAMMAR_CHOICE,
+                        com.marat.albion.data.settings.PracticeOptions(level = "B1"), continuing = true, onOpen = {})
+                }
+            }
+            assertEquals(Color.White, text("Продолжить").layout.layoutInput.style.color)
             capture("practice-caption")
             show(scenario, "conversation-caption") { ConversationsScreen(navigator()) }
             assertEquals(Color.White, text("На устройстве · без интернета").layout.layoutInput.style.color)

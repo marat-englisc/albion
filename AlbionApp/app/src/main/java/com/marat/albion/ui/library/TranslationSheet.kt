@@ -23,10 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.marat.albion.ui.components.PaneBottomSheet as ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.DropdownMenu
+import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,7 +54,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.semantics
@@ -267,13 +266,11 @@ fun TranslationSheet(
                 dictionary.any { !it.headword.equals(text, ignoreCase = true) }
             if (hasDetails) {
                 Spacer(Modifier.height(12.dp))
-                val turn by com.marat.albion.ui.theme.quietFloatAsState(if (details) 180f else 0f,
-                    com.marat.albion.ui.theme.Springs.snappy(), label = "details")
                 Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clickable { details = !details }.semantics { stateDescription = if (details) "Развёрнуто" else "Свёрнуто" }
                     .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Словарь, автоперевод и ваши карточки", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    Icon(AlbionIcons.ExpandMore, null, modifier = Modifier.padding(start = 8.dp).rotate(turn))
+                    com.marat.albion.ui.components.DisclosureIndicator(details, Modifier.padding(start = 12.dp))
                 }
                 AnimatedVisibility(details) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(top = 8.dp)) {

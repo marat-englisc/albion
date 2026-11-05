@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.components.QuietLinearProgressIndicator as LinearProgressIndicator
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,7 +57,7 @@ fun TranslationModelControls() {
                 }
                 status.phase == ModelState.Ready -> {
                     Text("Модель установлена. Перевод и беседа работают офлайн.", style = MaterialTheme.typography.bodyMedium)
-                    TextButton(onClick = { deleting = true }) { Text("Удалить выбранную модель") }
+                    TextButton(onClick = { deleting = true }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("Удалить выбранную модель") }
                     GhostButton("Импортировать GGUF", { picker.launch(arrayOf("*/*")) }, icon = AlbionIcons.Add)
                 }
                 else -> {
@@ -70,8 +71,10 @@ fun TranslationModelControls() {
             }
         }
     }
-    if (deleting) AlertDialog(onDismissRequest = { deleting = false }, title = { Text("Удалить модель?") },
-        text = { Text("Освободится место на устройстве. Словарь, книги и карточки сохранятся. Модель можно установить снова.") },
-        confirmButton = { TextButton(onClick = { deleting = false; translator.releaseMemory(); scope.launch { models.deleteSelected() } }) { Text("Удалить") } },
-        dismissButton = { TextButton(onClick = { deleting = false }) { Text("Отмена") } })
+    if (deleting) DestructiveConfirmationDialog(
+        title = "Удалить модель перевода?",
+        message = "Освободится место на устройстве. Словарь, книги и карточки сохранятся. Для перевода фрагментов модель потребуется установить снова.",
+        onConfirm = { deleting = false; translator.releaseMemory(); scope.launch { models.deleteSelected() } },
+        onDismiss = { deleting = false },
+    )
 }

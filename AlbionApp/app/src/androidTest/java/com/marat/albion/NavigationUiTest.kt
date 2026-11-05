@@ -110,8 +110,7 @@ class NavigationUiTest {
             clickText("Учебник")
             awaitNode { it.isEditable }
             instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-            // На обычной ширине подпись набрана заглавными («НА СЕГОДНЯ»), в компактной главной — «На сегодня».
-            awaitNode { it.text?.toString()?.equals("На сегодня", ignoreCase = true) == true }
+            awaitNode { it.text?.toString() == "Занятие на сегодня" }
             awaitNode { it.text?.toString()?.equals("Начать") == true }
         }
     }

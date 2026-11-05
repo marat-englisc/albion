@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
+import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
+import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -138,7 +138,7 @@ internal fun BookWordEditor(
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val valid = term.isNotBlank() && term.length <= 200 && meaning.isNotBlank() && meaning.length <= 2000 && example.length <= 4000
-    androidx.compose.material3.ModalBottomSheet(
+    com.marat.albion.ui.components.PaneBottomSheet(
         onDismissRequest = { if (!saving) onDismiss() },
         sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(0.92f).imePadding().navigationBarsPadding().padding(horizontal = 24.dp)) {

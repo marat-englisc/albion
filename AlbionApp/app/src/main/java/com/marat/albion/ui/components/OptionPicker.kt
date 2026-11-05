@@ -1,24 +1,18 @@
 package com.marat.albion.ui.components
 
+import com.marat.albion.ui.theme.selectedContent
 import com.marat.albion.ui.theme.controlBorder
-import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
-import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.marat.albion.ui.theme.LocalFeedback
-import com.marat.albion.ui.theme.LocalReducedMotion
-import com.marat.albion.ui.theme.Springs
 
 /** One visible value for a secondary choice; the complete options stay in an anchored menu. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,10 +28,7 @@ fun OptionPicker(
     val current = selected.coerceIn(options.indices)
     var expanded by remember { mutableStateOf(false) }
     val feedback = LocalFeedback.current
-    val reduced = LocalReducedMotion.current
     val scheme = MaterialTheme.colorScheme
-    val turn by animateFloatAsState(if (expanded) 180f else 0f,
-        if (reduced) snap() else Springs.snappy(), label = "optionArrow")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -58,8 +49,7 @@ fun OptionPicker(
                     Text(label, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
                     Text(options[current], style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)
                 }
-                Icon(AlbionIcons.ExpandMore, null, Modifier.size(20.dp).graphicsLayer { rotationZ = turn },
-                    tint = scheme.onSurfaceVariant)
+                DisclosureIndicator(expanded)
             }
         }
         ExposedDropdownMenu(
@@ -70,6 +60,7 @@ fun OptionPicker(
             tonalElevation = 0.dp,
             border = BorderStroke(1.dp, scheme.controlBorder),
         ) {
+            ConstrainPopupToPane()
             options.forEachIndexed { index, option ->
                 DropdownMenuItem(
                     text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
@@ -83,10 +74,12 @@ fun OptionPicker(
                         else Spacer(Modifier.size(20.dp))
                     },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
-                        .background(if (index == current) scheme.surfaceContainerHigh else Color.Transparent)
+                        .selectionSurface(index == current, MaterialTheme.shapes.extraSmall)
                         .semantics { this.selected = index == current },
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-                    colors = MenuDefaults.itemColors(textColor = scheme.onSurface, trailingIconColor = scheme.onSurface),
+                    colors = MenuDefaults.itemColors(
+                        textColor = if (index == current) scheme.selectedContent else scheme.onSurface,
+                        trailingIconColor = if (index == current) scheme.selectedContent else scheme.onSurface),
                 )
             }
         }

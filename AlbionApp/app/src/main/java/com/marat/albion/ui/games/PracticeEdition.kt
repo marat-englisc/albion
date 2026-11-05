@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.theme.selectedContent
+import com.marat.albion.ui.components.selectionSurface
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.theme.pressScale
@@ -128,10 +130,10 @@ internal fun PracticeIconButton(
     val interaction = remember { MutableInteractionSource() }
     val shape = MaterialTheme.shapes.medium
     Box(modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.9f)
-        .background(if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh, shape).clip(shape)
+        .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape).selectionSurface(active, shape).clip(shape)
         .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
         contentAlignment = Alignment.Center) {
-        Icon(icon, label, tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+        Icon(icon, label, tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else if (active) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(21.dp))
     }
 }

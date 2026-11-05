@@ -310,7 +310,7 @@ internal fun rememberLeaveGuard(active: Boolean, onLeave: () -> Unit): () -> Uni
     var asking by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val request = { if (active) asking = true else onLeave() }
     androidx.activity.compose.BackHandler(onBack = request)
-    if (asking) androidx.compose.material3.AlertDialog(
+    if (asking) com.marat.albion.ui.components.PaneAlertDialog(
         onDismissRequest = { asking = false },
         title = { Text("Прервать тренировку?") },
         text = { Text("Ответы уже сохранены, но итог этой сессии не будет показан.") },

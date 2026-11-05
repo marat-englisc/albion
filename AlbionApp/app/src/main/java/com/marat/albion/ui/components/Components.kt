@@ -1,5 +1,8 @@
 package com.marat.albion.ui.components
 
+import com.marat.albion.ui.theme.selectedBorder
+import com.marat.albion.ui.theme.selectedContent
+import com.marat.albion.ui.theme.selectedContainer
 import com.marat.albion.ui.theme.controlBorder
 import androidx.compose.foundation.layout.wrapContentHeight
 
@@ -240,7 +243,7 @@ fun PrimaryButton(
     }
     PillButton(onClick, modifier, container, content, null, enabled, PaddingValues(horizontal = 24.dp, vertical = 16.dp)) {
         if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(10.dp)) }
-        Text(text, modifier = if (trailingIcon != null) Modifier.weight(1f) else Modifier,
+        Text(text, modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.labelLarge, textAlign = if (trailingIcon != null) TextAlign.Start else TextAlign.Center)
         if (trailingIcon != null) { Spacer(Modifier.width(10.dp)); Icon(trailingIcon, null, Modifier.size(20.dp)) }
     }
@@ -419,7 +422,7 @@ fun SegmentedPicker(
     val scheme = MaterialTheme.colorScheme
     val track = if (inverse) scheme.onBackground.copy(alpha = 0.18f) else scheme.surfaceContainerHigh
     // Единый язык выбора: тонированный ирис с ирисовой рамкой (на акцентной плите — светлая плашка).
-    val on = if (inverse) scheme.onBackground else scheme.onPrimaryContainer
+    val on = if (inverse) scheme.onBackground else scheme.selectedContent
     val off = if (inverse) scheme.background else scheme.onSurfaceVariant
     val reduced = LocalReducedMotion.current
     val shape = MaterialTheme.shapes.small
@@ -436,8 +439,8 @@ fun SegmentedPicker(
                 options.forEachIndexed { i, label ->
                     val active = i == selected
                     Box(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(shape)
-                        .background(if (active) { if (inverse) scheme.background else scheme.primaryContainer } else Color.Transparent)
-                        .then(if (active) Modifier.border(1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape) else Modifier)
+                        .background(if (active) { if (inverse) scheme.background else scheme.selectedContainer } else Color.Transparent)
+                        .then(if (active) Modifier.border(1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.selectedBorder, shape) else Modifier)
                         .selectable(active, role = Role.RadioButton) { if (!active) { feedback.selection(); onSelect(i) } }
                         .padding(horizontal = 12.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
                         Text(label, Modifier.fillMaxWidth(), style = style, color = if (active) on else off, textAlign = TextAlign.Center)
@@ -450,8 +453,8 @@ fun SegmentedPicker(
         BoxWithConstraints(Modifier.fillMaxWidth().height(height + 8.dp).background(track, shape).padding(4.dp)) {
             val segment = maxWidth / options.size.coerceAtLeast(1)
             val x by animateDpAsState(segment * selected.coerceIn(0, (options.size - 1).coerceAtLeast(0)), if (reduced) androidx.compose.animation.core.snap() else Springs.snappy(), label = "segment")
-            Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(if (inverse) scheme.background else scheme.primaryContainer, shape)
-                .border(if (inverse) .75.dp else 1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.primary, shape))
+            Box(Modifier.offset(x = x).width(segment).fillMaxHeight().background(if (inverse) scheme.background else scheme.selectedContainer, shape)
+                .border(if (inverse) .75.dp else 1.dp, if (inverse) scheme.background.copy(alpha = .3f) else scheme.selectedBorder, shape))
             Row(Modifier.fillMaxWidth().fillMaxHeight().selectableGroup()) {
                 options.forEachIndexed { i, label ->
                     val color by animateColorAsState(if (i == selected) on else off, label = "segmentText")
@@ -472,9 +475,9 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
     val feedback = LocalFeedback.current
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
-    val bg by animateColorAsState(if (selected) scheme.primaryContainer else scheme.surfaceContainerLow, label = "choiceBg")
-    val fg by animateColorAsState(if (selected) scheme.onPrimaryContainer else scheme.onSurface, label = "choiceFg")
-    val edge by animateColorAsState(if (selected) scheme.primary else scheme.controlBorder, label = "choiceEdge")
+    val bg by animateColorAsState(if (selected) scheme.selectedContainer else scheme.surfaceContainerLow, label = "choiceBg")
+    val fg by animateColorAsState(if (selected) scheme.selectedContent else scheme.onSurface, label = "choiceFg")
+    val edge by animateColorAsState(if (selected) scheme.selectedBorder else scheme.controlBorder, label = "choiceEdge")
     val mark = if (selected) scheme.primary else fg
     val dot by animateFloatAsState(if (selected) 1f else 0f, Springs.bouncy(), label = "choiceDot")
     Row(
@@ -487,7 +490,7 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
     ) {
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.titleMedium, color = fg)
-            if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = fg.copy(alpha = 0.7f))
+            if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = if (selected) scheme.selectedContent else scheme.onSurfaceVariant)
         }
         Box(Modifier.size(22.dp).border(1.5.dp, if (selected) mark else scheme.controlBorder, CircleShape), contentAlignment = Alignment.Center) {
             Box(Modifier.size(12.dp * dot).background(mark, CircleShape))

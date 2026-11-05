@@ -251,7 +251,7 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
     }
     if (editingTranslation) {
         var draft by rememberSaveable(card.id) { mutableStateOf(translation.orEmpty()) }
-        androidx.compose.material3.AlertDialog(
+        com.marat.albion.ui.components.PaneAlertDialog(
             onDismissRequest = { editingTranslation = false },
             title = { Text("Перевод предложения") },
             text = {

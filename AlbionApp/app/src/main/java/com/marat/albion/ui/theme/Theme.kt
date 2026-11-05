@@ -72,6 +72,11 @@ private fun scheme(dark: Boolean): ColorScheme = if (dark) DarkScheme else Light
 /** Functional boundaries share Material's outline; outlineVariant remains decorative. */
 val ColorScheme.controlBorder: Color get() = outline
 
+/** Selection uses the same iris surface, outline and readable content in every control. */
+val ColorScheme.selectedContainer: Color get() = primaryContainer
+val ColorScheme.selectedBorder: Color get() = primary
+val ColorScheme.selectedContent: Color get() = onPrimaryContainer
+
 private val AlbionShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),

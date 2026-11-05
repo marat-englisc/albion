@@ -1,5 +1,7 @@
 package com.marat.albion.ui.settings
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
+import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Spacer
 import com.marat.albion.ui.components.SegmentedPicker
@@ -83,8 +85,10 @@ fun SettingsScreen(onBack: () -> Unit) {
             Disclosure("Чтение и учебник", "Размер текста, интервал и поля", icon = com.marat.albion.ui.components.AlbionIcons.TextFields) {
                 SliderSetting("Текст учебника", "${(s.grammarTextScale * 100).roundToInt()}%", null,
                     s.grammarTextScale, 0.85f..1.4f, 10) { scope.launch { repo.setGrammarTextScale(it) } }
-                Text("Английский — маленькими шагами каждый день.",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = (17 * s.grammarTextScale).sp))
+                com.marat.albion.ui.grammar.ProvideMdEnv(com.marat.albion.ui.grammar.MdEnv(s.grammarTextScale) {}) {
+                    com.marat.albion.ui.grammar.MdBlockView(com.marat.albion.data.grammar.MdParagraph(
+                        "Английский — маленькими шагами каждый день."))
+                }
                 SliderSetting("Текст книги", "${(s.readerTextScale * 100).roundToInt()}%", null,
                     s.readerTextScale, 0.8f..1.5f, 13) { scope.launch { repo.setReaderTextScale(it) } }
                 SliderSetting("Межстрочный интервал", "${(s.readerLineSpacing * 100).roundToInt()}%", null,
@@ -132,20 +136,22 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Text("Материалы обновляются вместе с приложением. Прогресс сохраняется.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     ActionRow("Повторно проверить материалы") { c.appScope.launch { c.importer.importIfNeeded(force = true) } }
                 }
-                ActionRow("Сбросить только отметки прочитанного") { resetError = null; reset = 1 }
-                ActionRow("Удалить весь прогресс учебника") { resetError = null; reset = 2 }
+                ActionRow("Сбросить только отметки прочитанного", destructive = true) { resetError = null; reset = 1 }
+                ActionRow("Удалить весь прогресс учебника", destructive = true) { resetError = null; reset = 2 }
             }
             Text("Albion 1.0", Modifier.padding(top = 24.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    if (reset != 0) AlertDialog(onDismissRequest = { if (!resetBusy) reset = 0 },
-        title = { Text(if (reset == 1) "Сбросить отметки чтения?" else "Удалить весь прогресс учебника?") },
-        text = { Column {
-            Text(if (reset == 1) "Будут сняты только отметки «Прочитано». Освоение, закладки, результаты проверок и план повторения сохранятся."
-                else "Будут удалены отметки чтения и освоения, закладки, последние результаты проверок и расписание повторения тем. Это действие нельзя отменить.")
-            FieldError(resetError)
-        } },
-        confirmButton = { TextButton(enabled = !resetBusy, onClick = {
+    if (reset != 0) DestructiveConfirmationDialog(
+        title = if (reset == 1) "Сбросить отметки чтения?" else "Удалить весь прогресс учебника?",
+        message = if (reset == 1) "Будут сняты только отметки «Прочитано». Освоение, закладки, результаты проверок и план повторения сохранятся. Отменить сброс нельзя."
+            else "Будут удалены отметки чтения и освоения, закладки, последние результаты проверок и расписание повторения тем. Отменить удаление нельзя.",
+        confirmLabel = if (reset == 1) "Сбросить" else "Удалить",
+        busy = resetBusy,
+        busyLabel = "Сбрасываем…",
+        errorMessage = resetError,
+        onConfirm = {
+            resetError = null
             resetBusy = true
             scope.launch {
                 try { if (reset == 1) c.grammar.resetReadMarks() else c.grammar.resetProgress(); reset = 0 }
@@ -153,8 +159,9 @@ fun SettingsScreen(onBack: () -> Unit) {
                 catch (_: Exception) { resetError = "Не удалось выполнить сброс. Попробуйте ещё раз." }
                 finally { resetBusy = false }
             }
-        }) { Text(if (resetBusy) "Сохраняем…" else if (reset == 1) "Сбросить отметки" else "Удалить прогресс", color = MaterialTheme.colorScheme.error) } },
-        dismissButton = { TextButton(enabled = !resetBusy, onClick = { reset = 0 }) { Text("Отмена") } })
+        },
+        onDismiss = { reset = 0 },
+    )
 }
 
 @Composable
@@ -163,8 +170,9 @@ private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> 
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
+            .selectionSurface(selected)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
@@ -179,7 +187,7 @@ private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> 
         Text(
             title,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
     }
@@ -242,12 +250,12 @@ internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) 
 }
 
 @Composable
-internal fun ActionRow(title: String, onClick: () -> Unit) {
+internal fun ActionRow(title: String, destructive: Boolean = false, onClick: () -> Unit) {
     Column {
         Text(
             title,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
         )
         Hairline()

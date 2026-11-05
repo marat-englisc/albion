@@ -22,6 +22,7 @@ internal fun SectionHeading(
     trailing: String?,
     modifier: Modifier,
     leadingGap: Dp,
+    compact: Boolean = false,
     leading: @Composable () -> Unit,
 ) {
     val firstLineHeight = with(LocalDensity.current) { MaterialTheme.typography.titleMedium.lineHeight.toPx().roundToInt() }
@@ -29,7 +30,7 @@ internal fun SectionHeading(
         Box { leading() }
         Text(title, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleMedium)
         if (trailing != null) Text(trailing, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }, modifier = modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp)) { children, constraints ->
+    }, modifier = modifier.fillMaxWidth().padding(top = if (compact) 8.dp else 28.dp, bottom = if (compact) 8.dp else 12.dp)) { children, constraints ->
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
         val marker = children[0].measure(loose)
         val titleStart = marker.width + leadingGap.roundToPx()

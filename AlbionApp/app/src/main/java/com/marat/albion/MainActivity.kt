@@ -36,11 +36,8 @@ class MainActivity : ComponentActivity() {
         val container = (application as AlbionApp).container
         val initial = runBlocking { container.settings.current() }
         val debuggable = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        // Под инструментальными тестами экран загрузки не показываем: он перехватывает касания первые секунды.
-        val underTest = debuggable && runCatching { Class.forName("androidx.test.platform.app.InstrumentationRegistry") }.isSuccess
-        // Экран загрузки — только при новом запуске, не после поворота; если процесс уже всё подготовил — короткая версия.
-        val coldLaunch = savedInstanceState == null && !underTest
-        val warm = container.importer.status.value == ImportStatus.Ready
+        // Экран загрузки — только при новом запуске и только пока готовятся материалы.
+        val coldLaunch = savedInstanceState == null
         // Только для отладочной сборки: `adb shell am start -n com.marat.albion/.MainActivity --ei albion.holdLaunchMs 8000`
         // держит экран загрузки дольше, чтобы посмотреть петлю, — на эмуляторе материалы готовы за доли секунды.
         val holdMs = if (debuggable) intent.getIntExtra("albion.holdLaunchMs", 0).toLong() else 0L
@@ -49,7 +46,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle(initial)
             val importStatus by container.importer.status.collectAsStateWithLifecycle()
-            var launching by rememberSaveable { mutableStateOf(coldLaunch) }
+            var launching by rememberSaveable {
+                mutableStateOf(coldLaunch && (holdMs > 0 || importStatus is ImportStatus.Checking || importStatus is ImportStatus.Importing))
+            }
             var held by remember { mutableStateOf(holdMs > 0) }
             LaunchedEffect(Unit) { if (held) { kotlinx.coroutines.delay(holdMs); held = false } }
             CompositionLocalProvider(LocalAppContainer provides container) {
@@ -68,7 +67,6 @@ class MainActivity : ComponentActivity() {
                                 ready = !held && importStatus !is ImportStatus.Checking && importStatus !is ImportStatus.Importing,
                                 status = (importStatus as? ImportStatus.Importing)?.let { "ГОТОВИМ МАТЕРИАЛЫ · ${it.index}/${it.total}" }
                                     ?: if (importStatus is ImportStatus.Checking) "ПРОВЕРЯЕМ МАТЕРИАЛЫ" else null,
-                                warm = warm,
                                 onFinished = { launching = false },
                             )
                         }

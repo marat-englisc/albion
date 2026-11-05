@@ -1,5 +1,6 @@
 package com.marat.albion.ui.deck
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalContentColor
 import com.marat.albion.ui.theme.appear
@@ -21,12 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
+import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +65,8 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
             Box {
                 com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true }, filled = true)
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true })
+                    DropdownMenuItem(text = { Text("Сбросить прогресс колоды") }, onClick = { menu = false; confirmReset = true },
+                        colors = androidx.compose.material3.MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.error))
                 }
             }
         }
@@ -138,17 +138,12 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     }
 
     if (confirmReset) {
-        AlertDialog(
-            onDismissRequest = { confirmReset = false },
-            title = { Text("Сбросить прогресс?", style = MaterialTheme.typography.headlineSmall) },
-            text = { Text("Все карточки колоды «${deck.title}» снова станут новыми, статистика занятий сохранится.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmReset = false
-                    scope.launch { c.study.resetDeck(deck) }
-                }) { Text("Сбросить", color = MaterialTheme.colorScheme.onSurface) }
-            },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+        DestructiveConfirmationDialog(
+            title = "Сбросить прогресс?",
+            message = "Все карточки колоды «${deck.title}» снова станут новыми. Расписание повторений будет сброшено, статистика занятий сохранится. Отменить сброс нельзя.",
+            confirmLabel = "Сбросить",
+            onConfirm = { confirmReset = false; scope.launch { c.study.resetDeck(deck) } },
+            onDismiss = { confirmReset = false },
         )
     }
 }

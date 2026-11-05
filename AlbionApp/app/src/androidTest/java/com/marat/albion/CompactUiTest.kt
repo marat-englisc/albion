@@ -48,7 +48,7 @@ class CompactUiTest {
                 show(scenario, name, width, scale, dark = scale == 2f) { AlbionNavigation() }
                 val start = awaitNode { it.text?.toString()?.equals("Начать") == true }
                 val startBounds = clickableBounds(start)
-                val menu = find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() == "Все разделы" }
+                val menu = find(instrumentation.uiAutomation.rootInActiveWindow) { it.text?.toString() == "Ещё" }
                 if (scale == 1f) assertTrue("Обычный шрифт: все пять вкладок должны помещаться ($name)", menu == null)
                 val barTop = if (menu != null) clickableBounds(menu).top else clickableBounds(awaitTab("Сегодня")).top
                 assertTrue("Начало занятия должно быть над панелью ($name)", startBounds.bottom <= barTop)
@@ -65,7 +65,7 @@ class CompactUiTest {
                 activate(awaitTab("Прогресс"))
                 awaitText("05 / ДИНАМИКА")
                 if (menu != null) {
-                    activate(awaitText("Все разделы"))
+                    activate(awaitText("Ещё"))
                     awaitText("Разделы")
                 }
                 val after = labels.associateWith { clickableBounds(awaitTab(it)) }

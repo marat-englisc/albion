@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -82,17 +83,17 @@ internal fun GrammarAtlas(
                     val done = stage.topics.count { progress[it.id]?.masteredAt != null }
                     val selected = active == stage.level
                     val fill by androidx.compose.animation.animateColorAsState(
-                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh, label = "stage")
+                        if (selected) MaterialTheme.colorScheme.selectedContainer else MaterialTheme.colorScheme.surfaceContainerHigh, label = "stage")
                     Column(Modifier.width(stageWidth).heightIn(min = 64.dp)
-                        .background(fill, MaterialTheme.shapes.small)
+                        .background(fill, MaterialTheme.shapes.small).selectionSurface(selected, MaterialTheme.shapes.small)
                         .clip(MaterialTheme.shapes.small)
                         .selectable(selected, role = Role.Tab, onClick = { feedback.selection(); onSelect(stage.level) })
                         .semantics { stateDescription = "Освоено $done из ${stage.topics.size} тем" }
                         .padding(horizontal = 12.dp, vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                         Text(stage.level, style = titleStyle, maxLines = 1, softWrap = false,
-                            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
+                            color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurface)
                         Text("$done/${stage.topics.size}", style = countStyle, maxLines = 1, softWrap = false,
-                            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -182,7 +183,7 @@ internal fun GrammarRouteLesson(
         if (!last) drawLine(line, Offset(x, y), Offset(x, size.height), .75.dp.toPx(),
             pathEffect = if (mastered) null else PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 3.dp.toPx())))
     }.clickable(role = Role.Button, onClick = { feedback.selection(); onClick() })
-        .semantics(mergeDescendants = true) { stateDescription = status }, content = {
+        .semantics(mergeDescendants = true) { stateDescription = status; this.selected = selected }, content = {
         Box(Modifier.padding(top = 10.dp).width(columnWidth).height(markerHeight), contentAlignment = Alignment.Center) {
             Box(Modifier.size(markerWidth, markerHeight).background(if (emphasis) MaterialTheme.colorScheme.primary else if (mastered) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
                 .border(1.dp, if (emphasis) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
@@ -192,22 +193,23 @@ internal fun GrammarRouteLesson(
             }
         }
         Column(Modifier.padding(bottom = 12.dp)
-            .background(if (selected) MaterialTheme.colorScheme.surfaceContainerHigh else if (emphasis) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.medium)
+            .background(if (emphasis) MaterialTheme.colorScheme.surfaceContainerLow else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.medium)
+            .selectionSurface(selected)
             .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(status, style = MaterialTheme.typography.labelSmall,
-                    color = if (emphasis || due) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    color = if (selected) MaterialTheme.colorScheme.selectedContent else if (emphasis || due) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                 if (progress?.bookmarked == true) Icon(AlbionIcons.Bookmark, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(13.dp))
             }
             Spacer(Modifier.height(5.dp))
-            Text(topic.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(topic.title, style = MaterialTheme.typography.titleMedium, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurface)
             if (chapter != null) {
                 Spacer(Modifier.height(5.dp))
-                Text(chapter, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(chapter, style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!due) GrammarReview.plan(progress)?.let { plan ->
                 Spacer(Modifier.height(4.dp))
-                Text("Повторение: ${grammarReviewDate(plan.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Повторение: ${grammarReviewDate(plan.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }) { children, constraints ->

@@ -51,8 +51,8 @@ fun AlbionMark(modifier: Modifier = Modifier, color: Color = MaterialTheme.color
 }
 
 @Composable
-fun ModuleHeading(number: String, title: String, trailing: String? = null, modifier: Modifier = Modifier) {
-    SectionHeading(title, trailing, modifier, leadingGap = 12.dp) {
+fun ModuleHeading(number: String, title: String, trailing: String? = null, modifier: Modifier = Modifier, compact: Boolean = false) {
+    SectionHeading(title, trailing, modifier, leadingGap = 12.dp, compact = compact) {
         SignalLabel(number, color = MaterialTheme.colorScheme.primary)
     }
 }

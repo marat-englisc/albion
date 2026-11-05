@@ -1,5 +1,7 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
+import com.marat.albion.ui.theme.selectedContent
 import com.marat.albion.ui.theme.quietItem
 import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.theme.controlBorder
@@ -40,7 +42,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -304,7 +305,7 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
                         Text(
                             com.marat.albion.ui.components.highlightedQuery(card.term, query),
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
@@ -313,7 +314,7 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
                         LevelBadge(card.level)
                     }
                     Spacer(Modifier.height(2.dp))
-                    if (card.ipa.isNotBlank()) Text(card.ipa, style = IpaStyle.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize, lineHeight = MaterialTheme.typography.bodySmall.lineHeight), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (card.ipa.isNotBlank()) Text(card.ipa, style = IpaStyle.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize, lineHeight = MaterialTheme.typography.bodySmall.lineHeight), color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.width(12.dp))
                 AudioButton(playing = playing, onClick = onPlay, size = 48.dp, primary = false)
@@ -324,10 +325,10 @@ private fun CardRow(card: CardEntity, showRussian: Boolean, detailed: Boolean, q
             else {
                 val match = senses.firstOrNull { (if (showRussian) it.meaningRu else it.meaningEn).contains(query, true) } ?: senses.first()
                 Text(com.marat.albion.ui.components.highlightedQuery(if (showRussian) match.meaningRu.ifBlank { match.meaningEn } else match.meaningEn, query),
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    style = MaterialTheme.typography.bodyMedium, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             if (!showRussian && query.isNotBlank()) senses.firstOrNull { it.meaningRu.contains(query, true) }?.let { matched ->
-                Text(com.marat.albion.ui.components.highlightedQuery("В переводе: ${matched.meaningRu}", query), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(com.marat.albion.ui.components.highlightedQuery("В переводе: ${matched.meaningRu}", query), style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (senses.size > 1 && !detailed) TextButton(onClick = { expanded = !expanded }) {
                 Text(if (expanded) "Свернуть значения" else "Все значения · ${senses.size}", color = MaterialTheme.colorScheme.primary)
@@ -391,7 +392,10 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
                     com.marat.albion.data.repo.WordCards.members(current).forEachIndexed { index, sense ->
                         TextButton(onClick = { editCard = sense }) { Text(if (current.senses.size > 1) "Изменить значение ${index + 1}" else "Изменить перевод и пример") }
                     }
-                    GhostButton("Удалить из «Слова из книг»", onClick = { removeError = false; confirmRemove = true })
+                    TextButton(onClick = { removeError = false; confirmRemove = true },
+                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                        Text("Удалить из «Слова из книг»")
+                    }
                 }
             }
         }
@@ -403,31 +407,28 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
             onDismiss = { editCard = null }, onSaved = { editCard = null }, existingCard = editing)
     }
     if (confirmRemove) {
-        AlertDialog(
-            onDismissRequest = { if (!removing) confirmRemove = false },
-            title = { Text("Удалить слово?", color = MaterialTheme.colorScheme.onSurface) },
-            text = {
-                Text(if (removeError) "Не удалось удалить слово. Попробуйте ещё раз."
-                    else "Карточка «${card?.term.orEmpty()}» и история её повторений будут удалены.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            confirmButton = {
-                TextButton(enabled = !removing, onClick = {
-                    removing = true
-                    scope.launch {
-                        try {
-                            c.bookWords.remove(cardId)
-                            navigator.back()
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            removeError = true
-                        } finally {
-                            removing = false
-                        }
+        DestructiveConfirmationDialog(
+            title = "Удалить слово?",
+            message = "Карточка «${card?.term.orEmpty()}» и история её повторений будут удалены. Отменить удаление нельзя.",
+            busy = removing,
+            errorMessage = if (removeError) "Не удалось удалить слово. Попробуйте ещё раз." else null,
+            onConfirm = {
+                removing = true
+                removeError = false
+                scope.launch {
+                    try {
+                        c.bookWords.remove(cardId)
+                        navigator.back()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        removeError = true
+                    } finally {
+                        removing = false
                     }
-                }) { Text(if (removing) "Удаляю…" else "Удалить", color = MaterialTheme.colorScheme.onSurface) }
+                }
             },
-            dismissButton = { TextButton(enabled = !removing, onClick = { confirmRemove = false }) { Text("Отмена", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+            onDismiss = { confirmRemove = false },
         )
     }
 }

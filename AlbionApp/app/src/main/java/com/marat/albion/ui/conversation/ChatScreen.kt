@@ -1,5 +1,8 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
+import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
 import com.marat.albion.ui.theme.quietContentSize
 import androidx.compose.animation.core.*
@@ -90,7 +93,8 @@ fun ChatScreen(id: Long, navigator: Navigator) {
                         DropdownMenuItem({ Text("Переименовать") }, { menu = false; renaming = true },
                             leadingIcon = { Icon(AlbionIcons.BorderColor, null) })
                         DropdownMenuItem({ Text("Удалить беседу") }, { menu = false; deleting = true },
-                            leadingIcon = { Icon(AlbionIcons.Delete, null) })
+                            leadingIcon = { Icon(AlbionIcons.Delete, null) },
+                            colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.error, leadingIconColor = MaterialTheme.colorScheme.error))
                     }
                 }
             }
@@ -179,10 +183,12 @@ fun ChatScreen(id: Long, navigator: Navigator) {
             confirmButton = { TextButton({ renaming = false; vm.rename(title) }) { Text("Сохранить") } },
             dismissButton = { TextButton({ renaming = false }) { Text("Отмена") } })
     }
-    if (deleting) AlertDialog({ deleting = false }, title = { Text("Удалить беседу?") },
-        text = { Text("Все реплики и разборы этой беседы будут удалены.") },
-        confirmButton = { TextButton({ deleting = false; vm.delete(navigator::back) }) { Text("Удалить") } },
-        dismissButton = { TextButton({ deleting = false }) { Text("Отмена") } })
+    if (deleting) DestructiveConfirmationDialog(
+        title = "Удалить беседу?",
+        message = "Все реплики и разборы этой беседы будут удалены. Отменить удаление нельзя.",
+        onConfirm = { deleting = false; vm.delete(navigator::back) },
+        onDismiss = { deleting = false },
+    )
 }
 
 private enum class SetupSheet { Qwen, Whisper }

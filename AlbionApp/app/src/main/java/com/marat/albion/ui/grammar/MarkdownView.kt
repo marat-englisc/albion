@@ -1,8 +1,10 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.DisclosureIndicator
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
-import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -11,6 +13,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +44,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -389,7 +393,6 @@ private fun look(kind: String): CalloutLook = when (kind) {
 private fun CalloutView(c: MdCallout, modifier: Modifier) {
     val l = look(c.kind)
     var open by rememberSaveable(c.title, c.kind) { mutableStateOf(c.initiallyExpanded) }
-    val arrow by animateFloatAsState(if (open) 180f else 0f, tween(if (com.marat.albion.ui.theme.LocalReducedMotion.current) 0 else 320, easing = Easing.Emphasized), label = "chevron")
     val scale = LocalMdEnv.current.scale
     val shape = RoundedCornerShape(14.dp)
     val container = when (l.frame) {
@@ -403,14 +406,14 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
         Column(Modifier.weight(1f)) {
             Row(
                 Modifier.fillMaxWidth()
-                    .then(if (c.foldable) Modifier.clickable { open = !open } else Modifier)
+                    .then(if (c.foldable) Modifier.heightIn(min = 48.dp).semantics { stateDescription = if (open) "Развёрнуто" else "Свёрнуто" }.clickable(role = androidx.compose.ui.semantics.Role.Button) { open = !open } else Modifier)
                     .padding(start = 16.dp, end = 12.dp, top = 14.dp, bottom = if (open && c.blocks.isNotEmpty()) 8.dp else 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(l.icon, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(17.dp))
                 Spacer(Modifier.width(10.dp))
                 InlineText(c.title.uppercase(), Modifier.weight(1f), style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp * scale))
-                if (c.foldable) Icon(AlbionIcons.ExpandMore, if (open) "Свернуть" else "Развернуть", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.rotate(arrow))
+                if (c.foldable) DisclosureIndicator(open, Modifier.padding(start = 12.dp))
             }
             AnimatedVisibility(
                 open,
@@ -434,8 +437,11 @@ private fun QuoteView(q: MdQuote, modifier: Modifier) {
 
 @Composable
 private fun CodeView(code: MdCode, modifier: Modifier) {
+    val scale = LocalMdEnv.current.scale
     Box(modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp)) {
-        Text(code.code, style = TextStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface))
+        Text(code.code, Modifier.horizontalScroll(rememberScrollState()), softWrap = false,
+            style = TextStyle(fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
+                fontSize = 13.sp * scale, lineHeight = 20.sp * scale, color = MaterialTheme.colorScheme.onSurface))
     }
 }
 

@@ -26,9 +26,6 @@ import com.marat.albion.ui.components.*
 import com.marat.albion.ui.nav.GameRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.appear
-import com.marat.albion.ui.theme.pressScale
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
 
 private val practiceGroups = listOf(
@@ -38,8 +35,7 @@ private val practiceGroups = listOf(
 )
 
 /**
- * Практика: «Продолжить» последнее упражнение, полоса ошибок к повтору,
- * фильтр навыков и сетка плиток — всё доступно с первого экрана.
+ * Фильтр и каталог — в начале; сохранённое занятие и ошибки раскрываются по запросу.
  */
 @Composable
 fun GamesScreen(navigator: Navigator) {
@@ -54,86 +50,104 @@ fun GamesScreen(navigator: Navigator) {
         .collectAsStateWithLifecycle(PracticeOptions(count = defaultCount))
     val needs by remember { c.study.observePracticeNeeds() }.collectAsStateWithLifecycle(emptyList())
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(156.dp),
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            ScreenHeader("Практика", eyebrow = "04 / НАВЫКИ", compact = true, trailing = {
-                Row {
-                    FeatureHelp("practice", "Как заниматься",
-                        "Выберите навык, затем колоду или уровень и длину занятия. Параметры каждого упражнения сохраняются.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в дневной цели и статистике; расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
-                    SettingsShortcut(navigator::openSettings)
-                }
-            })
-        }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            val scope = if (featured.isGrammar) options.level.ifEmpty { "Все уровни" }
-                else (featured.decks.firstOrNull { it.id == options.deckId } ?: featured.decks.first()).title
-            val length = if (options.count == Int.MAX_VALUE) "вся колода" else "${options.count} ${featured.unit}"
-            val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-            BoundVolume(Modifier.fillMaxWidth().appear(2).pressScale(interaction, 0.98f).clip(MaterialTheme.shapes.extraLarge)
-                .clickable(interaction, null, onClickLabel = featured.title) { navigator.open(GameRoute(featured)) }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(48.dp).background(LocalContentColor.current.copy(alpha = 0.12f), CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(featured.icon, null, Modifier.size(24.dp))
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(if (lastGame != null) "Продолжить" else "Первое занятие", style = MaterialTheme.typography.labelMedium,
-                            color = LocalContentColor.current)
-                        Text(featured.title, style = MaterialTheme.typography.titleLarge)
+    val pending = needs.mapNotNull { need ->
+        val game = Game.entries.firstOrNull { it.name == need.game } ?: return@mapNotNull null
+        Triple(game, Deck.byId(need.deck), need.count)
+    }
+
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val short = maxHeight < 480.dp
+        val largeType = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
+        val saved: androidx.compose.foundation.lazy.grid.LazyGridScope.() -> Unit = {
+            if (lastGame != null || pending.isNotEmpty()) item(key = "saved-practice", span = { GridItemSpan(maxLineSpan) }) {
+                Disclosure(if (lastGame != null) "Продолжить" else "Ошибки",
+                    if (pending.isNotEmpty() && (lastGame == null || !largeType)) mistakesLabel(pending.sumOf { it.third }) else null,
+                    contentPadding = PaddingValues(bottom = 12.dp)) {
+                    if (lastGame != null) PracticeContinuation(featured, options, continuing = true) { navigator.open(GameRoute(featured)) }
+                    if (pending.isNotEmpty()) {
+                        Text("Повторить ошибки", style = MaterialTheme.typography.titleSmall)
+                        pending.forEach { (game, deck, count) ->
+                            MistakeRow(game, deck, count) { navigator.open(GameRoute(game, deck, onlyMistakes = true)) }
+                        }
                     }
                 }
-                Text(if (lastGame != null) listOf(scope.takeUnless { it == featured.title }, length).filterNotNull().joinToString(" · ")
-                    else featured.tagline, style = MaterialTheme.typography.bodyMedium, color = LocalContentColor.current)
-                PrimaryButton(if (lastGame != null) "Продолжить" else "Попробовать", { navigator.open(GameRoute(featured)) }, trailingIcon = AlbionIcons.ArrowForward, inverse = true)
             }
         }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Panel(Modifier.fillMaxWidth().appear(3), onClick = { navigator.open(com.marat.albion.ui.nav.ConversationsRoute) },
-                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(AlbionIcons.Chat, null, Modifier.size(22.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(156.dp),
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                ScreenHeader("Практика", eyebrow = if (short) null else "04 / НАВЫКИ", compact = true, trailing = {
+                    Row {
+                        FeatureHelp("practice", "Как заниматься",
+                            "Выберите навык, затем колоду или уровень и длину занятия. Параметры каждого упражнения сохраняются.\n\nОшибки сохраняются: сложные слова и задания будут встречаться чаще.\n\nПрактика учитывается в дневной цели и статистике; расписание повторения карточек остаётся прежним.", showOnFirstUse = false)
+                        SettingsShortcut(navigator::openSettings)
                     }
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("Разговор с ИИ", style = MaterialTheme.typography.titleMedium)
-                        Text("Беседа текстом и голосом с разбором ошибок · офлайн", style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                })
+            }
+            item(key = "practice-filter", span = { GridItemSpan(maxLineSpan) }) {
+                OptionPicker("Навык", listOf("Все") + practiceGroups.map { it.first }, group + 1,
+                    { group = it - 1 }, Modifier.appear(2))
+            }
+            if (!short) saved()
+            practiceGroups.filterIndexed { i, _ -> group == -1 || group == i }.forEach { (title, games) ->
+                if (!short) item(key = "h:$title", span = { GridItemSpan(maxLineSpan) }) {
+                    ModuleHeading((practiceGroups.indexOfFirst { it.first == title } + 1).toString().padStart(2, '0'), title,
+                        if (largeType) null else games.size.let { "$it " + com.marat.albion.ui.library.pluralRu(it, "упражнение", "упражнения", "упражнений") },
+                        quietItem(), compact = largeType)
+                }
+                items(games, key = { it.name }, span = { GridItemSpan(maxLineSpan) }) { game ->
+                    PracticeTile(game, quietItem()) { navigator.open(GameRoute(game)) }
                 }
             }
-        }
-        val pending = needs.mapNotNull { need ->
-            val game = Game.entries.firstOrNull { it.name == need.game } ?: return@mapNotNull null
-            Triple(game, Deck.byId(need.deck), need.count)
-        }
-        if (pending.isNotEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
-            Column(Modifier.appear(3), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Повторить ошибки", Modifier.padding(top = 12.dp, bottom = 2.dp), style = MaterialTheme.typography.titleLarge)
-                pending.forEach { (game, deck, count) ->
-                    MistakeRow(game, deck, count) { navigator.open(GameRoute(game, deck, onlyMistakes = true)) }
+            if (short) saved()
+            item(key = "conversation", span = { GridItemSpan(maxLineSpan) }) {
+                Panel(Modifier.fillMaxWidth().appear(3), onClick = { navigator.open(com.marat.albion.ui.nav.ConversationsRoute) },
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
+                            Icon(AlbionIcons.Chat, null, Modifier.size(22.dp))
+                        }
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Разговор с ИИ", style = MaterialTheme.typography.titleMedium)
+                            Text("Беседа текстом и голосом с разбором ошибок · офлайн", style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
+
         }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            OptionPicker("Навык", listOf("Все") + practiceGroups.map { it.first }, group + 1,
-                { group = it - 1 }, Modifier.padding(top = 12.dp).appear(4))
+    }
+}
+
+/** Full-width title and action: decoration never squeezes the longest word. */
+@Composable
+internal fun PracticeContinuation(game: Game, options: PracticeOptions, continuing: Boolean, onOpen: () -> Unit) {
+    val scope = if (game.isGrammar) options.level.ifEmpty { "Все уровни" }
+        else (game.decks.firstOrNull { it.id == options.deckId } ?: game.decks.first()).title
+    val length = if (options.count == Int.MAX_VALUE) "вся колода" else "${options.count} ${game.unit}"
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val titleStyle = MaterialTheme.typography.titleLarge
+        val wordWidth = with(density) {
+            game.title.split(Regex("\\s+")).maxOf { measurer.measure(it, titleStyle, softWrap = false).size.width }.toDp()
         }
-        practiceGroups.filterIndexed { i, _ -> group == -1 || group == i }.forEach { (title, games) ->
-            item(key = "h:$title", span = { GridItemSpan(maxLineSpan) }) {
-                ModuleHeading((practiceGroups.indexOfFirst { it.first == title } + 1).toString().padStart(2, '0'), title,
-                    games.size.let { "$it " + com.marat.albion.ui.library.pluralRu(it, "упражнение", "упражнения", "упражнений") }, quietItem())
-            }
-            items(games, key = { it.name }, span = { GridItemSpan(maxLineSpan) }) { game ->
-                PracticeTile(game, quietItem()) { navigator.open(GameRoute(game)) }
-            }
+        val padding = ((maxWidth - wordWidth) / 2).coerceIn(4.dp, 12.dp)
+        BoundVolume(Modifier.fillMaxWidth(), contentPadding = PaddingValues(padding)) {
+            Text(if (continuing) "Продолжить" else "Первое занятие", style = MaterialTheme.typography.labelMedium,
+                color = LocalContentColor.current)
+            Text(game.title, style = MaterialTheme.typography.titleLarge)
+            Text(if (continuing) listOf(scope.takeUnless { it == game.title }, length).filterNotNull().joinToString(" · ")
+                else game.tagline, style = MaterialTheme.typography.bodyMedium, color = LocalContentColor.current)
+            PrimaryButton(if (continuing) "Продолжить" else "Попробовать", onOpen, inverse = true)
         }
     }
 }

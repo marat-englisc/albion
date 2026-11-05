@@ -110,6 +110,7 @@ fun HomeScreen(navigator: Navigator) {
 
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val compact = maxWidth < 360.dp || maxHeight < 640.dp || LocalDensity.current.fontScale > 1.2f
+        val short = maxHeight < 480.dp
         val overview: LazyListScope.() -> Unit = {
             item {
                 Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp, bottom = 12.dp),
@@ -127,6 +128,27 @@ fun HomeScreen(navigator: Navigator) {
                     Spacer(Modifier.width(8.dp))
                     SettingsShortcut(navigator::openSettings)
                 }
+            }
+            item {
+                when (val s = status) {
+                    is ImportStatus.Importing -> Row(Modifier.padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 1.dp, color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(12.dp))
+                        Text("Готовим материалы · ${s.index}/${s.total}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    is ImportStatus.Failed -> Column {
+                        Text("Не удалось подготовить материалы.", color = MaterialTheme.colorScheme.error)
+                        GhostButton("Открыть настройки", navigator::openSettings)
+                    }
+                    ImportStatus.Empty -> EmptyState("Материалы недоступны", "Откройте настройки, чтобы проверить учебные материалы.")
+                    else -> Unit
+                }
+            }
+            item {
+                TodayCard(state, sessionSize, Modifier.appear(1), compact, short, status is ImportStatus.Checking || status is ImportStatus.Importing,
+                    onSize = { sessionSize = it; vm.setSessionSize(it) },
+                    onStart = { navigator.open(StudyRoute(answerLimit = minOf(sessionSize, state.decks.sumOf { it.toStudy }).coerceAtLeast(1))) },
+                    onRead = { navigator.switchTab(LibraryRoute) })
             }
             if (!compact) item {
                 Column(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 20.dp).appear(1)) {
@@ -153,27 +175,6 @@ fun HomeScreen(navigator: Navigator) {
                         }
                     }
                 }
-            }
-            item {
-                when (val s = status) {
-                    is ImportStatus.Importing -> Row(Modifier.padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 1.dp, color = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(12.dp))
-                        Text("Готовим материалы · ${s.index}/${s.total}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    is ImportStatus.Failed -> Column {
-                        Text("Не удалось подготовить материалы.", color = MaterialTheme.colorScheme.error)
-                        GhostButton("Открыть настройки", navigator::openSettings)
-                    }
-                    ImportStatus.Empty -> EmptyState("Материалы недоступны", "Откройте настройки, чтобы проверить учебные материалы.")
-                    else -> Unit
-                }
-            }
-            item {
-                TodayCard(state, sessionSize, Modifier.appear(2), compact, status is ImportStatus.Checking || status is ImportStatus.Importing,
-                    onSize = { sessionSize = it; vm.setSessionSize(it) },
-                    onStart = { navigator.open(StudyRoute(answerLimit = minOf(sessionSize, state.decks.sumOf { it.toStudy }).coerceAtLeast(1))) },
-                    onRead = { navigator.switchTab(LibraryRoute) })
             }
             if (compact) item {
                 Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
@@ -226,43 +227,33 @@ fun HomeScreen(navigator: Navigator) {
 }
 
 @Composable
-private fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, compact: Boolean, preparing: Boolean, onSize: (Int) -> Unit, onStart: () -> Unit, onRead: () -> Unit) {
+internal fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, compact: Boolean, short: Boolean,
+                      preparing: Boolean, onSize: (Int) -> Unit, onStart: () -> Unit, onRead: () -> Unit) {
     val available = state.decks.sumOf { it.toStudy }
     val planned = minOf(sessionSize, available)
     val loaded = state.loaded && !preparing
     val sizes = listOf(5, 10, 20)
     val scheme = MaterialTheme.colorScheme
-    Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(if (compact) 16.dp else 22.dp), borderColor = scheme.outlineVariant) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            SignalLabel("01 / ФОКУС")
-            if (!compact) SignalLabel("НА СЕГОДНЯ")
-        }
-        Spacer(Modifier.height(if (compact) 12.dp else 24.dp))
-        Text(when {
-            !loaded -> "Готовим занятие"
-            available > 0 && compact -> "На сегодня"
-            available > 0 -> "Маленький шаг.\nНовый уровень."
-            else -> "Отличная работа."
-        }, style = if (compact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(10.dp))
+    Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(if (short) 12.dp else if (compact) 16.dp else 22.dp),
+        borderColor = scheme.outlineVariant) {
+        Text(if (!loaded) "Готовим занятие" else if (available > 0) "Занятие на сегодня" else "На сегодня всё",
+            style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(8.dp))
+        // The main action precedes descriptions and optional session settings, even in a short window.
+        if (!loaded || available > 0) {
+            PrimaryButton(if (!loaded) "Готовим занятие…" else "Начать", onClick = onStart,
+                enabled = loaded && planned > 0)
+        } else PrimaryButton("Открыть библиотеку", onRead)
+        Spacer(Modifier.height(8.dp))
         Text(when {
             !loaded -> "Собираем ваши карточки"
             available > 0 -> "${answerLabel(planned)} за занятие · $available ${com.marat.albion.ui.library.pluralRu(available, "карточка доступна", "карточки доступны", "карточек доступно")}"
             else -> "Все карточки на сегодня повторены. Время для книги."
         }, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         if (!loaded || available > 0) {
-            Spacer(Modifier.height(if (compact) 12.dp else 22.dp))
-            if (!compact) {
-                SignalLabel("ОБЪЁМ ЗАНЯТИЯ")
-                Spacer(Modifier.height(8.dp))
+            Disclosure("Объём занятия", "${answerLabel(sessionSize)}") {
+                SegmentedPicker(sizes.map { "$it" }, sizes.indexOf(sessionSize).coerceAtLeast(0), { onSize(sizes[it]) })
             }
-            SegmentedPicker(sizes.map { "$it" }, sizes.indexOf(sessionSize).coerceAtLeast(0), { onSize(sizes[it]) })
-            Spacer(Modifier.height(14.dp))
-            PrimaryButton(if (!loaded) "Готовим занятие…" else "Начать", onClick = onStart,
-                enabled = loaded && planned > 0, trailingIcon = AlbionIcons.ArrowForward)
-        } else {
-            Spacer(Modifier.height(18.dp))
-            PrimaryButton("Открыть библиотеку", onRead, trailingIcon = AlbionIcons.ArrowForward)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.components.QuietLinearProgressIndicator as LinearProgressIndicator
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -50,7 +51,7 @@ fun SpeechModelControls() {
             }
             status.ready -> {
                 Text("Модель установлена. Голосовой ввод работает офлайн.", style = MaterialTheme.typography.bodyMedium)
-                TextButton(onClick = { deleting = true }) { Text("Удалить выбранную модель") }
+                TextButton(onClick = { deleting = true }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("Удалить выбранную модель") }
             }
             else -> {
                 SwitchSetting("Загрузка по мобильной сети", status.allowMobile) { scope.launch { models.setAllowMobile(it) } }
@@ -59,8 +60,10 @@ fun SpeechModelControls() {
             }
         }
     }
-    if (deleting) AlertDialog(onDismissRequest = { deleting = false }, title = { Text("Удалить модель распознавания?") },
-        text = { Text("Беседы сохранятся, писать сообщения можно и дальше. Модель можно установить снова.") },
-        confirmButton = { TextButton(onClick = { deleting = false; speech.releaseMemory(); scope.launch { models.deleteSelected() } }) { Text("Удалить") } },
-        dismissButton = { TextButton(onClick = { deleting = false }) { Text("Отмена") } })
+    if (deleting) DestructiveConfirmationDialog(
+        title = "Удалить модель распознавания?",
+        message = "Беседы сохранятся, писать сообщения можно и дальше. Для голосового ввода модель потребуется установить снова.",
+        onConfirm = { deleting = false; speech.releaseMemory(); scope.launch { models.deleteSelected() } },
+        onDismiss = { deleting = false },
+    )
 }

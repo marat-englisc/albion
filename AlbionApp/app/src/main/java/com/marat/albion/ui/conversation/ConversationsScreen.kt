@@ -1,5 +1,6 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
 import android.content.Context
 import android.text.format.DateUtils
@@ -117,10 +118,12 @@ fun ConversationsScreen(navigator: Navigator) {
         }
     }
     deleting?.let { summary ->
-        AlertDialog({ deleting = null }, title = { Text("Удалить беседу?") },
-            text = { Text("«${summary.conversation.title}» и все разборы реплик будут удалены.") },
-            confirmButton = { TextButton({ deleting = null; scope.launch { c.conversations.delete(summary.conversation.id) } }) { Text("Удалить") } },
-            dismissButton = { TextButton({ deleting = null }) { Text("Отмена") } })
+        DestructiveConfirmationDialog(
+            title = "Удалить беседу?",
+            message = "«${summary.conversation.title}», все её реплики и разборы будут удалены. Отменить удаление нельзя.",
+            onConfirm = { deleting = null; scope.launch { c.conversations.delete(summary.conversation.id) } },
+            onDismiss = { deleting = null },
+        )
     }
 }
 
@@ -143,7 +146,7 @@ private fun HistoryRow(summary: ConversationSummary, modifier: Modifier, onOpen:
                 ).joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             RoundIconButton(AlbionIcons.Delete, "Удалить беседу «${conversation.title}»", onDelete,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                tint = MaterialTheme.colorScheme.error)
         }
     }
 }

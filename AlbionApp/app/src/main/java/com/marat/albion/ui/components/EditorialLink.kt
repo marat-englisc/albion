@@ -70,6 +70,6 @@ fun EditorialLink(
             }
         }
         Spacer(Modifier.width(12.dp))
-        Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(AlbionIcons.ArrowForward, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

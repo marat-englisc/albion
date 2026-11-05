@@ -7,14 +7,12 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,11 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -49,7 +43,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -62,9 +55,6 @@ import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.theme.LocalReducedMotion
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -79,16 +69,13 @@ import kotlin.math.sin
  *  по буквам появляется «albion» и подпись;
  *  петля — пока приложение готовится: сфера вращается, спутник кружит со шлейфом, свечение «дышит»,
  *  снизу статус импорта и бегущая полоса;
- *  выход — композиция укрупняется и растворяется, открывая приложение.
+ *  готовность — экран сразу освобождает интерфейс, даже посреди вступления.
  *
- * «Меньше движения»: без вступления и петли — статичная композиция и короткое растворение.
+ * «Меньше движения»: без вступления и петли — статичная композиция.
  * Экран одинаков в обеих темах, как акцентная плита (Hero).
  */
 
 private const val INTRO_MS = 2800
-/** Повторный запуск, когда всё уже готово, — короткая версия вступления. */
-private const val WARM_INTRO_MS = 1300
-private const val EXIT_MS = 720
 
 private val Ink = Color(0xFF0A0B0F)
 private val Iris = Color(0xFF5B3FF5)
@@ -106,27 +93,18 @@ fun LaunchScreen(
     ready: Boolean,
     /** Строка статуса внизу во время петли, например «ГОТОВИМ МАТЕРИАЛЫ · 2/5». */
     status: String?,
-    /** Процесс уже был запущен и всё готово — короткое вступление. */
-    warm: Boolean,
     onFinished: () -> Unit,
 ) {
+    // No loading layer or intercepted touches once the content is ready.
+    if (ready) {
+        LaunchedEffect(Unit) { onFinished() }
+        return
+    }
     val reduced = LocalReducedMotion.current
     val intro = remember { Animatable(if (reduced) 1f else 0f) }
-    val exit = remember { Animatable(0f) }
-    val readyNow by rememberUpdatedState(ready)
-    var skip by remember { mutableStateOf(false) }
-
     LaunchedEffect(reduced) {
         if (reduced) intro.snapTo(1f)
-        val play = if (!reduced) launch {
-            intro.animateTo(1f, tween(if (warm) WARM_INTRO_MS else INTRO_MS, easing = LinearEasing))
-        } else null
-        if (reduced) delay(350)
-        // Выходим, когда приложение готово и вступление доиграло (касание экрана его досрочно завершает).
-        snapshotFlow { readyNow && (intro.value >= 1f || skip) }.first { it }
-        play?.cancel()
-        exit.animateTo(1f, tween(if (reduced) 220 else EXIT_MS, easing = FastOutSlowInEasing))
-        onFinished()
+        else intro.animateTo(1f, tween(INTRO_MS, easing = LinearEasing))
     }
 
     // Петли идут с первого кадра: к концу вступления движение уже «разогнано» и не стартует рывком.
@@ -140,26 +118,22 @@ fun LaunchScreen(
         floatArrayOf(spin, orbit, dial, breathe, bar)
     }
 
-    val statusAlpha by animateFloatAsState(if (intro.value >= 1f && !ready && exit.value == 0f) 1f else 0f, tween(400), label = "status")
-
     BoxWithConstraints(
         Modifier.fillMaxSize()
-            .graphicsLayer { alpha = 1f - exit.value }
             .background(Ink)
-            // Экран перехватывает все касания, чтобы под ним ничего не нажималось; касание досрочно завершает вступление.
+            // Пока материалы готовятся, касания не должны попадать в интерфейс под загрузкой.
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent()
                         event.changes.forEach { it.consume() }
-                        if (event.type == PointerEventType.Release) skip = true
                     }
                 }
             }
             .semantics { contentDescription = "Albion загружается" },
     ) {
         val p = if (reduced) 1f else intro.value
-        val e = if (reduced) 0f else exit.value
+        val e = 0f
         val sphere = min(maxWidth, maxHeight * .8f) * .30f
         val lift = 52.dp * ease(seg(p, .45f, .8f))
 
@@ -193,10 +167,10 @@ fun LaunchScreen(
             )
         }
 
-        // Статус загрузки — только в петле, когда вступление доиграло, а приложение ещё готовится.
+        // Статус доступен с первого кадра, независимо от декоративного вступления.
         Column(
             Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(bottom = 40.dp).graphicsLayer { alpha = statusAlpha }.clearAndSetSemantics {},
+                .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(status ?: "ЗАГРУЗКА", style = Typography.labelMedium.copy(color = Color.White.copy(alpha = .62f)))
@@ -369,4 +343,3 @@ private fun DrawScope.drawSphere(c: Offset, radius: Float, phase: Float, reveal:
 private fun seg(p: Float, a: Float, b: Float) = ((p - a) / (b - a)).coerceIn(0f, 1f)
 private fun ease(x: Float) = FastOutSlowInEasing.transform(x)
 private fun easeOut(x: Float) = 1f - (1f - x) * (1f - x) * (1f - x)
-

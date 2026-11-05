@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -35,6 +35,7 @@ import com.marat.albion.data.grammar.*
 import com.marat.albion.ui.browse.SearchField
 import com.marat.albion.ui.components.*
 import com.marat.albion.ui.nav.LocalBesideDetail
+import com.marat.albion.ui.nav.LocalPaneHeight
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
 import com.marat.albion.ui.nav.TopicQuizRoute
@@ -82,7 +83,8 @@ fun GrammarScreen(navigator: Navigator) {
     var headerMenu by remember { mutableStateOf(false) }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     val largeText = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f
-    val shortScreen = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 480
+    val shortScreen = LocalPaneHeight.current?.let { it < 480.dp }
+        ?: (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 480)
     val routeState = rememberLazyListState()
     val searchState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -97,7 +99,7 @@ fun GrammarScreen(navigator: Navigator) {
     val due = state.reviews.takeWhile { it.dueAt <= now }
     val filtering = query.isNotBlank() || bookmarksOnly || reviewsOnly
     val listState = if (filtering) searchState else routeState
-    val showNext = !filtering && nextStep != null && recommendation?.level == activeStage?.level
+    val showNext = !LocalBesideDetail.current && !filtering && nextStep != null && recommendation?.level == activeStage?.level
     // Урок из «Следующего шага» остаётся в маршруте и подсвечен: нумерация не прерывается.
     val route = activeStage?.topics.orEmpty()
     val q = query.trim().lowercase()
@@ -147,7 +149,7 @@ fun GrammarScreen(navigator: Navigator) {
                         Spacer(Modifier.width(8.dp))
                         com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Меню учебника", { headerMenu = true }, filled = true)
                     }
-                    androidx.compose.material3.DropdownMenu(headerMenu, { headerMenu = false }) {
+                    com.marat.albion.ui.components.PaneDropdownMenu(headerMenu, { headerMenu = false }) {
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Справочники и курс") }, onClick = { headerMenu = false; references = true })
                         androidx.compose.material3.DropdownMenuItem(text = { Text("Настройки") }, onClick = { headerMenu = false; navigator.openSettings() })
                     }
@@ -207,7 +209,7 @@ fun GrammarScreen(navigator: Navigator) {
             }
         }
     }
-    if (references) androidx.compose.material3.ModalBottomSheet(
+    if (references) com.marat.albion.ui.components.PaneBottomSheet(
         onDismissRequest = { references = false },
         sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = gutter)) {
@@ -243,7 +245,7 @@ private fun GrammarReviewCard(
             }
             TextButton(onClick = onExpand, modifier = Modifier.semantics { stateDescription = if (expanded) "Развёрнуто" else "Свёрнуто" }) {
                 Text("Как работает повторение", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
-                Icon(AlbionIcons.ExpandMore, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp).rotate(if (expanded) 180f else 0f))
+                DisclosureIndicator(expanded, Modifier.padding(start = 12.dp))
             }
             AnimatedVisibility(expanded) {
                 Text("Сначала повторяются темы с самой ранней датой. Полный тест обновляет план. " +
@@ -265,14 +267,14 @@ private fun GrammarSearchResult(
             Column(Modifier.weight(1f)) {
                 Text(com.marat.albion.ui.components.highlightedQuery(topic.title, query), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                 val status = when { progress?.masteredAt != null -> "Освоено"; progress?.readAt != null -> "Прочитано"; else -> null }
-                if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                GrammarReview.plan(progress)?.let { Text("Повторение: ${grammarReviewDate(it.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (status != null) Text(status, style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant)
+                GrammarReview.plan(progress)?.let { Text("Повторение: ${grammarReviewDate(it.dueAt, now)}", style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant) }
             }
             Spacer(Modifier.width(8.dp))
             if (progress?.bookmarked == true) Icon(AlbionIcons.Bookmark, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
             LevelBadge(topic.level)
         }
-        if (query.isNotBlank()) Text(com.marat.albion.ui.components.highlightedQuery(GrammarSearch.snippet(topic, query), query), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        if (query.isNotBlank()) Text(com.marat.albion.ui.components.highlightedQuery(GrammarSearch.snippet(topic, query), query), style = MaterialTheme.typography.bodySmall, color = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 36.dp, top = 7.dp))
         Hairline(Modifier.padding(top = 14.dp))
     }
