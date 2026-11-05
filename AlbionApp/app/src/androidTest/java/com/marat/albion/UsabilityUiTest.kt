@@ -6,6 +6,8 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -89,18 +91,37 @@ class UsabilityUiTest {
 
     @Test fun readerHasAccessibleSelectionSearchReturnAndAppearance(): Unit = runBlocking {
         container.importer.importIfNeeded()
+        val original = container.settings.current()
+        container.settings.setReaderTextScale(1f)
+        container.settings.setReaderLineSpacing(1f)
+        container.settings.setReaderMargin(26)
         val source = java.io.File(instrumentation.targetContext.cacheDir, "usability-reader.md").apply {
-            writeText("# Usability test book\n\n## Chapter One\n\nThe lighthouse watches the quiet sea. A keeper opens the door.\n\n## Chapter Two\n\nTomorrow the keeper will return to the lighthouse.")
+            writeText("# Usability test book\n\n## Chapter One\n\nThe lighthouse watches the quiet sea. A keeper opens the door. Beyond the stone walls, a pale morning settles over the harbour, and the first fishing boats leave their moorings in the soft English light.\n\n## Chapter Two\n\nTomorrow the keeper will return to the lighthouse.")
         }
         val book = container.library.import(android.net.Uri.fromFile(source))
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-                show(scenario, "reader-controls", 360, 1f, false) { com.marat.albion.ui.library.ReaderScreen(book.id, navigator()) }
+                val dark = InstrumentationRegistry.getArguments().getString("testDark") == "true"
+                show(scenario, "reader-controls", 360, 1f, dark) { com.marat.albion.ui.library.ReaderScreen(book.id, navigator()) }
                 val paragraph = awaitNode { it.text?.toString()?.startsWith("The lighthouse watches") == true }
                 assertTrue("Paragraph must have an accessible translation action", paragraph.actionList.any { it.id == AccessibilityNodeInfo.ACTION_CLICK })
+                capture("reader-illuminated-opening")
+                val area = bounds(paragraph)
+                val density = instrumentation.targetContext.resources.displayMetrics.density
+                val downTime = SystemClock.uptimeMillis()
+                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                    val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action, area.left + 30 * density, area.top + 40 * density, 0)
+                    instrumentation.sendPointerSync(event); event.recycle()
+                }
+                awaitText("The")
+                awaitNode { it.contentDescription?.toString() == "Закрыть перевод" }
+                capture("reader-initial-translation")
+                activate(awaitNode { it.contentDescription?.toString() == "Закрыть перевод" })
                 assertTrue(paragraph.performAction(AccessibilityNodeInfo.ACTION_CLICK))
-                activate(awaitText("Уточнить выделение"))
-                awaitText("Предложение")
+                awaitNode { it.contentDescription?.toString() == "Закрыть перевод" }
+                assertTrue("Selection refinement must stay removed", find(instrumentation.uiAutomation.rootInActiveWindow) {
+                    it.text?.toString() == "Уточнить выделение"
+                } == null)
                 capture("reader-accessible-selection")
                 activate(awaitNode { it.contentDescription?.toString() == "Закрыть перевод" })
                 activate(awaitNode { it.contentDescription?.toString() == "Меню чтения" })
@@ -120,7 +141,12 @@ class UsabilityUiTest {
                 awaitNode { it.contentDescription?.toString() == "Увеличить: Размер текста" }
                 capture("reader-appearance")
             }
-        } finally { container.library.delete(book.id); source.delete() }
+        } finally {
+            container.library.delete(book.id); source.delete()
+            container.settings.setReaderTextScale(original.readerTextScale)
+            container.settings.setReaderLineSpacing(original.readerLineSpacing)
+            container.settings.setReaderMargin(original.readerMargin)
+        }
     }
 
     @Test fun reminderTimeCanBeTypedWithoutUsingTheClock(): Unit = runBlocking {
@@ -166,12 +192,15 @@ class UsabilityUiTest {
     private fun show(scenario: ActivityScenario<MainActivity>, name: String, width: Int,
                      scale: Float, dark: Boolean, content: @Composable () -> Unit) {
         scenario.onActivity { activity ->
+            val bars = if (dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+            activity.enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
             activity.setContent {
                 val density = LocalDensity.current.density
                 CompositionLocalProvider(LocalAppContainer provides container,
                     LocalDensity provides Density(density, scale)) {
                     key(name) {
-                        AlbionTheme {
+                        AlbionTheme(darkTheme = dark) {
                             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                                 Box(Modifier.width(width.dp).height(640.dp)) { content() }
                             }

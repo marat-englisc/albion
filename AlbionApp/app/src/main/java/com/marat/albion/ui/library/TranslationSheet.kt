@@ -92,7 +92,6 @@ private sealed interface TranslationResult {
 fun TranslationSheet(
     text: String,
     isWord: Boolean,
-    selectionControls: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     /** Выделение, которого касается фрагмент; null — ещё не выделено. */
     highlight: HighlightEntity? = null,
@@ -266,8 +265,6 @@ fun TranslationSheet(
                 }
             }
 
-            // Уточнение границ — второстепенное действие: после перевода, а не над ним.
-            selectionControls?.let { Spacer(Modifier.height(4.dp)); it() }
             if (!model.ready) {
                 Spacer(Modifier.height(12.dp))
                 com.marat.albion.ui.components.Disclosure("Офлайн-перевод", model.summary) { BookTranslationControls() }

@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) { if (held) { kotlinx.coroutines.delay(holdMs); held = false } }
             CompositionLocalProvider(LocalAppContainer provides container) {
                 val dark = isAppInDarkTheme(settings.themeMode)
-                // Иконки статус-бара и навигации следуют теме приложения; на графитовом экране загрузки — светлые.
+                // Иконки статус-бара и навигации следуют теме приложения; на зелёном переплёте загрузки — светлые.
                 LaunchedEffect(dark, launching) {
                     val style = if (dark || launching) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                     enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)

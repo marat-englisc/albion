@@ -7,7 +7,6 @@ import com.marat.albion.ui.components.paperGrain
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -37,6 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import com.marat.albion.ui.components.FolioDivider
 import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.theme.LocalReducedMotion
+import com.marat.albion.ui.theme.LocalDarkTheme
+import com.marat.albion.ui.theme.Hero
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -344,8 +345,8 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
             val headingGapPx = with(density) { (24 * scale).dp.roundToPx() }
             val headingDecoration = 42.dp
             val decorationPx = with(density) { headingDecoration.roundToPx() }
-            val dropCaps = maxWidth / columns >= 360.dp && density.fontScale <= 1.3f && scale <= 1.2f
-            val key = "reading-room-initial-v2:$widthPx:$heightPx:$scale:${settings.readerLineSpacing}:${settings.readerMargin}:$columns:$dropCaps:${density.fontScale}"
+            val dropCaps = density.fontScale <= 1.3f && scale <= 1.2f
+            val key = "reading-room-initial-v3:$widthPx:$heightPx:$scale:${settings.readerLineSpacing}:${settings.readerMargin}:$columns:$dropCaps:${density.fontScale}"
 
             LaunchedEffect(key, book) {
                 if (vm.pagesKey == key && vm.pages.isNotEmpty()) return@LaunchedEffect
@@ -578,31 +579,6 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     text = text,
                     isWord = sel.isWord,
                     onDismiss = { selection = null },
-                    selectionControls = {
-                        com.marat.albion.ui.components.Disclosure("Уточнить выделение") {
-                            val visible = paragraph.substring(block.start, block.end)
-                            val words = Regex("[\\p{L}\\p{N}'’-]+").findAll(visible).map { it.range }.toList()
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                TextButton(enabled = sel.start > 0, onClick = {
-                                    words.lastOrNull { it.first < sel.start }?.let { selection = sel.copy(start = it.first, end = it.last + 1, isWord = true) }
-                                }) { Text("← Предыдущее слово") }
-                                TextButton(enabled = sel.end < visible.length, onClick = {
-                                    words.firstOrNull { it.first >= sel.end }?.let { selection = sel.copy(start = it.first, end = it.last + 1, isWord = true) }
-                                }) { Text("Следующее слово →") }
-                                TextButton(onClick = {
-                                    val range = sentenceAt(visible, sel.start)
-                                    selection = sel.copy(start = range.first, end = range.last + 1, isWord = false)
-                                }) { Text("Предложение") }
-                                TextButton(onClick = { selection = sel.copy(start = 0, end = visible.length, isWord = false) }) { Text("Весь фрагмент") }
-                                TextButton(enabled = sel.start > 0, onClick = {
-                                    words.lastOrNull { it.first < sel.start }?.let { selection = sel.copy(start = it.first, isWord = false) }
-                                }) { Text("Расширить влево") }
-                                TextButton(enabled = sel.end < visible.length, onClick = {
-                                    words.firstOrNull { it.last + 1 > sel.end }?.let { selection = sel.copy(end = it.last + 1, isWord = false) }
-                                }) { Text("Расширить вправо") }
-                            }
-                        }
-                    },
                     highlight = existing,
                     onHighlight = { note -> vm.addHighlight(block.chapter, block.paragraph, absStart, absEnd, text, note) },
                     onNote = { h, note -> vm.updateNote(h.id, note) },
@@ -703,6 +679,8 @@ private fun SelectableParagraph(
     highlights: List<IntRange> = emptyList(),
     marks: List<IntRange> = emptyList(),
 ) {
+    val darkTheme = LocalDarkTheme.current
+    val initialColor = if (darkTheme) Hero.Base else Hero.Content
     val marker = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
     val dots = MaterialTheme.colorScheme.onSurfaceVariant
     val density = LocalDensity.current
@@ -729,7 +707,9 @@ private fun SelectableParagraph(
     val measurer = rememberTextMeasurer()
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val width = constraints.maxWidth
-        val layout = remember(annotated, style, width, dropCap) { measureEditionParagraph(measurer, annotated, style, width, dropCap) }
+        val layout = remember(annotated, style, width, dropCap, initialColor) {
+            measureEditionParagraph(measurer, annotated, style, width, dropCap, initialColor = initialColor)
+        }
         val currentLayout by rememberUpdatedState(layout)
         Canvas(Modifier.fillMaxWidth().height(with(density) { layout.height.toDp() })
             .semantics {
@@ -740,6 +720,7 @@ private fun SelectableParagraph(
                 })
             }
             .drawBehind {
+                layout.initialFrame?.let { drawIlluminatedInitial(it, darkTheme) }
                 fun androidx.compose.ui.graphics.drawscope.DrawScope.drawMarkers(part: EditionTextPart) {
                     val from = part.start
                     val until = from + part.layout.layoutInput.text.length
@@ -832,7 +813,9 @@ private fun SelectableParagraph(
     }
 }
 
-private fun isWordChar(c: Char) = c.isLetterOrDigit() || c == '\'' || c == '’' || c == '-'
+private fun isWordCore(c: Char) = c.isLetterOrDigit() || c.category == CharCategory.NON_SPACING_MARK ||
+    c.category == CharCategory.COMBINING_SPACING_MARK
+private fun isWordChar(c: Char) = isWordCore(c) || c == '\'' || c == '’' || c == '-'
 
 /** Слово вокруг позиции (без кавычек и тире по краям). */
 fun wordAt(text: String, offset: Int): IntRange? {
@@ -844,8 +827,8 @@ fun wordAt(text: String, offset: Int): IntRange? {
     var e = i
     while (s > 0 && isWordChar(text[s - 1])) s--
     while (e < text.length - 1 && isWordChar(text[e + 1])) e++
-    while (s <= e && !text[s].isLetterOrDigit()) s++
-    while (e >= s && !text[e].isLetterOrDigit()) e--
+    while (s <= e && !isWordCore(text[s])) s++
+    while (e >= s && !isWordCore(text[e])) e--
     return if (s <= e) s..e else null
 }
 

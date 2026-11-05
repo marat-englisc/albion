@@ -1,2 +1,0 @@
-Minimum content-area contrast: 7.637290774672176
-Brightest pixel: ff415542

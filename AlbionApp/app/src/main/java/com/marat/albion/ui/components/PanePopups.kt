@@ -89,13 +89,14 @@ fun PaneBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val folded = LocalWindowFolds.current.orEmpty().isNotEmpty()
+    // Let Material's rounded surface include the drag handle. An inset content frame
+    // creates a second top edge and cuts through the first row of controls.
     ModalBottomSheet(onDismissRequest, modifier, sheetState = sheetState,
         shape = MaterialTheme.shapes.extraLarge,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         scrimColor = if (folded) Color.Transparent else BottomSheetDefaults.ScrimColor) {
         ConstrainPopupToPane()
-        Column(Modifier.fillMaxWidth().engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
-            .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 5.dp)
+        Column(Modifier.fillMaxWidth().paperGrain(MaterialTheme.colorScheme.outline)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)), content = content)
     }
 }
