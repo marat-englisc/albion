@@ -97,7 +97,7 @@ import kotlinx.coroutines.CancellationException
 fun LibraryScreen(navigator: Navigator) {
     val c = LocalAppContainer.current
     val books by remember { c.library.observeLibrary() }.collectAsStateWithLifecycle(null)
-    val model by c.translator.model.collectAsStateWithLifecycle()
+    val model by c.bookTranslator.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val shelfState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     var importError by remember { mutableStateOf<String?>(null) }
@@ -214,7 +214,7 @@ fun LibraryScreen(navigator: Navigator) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             // Добавление книги — кнопкой «+» в шапке; здесь вторая такая же кнопка не нужна.
             Column(Modifier.padding(top = 12.dp)) {
-                Disclosure("Офлайн-перевод", model.summary) { TranslationModelControls() }
+                Disclosure("Офлайн-перевод", model.summary) { BookTranslationControls() }
                 Disclosure("Подсказки по чтению", "Перевод касанием, выделение и заметки", icon = AlbionIcons.HelpOutline) {
                     Text("Коснитесь слова — откроется перевод. Долгое нажатие выбирает предложение, протяжка — любой фрагмент. " +
                         "В панели перевода можно выбрать значение и сохранить слово в карточки. В меню читалки — поиск, закладки, заметки и оформление. " +

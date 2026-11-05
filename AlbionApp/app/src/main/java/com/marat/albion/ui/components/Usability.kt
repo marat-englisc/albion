@@ -38,9 +38,9 @@ fun Disclosure(
         .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)
         .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
         .clip(MaterialTheme.shapes.large)) {
-        BoxWithConstraints(Modifier.fillMaxWidth().heightIn(min = 64.dp)
+        BoxWithConstraints(Modifier.fillMaxWidth().heightIn(min = 48.dp)
             .semantics { stateDescription = if (expanded) "Развёрнуто" else "Свёрнуто" }
-            .clickable(role = Role.Button) { expanded = !expanded }) {
+            .clickable(role = Role.Button) { expanded = !expanded }, contentAlignment = Alignment.CenterStart) {
             val titleStyle = MaterialTheme.typography.titleMedium
             val summaryStyle = MaterialTheme.typography.bodySmall
             val measurer = rememberTextMeasurer()

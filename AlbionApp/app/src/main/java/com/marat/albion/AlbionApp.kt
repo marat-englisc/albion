@@ -37,6 +37,7 @@ class AppContainer(context: Context) {
     val library = com.marat.albion.data.library.LibraryRepository(context, database, json, dictionary)
     val bookWords = com.marat.albion.data.library.BookWordsRepository(database, json)
     val translator = com.marat.albion.data.library.Translator(context, appScope)
+    val bookTranslator = com.marat.albion.data.library.BookTranslator(appScope)
     val speech = com.marat.albion.data.speech.SpeechToText(context, appScope)
     val conversations = com.marat.albion.data.conversation.ConversationRepository(database, translator)
 }
@@ -53,6 +54,7 @@ class AlbionApp : Application() {
         container.appScope.launch { runCatching { container.dictionary.ensureLoaded() } }
         // Восстановить состояние модели/загрузки, не загружая веса в память на старте.
         container.translator.preload()
+        container.bookTranslator.preload()
         container.speech.preload()
         Reminders.createChannel(this)
         // Будильник напоминания всегда соответствует настройкам.

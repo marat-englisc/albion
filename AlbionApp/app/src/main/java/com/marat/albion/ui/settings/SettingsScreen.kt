@@ -106,8 +106,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                 SwitchSetting("Тактильный отклик", s.hapticsEnabled) { scope.launch { repo.setHapticsEnabled(it) } }
                 SwitchSetting("Меньше движения", s.reduceMotion) { scope.launch { repo.setReduceMotion(it) } }
             }
-            Disclosure("Перевод книг", "Qwen3.5 · офлайн-модель", icon = AlbionIcons.CloudOff) {
-                com.marat.albion.ui.library.TranslationModelControls()
+            Disclosure("Перевод книг", "Google Translate · офлайн", icon = AlbionIcons.CloudOff) {
+                com.marat.albion.ui.library.BookTranslationControls()
             }
             Disclosure("Расширенные настройки повторения", "Память, начало дня и персональная подстройка", icon = com.marat.albion.ui.components.AlbionIcons.Route) {
                 SliderSetting("Желаемое удержание", "${(s.desiredRetention * 100).roundToInt()}%",

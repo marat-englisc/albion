@@ -11,7 +11,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.marat.albion.data.translation.*
-import com.marat.albion.ui.library.TranslationSheet
 import com.marat.albion.ui.library.TranslationModelControls
 import com.marat.albion.ui.components.Panel
 import androidx.compose.foundation.layout.*
@@ -47,14 +46,14 @@ class LlamaTranslationTest {
                     }
                 }
             } }
-            val anchor = await { it.contentDescription?.toString() == "Модель перевода" }
+            val anchor = await { it.contentDescription?.toString() == "Модель Qwen3.5" }
             click(anchor)
             click(await { it.text?.toString() == QWEN_MODELS.last().title })
             withTimeout(10_000) { c.translator.model.first { it.selected == "2B" } }
             await { it.text?.toString() == "Загрузить модель" }
             SystemClock.sleep(400)
             capture("model-controls-missing-2b")
-            click(await { it.contentDescription?.toString() == "Модель перевода" })
+            click(await { it.contentDescription?.toString() == "Модель Qwen3.5" })
             click(await { it.text?.toString() == QWEN_MODELS.first().title })
             withTimeout(10_000) { c.translator.model.first { it.selected == "0.8B" } }
             capture("model-controls-08b")
@@ -80,7 +79,7 @@ class LlamaTranslationTest {
     }
 
     /** Opt-in real weights, never a mock or a model download during a normal CI run. */
-    @Test fun realQwenImportsTranslatesCancelsAndKeepsDictionaryAvailable(): Unit = runBlocking {
+    @Test fun realQwenImportsTranslatesAndCancels(): Unit = runBlocking {
         val path = InstrumentationRegistry.getArguments().getString("modelPath")
         assumeTrue("Pass -e modelPath with the Qwen3.5 GGUF fixture", path != null)
         val fixture = File(requireNotNull(path))
@@ -117,30 +116,6 @@ class LlamaTranslationTest {
             assertFalse(unicode.contains('\uFFFD'))
         } finally { engine.unload() }
 
-        // A missing optional model must not break a word's dictionary lookup in the reader.
-        c.translator.models.select("2B")
-        val expected = c.dictionary.lookup("lighthouse").first().senses.first()
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            scenario.onActivity { activity -> activity.setContent {
-                CompositionLocalProvider(LocalAppContainer provides c) {
-                    AlbionTheme(darkTheme = true) {
-                        TranslationSheet("lighthouse", true, onDismiss = {})
-                    }
-                }
-            } }
-            await { it.text?.toString() == expected }
-            capture("dictionary-without-model")
-        }
-        c.translator.models.select("custom")
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            scenario.onActivity { activity -> activity.setContent {
-                CompositionLocalProvider(LocalAppContainer provides c) {
-                    AlbionTheme(darkTheme = true) { TranslationSheet(original, false, onDismiss = {}) }
-                }
-            } }
-            await { it.text?.toString() == translated }
-            capture("qwen-reader-translation")
-        }
         c.translator.unload()
     }
 

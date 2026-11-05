@@ -121,7 +121,9 @@ fun GrammarScreen(navigator: Navigator) {
         val index = (if (filtering) found else route).indexOfFirst { it.id == shownTopic }
         if (index >= 0) listState.requestScrollToItem(index + 1 + (if (shortScreen) 1 else 0) + if (filtering) 1 else 2 + (if (showNext) 1 else 0) + (if (state.reviews.isNotEmpty()) 1 else 0))
     }
-    val search: @Composable () -> Unit = { SearchField(query, { query = it }, "Найти правило или пример…") }
+    val search: @Composable () -> Unit = {
+        SearchField(query, { query = it }, "Найти правило или пример…", Modifier.padding(bottom = 16.dp))
+    }
     // Выбор раздела прокручивается вместе со списком: закреплённая шапка занимала почти половину экрана.
     val viewPicker: @Composable () -> Unit = {
         GrammarViewPicker(if (bookmarksOnly) 1 else if (reviewsOnly) 2 else 0, due.size) { selected ->

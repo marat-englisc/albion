@@ -17,7 +17,7 @@ import com.marat.albion.ui.components.*
 import com.marat.albion.ui.settings.SwitchSetting
 import kotlinx.coroutines.launch
 
-/** Model management shared by the library, settings and a reader without an installed model. */
+/** Qwen management for conversation practice and auxiliary translations in exercises. */
 @Composable
 fun TranslationModelControls() {
     val container = LocalAppContainer.current
@@ -30,7 +30,7 @@ fun TranslationModelControls() {
         if (uri != null) container.appScope.launch { models.importFrom(uri) }
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Qwen3.5 переводит на русский и ведёт разговорную практику прямо на устройстве. После установки модели интернет не нужен. Словарь доступен всегда.",
+        Text("Qwen3.5 ведёт разговорную практику и переводит реплики и примеры в упражнениях прямо на устройстве. После установки модели интернет не нужен.",
             style = MaterialTheme.typography.bodyMedium)
         if (status.phase == ModelState.Unavailable) {
             FieldError(status.message)
@@ -72,8 +72,8 @@ fun TranslationModelControls() {
         }
     }
     if (deleting) DestructiveConfirmationDialog(
-        title = "Удалить модель перевода?",
-        message = "Освободится место на устройстве. Словарь, книги и карточки сохранятся. Для перевода фрагментов модель потребуется установить снова.",
+        title = "Удалить модель собеседника?",
+        message = "Освободится место на устройстве. История бесед сохранится. Для ответов собеседника модель потребуется установить снова.",
         onConfirm = { deleting = false; translator.releaseMemory(); scope.launch { models.deleteSelected() } },
         onDismiss = { deleting = false },
     )

@@ -7,6 +7,8 @@ import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -42,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.luminance
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.data.db.HighlightEntity
 import androidx.compose.foundation.background
@@ -59,12 +63,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.marat.albion.LocalAppContainer
+import com.marat.albion.R
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.library.DictEntry
+import com.marat.albion.data.library.Dictionary
 import com.marat.albion.data.library.BookWordSource
-import com.marat.albion.data.translation.ModelState
-import com.marat.albion.data.translation.TranslationProtocol
+import com.marat.albion.data.library.BookTranslationPhase
 import com.marat.albion.ui.components.AudioButton
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
@@ -74,16 +79,13 @@ import com.marat.albion.ui.study.rememberCardAudio
 
 private sealed interface TranslationResult {
     data object Loading : TranslationResult
-    data object Skipped : TranslationResult
-    data class Streaming(val text: String) : TranslationResult
     data class Done(val text: String) : TranslationResult
     data class Failed(val message: String) : TranslationResult
 }
 
 /**
- * Перевод слова или выделенного фрагмента. И слово, и фразу переводит Qwen3.5 с учётом соседних
- * предложений — значение именно в этом месте книги. Словарь и ваши карточки (транскрипция, озвучка)
- * ищутся параллельно и остаются в подробностях; без модели перевод берётся из них.
+ * ML Kit переводит выбранное слово или фрагмент. Словарь и ваши карточки ищутся параллельно:
+ * их значения доступны сразу, в том числе во время первой загрузки языковой модели.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,15 +102,12 @@ fun TranslationSheet(
     onDeleteHighlight: (HighlightEntity) -> Unit = {},
     bookSource: BookWordSource? = null,
     bookExample: String = "",
-    /** Окружение для модели, выделение в нём отмечено (см. TranslationProtocol.marked). */
-    translationContext: String = bookExample,
     onOpenBookWords: () -> Unit = {},
     onBookWordSaved: (com.marat.albion.data.library.SavedBookWord) -> Unit = {},
 ) {
     val c = LocalAppContainer.current
     val audio = rememberCardAudio(c.audio)
-    val model by c.translator.model.collectAsStateWithLifecycle()
-    val loadingModel by c.translator.loading.collectAsStateWithLifecycle()
+    val model by c.bookTranslator.state.collectAsStateWithLifecycle()
     var result by remember(text) { mutableStateOf<TranslationResult>(TranslationResult.Loading) }
     var cards by remember(text) { mutableStateOf<List<CardEntity>>(emptyList()) }
     var entries by remember(text) { mutableStateOf<List<DictEntry>?>(null) }
@@ -116,38 +115,23 @@ fun TranslationSheet(
     var details by rememberSaveable(text) { mutableStateOf(false) }
 
     var retry by remember(text) { mutableStateOf(0) }
-    /** Значение из меню; при работающей модели 0 — её перевод в контексте, дальше — словарь. */
+    /** 0 — автоперевод, дальше — словарь; индексы не меняются после загрузки модели. */
     var chosen by remember(text) { mutableStateOf(0) }
-    LaunchedEffect(text, translationContext, retry, model.phase, model.selected) {
+    LaunchedEffect(text, retry) {
         result = TranslationResult.Loading
-        if (isWord) {
-            // Словарь и карточки — подробности и запасной вариант; перевод модели их не ждёт.
-            val lookups = launch {
-                cards = c.library.lookup(text)
-                entries = c.dictionary.lookup(text)
-            }
-            if (model.phase != ModelState.Ready) lookups.join()
+        glosses = emptyList()
+        launch {
+            cards = c.library.lookup(text)
+            entries = c.dictionary.lookup(text)
+            if (!isWord && !model.ready) glosses = lookupGlosses(c.dictionary, text)
         }
-        // Пока модели нет, сразу разбираем фрагмент по словам встроенным словарём.
-        if (!isWord && model.phase != ModelState.Ready) {
-            glosses = WORD.findAll(text).map { it.value }.distinctBy { it.lowercase() }
-                .filter { it.lowercase() !in ARTICLES }.take(16).toList().mapNotNull { w ->
-                    // Две первые группы значений, по два слова — коротко, но без случайного «узкого» смысла.
-                    c.dictionary.lookup(w).firstOrNull()?.let { e ->
-                        w to e.senses.take(2).joinToString("; ") { it.split(", ").take(2).joinToString(", ") }
-                    }
-                }
-        }
-        if (model.phase != ModelState.Ready) { result = TranslationResult.Skipped; return@LaunchedEffect }
         try {
-            var completed = ""
-            c.translator.translations(text, translationContext).collect {
-                completed = it
-                result = TranslationResult.Streaming(it)
-            }
-            result = TranslationResult.Done(completed)
+            result = TranslationResult.Done(c.bookTranslator.translate(text))
         } catch (error: kotlinx.coroutines.CancellationException) { throw error }
-        catch (error: Exception) { result = TranslationResult.Failed(TranslationProtocol.errorMessage(error)) }
+        catch (error: Exception) {
+            result = TranslationResult.Failed(error.message ?: "Не удалось выполнить перевод. Повторите попытку.")
+            if (!isWord && glosses.isEmpty()) glosses = lookupGlosses(c.dictionary, text)
+        }
     }
 
     ModalBottomSheet(
@@ -183,12 +167,9 @@ fun TranslationSheet(
             val dictionary = entries.orEmpty()
             val options = dictionary.flatMap { entry -> entry.senses.filter { it.isNotBlank() }.map { entry to it } }
                 .distinctBy { it.first.headword.lowercase() to it.second.lowercase() }
-            // С моделью перевод по контексту главный; словарное значение — только если выбрать его в меню.
-            val contextual = model.phase == ModelState.Ready
-            val picked = if (contextual) options.getOrNull(chosen - 1) else options.getOrNull(chosen) ?: options.firstOrNull()
+            val picked = options.getOrNull(chosen - 1)
             val firstEntry = picked?.first ?: options.firstOrNull()?.first
             val dictionaryMeaning = picked?.second
-            val cardMeaning = cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu?.takeIf { !contextual }
             val automatic = (result as? TranslationResult.Done)?.text?.takeIf { it.isNotBlank() }
             val ipa = cards.firstOrNull { it.ipa.isNotBlank() }?.ipa
             if (isWord && (firstEntry?.posLabel?.isNotBlank() == true || ipa != null)) {
@@ -199,38 +180,35 @@ fun TranslationSheet(
                 }
             }
             // Значение видно раньше сохранения и заметок, даже если перевод фраз ещё загружается.
-            val partial = (result as? TranslationResult.Streaming)?.text
-            // Пока модель думает над контекстом или если она не смогла (нет памяти и т. п.), показываем словарь или карточку:
-            // словарный перевод от модели не зависит и не должен прятаться за её ожиданием или ошибкой.
+            // Пока модель загружается или переводит, показываем готовое словарное значение.
             val failed = result as? TranslationResult.Failed
-            val provisional = if (contextual && automatic == null && partial == null &&
-                (result is TranslationResult.Loading || failed != null))
+            val provisional = if (automatic == null)
                 options.firstOrNull()?.second ?: cards.firstOrNull { it.meaningRu.isNotBlank() }?.meaningRu else null
-            val meaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: partial ?: provisional
+            val meaning = dictionaryMeaning ?: automatic ?: provisional
             Spacer(Modifier.height(12.dp))
             if (meaning != null) {
                 Text(meaning, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
                 Text(when {
                     dictionaryMeaning != null -> "Словарь"
-                    cardMeaning != null -> "Из ваших карточек"
+                    provisional != null && options.isEmpty() -> "Из ваших карточек"
                     provisional != null && failed != null -> "Словарь"
-                    provisional != null -> "Словарь · уточняю по контексту…"
-                    else -> if (partial != null) "Qwen3.5 · перевожу…" else "Qwen3.5 · значение в этом месте книги"
+                    provisional != null -> "Словарь · готовлю автоперевод…"
+                    else -> "Автоперевод"
                 }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp))
-                if (provisional != null && failed == null) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
+                if (dictionaryMeaning == null && automatic != null) GoogleTranslationAttribution(Modifier.padding(top = 8.dp))
+                if (chosen == 0 && provisional != null && failed == null) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                     color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
-                if (provisional != null && failed != null) {
+                if (chosen == 0 && provisional != null && failed != null) {
                     // Перевод по контексту не получился — словарь уже на экране, ошибка модели второстепенна.
-                    Text("Перевод по контексту недоступен: ${failed.message}", style = MaterialTheme.typography.bodySmall,
+                    Text("Автоперевод недоступен: ${failed.message}", style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
                     TextButton(onClick = { result = TranslationResult.Loading; retry++ }) { Text("Повторить перевод") }
                 }
             } else {
                 when (val r = result) {
                     TranslationResult.Loading -> {
-                        Text(if (loadingModel) "Открываю Qwen3.5…"
-                            else if (contextual) "Перевожу с учётом контекста…" else if (isWord && entries == null) "Ищу перевод…" else "Перевожу…",
+                        Text(if (model.phase == BookTranslationPhase.Preparing) "Подготавливаю офлайн-перевод…" else "Перевожу…",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp).height(2.dp),
                             color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.outlineVariant)
@@ -242,8 +220,6 @@ fun TranslationSheet(
                     else -> Text("Перевод не найден. Значение можно указать при сохранении.",
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (result == TranslationResult.Skipped) Text("Для перевода фрагмента установите модель Qwen3.5. Пока доступен перевод по словам.",
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (glosses.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Eyebrow("Перевод по словам")
@@ -253,9 +229,8 @@ fun TranslationSheet(
 
 
             // Полное значение в меню; выбранное уходит в карточку при сохранении.
-            val choices = (if (contextual) listOfNotNull(automatic?.let { "$it · по контексту" }) else emptyList()) +
-                options.map { it.second }
-            if (choices.size > 1 && (!contextual || automatic != null)) {
+            val choices = listOf(automatic?.let { "$it · автоперевод" } ?: "Автоперевод") + options.map { it.second }
+            if (choices.size > 1) {
                 Spacer(Modifier.height(14.dp))
                 com.marat.albion.ui.components.OptionPicker("Значение · ${choices.size}", choices,
                     chosen.coerceAtLeast(0), { chosen = it })
@@ -279,6 +254,7 @@ fun TranslationSheet(
                             Column {
                                 Eyebrow("Автоперевод")
                                 Text(automatic, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                                GoogleTranslationAttribution(Modifier.padding(top = 8.dp))
                             }
                         }
                         if (meaning == null && glosses.size > 4) WordGlosses(glosses.drop(4))
@@ -292,9 +268,9 @@ fun TranslationSheet(
 
             // Уточнение границ — второстепенное действие: после перевода, а не над ним.
             selectionControls?.let { Spacer(Modifier.height(4.dp)); it() }
-            if (model.phase != ModelState.Ready) {
+            if (!model.ready) {
                 Spacer(Modifier.height(12.dp))
-                com.marat.albion.ui.components.Disclosure("Модель перевода", model.summary) { TranslationModelControls() }
+                com.marat.albion.ui.components.Disclosure("Офлайн-перевод", model.summary) { BookTranslationControls() }
             }
             if (bookSource != null || onHighlight != null) {
                 Spacer(Modifier.height(16.dp))
@@ -303,7 +279,7 @@ fun TranslationSheet(
                     BookWordAction(text, cards, dictionary, automatic, bookSource, bookExample, onOpenBookWords,
                         suggestedTerm = if (isWord && firstEntry != null) firstEntry.headword
                             else cards.firstOrNull { it.meaningRu.isNotBlank() }?.term ?: text,
-                        suggestedMeaning = dictionaryMeaning ?: cardMeaning ?: automatic ?: provisional, onSaved = onBookWordSaved)
+                        suggestedMeaning = meaning, onSaved = onBookWordSaved)
                 }
                 if (onHighlight != null) HighlightSection(highlight, onHighlight, onNote, onDeleteHighlight)
             }
@@ -314,6 +290,23 @@ fun TranslationSheet(
 
 private val ARTICLES = setOf("a", "an", "the")
 private val WORD = Regex("[A-Za-z][A-Za-z'’-]*")
+
+private suspend fun lookupGlosses(dictionary: Dictionary, text: String): List<Pair<String, String>> =
+    WORD.findAll(text).map { it.value }.distinctBy { it.lowercase() }
+        .filter { it.lowercase() !in ARTICLES }.take(16).toList().mapNotNull { word ->
+            dictionary.lookup(word).firstOrNull()?.let { entry ->
+                word to entry.senses.take(2).joinToString("; ") { it.split(", ").take(2).joinToString(", ") }
+            }
+        }
+
+/** Official, unmodified Google Translate attribution in the appropriate colour scheme. */
+@Composable
+private fun GoogleTranslationAttribution(modifier: Modifier = Modifier) {
+    val dark = MaterialTheme.colorScheme.surface.luminance() < .5f
+    Image(painterResource(if (dark) R.drawable.google_translate_attribution_white else R.drawable.google_translate_attribution),
+        contentDescription = "Powered by Google Translate",
+        modifier = modifier.height(16.dp).aspectRatio(537f / 36f))
+}
 
 @Composable
 private fun WordGlosses(glosses: List<Pair<String, String>>) {

@@ -207,7 +207,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
                                     Column {
                                         if (!compact) com.marat.albion.ui.components.CoachMark("study.swipe",
                                             "Смахните карточку: вправо — «Хорошо», влево — «Снова». Или выберите оценку ниже")
-                                        RatingBar(current.intervals, rate, compact)
+                                        RatingBar(current.intervals, rate)
                                     }
                                 }
                             }
@@ -365,7 +365,7 @@ private fun FlipCard(
 
 /** «Хорошо» — основное действие; остальные оценки сохраняют равную область нажатия. */
 @Composable
-private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit, compact: Boolean) {
+private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit) {
     val measurer = rememberTextMeasurer()
     val labelWidth = with(LocalDensity.current) {
         Rating.entries.maxOf { measurer.measure(it.label, MaterialTheme.typography.labelLarge).size.width }.toDp() + 12.dp
@@ -380,7 +380,7 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit, 
             Rating.entries.chunked(columns).forEach { ratings ->
                 Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ratings.forEach { r ->
-                        RatingButton(r, Rating.entries.indexOf(r), intervals[r].orEmpty(), onRate, Modifier.weight(1f), compact)
+                        RatingButton(r, Rating.entries.indexOf(r), intervals[r].orEmpty(), onRate, Modifier.weight(1f))
                     }
                 }
             }
@@ -389,7 +389,7 @@ private fun RatingBar(intervals: Map<Rating, String>, onRate: (Rating) -> Unit, 
 }
 
 @Composable
-private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
+private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Rating) -> Unit, modifier: Modifier = Modifier) {
 
     val (bg, fg, border) = when (r) {
         Rating.Again -> Triple(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
@@ -405,7 +405,7 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         appear.animateTo(1f, tween(if (reduced) 0 else 180, easing = Easing.EmphasizedDecelerate))
     }
     Column(
-        modifier.fillMaxHeight().heightIn(min = 66.dp)
+        modifier.fillMaxHeight().heightIn(min = 64.dp)
             .graphicsLayer { alpha = if (reduced) 1f else appear.value; translationY = if (reduced) 0f else (1f - appear.value) * 12f }
             .clip(RoundedCornerShape(14.dp))
             .background(bg)
@@ -419,8 +419,6 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
         Spacer(Modifier.height(2.dp))
         Text(interval, style = MaterialTheme.typography.labelSmall,
             color = if (r == Rating.Good) MaterialTheme.colorScheme.onPrimary else fg.copy(alpha = 0.85f), textAlign = TextAlign.Center)
-        if (!compact) Text(when(r) { Rating.Again -> "Не помню"; Rating.Hard -> "С усилием"; Rating.Good -> "Помню"; Rating.Easy -> "Сразу" },
-            style = MaterialTheme.typography.bodySmall, color = fg, textAlign = TextAlign.Center)
     }
 }
 

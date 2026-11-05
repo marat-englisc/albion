@@ -4,6 +4,7 @@ import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -23,9 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,35 +53,50 @@ interface CardAudio {
 
 private fun deckOf(card: CardEntity) = Deck.byId(card.deck) ?: Deck.WORDS
 
-/** Термин набран антиквой; длинные идиомы и коллокации — мельче. */
-private fun termStyle(term: String, large: Boolean): TextStyle {
+/** Крупный термин на обеих сторонах; длинные выражения занимают несколько строк. */
+private fun termStyle(term: String): TextStyle {
     val size = when {
-        !large -> if (term.length <= 18) 30 else 24
-        term.length <= 10 -> 54
-        term.length <= 18 -> 42
-        term.length <= 28 -> 34
-        else -> 28
+        term.length <= 10 -> 64
+        term.length <= 18 -> 52
+        term.length <= 28 -> 42
+        else -> 34
     }
-    return TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Sans, fontWeight = FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp)
+    return TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Sans, fontWeight = FontWeight.Medium,
+        fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp,
+        lineBreak = LineBreak.Heading, hyphens = Hyphens.None)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TermHeader(card: CardEntity, audio: CardAudio, large: Boolean, showIpa: Boolean = true) {
+private fun TermHeader(card: CardEntity, audio: CardAudio, showIpa: Boolean = true) {
     val deck = deckOf(card)
     val key = "term:${card.id}"
-    Column(horizontalAlignment = if (large) Alignment.CenterHorizontally else Alignment.Start, modifier = Modifier.fillMaxWidth()) {
-        Text(card.term, style = termStyle(card.term, large), textAlign = if (large) TextAlign.Center else TextAlign.Start, color = MaterialTheme.colorScheme.onSurface)
-        Spacer(Modifier.height(8.dp))
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 20.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val style = termStyle(card.term)
+            val measurer = rememberTextMeasurer()
+            val longestWord = card.term.split(Regex("\\s+")).maxOfOrNull {
+                measurer.measure(it, style, softWrap = false).size.width
+            } ?: 0
+            // Keep each word whole, including long terms on narrow screens and at large font scales.
+            val scale = if (longestWord > constraints.maxWidth) constraints.maxWidth * .98f / longestWord else 1f
+            Text(card.term, Modifier.fillMaxWidth(),
+                style = style.copy(fontSize = style.fontSize * scale, lineHeight = style.lineHeight * scale,
+                    letterSpacing = style.letterSpacing * scale),
+                textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
+        }
+        Spacer(Modifier.height(16.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (showIpa && card.ipa.isNotBlank()) {
                 Text(card.ipa, style = IpaStyle, modifier = Modifier.weight(1f, fill = false))
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(24.dp))
             }
             AudioButton(audio.playingKey == key, { audio.play(deck, card.audio, card.term, key) }, size = 48.dp)
         }
-        Spacer(Modifier.height(8.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Spacer(Modifier.height(12.dp))
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
             WordCards.members(card).map { it.pos }.filter { it.isNotBlank() }.distinct().forEach { Chip(it) }
             LevelBadge(card.level)
         }
@@ -94,7 +113,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
     ) {
         com.marat.albion.ui.components.SignalLabel("ВСПОМНИТЕ ЗНАЧЕНИЕ")
         Spacer(Modifier.height(28.dp))
-        TermHeader(card, audio, large = true, showIpa = showIpa)
+        TermHeader(card, audio, showIpa = showIpa)
         if (card.senses.size > 1) {
             Spacer(Modifier.height(14.dp))
             Eyebrow("Все значения · ${card.senses.size}", color = MaterialTheme.colorScheme.secondary)
@@ -130,7 +149,7 @@ fun CardBack(
 ) {
     var i = 0
     Column(modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 22.dp)) {
-        TermHeader(card, audio, large = false)
+        TermHeader(card, audio)
 
         if (irregular != null) {
             Spacer(Modifier.height(22.dp))

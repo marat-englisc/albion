@@ -1,0 +1,20 @@
+Google ML Kit Translation
+
+Book word and phrase translation uses the Google ML Kit on-device Translation API.
+The SDK is included in the app. The English/Russian language model is downloaded
+on first preparation and retained by ML Kit for offline use. Selected book text
+is translated on the device.
+
+https://developers.google.com/ml-kit/language/translation
+https://developers.google.com/ml-kit/terms
+https://developers.google.com/ml-kit/language/translation/translation-terms
+https://cloud.google.com/translate/attribution
+
+Official Google Translate attribution artwork:
+https://docs.cloud.google.com/static/translate/images/google-translate-attribution.zip
+The original colour and white PNGs are included without modification.
+
+THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL
+WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY
+WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.

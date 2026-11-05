@@ -11,8 +11,6 @@ import androidx.compose.material3.LocalContentColor
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.RoundIconButton
 import com.marat.albion.ui.components.SegmentedPicker
-import com.marat.albion.ui.theme.AlbionFonts
-import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.appear
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -110,18 +108,8 @@ fun HomeScreen(navigator: Navigator) {
         val short = maxHeight < 480.dp
         val overview: LazyListScope.() -> Unit = {
             item {
-                Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(top = 8.dp, bottom = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    
-                    AlbionMark(Modifier.appear(0))
-                    Spacer(Modifier.width(10.dp))
-                    Column(Modifier.weight(1f).appear(0)) {
-                        // Логотип подстраивается под доступную ширину при крупном системном шрифте.
-                        com.marat.albion.ui.components.FitText("albion", style = MaterialTheme.typography.titleLarge.copy(fontFamily = AlbionFonts.Display), minSize = 14.sp)
-                        if (!compact) SignalLabel("АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ", Modifier.padding(top = 3.dp))
-                    }
-                    SettingsShortcut(navigator::openSettings)
-                }
+                HomeHero(state, date, navigator::openSettings,
+                    Modifier.windowInsetsPadding(WindowInsets.statusBars).appear(0))
             }
             item {
                 when (val s = status) {
@@ -143,40 +131,6 @@ fun HomeScreen(navigator: Navigator) {
                     onSize = { sessionSize = it; vm.setSessionSize(it) },
                     onStart = { navigator.open(StudyRoute(answerLimit = minOf(sessionSize, state.decks.sumOf { it.toStudy }).coerceAtLeast(1))) },
                     onRead = { navigator.switchTab(LibraryRoute) })
-            }
-            if (!compact) item {
-                Column(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 20.dp).appear(1)) {
-                    SignalLabel(date.uppercase(Locale.forLanguageTag("ru")))
-                    Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Ваш язык.\nВаш ритм.", Modifier.weight(1f),
-                            style = MaterialTheme.typography.displaySmall.copy(fontSize = 30.sp, lineHeight = 41.sp))
-                        if (!compact) OrbitalField(Modifier.size(120.dp))
-                    }
-                    Spacer(Modifier.height(18.dp))
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.Bottom) {
-                                AnimatedNumber(state.answersToday, MaterialTheme.typography.titleLarge)
-                                Text(" / ${state.dailyGoal}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text("цель дня", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        // Серия — кнопкой в шапке (ведёт в «Прогресс»), здесь не повторяется.
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                            SignalLabel(if (state.answersToday >= state.dailyGoal) "ВЫПОЛНЕНО" else "В ПРОЦЕССЕ")
-                            Spacer(Modifier.height(8.dp))
-                            ThinProgress(if (state.dailyGoal > 0) state.answersToday.toFloat() / state.dailyGoal else 0f, Modifier.width(76.dp), height = 2.dp)
-                        }
-                    }
-                }
-            }
-            if (compact) item {
-                Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                    Text("Цель дня · ${state.answersToday} / ${state.dailyGoal}", style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(8.dp))
-                    ThinProgress(if (state.dailyGoal > 0) state.answersToday.toFloat() / state.dailyGoal else 0f, height = 2.dp)
-                }
             }
             item {
                 ModuleHeading("02", "План на сегодня", modifier = Modifier.appear(3))

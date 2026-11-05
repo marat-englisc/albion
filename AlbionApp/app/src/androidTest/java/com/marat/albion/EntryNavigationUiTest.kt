@@ -99,23 +99,35 @@ class EntryNavigationUiTest {
         }
     }
 
-    @Test fun homeStartsImmediatelyAndSessionOptionsRemainAvailable(): Unit = runBlocking {
+    @Test fun homeHeroPrecedesSessionAndOptionsRemainAvailable(): Unit = runBlocking {
         val original = c.settings.current()
         try {
             c.settings.setShortSessionAnswers(20)
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 show(scenario, "home") { AlbionNavigation() }
-                val start = actionable(await { it.text?.toString() == "Начать" && actionOrNull(it) != null })
-                assertTarget(start)
+                await { it.text?.toString() == "ALBION" }
+                assertWholeText(text("ALBION"))
+                assertFalse(fresh().any { it.text?.toString()?.contains("Ваш ритм") == true })
+                capture("home-hero")
                 val bar = navigationTop()
-                assertTrue("Start requires scrolling: ${bounds(start)} / $bar", bounds(start).bottom <= bar)
+                val goal = bounds(await { it.text?.toString() == "цель дня" })
+                assertTrue("Daily progress must follow the brand", goal.top >= text("ALBION").bounds.top)
+                assertTrue("Daily progress requires scrolling", goal.height() > 0 && goal.bottom <= bar)
+                val start = actionable(scrollTo {
+                    it.text?.toString() == "Начать" && actionOrNull(it)?.let { action ->
+                        val rect = bounds(action)
+                        rect.height() + 1 >= 48 * density && rect.bottom <= bar
+                    } == true
+                })
+                assertTarget(start)
+                assertTrue("Start is covered by navigation: ${bounds(start)} / $bar", bounds(start).bottom <= bar)
                 capture("home-start")
                 click(scrollTo { it.text?.toString() == "Объём занятия" })
                 click(scrollTo { it.text?.toString() == "5" && actionOrNull(it) != null })
                 repeat(50) { if (c.settings.current().shortSessionAnswers != 5) SystemClock.sleep(50) }
                 assertEquals(5, c.settings.current().shortSessionAnswers)
                 scrollBack()
-                click(await { it.text?.toString() == "Начать" && actionOrNull(it) != null })
+                click(scrollTo { it.text?.toString() == "Начать" && actionOrNull(it) != null })
                 await { it.text?.toString() == "Показать ответ" }
                 capture("started-session")
             }
