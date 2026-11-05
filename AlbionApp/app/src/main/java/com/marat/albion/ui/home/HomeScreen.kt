@@ -2,9 +2,6 @@ package com.marat.albion.ui.home
 
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.clickable
 
 import androidx.compose.runtime.getValue
@@ -119,13 +116,10 @@ fun HomeScreen(navigator: Navigator) {
                     AlbionMark(Modifier.appear(0))
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f).appear(0)) {
-                        // Знак уменьшается, а не обрезается («albio»), когда рядом кнопка серии и крупный шрифт.
+                        // Логотип подстраивается под доступную ширину при крупном системном шрифте.
                         com.marat.albion.ui.components.FitText("albion", style = MaterialTheme.typography.titleLarge.copy(fontFamily = AlbionFonts.Display), minSize = 14.sp)
                         if (!compact) SignalLabel("АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ", Modifier.padding(top = 3.dp))
                     }
-                    // Колоды и так списком ниже; в шапке — серия дней с переходом в «Прогресс».
-                    StreakChip(state.streak, showIcon = !compact) { navigator.switchTab(com.marat.albion.ui.nav.StatsRoute) }
-                    Spacer(Modifier.width(8.dp))
                     SettingsShortcut(navigator::openSettings)
                 }
             }
@@ -294,28 +288,5 @@ private fun PracticeBlock(navigator: Navigator) {
     ) {
         if (game != null) navigator.open(com.marat.albion.ui.nav.GameRoute(game, com.marat.albion.data.content.Deck.byId(top.deck), onlyMistakes = true))
         else navigator.switchTab(com.marat.albion.ui.nav.GamesRoute)
-    }
-}
-
-/** Серия дней в шапке главной: число и знак достижения; касание открывает «Прогресс». */
-@Composable
-private fun StreakChip(streak: Int, showIcon: Boolean, onClick: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    val shape = MaterialTheme.shapes.medium
-    Row(
-        Modifier.heightIn(min = 48.dp).clip(shape)
-            .background(if (streak > 0) scheme.primaryContainer else scheme.surfaceContainerLow)
-            .border(1.dp, if (streak > 0) scheme.primary else scheme.controlBorder, shape)
-            .clickable(role = androidx.compose.ui.semantics.Role.Button, onClickLabel = "Открыть прогресс", onClick = onClick)
-            .semantics(mergeDescendants = true) { contentDescription = "Серия: $streak ${com.marat.albion.ui.library.pluralRu(streak, "день", "дня", "дней")}" }
-            .padding(horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (showIcon) {
-            Icon(AlbionIcons.WorkspacePremium, null, Modifier.size(18.dp), tint = if (streak > 0) scheme.primary else scheme.onSurfaceVariant)
-            Spacer(Modifier.width(6.dp))
-        }
-        Text("$streak", style = MaterialTheme.typography.titleMedium.copy(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Display),
-            color = if (streak > 0) scheme.onPrimaryContainer else scheme.onSurfaceVariant)
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
-import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.SignalLabel
@@ -84,7 +83,6 @@ import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
@@ -93,13 +91,8 @@ import kotlinx.coroutines.flow.first
 
 /** Термин крупно на карточке задания — общий заголовок голосовых игр. */
 @Composable
-internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: (@Composable () -> Unit)? = null) {
-    TaskCard(centered = true, label = if (showMeaning) "СЛУШАЙТЕ И ПОВТОРЯЙТЕ" else "ПРОИЗНЕСИТЕ ВСЛУХ") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (card.pos.isNotBlank()) Chip(card.pos)
-            LevelBadge(card.level)
-        }
-        Spacer(Modifier.height(12.dp))
+internal fun TermBlock(card: CardEntity, label: String = "СЛУШАЙТЕ И ПОВТОРЯЙТЕ", trailing: (@Composable () -> Unit)? = null) {
+    TaskCard(centered = true, label = label) {
         Text(card.term, style = termStyle(card.term), color = MaterialTheme.colorScheme.onSurface)
         if (card.ipa.isNotBlank() || trailing != null) {
             Spacer(Modifier.height(6.dp))
@@ -110,10 +103,6 @@ internal fun TermBlock(card: CardEntity, showMeaning: Boolean = true, trailing: 
                     trailing()
                 }
             }
-        }
-        if (showMeaning && card.meaningRu.isNotBlank()) {
-            Spacer(Modifier.height(10.dp))
-            Text(card.meaningRu, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
     }
 }
@@ -263,7 +252,7 @@ fun PronunciationRound(vm: GameViewModel, card: CardEntity) {
             Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 16.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TermBlock(card, showMeaning = false) {
+            TermBlock(card, label = "ПРОИЗНЕСИТЕ ВСЛУХ") {
                 PracticeAudioButton(
                     playing = playing == "term:${card.id}",
                     onClick = { c.audio.play(deck, card.audio, card.term, "term:${card.id}") },

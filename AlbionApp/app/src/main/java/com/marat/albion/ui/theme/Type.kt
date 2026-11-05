@@ -9,6 +9,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -50,11 +52,13 @@ private val centered = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHei
 private fun display(size: Int, line: Int, weight: FontWeight = FontWeight.Medium) = TextStyle(
     fontFamily = AlbionFonts.Display, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
     letterSpacing = (-0.02).em, platformStyle = trim, lineHeightStyle = centered,
+    lineBreak = LineBreak.Heading, hyphens = Hyphens.Auto,
 )
 
 private fun sans(size: Float, line: Int, weight: FontWeight, tracking: Double = 0.0) = TextStyle(
     fontFamily = AlbionFonts.Sans, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
     letterSpacing = tracking.em, platformStyle = trim, lineHeightStyle = centered,
+    lineBreak = LineBreak.Paragraph, hyphens = Hyphens.Auto,
 )
 
 val Typography = Typography(

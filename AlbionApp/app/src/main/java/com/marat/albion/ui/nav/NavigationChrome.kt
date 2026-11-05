@@ -101,23 +101,23 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth().background(scheme.background).windowInsetsPadding(WindowInsets.navigationBars)) {
         val outer = if (maxWidth < 360.dp) 8.dp else 16.dp
         val available = maxWidth - outer * 2 - 10.dp
-        val full = tabs.all { with(density) { measurer.measure(it.label, style, softWrap = false).size.width.toDp() } + 4.dp <= available / tabs.size }
         fun labelWidth(label: String) = maxOf(48.dp,
-            with(density) { measurer.measure(label, style, softWrap = false).size.width.toDp() } + 8.dp)
+            with(density) { measurer.measure(label, style, softWrap = false).size.width.toDp() } + 4.dp)
+        fun equalSlotsFit(labels: List<String>) = labels.maxOf(::labelWidth) <= available / labels.size
+        val full = equalSlotsFit(tabs.map { it.label })
         val fast = tabs.filter { it.route == HomeRoute || it.route == GamesRoute }
-        val fastFits = fast.sumOf { labelWidth(it.label).value.toDouble() } + labelWidth("Ещё").value <= available.value
+        val fastFits = equalSlotsFit(fast.map { it.label } + "Ещё")
         val direct = if (full) tabs else if (fastFits) fast else tabs.take(1)
         val labels = direct.map { it.label } + if (full) emptyList() else listOf("Ещё")
-        val widths = labels.map(::labelWidth)
         val labelHeight = with(density) { labels.maxOf { measurer.measure(it, style, softWrap = false).size.height }.toDp() }
         val barHeight = maxOf(58.dp, labelHeight + 41.dp)
         Row(Modifier.fillMaxWidth().padding(horizontal = outer, vertical = 8.dp)
             .clip(RoundedCornerShape(20.dp)).background(scheme.surfaceContainerLow)
             .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(20.dp)).padding(5.dp).height(barHeight).selectableGroup()) {
-            direct.forEachIndexed { index, tab ->
+            direct.forEach { tab ->
                 val active = tab.route == selected
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(widths[index].value).fillMaxHeight().clip(RoundedCornerShape(14.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp))
                     .selectionSurface(active, RoundedCornerShape(14.dp))
                     .selectable(active, role = Role.Tab, onClick = { onSelect(tab.route) }),
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -130,7 +130,7 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 val active = direct.none { it.route == selected }
                 val current = tabs.first { it.route == selected }
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(widths.last().value).fillMaxHeight().clip(RoundedCornerShape(14.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp))
                     .selectionSurface(active, RoundedCornerShape(14.dp))
                     .clickable(role = Role.Button, onClickLabel = "Все разделы") { open = true }
                     .semantics { if (active) stateDescription = "Открыт раздел: ${current.label}" },

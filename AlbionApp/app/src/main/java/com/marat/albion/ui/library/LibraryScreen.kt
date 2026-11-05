@@ -14,8 +14,6 @@ import com.marat.albion.ui.components.RoundIconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
@@ -29,7 +27,6 @@ import com.marat.albion.ui.components.EmptyState
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -37,7 +34,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -71,15 +67,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -90,7 +82,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
-import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ScreenHeader
@@ -160,7 +151,7 @@ fun LibraryScreen(navigator: Navigator) {
         }
     }
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(136.dp),
+        columns = GridCells.Fixed(1),
         state = shelfState,
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
@@ -215,10 +206,9 @@ fun LibraryScreen(navigator: Navigator) {
                 Text("${rows.size}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        items(rows, key = { it.book.id }, span = { if (query.isBlank()) GridItemSpan(1) else GridItemSpan(maxLineSpan) }) { b ->
+        items(rows, key = { it.book.id }) { b ->
             val onDelete: (() -> Unit)? = if (b.book.source == "user") ({ toDelete = b }) else null
-            if (query.isBlank()) BookTile(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, onDelete)
-            else BookSearchRow(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, onDelete)
+            BookRow(b, quietItem(), { navigator.open(ReaderRoute(b.book.id)) }, onDelete)
         }
         if (query.isNotBlank()) controls()
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -244,81 +234,34 @@ fun LibraryScreen(navigator: Navigator) {
     }
 }
 
-/** «Продолжить чтение»: инверсный блок с обложкой, процентом и кнопкой. */
+/** «Продолжить чтение»: название, автор, прогресс и кнопка. */
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 internal fun ContinueReading(item: LibraryBook, modifier: Modifier, onDelete: (() -> Unit)? = null, onOpen: () -> Unit) {
     var menu by remember { mutableStateOf(false) }
     val interaction = remember { MutableInteractionSource() }
-    val measurer = rememberTextMeasurer()
-    val titleStyle = MaterialTheme.typography.titleLarge
-    val labelStyle = MaterialTheme.typography.labelMedium
-    val minTextWidth = with(LocalDensity.current) {
-        maxOf(measurer.measure("Продолжить", labelStyle).size.width + if (onDelete != null) 48.dp.roundToPx() else 0,
-            item.book.title.split(Regex("\\s+")).maxOf { measurer.measure(it, titleStyle).size.width }).toDp()
-    }.coerceAtLeast(132.dp)
     com.marat.albion.ui.components.BoundVolume(modifier.fillMaxWidth().pressScale(interaction, 0.98f).clip(MaterialTheme.shapes.extraLarge)
         .combinedClickable(interaction, indication = null, onClickLabel = "Читать", onClick = onOpen,
             onLongClick = onDelete?.let { { menu = true } }, onLongClickLabel = onDelete?.let { "Действия с книгой" })) {
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val description: @Composable () -> Unit = {
-                Column {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Продолжить", Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
-                        if (onDelete != null) BookActionsMenu(item.book.title, menu, { menu = it }, onDelete,
-                            tint = MaterialTheme.colorScheme.inverseOnSurface)
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(item.book.title, style = MaterialTheme.typography.titleLarge)
-                    if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
-                        color = LocalContentColor.current)
-                    Spacer(Modifier.height(12.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ThinProgress(item.progress, Modifier.weight(1f), color = LocalContentColor.current,
-                            track = LocalContentColor.current.copy(alpha = 0.18f), height = 4.dp)
-                        Spacer(Modifier.width(10.dp))
-                        Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
-                    }
-                }
+        Column(Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("Продолжить", Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current)
+                if (onDelete != null) BookActionsMenu(item.book.title, menu, { menu = it }, onDelete,
+                    tint = MaterialTheme.colorScheme.inverseOnSurface)
             }
-            if (maxWidth >= 76.dp + 18.dp + minTextWidth) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    BookCover(item.book.title, Modifier.size(width = 76.dp, height = 112.dp), inverse = true)
-                    Spacer(Modifier.width(18.dp))
-                    Box(Modifier.weight(1f)) { description() }
-                }
-            } else {
-                description()
+            Spacer(Modifier.height(4.dp))
+            Text(item.book.title, style = MaterialTheme.typography.titleLarge)
+            if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
+                color = LocalContentColor.current)
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ThinProgress(item.progress, Modifier.weight(1f), color = LocalContentColor.current,
+                    track = LocalContentColor.current.copy(alpha = 0.18f), height = 4.dp)
+                Spacer(Modifier.width(10.dp))
+                Text("${(item.progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
             }
         }
         PrimaryButton("Читать", onOpen, trailingIcon = AlbionIcons.ArrowForward, inverse = true)
-    }
-}
-
-/** Книга на полке: обложка, название и доступное меню для своей книги. */
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
-@Composable
-private fun BookTile(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
-    val interaction = remember { MutableInteractionSource() }
-    val feedback = com.marat.albion.ui.theme.LocalFeedback.current
-    var menu by remember { mutableStateOf(false) }
-    Column(modifier.fillMaxWidth().pressScale(interaction, 0.95f)
-        .combinedClickable(interaction, indication = null, onClick = onOpen,
-            onLongClick = onDelete?.let { { feedback.reveal(); menu = true } }, onLongClickLabel = onDelete?.let { "Действия с книгой" })) {
-        Box {
-            BookCover(item.book.title, Modifier.fillMaxWidth().aspectRatio(2f / 3f))
-            if (item.book.level.isNotBlank()) LevelBadge(item.book.level, Modifier.align(Alignment.TopEnd).padding(8.dp)
-                .background(MaterialTheme.colorScheme.background, CircleShape))
-        }
-        if (onDelete != null) UserBookToolbar(item.book.title, menu, { menu = it }, onDelete)
-        else Spacer(Modifier.height(10.dp))
-        Text(item.book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        if (item.progress > 0f) {
-            Spacer(Modifier.height(8.dp))
-            ThinProgress(item.progress, height = 3.dp)
-        }
     }
 }
 
@@ -354,7 +297,7 @@ private fun UserBookToolbar(title: String, expanded: Boolean, onExpandedChange: 
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun BookSearchRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
+private fun BookRow(item: LibraryBook, modifier: Modifier, onOpen: () -> Unit, onDelete: (() -> Unit)?) {
     var menu by remember { mutableStateOf(false) }
     Panel(modifier.fillMaxWidth().combinedClickable(onClick = onOpen,
         onLongClick = onDelete?.let { { menu = true } },
@@ -364,31 +307,9 @@ private fun BookSearchRow(item: LibraryBook, modifier: Modifier, onOpen: () -> U
         Text(item.book.title, style = MaterialTheme.typography.titleMedium)
         if (item.book.author.isNotBlank()) Text(item.book.author, style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (item.book.level.isNotBlank()) Text(item.book.level, style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-/** Типографская обложка: тонированная плашка, название акцентным шрифтом и тонкая линия-корешок. */
-@Composable
-fun BookCover(title: String, modifier: Modifier = Modifier, inverse: Boolean = false) {
-    val scheme = MaterialTheme.colorScheme
-    val tones = listOf(scheme.surfaceContainerHighest, scheme.surfaceContainerHigh, scheme.secondaryContainer)
-    val bg = if (inverse) scheme.inverseOnSurface.copy(alpha = 0.12f) else tones[Math.floorMod(title.hashCode(), tones.size)]
-    val fg = if (inverse) scheme.inverseOnSurface else scheme.onSurface
-    androidx.compose.foundation.layout.BoxWithConstraints(modifier.clearAndSetSemantics {}.clip(MaterialTheme.shapes.medium)
-        .background(bg).border(.75.dp, fg.copy(alpha = .16f), MaterialTheme.shapes.medium)) {
-        val thumbnail = maxWidth < 100.dp
-        // Миниатюра остаётся декоративной: полное название уже есть рядом с обложкой.
-        if (thumbnail) OrbitalField(Modifier.fillMaxWidth(.56f).aspectRatio(1f).align(Alignment.TopCenter).padding(top = 10.dp), color = fg, animated = false)
-        else OrbitalField(Modifier.fillMaxWidth().aspectRatio(1f).align(Alignment.Center).padding(8.dp), color = fg, animated = false)
-        if (maxWidth >= 100.dp) SignalLabel("ALBION / READ", Modifier.align(Alignment.TopStart).padding(14.dp), color = fg.copy(alpha = .6f))
-        // Полупрозрачная плашка на акцентной плите легла бы вторым слоем и дала полосу — подложка только у непрозрачной обложки.
-        if (!thumbnail) Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().then(if (inverse) Modifier else Modifier.background(bg)).padding(14.dp)) {
-            Box(Modifier.width(24.dp).height(1.dp).background(fg.copy(alpha = .5f)))
+        if (item.progress > 0f) {
             Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.titleSmall,
-                color = fg, maxLines = 4, overflow = TextOverflow.Ellipsis)
+            ThinProgress(item.progress, height = 3.dp)
         }
     }
 }
