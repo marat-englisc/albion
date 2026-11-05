@@ -46,7 +46,7 @@ fun ConversationsScreen(navigator: Navigator) {
 
     fun start(scenario: Scenario) = scope.launch { navigator.open(ChatRoute(c.conversations.create(scenario, level))) }
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(navigator::back, "Разговор") {
             FeatureHelp("conversation", "Как устроена беседа",
                 "Выберите уровень и ситуацию — собеседник начнёт разговор. Отвечайте текстом или голосом: " +

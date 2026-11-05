@@ -1,5 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.shape.CircleShape
@@ -308,6 +311,8 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
             .widthIn(min = 48.dp).heightIn(min = 48.dp)
             .background(bg, shape)
             .border(1.dp, border, shape)
+            .engravedSurface(fg.copy(alpha = if (style == TileStyle.Ghost) 0f else 1f))
+            .folioFrame(border.copy(alpha = .45f), inset = 3.dp)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {

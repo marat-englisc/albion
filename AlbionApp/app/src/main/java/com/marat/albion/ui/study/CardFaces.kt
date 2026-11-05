@@ -44,6 +44,9 @@ import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
+import com.marat.albion.ui.components.folioRule
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
 
 /** Озвучка, доступная лицевой и оборотной сторонам. */
 interface CardAudio {
@@ -112,7 +115,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
         verticalArrangement = Arrangement.Center,
     ) {
         com.marat.albion.ui.components.SignalLabel("ВСПОМНИТЕ ЗНАЧЕНИЕ")
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.width(72.dp).height(28.dp).folioRule(MaterialTheme.colorScheme.secondary.copy(alpha = .65f)))
         TermHeader(card, audio, showIpa = showIpa)
         if (card.senses.size > 1) {
             Spacer(Modifier.height(14.dp))
@@ -123,7 +126,9 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                            .engravedSurface(MaterialTheme.colorScheme.secondary)
+                            .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = MaterialTheme.typography.titleMedium)

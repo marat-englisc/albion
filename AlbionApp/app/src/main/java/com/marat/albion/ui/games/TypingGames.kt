@@ -1,5 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.semantics.contentDescription
@@ -146,6 +149,7 @@ internal fun AnswerField(
                         else -> MaterialTheme.colorScheme.surfaceContainerLow
                     }, shape)
                     .border(if (focused) 2.dp else 1.dp, border, shape)
+                    .engravedSurface(border).folioFrame(border.copy(alpha = .4f), inset = 4.dp)
                     .heightIn(min = 64.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,

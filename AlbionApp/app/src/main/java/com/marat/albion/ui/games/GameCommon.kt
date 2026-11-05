@@ -1,6 +1,8 @@
 package com.marat.albion.ui.games
 
 import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
 
 import androidx.compose.foundation.layout.isImeVisible
 import com.marat.albion.ui.theme.appear
@@ -405,7 +407,7 @@ internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options:
                 Text(game.title, Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
                 if (!LocalNarrow.current && LocalDensity.current.fontScale <= 1.3f) {
                     Spacer(Modifier.width(12.dp))
-                    Spacer(Modifier.size(64.dp))
+                    PracticeEmblem(game)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -580,7 +582,10 @@ internal fun NoteCard(
                 NoteTone.Neutral -> MaterialTheme.colorScheme.outlineVariant
                 NoteTone.Good -> MaterialTheme.colorScheme.onSurface.copy(alpha = .4f)
                 NoteTone.Bad -> MaterialTheme.colorScheme.error.copy(alpha = .5f)
-            }, MaterialTheme.shapes.large).padding(horizontal = 18.dp, vertical = 16.dp),
+            }, MaterialTheme.shapes.large)
+            .engravedSurface(MaterialTheme.colorScheme.secondary)
+            .folioFrame(MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f), inset = 4.dp)
+            .padding(horizontal = 18.dp, vertical = 16.dp),
         content = content,
     )
 }
@@ -605,7 +610,8 @@ internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Да
         Modifier.fillMaxWidth()
             .graphicsLayer { translationY = if (reduced) 0f else offset.value * size.height; alpha = if (reduced) 1f else 1f - offset.value * 0.6f }
             .clip(MaterialTheme.shapes.large).background(bg)
-            .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large).padding(16.dp)
+            .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large)
+            .engravedSurface(fg).folioFrame(fg.copy(alpha = .3f), inset = 4.dp).padding(16.dp)
             .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite },
     ) {
         Row(Modifier.padding(start = 4.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {

@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.AlbionMark
 import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.Springs
 import com.marat.albion.ui.theme.quietFloatAsState
@@ -64,7 +66,7 @@ private fun TabIcon(tab: Tab, selected: Boolean, tint: Color, size: Dp = 22.dp) 
 @Composable
 internal fun SideRail(selected: TopLevel, metrics: RailMetrics, onSelect: (TopLevel) -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxHeight().background(scheme.background)
+    Row(Modifier.fillMaxHeight().background(scheme.background).paperGrain(scheme.outline)
         .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Start + WindowInsetsSides.Bottom))) {
         Column(Modifier.width(metrics.width).fillMaxHeight().windowInsetsPadding(WindowInsets.statusBars)
             .verticalScroll(rememberScrollState()).padding(vertical = if (metrics.compact) 0.dp else 4.dp).selectableGroup()) {
@@ -115,7 +117,9 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
         Row(Modifier.fillMaxWidth().padding(horizontal = outer, vertical = 8.dp)
             .clip(RoundedCornerShape(12.dp)).background(scheme.surfaceContainerLow)
             .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(12.dp))
-            .paperGrain(scheme.outline).padding(5.dp).height(barHeight).selectableGroup()) {
+            .engravedSurface(scheme.secondary).paperGrain(scheme.outline)
+            .folioFrame(scheme.outlineVariant.copy(alpha = .6f), inset = 3.dp)
+            .padding(5.dp).height(barHeight).selectableGroup()) {
             direct.forEach { tab ->
                 val active = tab.route == selected
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant

@@ -1,5 +1,9 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -367,7 +371,10 @@ private fun ShadowSteps(active: Int = 0) {
         listOf("Послушайте", "Повторите", "Сравните").forEachIndexed { i, step ->
             Column(
                 Modifier.widthIn(min = minStepWidth).weight(1f).background(if (i == active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.small)
-                    .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small).padding(horizontal = 8.dp, vertical = 10.dp),
+                    .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)
+                    .engravedSurface(if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary)
+                    .folioFrame(MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f), inset = 3.dp)
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
             ) {
                 SignalLabel("0${i + 1}", color = if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(6.dp))
@@ -384,6 +391,8 @@ internal fun ReportCard(r: ShadowReport, words: List<ChartWord> = emptyList(), s
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerLow, shape).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+            .engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
+            .folioFrame(MaterialTheme.colorScheme.outlineVariant)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
         SignalLabel("РАЗБОР ГОЛОСА")

@@ -36,6 +36,9 @@ import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.components.folioFrame
 import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.engravedSeal
+import com.marat.albion.ui.components.headingRule
 import com.marat.albion.ui.theme.*
 
 internal val Game.editionTitle: String get() = when (this) {
@@ -88,7 +91,8 @@ internal fun PracticeStage(
     val shape = MaterialTheme.shapes.large
     Column(modifier.fillMaxWidth().clip(shape).background(scheme.surfaceContainerLow)
         .border(.75.dp, scheme.outlineVariant, shape)
-        .paperGrain(scheme.outline).folioFrame(scheme.outline, embellished = !compact)
+        .engravedSurface(scheme.secondary).paperGrain(scheme.outline)
+        .folioFrame(scheme.outline, embellished = !compact)
         .padding(if (compact) 14.dp else 20.dp),
         horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start) {
         if (!compact) {
@@ -101,7 +105,8 @@ internal fun PracticeStage(
 
 @Composable
 internal fun PracticeSectionLabel(number: String, text: String, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().padding(top = 22.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier.fillMaxWidth().headingRule(MaterialTheme.colorScheme.secondary)
+        .padding(top = 22.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         SignalLabel(number, Modifier.padding(end = 10.dp))
         Text(text, style = MaterialTheme.typography.titleSmall)
     }
@@ -126,10 +131,19 @@ internal fun PracticeIconButton(
     val shape = MaterialTheme.shapes.medium
     Box(modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.9f)
         .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape).selectionSurface(active, shape).clip(shape)
+        .engravedSurface(MaterialTheme.colorScheme.secondary).folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 3.dp)
         .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
         contentAlignment = Alignment.Center) {
         Icon(icon, label, tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else if (active) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(21.dp))
+    }
+}
+
+/** Reuses the setup header's 64 dp decoration slot for each of the eight skills. */
+@Composable
+internal fun PracticeEmblem(game: Game) {
+    Box(Modifier.size(64.dp).engravedSeal(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
+        Icon(game.icon, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
     }
 }
 

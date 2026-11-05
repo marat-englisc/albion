@@ -13,6 +13,8 @@ import com.marat.albion.ui.components.FitText
 import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.components.ThinProgress
+import com.marat.albion.ui.components.wordmarkSeal
+import androidx.compose.ui.text.rememberTextMeasurer
 import com.marat.albion.ui.theme.AnimatedNumber
 import java.util.Locale
 
@@ -33,7 +35,9 @@ internal fun HomeHero(state: HomeState, date: String, onSettings: () -> Unit, mo
 
 @Composable
 private fun HeroTitle(modifier: Modifier) {
-    FitText("ALBION", modifier, style = MaterialTheme.typography.displayMedium.copy(fontSize = 34.sp, lineHeight = 42.sp),
+    val style = MaterialTheme.typography.displayMedium.copy(fontSize = 34.sp, lineHeight = 42.sp)
+    val wordWidth = rememberTextMeasurer().measure("ALBION", style, softWrap = false).size.width.toFloat()
+    FitText("ALBION", modifier.wordmarkSeal(MaterialTheme.colorScheme.secondary, wordWidth), style = style,
         minSize = 20.sp)
 }
 

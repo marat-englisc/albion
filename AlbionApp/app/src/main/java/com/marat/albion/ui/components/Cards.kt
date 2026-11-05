@@ -36,17 +36,19 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Акцентная плита: зелёный переплёт с латунным тиснением, одинаковый в обеих темах.
- * Внутри действует локальная схема — белый текст, белые «инверсные» кнопки. Одна на экран.
+ * Внутри действует локальная схема — кремовый текст и «инверсные» кнопки. Одна на экран.
  */
 @Composable
 fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(if (compact) 20.dp else 24.dp), content: @Composable ColumnScope.() -> Unit) {
+    contentPadding: PaddingValues = PaddingValues(if (compact) 20.dp else 24.dp),
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(12.dp), content: @Composable ColumnScope.() -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val onHero = Hero.Content
     val heroScheme = scheme.copy(
         primary = onHero, onPrimary = Hero.Deep,
         background = onHero, onBackground = Hero.Deep,
         surface = Hero.Base, onSurface = onHero, onSurfaceVariant = onHero,
+        surfaceContainerLow = Hero.Base,
         inverseSurface = Hero.Base, inverseOnSurface = onHero,
         surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero, outlineVariant = onHero.copy(alpha = .22f),
     )
@@ -58,9 +60,9 @@ fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
                     // Мягкий свет на коже переплёта.
                     drawRect(Brush.radialGradient(listOf(Hero.Glow, Color.Transparent),
                         center = Offset(size.width * .95f, 0f), radius = size.maxDimension * .7f))
-                }.constructionLines(Heritage.Champagne).paperGrain(Heritage.Champagne)
+                }.constructionLines(Heritage.Champagne).engravedSurface(Heritage.Champagne).paperGrain(Heritage.Champagne)
                     .folioFrame(Heritage.Champagne, embellished = true).padding(contentPadding),
-                    verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+                    verticalArrangement = verticalArrangement, content = content)
             }
         }
     }
@@ -106,6 +108,7 @@ fun CatalogueCard(
 @Composable
 fun ArrowBadge(modifier: Modifier = Modifier) {
     Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, CircleShape)
+        .medallionRim(MaterialTheme.colorScheme.secondary)
         .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
         Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp))
     }

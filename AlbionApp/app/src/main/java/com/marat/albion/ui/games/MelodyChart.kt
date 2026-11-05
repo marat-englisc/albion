@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +60,8 @@ internal fun MelodyChart(report: ShadowReport, words: List<ChartWord> = emptyLis
             }
             Row(
                 Modifier.fillMaxWidth().background(band, RoundedCornerShape(8.dp))
-                    .border(.75.dp, grid, RoundedCornerShape(8.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
+                    .border(.75.dp, grid, RoundedCornerShape(8.dp)).engravedSurface(muted)
+                    .padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Column(

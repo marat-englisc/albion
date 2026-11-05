@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.headingRule
+
 import com.marat.albion.ui.components.paperGrain
 
 import androidx.compose.foundation.rememberScrollState
@@ -437,7 +439,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
                     p >= current.start && (next == null || p < next.start)
                 }
                 Spacer(Modifier.height(8.dp))
-                Hairline()
+                FolioDivider()
                 Row(
                     Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).height(FOOTER_HEIGHT - 17.dp).padding(start = 24.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -656,7 +658,8 @@ private fun PageView(
             if (block.isHeading) {
                 Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth()) {
-                        Box(Modifier.fillMaxWidth().height(headingDecoration), contentAlignment = Alignment.Center) {
+                        Box(Modifier.fillMaxWidth().height(headingDecoration)
+                            .headingRule(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
                             FolioDivider(label = romanNumeral(block.chapter + 1))
                         }
                         Text(readingChapterTitle(book.chapters[block.chapter].title), style = heading, modifier = Modifier.fillMaxWidth())

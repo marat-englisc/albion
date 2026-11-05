@@ -1,5 +1,8 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+
 import com.marat.albion.ui.components.paperGrain
 
 import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
@@ -216,7 +219,8 @@ internal fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: 
         Column(Modifier.clip(bubbleShape.copy(topStart = CornerSizeSmall))
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, bubbleShape.copy(topStart = CornerSizeSmall))
-            .paperGrain(MaterialTheme.colorScheme.outline)
+            .engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
+            .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp)
             .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (text.isNotEmpty()) Text(text, style = MaterialTheme.typography.bodyLarge)
             footer()
@@ -233,6 +237,8 @@ private fun UserBubble(message: ConversationMessageEntity, checking: Boolean, mo
         Row(Modifier.fillMaxWidth(0.88f), horizontalArrangement = Arrangement.End) {
             Row(Modifier.clip(bubbleShape.copy(topEnd = CornerSizeSmall)).background(MaterialTheme.colorScheme.primary)
                 .border(.75.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = .35f), bubbleShape.copy(topEnd = CornerSizeSmall))
+                .engravedSurface(MaterialTheme.colorScheme.onPrimary)
+                .folioFrame(MaterialTheme.colorScheme.onPrimary.copy(alpha = .3f), inset = 4.dp)
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.Top) {
                 if (message.voice) {
                     Icon(AlbionIcons.Mic, "Голосом", Modifier.padding(top = 3.dp, end = 8.dp).size(14.dp),
@@ -264,6 +270,7 @@ internal fun CorrectionCard(correction: String, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     Column(modifier.clip(MaterialTheme.shapes.medium).background(scheme.tertiaryContainer)
         .border(.75.dp, scheme.tertiary.copy(alpha = .45f), MaterialTheme.shapes.medium)
+        .folioFrame(scheme.tertiary.copy(alpha = .3f), inset = 4.dp)
         .padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Eyebrow("Лучше сказать", color = scheme.onTertiaryContainer)
         Text(corrected, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
@@ -355,7 +362,8 @@ internal fun ChatComposer(
                 }
             }
             Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RoundedCornerShape(14.dp)).background(scheme.surfaceContainerLow)
-                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 12.dp),
+                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(14.dp))
+                .engravedSurface(scheme.secondary).folioFrame(scheme.outlineVariant, inset = 4.dp).padding(horizontal = 12.dp, vertical = 12.dp),
                 contentAlignment = Alignment.CenterStart) {
                 when {
                     recording -> RecordingLevel(level)

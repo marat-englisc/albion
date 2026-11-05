@@ -15,6 +15,7 @@ import com.marat.albion.ui.theme.selectedContainer
 @Composable
 fun Modifier.selectionSurface(selected: Boolean, shape: Shape = MaterialTheme.shapes.medium): Modifier =
     if (!selected) this else background(MaterialTheme.colorScheme.selectedContainer, shape)
+        .engravedSurface(MaterialTheme.colorScheme.selectedBorder)
         .border(1.dp, MaterialTheme.colorScheme.selectedBorder, shape)
 
 /** Строка списка, чья страница открыта рядом (учебник, карточки на планшете). */

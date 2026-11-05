@@ -1,5 +1,8 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+
 import com.marat.albion.ui.components.paperGrain
 
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
@@ -405,6 +408,7 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
                     .clickable { openRule(n) }
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                     .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp))
+                    .engravedSurface(MaterialTheme.colorScheme.secondary)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -521,6 +525,7 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clip(shape)
+            .engravedSurface(border).folioFrame(border.copy(alpha = .45f), inset = 4.dp)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = state == OptionState.Idle, onClick = onClick)
             .semantics { stateDescription = when (state) {
                 OptionState.Correct -> "Верный ответ"

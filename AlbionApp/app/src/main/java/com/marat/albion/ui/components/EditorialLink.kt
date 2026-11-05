@@ -51,7 +51,8 @@ fun EditorialLink(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null || index != null) {
-            Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
+                .medallionRim(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
                 if (icon != null) Icon(icon, null, Modifier.size(22.dp))
                 else if (index != null) Text(index, style = MaterialTheme.typography.labelLarge)
             }

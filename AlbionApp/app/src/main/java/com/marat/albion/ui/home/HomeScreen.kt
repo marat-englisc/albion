@@ -183,26 +183,25 @@ internal fun TodayCard(state: HomeState, sessionSize: Int, modifier: Modifier, c
     val planned = minOf(sessionSize, available)
     val loaded = state.loaded && !preparing
     val sizes = listOf(5, 10, 20)
-    val scheme = MaterialTheme.colorScheme
-    Panel(modifier.fillMaxWidth(), contentPadding = PaddingValues(if (short) 12.dp else if (compact) 16.dp else 22.dp),
-        borderColor = scheme.outlineVariant) {
+    BoundVolume(modifier.fillMaxWidth(), contentPadding = PaddingValues(if (short) 12.dp else if (compact) 16.dp else 22.dp),
+        verticalArrangement = Arrangement.Top) {
         Text(if (!loaded) "Готовим занятие" else if (available > 0) "Занятие на сегодня" else "На сегодня всё",
             style = if (short) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(8.dp))
         // The main action precedes descriptions and optional session settings, even in a short window.
         if (!loaded || available > 0) {
             PrimaryButton(if (!loaded) "Готовим занятие…" else "Начать", onClick = onStart,
-                enabled = loaded && planned > 0)
-        } else PrimaryButton("Открыть библиотеку", onRead)
+                enabled = loaded && planned > 0, inverse = true)
+        } else PrimaryButton("Открыть библиотеку", onRead, inverse = true)
         Spacer(Modifier.height(8.dp))
         Text(when {
             !loaded -> "Собираем ваши карточки"
             available > 0 -> "${answerLabel(planned)} за занятие · $available ${com.marat.albion.ui.library.pluralRu(available, "карточка доступна", "карточки доступны", "карточек доступно")}"
             else -> "Все карточки на сегодня повторены. Время для книги."
-        }, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+        }, style = MaterialTheme.typography.bodySmall, color = LocalContentColor.current)
         if (!loaded || available > 0) {
             Disclosure("Объём занятия", "${answerLabel(sessionSize)}") {
-                SegmentedPicker(sizes.map { "$it" }, sizes.indexOf(sessionSize).coerceAtLeast(0), { onSize(sizes[it]) })
+                SegmentedPicker(sizes.map { "$it" }, sizes.indexOf(sessionSize).coerceAtLeast(0), { onSize(sizes[it]) }, inverse = true)
             }
         }
     }

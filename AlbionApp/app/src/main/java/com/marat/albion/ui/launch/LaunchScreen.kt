@@ -3,6 +3,7 @@ package com.marat.albion.ui.launch
 import com.marat.albion.ui.theme.Typography
 import com.marat.albion.ui.theme.Heritage
 import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.components.engravedSurface
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -121,7 +122,7 @@ fun LaunchScreen(
 
     BoxWithConstraints(
         Modifier.fillMaxSize()
-            .background(Ink).paperGrain(Champagne)
+            .background(Ink).engravedSurface(Champagne).paperGrain(Champagne)
             // Пока материалы готовятся, касания не должны попадать в интерфейс под загрузкой.
             .pointerInput(Unit) {
                 awaitPointerEventScope {

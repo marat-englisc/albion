@@ -1,0 +1,11 @@
+controlBorder / background: 4.04715250473201
+controlBorder / low: 4.335169894682463
+controlBorder / container: 3.872049979224002
+controlBorder / high: 3.5658214250000575
+controlBorder / highest: 3.2703310272897927
+controlBorder / bright: 4.526358754100234
+controlBorder / selected: 3.787525269683535
+controlBorder / secondary: 3.5968402024419377
+correction: 8.475291917992026
+hero / conservative brightest background: 6.25414536046243
+hero segment: 7.2865435223842985

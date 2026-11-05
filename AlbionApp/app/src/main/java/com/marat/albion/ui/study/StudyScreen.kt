@@ -2,6 +2,7 @@ package com.marat.albion.ui.study
 
 import com.marat.albion.ui.components.folioFrame
 import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.components.engravedSurface
 import com.marat.albion.ui.theme.AlbionFonts
 import androidx.compose.ui.text.font.FontStyle
 
@@ -346,7 +347,7 @@ private fun FlipCard(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = androidx.compose.foundation.BorderStroke(.75.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        Box(Modifier.fillMaxSize().paperGrain(MaterialTheme.colorScheme.outline)
+        Box(Modifier.fillMaxSize().engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
             .folioFrame(MaterialTheme.colorScheme.outline, embellished = true)) {
             if (rotation <= 90f) {
                 Column(Modifier.fillMaxSize()) {

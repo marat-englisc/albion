@@ -1,5 +1,9 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.engravedSurface
+import com.marat.albion.ui.components.folioFrame
+import com.marat.albion.ui.components.medallionRim
+
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
@@ -128,6 +132,8 @@ internal fun PlaybackAction(
                 .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
                 .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
                 .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
+                .engravedSurface(MaterialTheme.colorScheme.secondary)
+                .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -180,6 +186,7 @@ internal fun MicButton(
                 }
             }
             Box(Modifier.size((size - 24.dp).coerceAtLeast(48.dp)).pressScale(interaction, .94f).clip(CircleShape).background(face, CircleShape)
+                .engravedSurface(foreground).medallionRim(foreground)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,

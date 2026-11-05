@@ -120,7 +120,7 @@ class ContrastAndHeroUiTest {
             // Scan every pixel of the content area; text and rounded corners are intentionally absent.
             for (y in rect.top + inset until rect.bottom - inset) for (x in rect.left + inset until rect.right - inset) {
                 val pixel = bitmap.getPixel(x, y)
-                val ratio = contrast(Color.White, Color(pixel))
+                val ratio = contrast(Hero.Content, Color(pixel))
                 if (ratio < minimum) { minimum = ratio; worst = pixel }
             }
             bitmap.recycle()
@@ -146,7 +146,7 @@ class ContrastAndHeroUiTest {
             assertWholeText(title)
             assertEquals(22.sp, title.layout.layoutInput.style.fontSize)
             for (label in listOf("Следующий шаг · Закрепить", "Урок ${topic.number} · ${topic.level}", topic.title, "Читать урок")) {
-                assertEquals("Hero caption must be opaque white: $label", Color.White, text(label).layout.layoutInput.style.color)
+                assertEquals("Hero caption must use the opaque ivory token: $label", Hero.Content, text(label).layout.layoutInput.style.color)
             }
             capture("next-lesson")
             click(scrollTo { it.text?.toString() == "Проверить знания" })
@@ -163,13 +163,13 @@ class ContrastAndHeroUiTest {
                 Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
                     .verticalScroll(rememberScrollState()).padding(gutter)) { ContinueReading(book, Modifier, onOpen = {}) }
             }
-            for (label in listOf("Продолжить", "Alex Morgan")) assertEquals(Color.White, text(label).layout.layoutInput.style.color)
+            for (label in listOf("Продолжить", "Alex Morgan")) assertEquals(Hero.Content, text(label).layout.layoutInput.style.color)
             capture("library-caption")
             show(scenario, "deck-caption") {
                 Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
                     .verticalScroll(rememberScrollState()).padding(gutter)) { BoundVolume { DeckStudyMetrics(1234, 5678) } }
             }
-            for (label in listOf("к повторению", "новых сегодня")) assertEquals(Color.White, text(label).layout.layoutInput.style.color)
+            for (label in listOf("к повторению", "новых сегодня")) assertEquals(Hero.Content, text(label).layout.layoutInput.style.color)
             capture("deck-caption")
             show(scenario, "practice-caption") {
                 Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
@@ -178,11 +178,11 @@ class ContrastAndHeroUiTest {
                         com.marat.albion.data.settings.PracticeOptions(level = "B1"), continuing = true, onOpen = {})
                 }
             }
-            assertEquals(Color.White, text("Продолжить").layout.layoutInput.style.color)
+            assertEquals(Hero.Content, text("Продолжить").layout.layoutInput.style.color)
             capture("practice-caption")
             show(scenario, "conversation-caption") { ConversationsScreen(navigator()) }
-            assertEquals(Color.White, text("На устройстве · без интернета").layout.layoutInput.style.color)
-            assertEquals(Color.White, text("Пишите или говорите — модель ответит, поправит ошибки и подскажет. Бесплатно, без лимитов и интернета.").layout.layoutInput.style.color)
+            assertEquals(Hero.Content, text("На устройстве · без интернета").layout.layoutInput.style.color)
+            assertEquals(Hero.Content, text("Пишите или говорите — модель ответит, поправит ошибки и подскажет. Бесплатно, без лимитов и интернета.").layout.layoutInput.style.color)
             capture("conversation-caption")
         }
     }

@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-05",
+  "screen": "Home",
+  "checkedNodes": 83,
+  "changedNodes": 0,
+  "comparedProperties": [
+    "class",
+    "text",
+    "content-desc",
+    "bounds",
+    "clickable"
+  ],
+  "result": "PASS"
+}

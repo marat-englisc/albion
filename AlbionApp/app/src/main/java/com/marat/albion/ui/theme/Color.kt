@@ -26,11 +26,11 @@ internal val SuccessDark = Color(0xFFACC5A1)
 internal val ErrorLight = Color(0xFF963F43)
 internal val ErrorDark = Color(0xFFE3A3A0)
 
-/** Кожаный переплёт: непрозрачный светлый текст и запас контраста поверх тиснения. */
+/** Кожаный переплёт: слоновая кость и запас контраста поверх тиснения. */
 object Hero {
     val Base = Color(0xFF263F32)
-    val Content = Color.White
-    /** Тёмный тон акцента — текст на белых кнопках внутри плиты. */
+    val Content = Heritage.Cream
+    /** Тёмный тон акцента — текст на кремовых кнопках внутри плиты. */
     val Deep = Color(0xFF182B21)
     internal val GradientStops = listOf(Color(0xFF354E3E), Base, Color(0xFF1B3025))
     internal val Glow = Heritage.Champagne.copy(alpha = .07f)
