@@ -1,19 +1,10 @@
 package com.marat.albion.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -22,10 +13,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import com.marat.albion.ui.theme.LocalReducedMotion
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 /** Informational labels keep the interface font and follow the system text scale. */
 @Composable
@@ -57,69 +44,23 @@ fun ModuleHeading(number: String, title: String, trailing: String? = null, modif
     }
 }
 
-/** Canvas ornament: no bitmap assets, no network requests, respects reduced motion. */
-@Composable
-fun OrbitalField(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurface, animated: Boolean = true) {
-    val reduced = LocalReducedMotion.current
-    val rotation = if (!reduced && animated) {
-        val transition = rememberInfiniteTransition(label = "orbital-field")
-        transition.animateFloat(0f, (PI * 2).toFloat(),
-            infiniteRepeatable(tween(48_000, easing = LinearEasing)), label = "orbital-rotation")
-    } else remember { mutableStateOf(.38f) }
-    Canvas(modifier.clearAndSetSemantics {}) {
-        val phase = rotation.value
-        val radius = size.minDimension * .35f
-        val center = Offset(size.width / 2, size.height / 2)
-        val tilt = -.35f
-        fun project(x: Float, y: Float, z: Float): Offset {
-            val rx = x * cos(phase) + z * sin(phase)
-            return center + Offset((rx * cos(tilt) - y * sin(tilt)) * radius,
-                (rx * sin(tilt) + y * cos(tilt)) * radius)
-        }
-        drawCircle(color.copy(alpha = .1f), radius * 1.3f, center, style = Stroke(.6.dp.toPx()))
-        drawCircle(color.copy(alpha = .32f), radius, center, style = Stroke(.7.dp.toPx()))
-        for (meridian in 0 until 10) {
-            val longitude = meridian * PI.toFloat() / 5
-            val path = Path()
-            for (step in 0..80) {
-                val latitude = -PI.toFloat() / 2 + step * PI.toFloat() / 80
-                val p = project(cos(latitude) * cos(longitude), sin(latitude), cos(latitude) * sin(longitude))
-                if (step == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
-            }
-            drawPath(path, color.copy(alpha = .24f), style = Stroke(.55.dp.toPx()))
-        }
-        for (parallel in -3..3) {
-            val latitude = parallel * PI.toFloat() / 9
-            val path = Path()
-            for (step in 0..100) {
-                val longitude = step * 2 * PI.toFloat() / 100
-                val p = project(cos(latitude) * cos(longitude), sin(latitude), cos(latitude) * sin(longitude))
-                if (step == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
-            }
-            drawPath(path, color.copy(alpha = .24f), style = Stroke(.55.dp.toPx()))
-        }
-        for (index in 0..3) {
-            val a = index * PI.toFloat() / 2
-            val p = center + Offset(cos(a), sin(a)) * radius * 1.3f
-            drawLine(color.copy(alpha = .5f), p - Offset(3.dp.toPx(), 0f), p + Offset(3.dp.toPx(), 0f), .7.dp.toPx())
-            drawLine(color.copy(alpha = .5f), p - Offset(0f, 3.dp.toPx()), p + Offset(0f, 3.dp.toPx()), .7.dp.toPx())
-        }
-        val satellite = center + Offset(cos(phase * 2), sin(phase * 2)) * radius * 1.3f
-        drawCircle(color.copy(alpha = .9f), 2.dp.toPx(), satellite)
-    }
-}
-
-/** Sparse construction marks on feature panels; content always stays above them. */
+/** Faint diamond tooling on the right half of a leather-bound feature panel. */
 fun Modifier.constructionLines(color: Color): Modifier = drawBehind {
-    val step = 32.dp.toPx()
+    val step = 36.dp.toPx()
     var x = size.width / 2
     while (x < size.width) {
-        drawLine(color.copy(alpha = .035f), Offset(x, 0f), Offset(x, size.height), .5.dp.toPx())
+        var y = step / 2
+        while (y < size.height) {
+            val diamond = Path().apply {
+                moveTo(x, y - step / 2)
+                lineTo(x + step / 2, y)
+                lineTo(x, y + step / 2)
+                lineTo(x - step / 2, y)
+                close()
+            }
+            drawPath(diamond, color.copy(alpha = .045f), style = Stroke(.5.dp.toPx()))
+            y += step
+        }
         x += step
-    }
-    var y = step
-    while (y < size.height) {
-        drawLine(color.copy(alpha = .035f), Offset(size.width / 2, y), Offset(size.width, y), .5.dp.toPx())
-        y += step
     }
 }

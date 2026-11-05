@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
@@ -153,7 +155,7 @@ fun LibraryScreen(navigator: Navigator) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         state = shelfState,
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),

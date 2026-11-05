@@ -1,5 +1,7 @@
 package com.marat.albion.ui.stats
 
+import com.marat.albion.ui.components.paperGrain
+
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.aspectRatio
@@ -83,7 +85,7 @@ fun StatsScreen(navigator: Navigator) {
     val advice by adviceVm.advice.collectAsStateWithLifecycle()
 
     Column(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).verticalScroll(rememberScrollState())
             .padding(horizontal = gutter).padding(bottom = 32.dp),
     ) {
         Box(Modifier) { ScreenHeader("Прогресс", eyebrow = "05 / ДИНАМИКА", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
@@ -105,7 +107,7 @@ fun StatsScreen(navigator: Navigator) {
                     Text(milestone?.first ?: if (s.streak == 0) "Начните сегодня" else "Не прерывайте серию",
                         style = MaterialTheme.typography.bodySmall, color = androidx.compose.material3.LocalContentColor.current.copy(alpha = 0.7f))
                 }
-                if (LocalDensity.current.fontScale <= 1.3f) com.marat.albion.ui.components.OrbitalField(Modifier.size(80.dp), animated = false)
+                if (LocalDensity.current.fontScale <= 1.3f) Spacer(Modifier.size(80.dp))
             }
             Spacer(Modifier.height(18.dp))
             WeekStrip(month.takeLast(7))
@@ -262,7 +264,7 @@ private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = fals
         verticalAlignment = Alignment.Bottom,
     ) {
         values.forEachIndexed { i, v ->
-            Box(Modifier.weight(1f).fillMaxHeight().background(if (i == selected) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent, RoundedCornerShape(12.dp)), contentAlignment = Alignment.BottomCenter) {
+            Box(Modifier.weight(1f).fillMaxHeight().background(if (i == selected) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent, RoundedCornerShape(8.dp)), contentAlignment = Alignment.BottomCenter) {
                 val h = if (v == 0) 0.015f else (v.toFloat() / max).coerceAtLeast(0.04f)
                 val color = when {
                     v == 0 -> MaterialTheme.colorScheme.outlineVariant
@@ -306,7 +308,7 @@ private fun DeckBreakdown(s: Stats) {
                 Text(if (c.started < c.total) "Начато ${c.started} карточек · следующий рубеж ${minOf(c.total, (c.started / 10 + 1) * 10)}" else "Начата вся коллекция · ${c.started} карточек",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
+                Row(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
                     val total = c.total.coerceAtLeast(1).toFloat()
                     if (c.learning > 0) Box(Modifier.weight(c.learning / total).fillMaxHeight().background(MaterialTheme.colorScheme.secondary))
                     if (young > 0) Box(Modifier.weight(young / total).fillMaxHeight().background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)))

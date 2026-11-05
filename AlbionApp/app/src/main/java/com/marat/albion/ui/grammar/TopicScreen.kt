@@ -1,5 +1,7 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -150,7 +152,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         }
     }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(onBack = navigator::back) {
             if (headingIndex.isNotEmpty()) {
                 Box {
@@ -291,7 +293,7 @@ private fun TopicFooter(
             Column(
                 Modifier.fillMaxWidth()
 
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp)).padding(20.dp),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверьте себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))

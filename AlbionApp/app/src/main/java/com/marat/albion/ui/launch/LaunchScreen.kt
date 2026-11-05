@@ -1,6 +1,8 @@
 package com.marat.albion.ui.launch
 
 import com.marat.albion.ui.theme.Typography
+import com.marat.albion.ui.theme.Heritage
+import com.marat.albion.ui.components.paperGrain
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -60,14 +62,14 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /*
- * Экран загрузки Albion. Системный сплэш Android 12+ показывает только знак «A» на графите
+ * Экран загрузки Albion. Системный сплэш Android 12+ показывает только знак «A» на зелёных чернилах
  * (drawable/splash_mark.xml); этот экран начинается с того же знака в той же точке и разворачивает
- * вокруг него мир Iris:
+ * вокруг него мир Old Money:
  *
- *  вступление (~2,8 с) — ирисовое свечение, сфера раскручивается и замедляется, кольца прорисовываются,
+ *  вступление (~2,8 с) — латунное свечение, кольца прорисовываются,
  *  шкала-«прибор» набирает деления, наклонная орбита из иконки обвивает знак, стартует спутник,
  *  по буквам появляется «albion» и подпись;
- *  петля — пока приложение готовится: сфера вращается, спутник кружит со шлейфом, свечение «дышит»,
+ *  петля — пока приложение готовится: спутник кружит со шлейфом, свечение «дышит»,
  *  снизу статус импорта и бегущая полоса;
  *  готовность — экран сразу освобождает интерфейс, даже посреди вступления.
  *
@@ -77,10 +79,10 @@ import kotlin.math.sin
 
 private const val INTRO_MS = 2800
 
-private val Ink = Color(0xFF0A0B0F)
-private val Iris = Color(0xFF5B3FF5)
-private val IrisDeep = Color(0xFF2C1C9C)
-private val IrisLight = Color(0xFFB0A4FF)
+private val Ink = com.marat.albion.ui.theme.Ink
+private val Brass = Heritage.Brass
+private val BrassDeep = com.marat.albion.ui.theme.Hero.Deep
+private val Champagne = Heritage.Champagne
 
 /** Системный сплэш без фона иконки рисует 108 единиц вектора на 288 dp — так знак совпадает пиксель в пиксель. */
 private val IconBox = 288.dp
@@ -108,19 +110,18 @@ fun LaunchScreen(
     }
 
     // Петли идут с первого кадра: к концу вступления движение уже «разогнано» и не стартует рывком.
-    val (spin, orbit, dial, breathe, barLoop) = if (reduced) floatArrayOf(.38f, .6f, 0f, .5f, 0f) else {
+    val (orbit, dial, breathe, barLoop) = if (reduced) floatArrayOf(.6f, 0f, .5f, 0f) else {
         val loop = rememberInfiniteTransition(label = "launch")
-        val spin by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(16_000, easing = LinearEasing)), label = "spin")
-        val orbit by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(3_600, easing = LinearEasing)), label = "orbit")
+        val orbit by loop.animateFloat(0f, 2 * PI.toFloat(), infiniteRepeatable(tween(12_000, easing = LinearEasing)), label = "orbit")
         val dial by loop.animateFloat(0f, 360f, infiniteRepeatable(tween(60_000, easing = LinearEasing)), label = "dial")
-        val breathe by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_600, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "breathe")
-        val bar by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(1_400, easing = FastOutSlowInEasing)), label = "bar")
-        floatArrayOf(spin, orbit, dial, breathe, bar)
+        val breathe by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(4_800, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "breathe")
+        val bar by loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_400, easing = FastOutSlowInEasing)), label = "bar")
+        floatArrayOf(orbit, dial, breathe, bar)
     }
 
     BoxWithConstraints(
         Modifier.fillMaxSize()
-            .background(Ink)
+            .background(Ink).paperGrain(Champagne)
             // Пока материалы готовятся, касания не должны попадать в интерфейс под загрузкой.
             .pointerInput(Unit) {
                 awaitPointerEventScope {
@@ -134,16 +135,16 @@ fun LaunchScreen(
     ) {
         val p = if (reduced) 1f else intro.value
         val e = 0f
-        val sphere = min(maxWidth, maxHeight * .8f) * .30f
+        val sceneRadius = min(maxWidth, maxHeight * .8f) * .30f
         val lift = 52.dp * ease(seg(p, .45f, .8f))
 
         Canvas(Modifier.fillMaxSize().clearAndSetSemantics {}) {
-            drawScene(p, e, sphere.toPx(), lift.toPx(), spin, orbit, dial, breathe)
+            drawScene(p, e, sceneRadius.toPx(), lift.toPx(), orbit, dial, breathe)
         }
 
-        // Слово-знак и подпись под сферой; движутся вместе с группой.
+        // Слово-знак и подпись под знаком; движутся вместе с группой.
         Column(
-            Modifier.align(Alignment.Center).offset(y = sphere * 1.52f + 44.dp - lift)
+            Modifier.align(Alignment.Center).offset(y = sceneRadius * 1.52f + 44.dp - lift)
                 .graphicsLayer { alpha = 1f - e; val s = 1f + .08f * e; scaleX = s; scaleY = s }
                 .clearAndSetSemantics {},
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -154,7 +155,7 @@ fun LaunchScreen(
                     Text(
                         ch.toString(),
                         Modifier.graphicsLayer { alpha = la; translationY = (1f - la) * 18.dp.toPx() },
-                        style = TextStyle(fontFamily = AlbionFonts.Display, fontWeight = FontWeight.Medium, fontSize = 40.sp, color = Color.White, letterSpacing = (-.01).em),
+                        style = TextStyle(fontFamily = AlbionFonts.Display, fontWeight = FontWeight.Medium, fontSize = 40.sp, color = Heritage.Cream, letterSpacing = (-.01).em),
                     )
                 }
             }
@@ -163,7 +164,7 @@ fun LaunchScreen(
             Text(
                 "АНГЛИЙСКИЙ КАЖДЫЙ ДЕНЬ",
                 Modifier.graphicsLayer { alpha = ta },
-                style = Typography.labelMedium.copy(color = IrisLight, letterSpacing = (.02f + .3f * (1f - ta)).em),
+                style = Typography.labelMedium.copy(color = Champagne, letterSpacing = (.02f + .3f * (1f - ta)).em),
             )
         }
 
@@ -173,47 +174,40 @@ fun LaunchScreen(
                 .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(status ?: "ЗАГРУЗКА", style = Typography.labelMedium.copy(color = Color.White.copy(alpha = .62f)))
+            Text(status ?: "ЗАГРУЗКА", style = Typography.labelMedium.copy(color = Heritage.Cream.copy(alpha = .62f)))
             Spacer(Modifier.height(12.dp))
             Canvas(Modifier.size(132.dp, 2.dp)) {
-                drawLine(Color.White.copy(alpha = .1f), Offset(0f, size.height / 2), Offset(size.width, size.height / 2), size.height, StrokeCap.Round)
+                drawLine(Heritage.Cream.copy(alpha = .1f), Offset(0f, size.height / 2), Offset(size.width, size.height / 2), size.height, StrokeCap.Round)
                 val head = barLoop * 1.3f
                 val start = (head - .3f).coerceIn(0f, 1f) * size.width
                 val end = head.coerceIn(0f, 1f) * size.width
-                if (end > start) drawLine(IrisLight, Offset(start, size.height / 2), Offset(end, size.height / 2), size.height, StrokeCap.Round)
+                if (end > start) drawLine(Champagne, Offset(start, size.height / 2), Offset(end, size.height / 2), size.height, StrokeCap.Round)
             }
         }
     }
 }
 
-/** Вся графика одним проходом: свечение, сфера, кольца, шкала, орбита, знак и спутник. */
+/** Вся графика одним проходом: свечение, кольца, шкала, орбита, знак и спутник. */
 private fun DrawScope.drawScene(
     p: Float, e: Float, rs: Float, lift: Float,
-    spin: Float, orbit: Float, dial: Float, breathe: Float,
+    orbit: Float, dial: Float, breathe: Float,
 ) {
     val c = Offset(size.width / 2, size.height / 2 - lift)
     val unit = IconBox.toPx() / 108f
     val px = 1.dp.toPx()
 
     withTransform({ scale(1f + .22f * e, 1f + .22f * e, c) }) {
-        // 1. Ирисовое свечение: разгорается во вступлении и «дышит» в петле.
+        // 1. Латунное свечение: разгорается во вступлении и «дышит» в петле.
         val glowIn = ease(seg(p, 0f, .5f))
         val glowR = rs * (1.1f + 1.25f * glowIn) * (.95f + .1f * breathe)
         if (glowIn > 0f) drawCircle(
-            Brush.radialGradient(listOf(Iris.copy(alpha = .46f * glowIn), IrisDeep.copy(alpha = .18f * glowIn), Color.Transparent), c, glowR),
+            Brush.radialGradient(listOf(Brass.copy(alpha = .46f * glowIn), BrassDeep.copy(alpha = .18f * glowIn), Color.Transparent), c, glowR),
             glowR, c,
         )
 
-        // 2. Сфера: раскручивается быстро и замедляется до спокойного вращения, меридианы проявляются по одному.
-        val sphereIn = ease(seg(p, .12f, .55f))
-        if (sphereIn > 0f) {
-            val whoosh = (1f - easeOut(seg(p, .1f, .78f))) * -3.4f
-            drawSphere(c, rs * (.72f + .28f * sphereIn), spin + whoosh, sphereIn, px)
-        }
-
         // 3. Внутреннее кольцо прорисовывается дугой сверху по часовой.
         val ring = ease(seg(p, .06f, .42f))
-        if (ring > 0f) drawArc(Color.White.copy(alpha = .26f), -90f, 360f * ring, false,
+        if (ring > 0f) drawArc(Heritage.Cream.copy(alpha = .26f), -90f, 360f * ring, false,
             topLeft = c - Offset(rs * 1.16f, rs * 1.16f), size = androidx.compose.ui.geometry.Size(rs * 2.32f, rs * 2.32f), style = Stroke(px))
 
         // 4. Шкала-«прибор»: деления набираются по кругу и потом медленно плывут.
@@ -224,22 +218,22 @@ private fun DrawScope.drawScene(
             val a = Math.toRadians((-90.0 + i * 3.75 + dial)).toFloat()
             val len = (if (major) 7f else 3.5f) * px
             val dir = Offset(cos(a), sin(a))
-            drawLine(Color.White.copy(alpha = if (major) .42f else .16f), c + dir * r2, c + dir * (r2 + len), px, StrokeCap.Round)
+            drawLine(Heritage.Cream.copy(alpha = if (major) .42f else .16f), c + dir * r2, c + dir * (r2 + len), px, StrokeCap.Round)
         }
 
         // 5. Внешнее пунктирное кольцо и метки «+» по диагоналям, съезжающиеся на место.
         val outer = seg(p, .35f, .7f)
         val r3 = rs * 1.52f
         if (outer > 0f) {
-            drawCircle(Color.White.copy(alpha = .12f * outer), r3, c,
+            drawCircle(Heritage.Cream.copy(alpha = .12f * outer), r3, c,
                 style = Stroke(px, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2 * px, 6 * px))))
             val marks = ease(seg(p, .45f, .75f))
             for (k in 0..3) {
                 val a = (PI / 4 + k * PI / 2).toFloat()
                 val at = c + Offset(cos(a), sin(a)) * (r3 + 16 * px * (1f - marks))
                 val arm = 4.5f * px
-                drawLine(IrisLight.copy(alpha = .7f * marks), at - Offset(arm, 0f), at + Offset(arm, 0f), px)
-                drawLine(IrisLight.copy(alpha = .7f * marks), at - Offset(0f, arm), at + Offset(0f, arm), px)
+                drawLine(Champagne.copy(alpha = .7f * marks), at - Offset(arm, 0f), at + Offset(arm, 0f), px)
+                drawLine(Champagne.copy(alpha = .7f * marks), at - Offset(0f, arm), at + Offset(0f, arm), px)
             }
         }
 
@@ -264,7 +258,7 @@ private fun DrawScope.drawScene(
                 if (last != isFront) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
                 last = isFront
             }
-            drawPath(back, Color.White.copy(alpha = .4f), style = Stroke(1.4f * unit, cap = StrokeCap.Round))
+            drawPath(back, Heritage.Cream.copy(alpha = .4f), style = Stroke(1.4f * unit, cap = StrokeCap.Round))
         }
 
         // 7. Знак «A»: виден с первого кадра — там же, где системный сплэш; под ним — ирисовый ореол.
@@ -279,13 +273,13 @@ private fun DrawScope.drawScene(
         }) {
             // Мягкий ореол несколькими тонкими слоями: один широкий штрих читался как размытая обводка.
             if (glowIn > 0f) for ((width, alpha) in listOf(7.5f to .05f, 5.5f to .07f, 4f to .1f)) {
-                drawPath(mark, IrisLight.copy(alpha = alpha * glowIn), style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                drawPath(mark, Champagne.copy(alpha = alpha * glowIn), style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
-            drawPath(mark, Color.White, style = Stroke(2.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-            drawCircle(Color.White, 2.4f, Offset(54f, 73f))
+            drawPath(mark, Heritage.Cream, style = Stroke(2.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+            drawCircle(Heritage.Cream, 2.4f, Offset(54f, 73f))
         }
 
-        if (orbitDraw > 0f) drawPath(front, Color.White.copy(alpha = .95f), style = Stroke(1.4f * unit, cap = StrokeCap.Round))
+        if (orbitDraw > 0f) drawPath(front, Heritage.Cream.copy(alpha = .95f), style = Stroke(1.4f * unit, cap = StrokeCap.Round))
 
         // 8. Спутник со шлейфом: стартует в конце вступления и дальше кружит по орбите.
         val sat = ease(seg(p, .72f, .9f))
@@ -296,50 +290,14 @@ private fun DrawScope.drawScene(
                 val depth = if (sin(t) > 0f) 1f else .45f
                 val fade = (1f - k / 15f)
                 if (k == 0) {
-                    drawCircle(IrisLight.copy(alpha = .35f * sat * depth), 7f * unit, pt)
-                    drawCircle(Color.White.copy(alpha = sat * depth), 2.6f * unit, pt)
-                } else drawCircle(IrisLight.copy(alpha = .5f * sat * depth * fade * fade), 1.3f * unit * fade + .4f * px, pt)
+                    drawCircle(Champagne.copy(alpha = .35f * sat * depth), 7f * unit, pt)
+                    drawCircle(Heritage.Cream.copy(alpha = sat * depth), 2.6f * unit, pt)
+                } else drawCircle(Champagne.copy(alpha = .5f * sat * depth * fade * fade), 1.3f * unit * fade + .4f * px, pt)
             }
         }
-    }
-}
-
-/** Сфера из меридианов и параллелей с наклоном оси — та же, что OrbitalField на главной, но ирисовая. */
-private fun DrawScope.drawSphere(c: Offset, radius: Float, phase: Float, reveal: Float, px: Float) {
-    val tilt = -.35f
-    fun project(x: Float, y: Float, z: Float): Offset {
-        val rx = x * cos(phase) + z * sin(phase)
-        return c + Offset((rx * cos(tilt) - y * sin(tilt)) * radius, (rx * sin(tilt) + y * cos(tilt)) * radius)
-    }
-    drawCircle(IrisLight.copy(alpha = .5f * reveal), radius, c, style = Stroke(.9f * px))
-    val meridians = 12
-    val shown = meridians * reveal
-    for (m in 0 until meridians) {
-        val visible = (shown - m).coerceIn(0f, 1f)
-        if (visible <= 0f) break
-        val longitude = m * PI.toFloat() / (meridians / 2)
-        val path = Path()
-        for (step in 0..72) {
-            val latitude = -PI.toFloat() / 2 + step * PI.toFloat() / 72
-            val pt = project(cos(latitude) * cos(longitude), sin(latitude), cos(latitude) * sin(longitude))
-            if (step == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
-        }
-        drawPath(path, IrisLight.copy(alpha = .3f * visible), style = Stroke(.7f * px))
-    }
-    for (parallel in -3..3) {
-        val latitude = parallel * PI.toFloat() / 9
-        val path = Path()
-        for (step in 0..96) {
-            val longitude = step * 2 * PI.toFloat() / 96
-            val pt = project(cos(latitude) * cos(longitude), sin(latitude), cos(latitude) * sin(longitude))
-            if (step == 0) path.moveTo(pt.x, pt.y) else path.lineTo(pt.x, pt.y)
-        }
-        val equator = parallel == 0
-        drawPath(path, IrisLight.copy(alpha = (if (equator) .55f else .22f) * reveal), style = Stroke((if (equator) 1f else .7f) * px))
     }
 }
 
 /** Доля отрезка [a, b] шкалы вступления, пройденная к моменту [p]. */
 private fun seg(p: Float, a: Float, b: Float) = ((p - a) / (b - a)).coerceIn(0f, 1f)
 private fun ease(x: Float) = FastOutSlowInEasing.transform(x)
-private fun easeOut(x: Float) = 1f - (1f - x) * (1f - x) * (1f - x)

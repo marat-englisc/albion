@@ -57,8 +57,8 @@ internal fun MelodyChart(report: ShadowReport, words: List<ChartWord> = emptyLis
                 if (mine.available) MelodyLegend(dashed = true, label = "Вы")
             }
             Row(
-                Modifier.fillMaxWidth().background(band, RoundedCornerShape(12.dp))
-                    .border(.75.dp, grid, RoundedCornerShape(12.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
+                Modifier.fillMaxWidth().background(band, RoundedCornerShape(8.dp))
+                    .border(.75.dp, grid, RoundedCornerShape(8.dp)).padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Column(
@@ -173,7 +173,7 @@ private fun WordLabels(words: List<ChartWord>, frames: Int, inset: androidx.comp
 private fun MelodyLegend(dashed: Boolean, label: String) {
     val color = if (dashed) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     Row(
-        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
+        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Canvas(Modifier.size(width = 24.dp, height = 8.dp)) {

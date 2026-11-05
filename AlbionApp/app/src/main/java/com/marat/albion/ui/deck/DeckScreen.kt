@@ -1,5 +1,7 @@
 package com.marat.albion.ui.deck
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalContentColor
@@ -60,7 +62,7 @@ fun DeckScreen(deck: Deck, navigator: Navigator) {
     var menu by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(onBack = navigator::back) {
             Box {
                 com.marat.albion.ui.components.RoundIconButton(AlbionIcons.MoreHoriz, "Ещё", { menu = true }, filled = true)

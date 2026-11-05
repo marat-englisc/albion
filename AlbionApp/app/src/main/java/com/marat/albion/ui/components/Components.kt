@@ -165,7 +165,7 @@ fun SettingsShortcut(onClick: () -> Unit) {
     RoundIconButton(AlbionIcons.Settings, "Настройки", onClick, filled = true)
 }
 
-/** Карточка-поверхность: мягкий тон без теней, крупное скругление, пружинный отклик. */
+/** Бумажная панель с тонким тиснением; декор не участвует в измерении. */
 @Composable
 fun Panel(
     modifier: Modifier = Modifier,
@@ -183,11 +183,11 @@ fun Panel(
         val interaction = remember { MutableInteractionSource() }
         Surface(onClick = { feedback.selection(); onClick() }, modifier = modifier.pressScale(interaction, 0.97f), shape = shape,
             color = color, border = border, interactionSource = interaction) {
-            Column(Modifier.padding(contentPadding), content = content)
+            Column(Modifier.paperGrain(edge).folioFrame(edge.copy(alpha = .5f)).padding(contentPadding), content = content)
         }
     } else {
         Surface(modifier = modifier, shape = shape, color = color, border = border) {
-            Column(Modifier.padding(contentPadding), content = content)
+            Column(Modifier.paperGrain(edge).folioFrame(edge.copy(alpha = .5f)).padding(contentPadding), content = content)
         }
     }
 }
@@ -218,7 +218,7 @@ private fun PillButton(
         shape = MaterialTheme.shapes.medium, color = bg, contentColor = fg,
         border = border?.let { BorderStroke(1.dp, it) },
     ) {
-        Row(Modifier.padding(contentPadding), verticalAlignment = Alignment.CenterVertically,
+        Row(Modifier.folioFrame(fg.copy(alpha = .35f), inset = 4.dp).padding(contentPadding), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center, content = body)
     }
 }
@@ -290,7 +290,8 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
         if (pulse > 0f) Canvas(Modifier.size(size)) {
             drawCircle(ring.copy(alpha = 0.3f * (1f - pulse)), radius = this.size.minDimension / 2 * (1f + 0.4f * pulse))
         }
-        Box(Modifier.size(size).background(bg, CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(size).background(bg, CircleShape)
+            .border(.75.dp, if (playing) fg.copy(alpha = .55f) else scheme.outline, CircleShape), contentAlignment = Alignment.Center) {
             Icon(
                 if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
                 contentDescription = if (playing) "Остановить озвучку" else "Озвучить",
@@ -363,7 +364,7 @@ fun TopBar(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
             .windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

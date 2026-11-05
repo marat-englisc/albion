@@ -6,11 +6,13 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.border
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
 import com.marat.albion.ui.nav.LocalNavigationBounds
@@ -88,9 +90,12 @@ fun PaneBottomSheet(
 ) {
     val folded = LocalWindowFolds.current.orEmpty().isNotEmpty()
     ModalBottomSheet(onDismissRequest, modifier, sheetState = sheetState,
+        shape = MaterialTheme.shapes.extraLarge,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         scrimColor = if (folded) Color.Transparent else BottomSheetDefaults.ScrimColor) {
         ConstrainPopupToPane()
-        Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)), content = content)
+        Column(Modifier.fillMaxWidth().paperGrain(MaterialTheme.colorScheme.outline)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)), content = content)
     }
 }
 
@@ -105,8 +110,10 @@ fun PaneAlertDialog(
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
 ) {
-    AlertDialog(onDismissRequest, confirmButton = { ConstrainPopupToPane(); confirmButton() }, modifier = modifier,
-        dismissButton = dismissButton, icon = icon, title = title, text = text, shape = shape)
+    AlertDialog(onDismissRequest, confirmButton = { ConstrainPopupToPane(); confirmButton() },
+        modifier = modifier.then(Modifier.border(.75.dp, MaterialTheme.colorScheme.outlineVariant, shape)),
+        dismissButton = dismissButton, icon = icon, title = title, text = text, shape = shape,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
 }
 
 @Composable

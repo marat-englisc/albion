@@ -43,7 +43,7 @@ fun OptionPicker(
             color = scheme.surfaceContainerLow,
             border = BorderStroke(if (expanded) 2.dp else 1.dp, if (expanded) scheme.primary else scheme.controlBorder),
         ) {
-            Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            Row(Modifier.paperGrain(scheme.outline).padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(label, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)

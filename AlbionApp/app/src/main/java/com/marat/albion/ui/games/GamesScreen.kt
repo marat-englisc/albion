@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.theme.quietItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -75,7 +77,7 @@ fun GamesScreen(navigator: Navigator) {
         }
         LazyVerticalGrid(
             columns = GridCells.Adaptive(156.dp),
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline),
             contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

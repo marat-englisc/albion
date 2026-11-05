@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.pressScale
@@ -224,7 +226,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
     ) { phase ->
         when (phase) {
             Phase.Setup -> GrammarSetup(vm, total, onBack = navigator::back)
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             Phase.Summary -> GameSummary(
@@ -237,7 +239,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
                 onDone = navigator::back,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }
@@ -281,7 +283,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
         label = "quizPhase",
     ) { phase ->
         when (phase) {
-            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             Phase.Summary -> GameSummary(
@@ -296,7 +298,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
                 restartLabel = "Пройти ещё раз",
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0, onLeave = navigator::back)
@@ -317,7 +319,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
 
 @Composable
 private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
         }
@@ -397,12 +399,12 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
         task.topic?.let { n ->
 
             Row(
-                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(12.dp))
+                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(8.dp))
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
 
                     .clickable { openRule(n) }
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

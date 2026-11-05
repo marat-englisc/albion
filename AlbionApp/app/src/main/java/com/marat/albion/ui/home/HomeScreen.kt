@@ -1,5 +1,7 @@
 package com.marat.albion.ui.home
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
@@ -103,7 +105,7 @@ fun HomeScreen(navigator: Navigator) {
     LaunchedEffect(state.sessionSize) { sessionSize = state.sessionSize }
     val date = SimpleDateFormat("d MMMM · EEEE", Locale.forLanguageTag("ru")).format(Date())
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         val compact = maxWidth < 360.dp || maxHeight < 640.dp || LocalDensity.current.fontScale > 1.2f
         val short = maxHeight < 480.dp
         val overview: LazyListScope.() -> Unit = {

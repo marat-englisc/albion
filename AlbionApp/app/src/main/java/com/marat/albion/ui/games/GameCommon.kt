@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.paperGrain
+
 import androidx.compose.foundation.layout.isImeVisible
 import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.SegmentedPicker
@@ -96,7 +98,6 @@ import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.SignalLabel
-import com.marat.albion.ui.components.OrbitalField
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.theme.AnimatedNumber
@@ -214,7 +215,7 @@ fun GameSetup(
     onOnlyMistakes: (Boolean) -> Unit = {},
     available: Int? = null,
 ) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
                 "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
@@ -404,7 +405,7 @@ internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options:
                 Text(game.title, Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
                 if (!LocalNarrow.current && LocalDensity.current.fontScale <= 1.3f) {
                     Spacer(Modifier.width(12.dp))
-                    OrbitalField(Modifier.size(64.dp), animated = false)
+                    Spacer(Modifier.size(64.dp))
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -423,7 +424,7 @@ fun GameSummary(
 ) {
     val feedback = LocalFeedback.current
     LaunchedEffect(Unit) { if (total > 0) feedback.complete() }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.statusBars)
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).windowInsetsPadding(WindowInsets.statusBars)
         .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
@@ -632,7 +633,7 @@ internal fun termStyle(text: String, max: Int = 48): TextStyle {
         text.length <= 20 -> max * 4 / 5
         else -> max * 5 / 8
     }.let { if (LocalNarrow.current) it * 5 / 6 else it }
-    return TextStyle(fontFamily = AlbionFonts.Sans, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
+    return TextStyle(fontFamily = AlbionFonts.Display, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, fontSize = size.sp, lineHeight = (size * 1.18f).sp, textAlign = TextAlign.Center)
 }
 
 /** Открыта ли клавиатура: пока пользователь печатает, раунд прячет второстепенное, чтобы задание оставалось видно. */

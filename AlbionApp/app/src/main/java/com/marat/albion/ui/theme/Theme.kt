@@ -15,56 +15,56 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.marat.albion.data.settings.ThemeMode
 
-/** Светлая: белые панели на холодной бумаге, графитовый текст, ирис — действия и прогресс. */
+/** Светлая: слоновая кость, бумажные панели, зелёные чернила и латунные контуры. */
 private val LightScheme = lightColorScheme(
-    primary = IrisLight, onPrimary = Color.White,
-    primaryContainer = Color(0xFFEAE6FF), onPrimaryContainer = Color(0xFF22138A),
-    inversePrimary = IrisDark,
-    secondary = Color(0xFF6B7080), onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE9E7F7), onSecondaryContainer = Color(0xFF16171D),
+    primary = EstateLight, onPrimary = Heritage.Cream,
+    primaryContainer = Color(0xFFE1E7D9), onPrimaryContainer = Color(0xFF203C2E),
+    inversePrimary = EstateDark,
+    secondary = Color(0xFF765B33), onSecondary = Heritage.Cream,
+    secondaryContainer = Color(0xFFEBDEC6), onSecondaryContainer = Color(0xFF49391F),
     tertiary = SuccessLight, onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFDDF3EA), onTertiaryContainer = Color(0xFF06331F),
+    tertiaryContainer = Color(0xFFE2E9D8), onTertiaryContainer = Color(0xFF2C452A),
     error = ErrorLight, onError = Color.White,
-    errorContainer = Color(0xFFFCE4E7), onErrorContainer = Color(0xFF5A0E1A),
-    background = Paper, onBackground = Color(0xFF16171D),
-    surface = Paper, onSurface = Color(0xFF16171D),
-    surfaceVariant = Color(0xFFECEEF2), onSurfaceVariant = Color(0xFF5C6170),
+    errorContainer = Color(0xFFF2DEDA), onErrorContainer = Color(0xFF5D2429),
+    background = Paper, onBackground = Color(0xFF292C24),
+    surface = Paper, onSurface = Color(0xFF292C24),
+    surfaceVariant = Color(0xFFE9DFCF), onSurfaceVariant = Color(0xFF696354),
     surfaceTint = Color.Transparent,
-    surfaceDim = Color(0xFFE4E6EB), surfaceBright = Color.White,
-    surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color.White,
-    surfaceContainer = Color(0xFFEFF1F4),
-    surfaceContainerHigh = Color(0xFFE8EAEF),
-    surfaceContainerHighest = Color(0xFFDFE2E8),
-    inverseSurface = Color(0xFF16171D), inverseOnSurface = Color(0xFFF5F6F8),
-    outline = Color(0xFF697080), outlineVariant = Color(0xFFE0E2E8),
-    scrim = Color.Black,
+    surfaceDim = Color(0xFFE2D6C3), surfaceBright = Heritage.Cream,
+    surfaceContainerLowest = Color(0xFFFFFAF0),
+    surfaceContainerLow = Color(0xFFFAF3E7),
+    surfaceContainer = Color(0xFFF0E6D7),
+    surfaceContainerHigh = Color(0xFFE9DDCA),
+    surfaceContainerHighest = Color(0xFFE1D4BE),
+    inverseSurface = Color(0xFF26382B), inverseOnSurface = Heritage.Cream,
+    outline = Color(0xFF827053), outlineVariant = Color(0xFFCDBB9A),
+    scrim = Ink,
 )
 
-/** Тёмная: графит с холодным подтоном, мягко-белый текст без бликов, светлый ирис. */
+/** Тёмная: зелёная кожа переплёта, кремовый текст и светлая латунь. */
 private val DarkScheme = darkColorScheme(
-    primary = IrisDark, onPrimary = Color(0xFF140E33),
-    primaryContainer = Color(0xFF262052), onPrimaryContainer = Color(0xFFDCD6FF),
-    inversePrimary = IrisLight,
-    secondary = Color(0xFF8A90A0), onSecondary = Ink,
-    secondaryContainer = Color(0xFF1F1D33), onSecondaryContainer = Color(0xFFECEEF4),
-    tertiary = SuccessDark, onTertiary = Color(0xFF00281A),
-    tertiaryContainer = Color(0xFF0E2A21), onTertiaryContainer = Color(0xFFC5F5E2),
-    error = ErrorDark, onError = Color(0xFF3A0610),
-    errorContainer = Color(0xFF34141A), onErrorContainer = Color(0xFFFFD9DB),
-    background = Ink, onBackground = Color(0xFFECEEF4),
-    surface = Ink, onSurface = Color(0xFFECEEF4),
-    surfaceVariant = Color(0xFF1C1F28), onSurfaceVariant = Color(0xFF9DA3B2),
+    primary = EstateDark, onPrimary = Color(0xFF282417),
+    primaryContainer = Color(0xFF394535), onPrimaryContainer = Color(0xFFF1E2BF),
+    inversePrimary = EstateLight,
+    secondary = Color(0xFFC3AD83), onSecondary = Ink,
+    secondaryContainer = Color(0xFF3C382B), onSecondaryContainer = Color(0xFFEBDDC2),
+    tertiary = SuccessDark, onTertiary = Color(0xFF1B301C),
+    tertiaryContainer = Color(0xFF2B3D2E), onTertiaryContainer = Color(0xFFD4E6CA),
+    error = ErrorDark, onError = Color(0xFF411C21),
+    errorContainer = Color(0xFF472C2F), onErrorContainer = Color(0xFFF3D4CE),
+    background = Ink, onBackground = Color(0xFFF1E8D7),
+    surface = Ink, onSurface = Color(0xFFF1E8D7),
+    surfaceVariant = Color(0xFF30372C), onSurfaceVariant = Color(0xFFBEB7A6),
     surfaceTint = Color.Transparent,
-    surfaceDim = Ink, surfaceBright = Color(0xFF262A34),
-    surfaceContainerLowest = Color(0xFF07080B),
-    surfaceContainerLow = Color(0xFF12141A),
-    surfaceContainer = Color(0xFF171920),
-    surfaceContainerHigh = Color(0xFF1D2028),
-    surfaceContainerHighest = Color(0xFF262A34),
-    inverseSurface = Color(0xFFECEEF4), inverseOnSurface = Ink,
-    outline = Color(0xFF8B92A3), outlineVariant = Color(0xFF252832),
-    scrim = Color.Black,
+    surfaceDim = Ink, surfaceBright = Color(0xFF373E32),
+    surfaceContainerLowest = Color(0xFF101712),
+    surfaceContainerLow = Color(0xFF1E2820),
+    surfaceContainer = Color(0xFF263026),
+    surfaceContainerHigh = Color(0xFF30392E),
+    surfaceContainerHighest = Color(0xFF394234),
+    inverseSurface = Color(0xFFF1E8D7), inverseOnSurface = Ink,
+    outline = Color(0xFFAD9C78), outlineVariant = Color(0xFF5B5843),
+    scrim = Color(0xFF0C130E),
 )
 
 private fun scheme(dark: Boolean): ColorScheme = if (dark) DarkScheme else LightScheme
@@ -72,17 +72,17 @@ private fun scheme(dark: Boolean): ColorScheme = if (dark) DarkScheme else Light
 /** Functional boundaries share Material's outline; outlineVariant remains decorative. */
 val ColorScheme.controlBorder: Color get() = outline
 
-/** Selection uses the same iris surface, outline and readable content in every control. */
+/** Selection shares an estate-green / brass surface across every control. */
 val ColorScheme.selectedContainer: Color get() = primaryContainer
 val ColorScheme.selectedBorder: Color get() = primary
 val ColorScheme.selectedContent: Color get() = onPrimaryContainer
 
 private val AlbionShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(22.dp),
+    small = RoundedCornerShape(6.dp),
+    medium = RoundedCornerShape(8.dp),
+    large = RoundedCornerShape(10.dp),
+    extraLarge = RoundedCornerShape(14.dp),
 )
 
 /** Тёмная ли сейчас тема приложения (с учётом выбора в настройках). */

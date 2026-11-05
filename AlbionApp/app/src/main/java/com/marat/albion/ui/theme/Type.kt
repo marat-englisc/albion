@@ -30,8 +30,11 @@ object AlbionFonts {
     /** Интерфейс: строгий современный гротеск с родной кириллицей. */
     val Sans = FontFamily(weights.map { variable(R.font.onest, it) })
 
-    /** Акцент: крупные заголовки экранов и цифры. */
-    val Display = FontFamily(weights.map { variable(R.font.unbounded, it) })
+    /** Книжная антиква: заголовки, термины и цифры; кегли и интерлиньяж сохранены. */
+    val Display = FontFamily(
+        weights.map { variable(R.font.literata, it, opticalSize = 36f) } +
+            weights.map { variable(R.font.literata_italic, it, italic = true, opticalSize = 36f) },
+    )
 
     /** Информационные подписи и счётчики используют тот же читаемый гротеск, что и интерфейс. */
     val Tech = Sans
@@ -51,7 +54,7 @@ private val centered = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHei
 
 private fun display(size: Int, line: Int, weight: FontWeight = FontWeight.Medium) = TextStyle(
     fontFamily = AlbionFonts.Display, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
-    letterSpacing = (-0.02).em, platformStyle = trim, lineHeightStyle = centered,
+    letterSpacing = (-0.015).em, platformStyle = trim, lineHeightStyle = centered,
     lineBreak = LineBreak.Heading, hyphens = Hyphens.Auto,
 )
 
@@ -65,10 +68,10 @@ val Typography = Typography(
     displayLarge = display(52, 58, FontWeight.Light),
     displayMedium = display(38, 44, FontWeight.Light),
     displaySmall = display(28, 34, FontWeight.Normal),
-    headlineLarge = sans(30f, 36, FontWeight.SemiBold, -0.025),
-    headlineMedium = sans(26f, 32, FontWeight.SemiBold, -0.022),
-    headlineSmall = sans(22f, 28, FontWeight.SemiBold, -0.018),
-    titleLarge = sans(20f, 26, FontWeight.SemiBold, -0.012),
+    headlineLarge = display(30, 36, FontWeight.Medium),
+    headlineMedium = display(26, 32, FontWeight.Medium),
+    headlineSmall = display(22, 28, FontWeight.Medium),
+    titleLarge = display(20, 26, FontWeight.Medium),
     titleMedium = sans(16f, 22, FontWeight.SemiBold, -0.005),
     titleSmall = sans(14f, 20, FontWeight.SemiBold),
     bodyLarge = sans(16f, 25, FontWeight.Normal, 0.003),

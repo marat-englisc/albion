@@ -1,5 +1,7 @@
 package com.marat.albion.ui.library
 
+import com.marat.albion.ui.components.paperGrain
+
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
@@ -289,7 +291,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
 
     Box(Modifier.fillMaxSize()) {
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back)

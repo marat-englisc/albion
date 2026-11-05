@@ -335,7 +335,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(12.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
                     )
                 }
             }

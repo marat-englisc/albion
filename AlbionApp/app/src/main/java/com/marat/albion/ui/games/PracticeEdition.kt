@@ -34,6 +34,8 @@ import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.components.Panel
+import com.marat.albion.ui.components.folioFrame
+import com.marat.albion.ui.components.paperGrain
 import com.marat.albion.ui.theme.*
 
 internal val Game.editionTitle: String get() = when (this) {
@@ -59,7 +61,8 @@ internal val Game.editionNumber: Int get() = when (this) {
 }
 
 internal fun practiceTransition(reduced: Boolean): ContentTransform =
-    fadeIn(tween(if (reduced) 0 else 180)) togetherWith fadeOut(tween(if (reduced) 0 else 120))
+    fadeIn(tween(if (reduced) 0 else 280, easing = Easing.Standard)) togetherWith
+        fadeOut(tween(if (reduced) 0 else 180, easing = Easing.Standard))
 
 /** Secondary exercise content uses the same outlined panels as the rest of Albion. */
 @Composable
@@ -72,7 +75,7 @@ internal fun PracticeSheet(
     }
 }
 
-/** The work surface used by every exercise, with restrained instrument-like corners. */
+/** The same engraved folio is used in all eight exercises, including compact keyboard mode. */
 @Composable
 internal fun PracticeStage(
     label: String,
@@ -85,16 +88,8 @@ internal fun PracticeStage(
     val shape = MaterialTheme.shapes.large
     Column(modifier.fillMaxWidth().clip(shape).background(scheme.surfaceContainerLow)
         .border(.75.dp, scheme.outlineVariant, shape)
-        .drawBehind {
-            val inset = 9.dp.toPx()
-            val length = 8.dp.toPx()
-            for (x in listOf(inset, size.width - inset)) for (y in listOf(inset, size.height - inset)) {
-                val dx = if (x < size.width / 2) length else -length
-                val dy = if (y < size.height / 2) length else -length
-                drawLine(scheme.onSurface.copy(alpha = .28f), Offset(x, y), Offset(x + dx, y), .75.dp.toPx())
-                drawLine(scheme.onSurface.copy(alpha = .28f), Offset(x, y), Offset(x, y + dy), .75.dp.toPx())
-            }
-        }.padding(if (compact) 14.dp else 20.dp),
+        .paperGrain(scheme.outline).folioFrame(scheme.outline, embellished = !compact)
+        .padding(if (compact) 14.dp else 20.dp),
         horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start) {
         if (!compact) {
             SignalLabel(label, Modifier.fillMaxWidth())

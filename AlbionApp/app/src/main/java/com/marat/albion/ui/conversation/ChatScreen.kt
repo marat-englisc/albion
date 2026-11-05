@@ -1,5 +1,7 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
@@ -80,7 +82,7 @@ fun ChatScreen(id: Long, navigator: Navigator) {
         if (list.firstVisibleItemIndex <= 1) { if (reduced) list.scrollToItem(0) else list.animateScrollToItem(0) }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).imePadding()) {
         val maxInputHeight = (maxHeight / 3).coerceIn(52.dp, 160.dp)
         Column(Modifier.fillMaxSize()) {
             TopBar(navigator::back, conversation?.title) {
@@ -205,7 +207,7 @@ internal fun ChatContext(scenario: String, level: String, status: String? = null
     }
 }
 
-private val bubbleShape = RoundedCornerShape(20.dp)
+private val bubbleShape = RoundedCornerShape(12.dp)
 
 /** Реплика собеседника: слева, на поверхности с тонкой рамкой. */
 @Composable
@@ -214,6 +216,7 @@ internal fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: 
         Column(Modifier.clip(bubbleShape.copy(topStart = CornerSizeSmall))
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, bubbleShape.copy(topStart = CornerSizeSmall))
+            .paperGrain(MaterialTheme.colorScheme.outline)
             .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (text.isNotEmpty()) Text(text, style = MaterialTheme.typography.bodyLarge)
             footer()
@@ -229,6 +232,7 @@ private fun UserBubble(message: ConversationMessageEntity, checking: Boolean, mo
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(0.88f), horizontalArrangement = Arrangement.End) {
             Row(Modifier.clip(bubbleShape.copy(topEnd = CornerSizeSmall)).background(MaterialTheme.colorScheme.primary)
+                .border(.75.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = .35f), bubbleShape.copy(topEnd = CornerSizeSmall))
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.Top) {
                 if (message.voice) {
                     Icon(AlbionIcons.Mic, "Голосом", Modifier.padding(top = 3.dp, end = 8.dp).size(14.dp),
@@ -259,6 +263,7 @@ internal fun CorrectionCard(correction: String, modifier: Modifier = Modifier) {
     val why = correction.substringAfter('\n', "").trim()
     val scheme = MaterialTheme.colorScheme
     Column(modifier.clip(MaterialTheme.shapes.medium).background(scheme.tertiaryContainer)
+        .border(.75.dp, scheme.tertiary.copy(alpha = .45f), MaterialTheme.shapes.medium)
         .padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Eyebrow("Лучше сказать", color = scheme.onTertiaryContainer)
         Text(corrected, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
@@ -349,8 +354,8 @@ internal fun ChatComposer(
                         leadingIcon = { Icon(AlbionIcons.Mic, null) })
                 }
             }
-            Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RoundedCornerShape(26.dp)).background(scheme.surfaceContainerLow)
-                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(26.dp)).padding(horizontal = 12.dp, vertical = 12.dp),
+            Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RoundedCornerShape(14.dp)).background(scheme.surfaceContainerLow)
+                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 12.dp),
                 contentAlignment = Alignment.CenterStart) {
                 when {
                     recording -> RecordingLevel(level)

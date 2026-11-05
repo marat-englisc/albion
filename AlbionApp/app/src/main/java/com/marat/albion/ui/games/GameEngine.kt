@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.paperGrain
+
 import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.flow.map
 
@@ -336,7 +338,7 @@ private fun GameFrame(
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },
             )
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
                 com.marat.albion.ui.components.LoadingState("Готовим упражнение")
             }
             Phase.Summary -> GameSummary(
@@ -350,7 +352,7 @@ private fun GameFrame(
                 scoreLabel = scoreLabel,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }

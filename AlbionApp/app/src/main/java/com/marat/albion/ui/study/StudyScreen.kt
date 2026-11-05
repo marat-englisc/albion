@@ -1,5 +1,10 @@
 package com.marat.albion.ui.study
 
+import com.marat.albion.ui.components.folioFrame
+import com.marat.albion.ui.components.paperGrain
+import com.marat.albion.ui.theme.AlbionFonts
+import androidx.compose.ui.text.font.FontStyle
+
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.library.pluralRu
 
@@ -147,7 +152,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     }
 
     BoxWithConstraints(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
@@ -321,7 +326,7 @@ private fun FlipCard(
     val reduced = LocalReducedMotion.current
     val rotation by animateFloatAsState(
         targetValue = if (revealed) 180f else 0f,
-        animationSpec = if (reduced) androidx.compose.animation.core.snap() else spring(dampingRatio = 0.78f, stiffness = 180f),
+        animationSpec = if (reduced) androidx.compose.animation.core.snap() else tween(480, easing = Easing.Standard),
         label = "flip",
     )
     val dip = if (reduced) 1f else 1f - 0.06f * sin((rotation / 180f) * PI).toFloat()
@@ -341,14 +346,16 @@ private fun FlipCard(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = androidx.compose.foundation.BorderStroke(.75.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().paperGrain(MaterialTheme.colorScheme.outline)
+            .folioFrame(MaterialTheme.colorScheme.outline, embellished = true)) {
             if (rotation <= 90f) {
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {
                         Box(Modifier.fillMaxWidth().padding(vertical = if (showHint) 24.dp else 8.dp), contentAlignment = Alignment.Center) { front() }
                     }
                     if (showHint) Text("Нажмите, чтобы перевернуть", Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
-                        style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = AlbionFonts.Reading, fontStyle = FontStyle.Italic),
+                        textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 val scroll = rememberScrollState()
@@ -407,9 +414,9 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     Column(
         modifier.fillMaxHeight().heightIn(min = 64.dp)
             .graphicsLayer { alpha = if (reduced) 1f else appear.value; translationY = if (reduced) 0f else (1f - appear.value) * 12f }
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(14.dp))
+            .border(1.dp, border, RoundedCornerShape(10.dp))
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

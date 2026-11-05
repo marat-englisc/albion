@@ -42,19 +42,19 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Кривые Material «emphasized» — резкий старт, долгое мягкое торможение. */
+/** Спокойное движение: плавное проявление и мягкая остановка без отскока. */
 object Easing {
-    val Emphasized = CubicBezierEasing(0.2f, 0f, 0f, 1f)
-    val EmphasizedDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
+    val Emphasized = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
+    val EmphasizedDecelerate = CubicBezierEasing(0.16f, 0.6f, 0.3f, 1f)
     val EmphasizedAccelerate = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
-    val Standard = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+    val Standard = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
 }
 
-/** Пружины приложения: короткие, без «желе», с чётким финишем. */
+/** Критически затухающие пружины: без упругого отскока. */
 object Springs {
-    fun <T> snappy() = spring<T>(dampingRatio = 0.96f, stiffness = 560f)
-    fun <T> smooth() = spring<T>(dampingRatio = 1f, stiffness = 240f)
-    fun <T> bouncy() = spring<T>(dampingRatio = 0.84f, stiffness = 420f)
+    fun <T> snappy() = spring<T>(dampingRatio = 1f, stiffness = 420f)
+    fun <T> smooth() = spring<T>(dampingRatio = 1f, stiffness = 200f)
+    fun <T> bouncy() = spring<T>(dampingRatio = 1f, stiffness = 280f)
 }
 
 /** Removing the animation state also stops an in-flight transition when the setting changes. */
@@ -82,12 +82,12 @@ fun LazyItemScope.quietItem(modifier: Modifier = Modifier): Modifier =
 fun LazyGridItemScope.quietItem(modifier: Modifier = Modifier): Modifier =
     if (LocalReducedMotion.current) modifier else modifier.animateItem()
 
-/** Отклик на нажатие: элемент слегка «проседает» и пружинит обратно. */
+/** Почти незаметное нажатие с плавным возвратом. */
 fun Modifier.pressScale(interaction: MutableInteractionSource, pressed: Float = 0.96f): Modifier = composed {
     val reduced = LocalReducedMotion.current
     val isPressed by interaction.collectIsPressedAsState()
     val scale by quietFloatAsState(
-        if (isPressed && !reduced) pressed else 1f,
+        if (isPressed && !reduced) pressed.coerceAtLeast(.985f) else 1f,
         if (isPressed) spring(dampingRatio = 1f, stiffness = 1400f) else Springs.bouncy(),
         label = "press",
     )
@@ -102,14 +102,14 @@ fun Modifier.appear(index: Int = 0, step: Long = 45): Modifier = composed {
     val reduced = LocalReducedMotion.current
     var shown by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(reduced) }
     val progress = remember { Animatable(if (shown) 1f else 0f) }
-    val distance = with(LocalDensity.current) { 18.dp.toPx() }
+    val distance = with(LocalDensity.current) { 6.dp.toPx() }
     LaunchedEffect(reduced) {
         if (reduced) {
             progress.snapTo(1f)
             shown = true
         } else if (!shown) {
             delay((index * step).coerceAtMost(360))
-            progress.animateTo(1f, spring(dampingRatio = 0.86f, stiffness = 220f))
+            progress.animateTo(1f, tween(360, easing = Easing.Standard))
             shown = true
         }
     }

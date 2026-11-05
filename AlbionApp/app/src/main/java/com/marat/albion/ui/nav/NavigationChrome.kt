@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.components.AlbionIcons
 import com.marat.albion.ui.components.AlbionMark
+import com.marat.albion.ui.components.paperGrain
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.Springs
 import com.marat.albion.ui.theme.quietFloatAsState
@@ -55,7 +56,7 @@ internal fun navigationRailMetrics(width: Dp, height: Dp): RailMetrics {
 
 @Composable
 private fun TabIcon(tab: Tab, selected: Boolean, tint: Color, size: Dp = 22.dp) {
-    val scale by quietFloatAsState(if (selected && !LocalReducedMotion.current) 1.08f else 1f, Springs.bouncy(), "tabScale")
+    val scale by quietFloatAsState(if (selected && !LocalReducedMotion.current) 1.025f else 1f, Springs.smooth(), "tabScale")
     Icon(if (selected) tab.selectedIcon else tab.icon, null, tint = tint,
         modifier = Modifier.size(size).graphicsLayer { scaleX = scale; scaleY = scale })
 }
@@ -112,13 +113,14 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
         val labelHeight = with(density) { labels.maxOf { measurer.measure(it, style, softWrap = false).size.height }.toDp() }
         val barHeight = maxOf(58.dp, labelHeight + 41.dp)
         Row(Modifier.fillMaxWidth().padding(horizontal = outer, vertical = 8.dp)
-            .clip(RoundedCornerShape(20.dp)).background(scheme.surfaceContainerLow)
-            .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(20.dp)).padding(5.dp).height(barHeight).selectableGroup()) {
+            .clip(RoundedCornerShape(12.dp)).background(scheme.surfaceContainerLow)
+            .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(12.dp))
+            .paperGrain(scheme.outline).padding(5.dp).height(barHeight).selectableGroup()) {
             direct.forEach { tab ->
                 val active = tab.route == selected
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp))
-                    .selectionSurface(active, RoundedCornerShape(14.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(10.dp))
+                    .selectionSurface(active, RoundedCornerShape(10.dp))
                     .selectable(active, role = Role.Tab, onClick = { onSelect(tab.route) }),
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     TabIcon(tab, active, tint)
@@ -130,8 +132,8 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 val active = direct.none { it.route == selected }
                 val current = tabs.first { it.route == selected }
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp))
-                    .selectionSurface(active, RoundedCornerShape(14.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(10.dp))
+                    .selectionSurface(active, RoundedCornerShape(10.dp))
                     .clickable(role = Role.Button, onClickLabel = "Все разделы") { open = true }
                     .semantics { if (active) stateDescription = "Открыт раздел: ${current.label}" },
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -161,7 +163,7 @@ private fun NavigationMenu(selected: TopLevel, onDismiss: () -> Unit, onSelect: 
                     tabs.forEach { tab ->
                         val active = tab.route == selected
                         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                            .clip(RoundedCornerShape(14.dp)).selectionSurface(active, RoundedCornerShape(14.dp))
+                            .clip(RoundedCornerShape(10.dp)).selectionSurface(active, RoundedCornerShape(10.dp))
                             .selectable(active, role = Role.Tab, onClick = { onDismiss(); onSelect(tab.route) })
                             .padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {

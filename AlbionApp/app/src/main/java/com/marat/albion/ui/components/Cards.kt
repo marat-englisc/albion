@@ -29,10 +29,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import com.marat.albion.ui.theme.Hero
+import com.marat.albion.ui.theme.Heritage
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.ui.unit.dp
 
 /**
- * Акцентная плита: ирисовый градиент с мягким свечением, одинаковый в обеих темах.
+ * Акцентная плита: зелёный переплёт с латунным тиснением, одинаковый в обеих темах.
  * Внутри действует локальная схема — белый текст, белые «инверсные» кнопки. Одна на экран.
  */
 @Composable
@@ -47,14 +50,16 @@ fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
         inverseSurface = Hero.Base, inverseOnSurface = onHero,
         surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero, outlineVariant = onHero.copy(alpha = .22f),
     )
-    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = Color.Transparent, contentColor = onHero) {
+    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = Color.Transparent, contentColor = onHero,
+        border = BorderStroke(.75.dp, Heritage.Champagne.copy(alpha = .65f))) {
         MaterialTheme(colorScheme = heroScheme) {
             CompositionLocalProvider(LocalContentColor provides onHero) {
                 Column(Modifier.background(Hero.Gradient).drawBehind {
-                    // Холодный блик в правом верхнем углу — «свечение» плиты.
+                    // Мягкий свет на коже переплёта.
                     drawRect(Brush.radialGradient(listOf(Hero.Glow, Color.Transparent),
                         center = Offset(size.width * .95f, 0f), radius = size.maxDimension * .7f))
-                }.constructionLines(onHero).padding(contentPadding),
+                }.constructionLines(Heritage.Champagne).paperGrain(Heritage.Champagne)
+                    .folioFrame(Heritage.Champagne, embellished = true).padding(contentPadding),
                     verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
             }
         }
@@ -100,14 +105,16 @@ fun CatalogueCard(
 /** Стрелка «перейти» в круге. */
 @Composable
 fun ArrowBadge(modifier: Modifier = Modifier) {
-    Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, CircleShape), contentAlignment = Alignment.Center) {
+    Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, CircleShape)
+        .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
         Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp))
     }
 }
 
 @Composable
 fun FolioDivider(modifier: Modifier = Modifier, label: String? = null) {
-    if (label != null) Eyebrow(label, modifier) else Hairline(modifier)
+    if (label != null) Eyebrow(label, modifier) else
+        Box(modifier.fillMaxWidth().height(1.dp).folioRule(MaterialTheme.colorScheme.outline))
 }
 
 fun romanNumeral(value: Int): String {

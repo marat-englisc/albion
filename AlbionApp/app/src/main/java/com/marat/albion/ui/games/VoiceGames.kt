@@ -126,8 +126,8 @@ internal fun PlaybackAction(
         Box(
             Modifier.size(size)
                 .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
-                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
-                .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(12.dp))
+                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
+                .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {

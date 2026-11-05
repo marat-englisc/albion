@@ -1,5 +1,7 @@
 package com.marat.albion.ui.grammar
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
@@ -134,7 +136,7 @@ fun GrammarScreen(navigator: Navigator) {
             }
         }
     }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
             if (!shortScreen && !largeText) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
             AdaptiveScreenTitle("Учебник", Modifier.heightIn(min = 56.dp)) {

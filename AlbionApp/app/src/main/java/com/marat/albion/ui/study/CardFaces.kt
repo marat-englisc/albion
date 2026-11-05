@@ -61,7 +61,7 @@ private fun termStyle(term: String): TextStyle {
         term.length <= 28 -> 42
         else -> 34
     }
-    return TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Sans, fontWeight = FontWeight.Medium,
+    return TextStyle(fontFamily = com.marat.albion.ui.theme.AlbionFonts.Display, fontWeight = FontWeight.Medium,
         fontSize = size.sp, lineHeight = (size * 1.15f).sp, letterSpacing = (-size / 70f).sp,
         lineBreak = LineBreak.Heading, hyphens = Hyphens.None)
 }
@@ -123,7 +123,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = MaterialTheme.typography.titleMedium)
@@ -190,7 +190,7 @@ fun CardBack(
                 Spacer(Modifier.height(22.dp))
                 Column(
                     Modifier.fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)).padding(14.dp),
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))
@@ -258,7 +258,7 @@ private fun SenseContent(
 @Composable
 private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAudio, modifier: Modifier) {
     val deck = deckOf(card)
-    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))) {
         data.forms.forEachIndexed { index, form ->
             if (index > 0) Hairline()
             Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {

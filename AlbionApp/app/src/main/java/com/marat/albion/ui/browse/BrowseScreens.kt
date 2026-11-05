@@ -1,5 +1,7 @@
 package com.marat.albion.ui.browse
 
+import com.marat.albion.ui.components.paperGrain
+
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.selectedContent
 import com.marat.albion.ui.theme.quietItem
@@ -172,7 +174,7 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
         }
     }
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).imePadding()) {
         val compactFilters = WindowInsets.isImeVisible || maxHeight < 600.dp || LocalDensity.current.fontScale > 1.3f
         val shortWindow = maxWidth >= 560.dp && maxHeight < 360.dp
         if (shortWindow) {
@@ -352,7 +354,7 @@ fun CardDetailScreen(cardId: String, navigator: Navigator) {
     var removing by remember { mutableStateOf(false) }
     var removeError by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
         TopBar(onBack = navigator::back)
         val current = card ?: run {
             if (!cardResult.first) com.marat.albion.ui.components.LoadingState("Открываем карточку")
