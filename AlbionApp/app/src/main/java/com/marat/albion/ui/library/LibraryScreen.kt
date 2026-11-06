@@ -1,10 +1,7 @@
 package com.marat.albion.ui.library
 
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
-import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.marat.albion.ui.theme.pressScale
@@ -18,7 +15,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -29,11 +25,7 @@ import com.marat.albion.ui.components.EmptyState
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,23 +38,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.OutlinedTextField
 import com.marat.albion.ui.components.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,22 +55,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.library.LibraryBook
-import com.marat.albion.ui.components.CatalogueCard
-import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.FeatureHelp
-import com.marat.albion.ui.components.GhostButton
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ScreenHeader
 import com.marat.albion.ui.components.SettingsShortcut
 import com.marat.albion.ui.components.ThinProgress
@@ -123,7 +98,6 @@ fun LibraryScreen(navigator: Navigator) {
         else -> rows
     } }
 
-
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null && !importing) {
             importing = true
@@ -155,7 +129,7 @@ fun LibraryScreen(navigator: Navigator) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         state = shelfState,
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),

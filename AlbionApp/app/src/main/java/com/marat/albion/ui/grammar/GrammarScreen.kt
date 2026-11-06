@@ -1,7 +1,5 @@
 package com.marat.albion.ui.grammar
 
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
@@ -10,7 +8,6 @@ import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -136,7 +132,7 @@ fun GrammarScreen(navigator: Navigator) {
             }
         }
     }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).imePadding()) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()) {
         Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = gutter)) {
             if (!shortScreen && !largeText) SignalLabel("02 / ГРАММАТИКА", Modifier.padding(top = 18.dp, bottom = 8.dp))
             AdaptiveScreenTitle("Учебник", Modifier.heightIn(min = 56.dp)) {

@@ -1,9 +1,5 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -14,11 +10,9 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.shape.CircleShape
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.ThinProgress
-import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
 import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -40,7 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,9 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.audio.AudioDecoder
@@ -72,11 +63,9 @@ import com.marat.albion.data.audio.ShadowReport
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.theme.AnimatedNumber
-import androidx.compose.foundation.layout.navigationBarsPadding
 import com.marat.albion.data.speech.HeardWord
 import com.marat.albion.data.speech.SpokenWords
 import kotlinx.coroutines.CancellationException
@@ -372,8 +361,6 @@ private fun ShadowSteps(active: Int = 0) {
             Column(
                 Modifier.widthIn(min = minStepWidth).weight(1f).background(if (i == active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.small)
                     .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)
-                    .engravedSurface(if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary)
-                    .folioFrame(MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f), inset = 3.dp)
                     .padding(horizontal = 8.dp, vertical = 10.dp),
             ) {
                 SignalLabel("0${i + 1}", color = if (i == active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -391,8 +378,6 @@ internal fun ReportCard(r: ShadowReport, words: List<ChartWord> = emptyList(), s
     Column(
         Modifier.fillMaxWidth().padding(top = 16.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerLow, shape).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, shape)
-            .engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
-            .folioFrame(MaterialTheme.colorScheme.outlineVariant)
             .padding(if (LocalNarrow.current) 16.dp else 18.dp),
     ) {
         SignalLabel("РАЗБОР ГОЛОСА")

@@ -25,6 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.marat.albion.ui.components.MeasureNarrow
 import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.games.GameHost
+import com.marat.albion.data.settings.ThemeMode
 
 import com.marat.albion.ui.games.editionTitle
 import com.marat.albion.ui.nav.Navigator
@@ -47,37 +48,45 @@ class PracticeDesignTest {
 
     @Test fun everyModeOpensItsSetupAndRoundInThePracticeRoom(): Unit = runBlocking {
         c.importer.importIfNeeded()
-        ActivityScenario.launch(MainActivity::class.java).use {
-            activate(await { it.text?.toString() == "Практика" })
-            await { it.text?.toString() == "04 / НАВЫКИ" }
-            capture("practice-home")
-            for (game in catalogue) {
-                capture("${game.name}-catalogue")
-                // Фильтр «Грамматика» и упражнение «Грамматика» совпадают по тексту: у карточки есть описание.
-                activate(scrollTo { it.text?.toString() == game.title && hasActionTarget(it) && hasSibling(it, game.tagline) })
-                dismissHelp()
-                await { it.text?.toString() == game.tagline }
-                assertMinimumTarget(await { it.text?.toString() == "Начать" }, "${game.name} start")
-                capture("${game.name}-setup")
-                activate(await { it.text?.toString() == "Начать" })
-                await { it.contentDescription?.toString() == "Закрыть" }
-                SystemClock.sleep(450)
-                capture("${game.name}-round")
-                if (game == Game.IRREGULAR) {
-                    activate(await { it.text?.toString() == "Не знаю" })
-                    await { it.text?.toString() == "Дальше" }
-                    capture("IRREGULAR-answer")
-                }
-                if (game == Game.GRAMMAR_GAP || game == Game.TYPE_ANSWER) {
-                    activate(await { it.text?.toString() == "Не знаю" })
-                    await { it.text?.toString() == "Дальше" }
-                    capture("${game.name}-answer")
-                }
-                activate(await { it.contentDescription?.toString() == "Закрыть" })
-                await { it.text?.toString() == "Начать" }
-                activate(await { it.contentDescription?.toString() == "Назад" })
-                instrumentation.waitForIdleSync(); SystemClock.sleep(300)
+        val originalTheme = c.settings.current().themeMode
+        try {
+            InstrumentationRegistry.getArguments().getString("testDark")?.let {
+                c.settings.setThemeMode(if (it == "true") ThemeMode.DARK else ThemeMode.LIGHT)
             }
+            ActivityScenario.launch(MainActivity::class.java).use {
+                activate(await { it.text?.toString() == "Практика" })
+                await { it.text?.toString() == "04 / НАВЫКИ" }
+                capture("practice-home")
+                for (game in catalogue) {
+                    capture("${game.name}-catalogue")
+                    // Фильтр «Грамматика» и упражнение «Грамматика» совпадают по тексту: у карточки есть описание.
+                    activate(scrollTo { it.text?.toString() == game.title && hasActionTarget(it) && hasSibling(it, game.tagline) })
+                    dismissHelp()
+                    await { it.text?.toString() == game.tagline }
+                    assertMinimumTarget(await { it.text?.toString() == "Начать" }, "${game.name} start")
+                    capture("${game.name}-setup")
+                    activate(await { it.text?.toString() == "Начать" })
+                    await { it.contentDescription?.toString() == "Закрыть" }
+                    SystemClock.sleep(450)
+                    capture("${game.name}-round")
+                    if (game == Game.IRREGULAR) {
+                        activate(await { it.text?.toString() == "Не знаю" })
+                        await { it.text?.toString() == "Дальше" }
+                        capture("IRREGULAR-answer")
+                    }
+                    if (game == Game.GRAMMAR_GAP || game == Game.TYPE_ANSWER) {
+                        activate(await { it.text?.toString() == "Не знаю" })
+                        await { it.text?.toString() == "Дальше" }
+                        capture("${game.name}-answer")
+                    }
+                    activate(await { it.contentDescription?.toString() == "Закрыть" })
+                    await { it.text?.toString() == "Начать" }
+                    activate(await { it.contentDescription?.toString() == "Назад" })
+                    instrumentation.waitForIdleSync(); SystemClock.sleep(300)
+                }
+            }
+        } finally {
+            c.settings.setThemeMode(originalTheme)
         }
     }
 

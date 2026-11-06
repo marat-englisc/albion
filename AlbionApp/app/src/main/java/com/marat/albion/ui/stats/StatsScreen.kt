@@ -1,10 +1,7 @@
 package com.marat.albion.ui.stats
 
-import com.marat.albion.ui.components.paperGrain
-
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.aspectRatio
 import com.marat.albion.ui.theme.appear
 import androidx.compose.ui.platform.LocalDensity
 
@@ -54,7 +51,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marat.albion.ui.components.HeroCard
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.components.EmptyState
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.DayCount
@@ -85,12 +81,11 @@ fun StatsScreen(navigator: Navigator) {
     val advice by adviceVm.advice.collectAsStateWithLifecycle()
 
     Column(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState())
             .padding(horizontal = gutter).padding(bottom = 32.dp),
     ) {
         Box(Modifier) { ScreenHeader("Прогресс", eyebrow = "05 / ДИНАМИКА", compact = true, trailing = { SettingsShortcut(navigator::openSettings) }) }
         val s = stats ?: run { com.marat.albion.ui.components.LoadingState("Собираем прогресс"); return@Column }
-
 
         // в день рекорда — стоит на карточке достижения.
         val milestone = streakMilestone(s.streak)

@@ -15,7 +15,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,16 +28,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.marat.albion.ui.components.AlbionIcons
-import com.marat.albion.ui.components.romanNumeral
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.components.Panel
-import com.marat.albion.ui.components.folioFrame
-import com.marat.albion.ui.components.paperGrain
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.engravedSeal
-import com.marat.albion.ui.components.headingRule
 import com.marat.albion.ui.theme.*
 
 internal val Game.editionTitle: String get() = when (this) {
@@ -78,7 +70,7 @@ internal fun PracticeSheet(
     }
 }
 
-/** The same engraved folio is used in all eight exercises, including compact keyboard mode. */
+/** One plain working surface for all eight exercises, including compact keyboard mode. */
 @Composable
 internal fun PracticeStage(
     label: String,
@@ -91,8 +83,6 @@ internal fun PracticeStage(
     val shape = MaterialTheme.shapes.large
     Column(modifier.fillMaxWidth().clip(shape).background(scheme.surfaceContainerLow)
         .border(.75.dp, scheme.outlineVariant, shape)
-        .engravedSurface(scheme.secondary).paperGrain(scheme.outline)
-        .folioFrame(scheme.outline, embellished = !compact)
         .padding(if (compact) 14.dp else 20.dp),
         horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start) {
         if (!compact) {
@@ -105,7 +95,7 @@ internal fun PracticeStage(
 
 @Composable
 internal fun PracticeSectionLabel(number: String, text: String, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().headingRule(MaterialTheme.colorScheme.secondary)
+    Row(modifier.fillMaxWidth()
         .padding(top = 22.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         SignalLabel(number, Modifier.padding(end = 10.dp))
         Text(text, style = MaterialTheme.typography.titleSmall)
@@ -131,7 +121,6 @@ internal fun PracticeIconButton(
     val shape = MaterialTheme.shapes.medium
     Box(modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.9f)
         .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape).selectionSurface(active, shape).clip(shape)
-        .engravedSurface(MaterialTheme.colorScheme.secondary).folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 3.dp)
         .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
         contentAlignment = Alignment.Center) {
         Icon(icon, label, tint = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant else if (active) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.primary,
@@ -139,10 +128,10 @@ internal fun PracticeIconButton(
     }
 }
 
-/** Reuses the setup header's 64 dp decoration slot for each of the eight skills. */
+/** Each skill keeps its recognisable icon in the setup header's original 64 dp slot. */
 @Composable
 internal fun PracticeEmblem(game: Game) {
-    Box(Modifier.size(64.dp).engravedSeal(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
+    Box(Modifier.size(64.dp), contentAlignment = Alignment.Center) {
         Icon(game.icon, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
     }
 }

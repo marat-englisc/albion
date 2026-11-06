@@ -1,39 +1,25 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.paperGrain
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-
 import androidx.compose.foundation.layout.isImeVisible
 import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.SegmentedPicker
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.material3.Icon
-import androidx.compose.foundation.lazy.items
 import androidx.compose.animation.core.snap
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import com.marat.albion.ui.components.HeroCard
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.RoundIconButton
 import com.marat.albion.ui.components.gutter
-import com.marat.albion.ui.components.ButtonTone
-import com.marat.albion.ui.components.lerpColor
-import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.border
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.*
 import androidx.compose.runtime.setValue
@@ -48,8 +34,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,7 +61,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -88,22 +71,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.marat.albion.data.content.Deck
-import com.marat.albion.ui.components.CatalogueTab
-import com.marat.albion.ui.components.FolioDivider
-import com.marat.albion.ui.components.romanNumeral
-import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
-import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.components.Panel
 import com.marat.albion.ui.theme.AlbionFonts
 import com.marat.albion.ui.theme.AnimatedNumber
-import com.marat.albion.ui.theme.Easing
 import com.marat.albion.ui.theme.LocalReducedMotion
 import com.marat.albion.ui.theme.LocalFeedback
 import kotlinx.serialization.Serializable
@@ -217,7 +193,7 @@ fun GameSetup(
     onOnlyMistakes: (Boolean) -> Unit = {},
     available: Int? = null,
 ) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${game.name}", "Как заниматься", game.description +
                 "\n\nОшибки сохраняются. Сложные слова встретятся первыми, а после двух верных ответов подряд уйдут из списка ошибок.")
@@ -426,7 +402,7 @@ fun GameSummary(
 ) {
     val feedback = LocalFeedback.current
     LaunchedEffect(Unit) { if (total > 0) feedback.complete() }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline).windowInsetsPadding(WindowInsets.statusBars)
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).windowInsetsPadding(WindowInsets.statusBars)
         .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter)) {
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 24.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
@@ -500,7 +476,6 @@ private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) 
             val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
             drawArc(track, -90f, 360f, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
             if ((if (reduced) target else sweep.value) > 0f) drawArc(arc, -90f, 360f * (if (reduced) target else sweep.value), false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
-            drawCircle(track.copy(alpha = .5f), size.minDimension / 2 - 18.dp.toPx(), style = Stroke(.5.dp.toPx()))
         }
         com.marat.albion.ui.theme.AnimatedNumber(if (total == 0) 0 else correct * 100 / total,
             if (LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium, suffix = "%")
@@ -583,8 +558,6 @@ internal fun NoteCard(
                 NoteTone.Good -> MaterialTheme.colorScheme.onSurface.copy(alpha = .4f)
                 NoteTone.Bad -> MaterialTheme.colorScheme.error.copy(alpha = .5f)
             }, MaterialTheme.shapes.large)
-            .engravedSurface(MaterialTheme.colorScheme.secondary)
-            .folioFrame(MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f), inset = 4.dp)
             .padding(horizontal = 18.dp, vertical = 16.dp),
         content = content,
     )
@@ -611,7 +584,7 @@ internal fun NextDock(ok: Boolean?, title: String? = null, label: String = "Да
             .graphicsLayer { translationY = if (reduced) 0f else offset.value * size.height; alpha = if (reduced) 1f else 1f - offset.value * 0.6f }
             .clip(MaterialTheme.shapes.large).background(bg)
             .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large)
-            .engravedSurface(fg).folioFrame(fg.copy(alpha = .3f), inset = 4.dp).padding(16.dp)
+            .padding(16.dp)
             .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite },
     ) {
         Row(Modifier.padding(start = 4.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {

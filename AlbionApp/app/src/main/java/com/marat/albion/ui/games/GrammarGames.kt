@@ -1,15 +1,9 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import com.marat.albion.ui.components.gutter
 import android.os.SystemClock
@@ -22,9 +16,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -68,7 +60,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
@@ -95,11 +86,9 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.FeatureHelp
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
-import com.marat.albion.ui.theme.Easing
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -229,7 +218,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
     ) { phase ->
         when (phase) {
             Phase.Setup -> GrammarSetup(vm, total, onBack = navigator::back)
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             Phase.Summary -> GameSummary(
@@ -242,7 +231,7 @@ fun GrammarGameHost(game: Game, navigator: Navigator) {
                 onDone = navigator::back,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }
@@ -286,7 +275,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
         label = "quizPhase",
     ) { phase ->
         when (phase) {
-            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
+            Phase.Setup, Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             Phase.Summary -> GameSummary(
@@ -301,7 +290,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
                 restartLabel = "Пройти ещё раз",
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0, onLeave = navigator::back)
@@ -322,7 +311,7 @@ fun TopicQuizHost(topic: Int, topicId: String, title: String, navigator: Navigat
 
 @Composable
 private fun GrammarSetup(vm: GrammarGameViewModel, total: Int, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = onBack) {
             FeatureHelp("practice.${vm.game!!.name}", "Как заниматься", vm.game.description)
         }
@@ -404,11 +393,9 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
             Row(
                 Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(8.dp))
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
-
                     .clickable { openRule(n) }
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                     .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp))
-                    .engravedSurface(MaterialTheme.colorScheme.secondary)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -525,7 +512,6 @@ internal fun OptionButton(text: String, state: OptionState, index: Int? = null, 
             .background(bg, shape)
             .border(1.dp, border, shape)
             .clip(shape)
-            .engravedSurface(border).folioFrame(border.copy(alpha = .45f), inset = 4.dp)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = state == OptionState.Idle, onClick = onClick)
             .semantics { stateDescription = when (state) {
                 OptionState.Correct -> "Верный ответ"

@@ -1,42 +1,22 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-import com.marat.albion.ui.components.medallionRim
-
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.animation.core.Spring
-import com.marat.albion.ui.theme.quietDpAsState as animateDpAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.theme.pressScale
 import androidx.compose.ui.draw.clip
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.PI
-import com.marat.albion.ui.components.softShadow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -72,7 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -132,8 +111,6 @@ internal fun PlaybackAction(
                 .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
                 .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
                 .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
-                .engravedSurface(MaterialTheme.colorScheme.secondary)
-                .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -174,19 +151,15 @@ internal fun MicButton(
     val line = MaterialTheme.colorScheme.onSurface
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(size), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.size(size)) {
+            if (active) Canvas(Modifier.size(size)) {
                 val radius = this.size.minDimension / 2 - 2.dp.toPx()
-                drawCircle(line.copy(alpha = .15f), radius, style = Stroke(.75.dp.toPx()))
-                repeat(24) { index ->
-                    val angle = (index * PI / 12).toFloat()
-                    val vector = Offset(cos(angle), sin(angle))
-                    val length = if (index % 6 == 0) 4.dp.toPx() else 2.dp.toPx()
-                    drawLine(line.copy(alpha = if (active && index < (amp * 24).toInt()) .9f else .25f),
-                        center + vector * radius, center + vector * (radius - length), .75.dp.toPx())
-                }
+                val inset = Offset(center.x - radius, center.y - radius)
+                val diameter = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
+                val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
+                drawArc(line.copy(alpha = .15f), -90f, 360f, false, inset, diameter, style = stroke)
+                drawArc(face, -90f, amp * 360f, false, inset, diameter, style = stroke)
             }
             Box(Modifier.size((size - 24.dp).coerceAtLeast(48.dp)).pressScale(interaction, .94f).clip(CircleShape).background(face, CircleShape)
-                .engravedSurface(foreground).medallionRim(foreground)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,

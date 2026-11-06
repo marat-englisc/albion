@@ -35,7 +35,7 @@ import androidx.compose.foundation.border
 import androidx.compose.ui.unit.dp
 
 /**
- * Акцентная плита: зелёный переплёт с латунным тиснением, одинаковый в обеих темах.
+ * Акцентная плита: зелёный переплёт с мягким градиентом, одинаковый в обеих темах.
  * Внутри действует локальная схема — кремовый текст и «инверсные» кнопки. Одна на экран.
  */
 @Composable
@@ -53,15 +53,15 @@ fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
         surfaceContainerHigh = onHero.copy(alpha = .16f), outline = onHero, outlineVariant = onHero.copy(alpha = .22f),
     )
     Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = Color.Transparent, contentColor = onHero,
-        border = BorderStroke(.75.dp, Heritage.Champagne.copy(alpha = .65f))) {
+        border = BorderStroke(.75.dp, Heritage.Champagne.copy(alpha = .28f))) {
         MaterialTheme(colorScheme = heroScheme) {
             CompositionLocalProvider(LocalContentColor provides onHero) {
                 Column(Modifier.background(Hero.Gradient).drawBehind {
                     // Мягкий свет на коже переплёта.
                     drawRect(Brush.radialGradient(listOf(Hero.Glow, Color.Transparent),
                         center = Offset(size.width * .95f, 0f), radius = size.maxDimension * .7f))
-                }.constructionLines(Heritage.Champagne).engravedSurface(Heritage.Champagne).paperGrain(Heritage.Champagne)
-                    .folioFrame(Heritage.Champagne, embellished = true).padding(contentPadding),
+                }
+                    .padding(contentPadding),
                     verticalArrangement = verticalArrangement, content = content)
             }
         }
@@ -108,7 +108,6 @@ fun CatalogueCard(
 @Composable
 fun ArrowBadge(modifier: Modifier = Modifier) {
     Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, CircleShape)
-        .medallionRim(MaterialTheme.colorScheme.secondary)
         .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
         Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp))
     }

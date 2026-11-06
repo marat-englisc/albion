@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.animation.animateColorAsState
 import com.marat.albion.ui.theme.quietDpAsState as animateDpAsState
 import com.marat.albion.ui.theme.quietFloatAsState as animateFloatAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,7 +40,6 @@ import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -101,7 +99,6 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: String
 @Composable
 fun ScreenHeader(title: String, subtitle: String? = null, eyebrow: String? = null, includeStatusBarInsets: Boolean = true, compact: Boolean = false, trailing: @Composable (() -> Unit)? = null) {
     Column(Modifier.then(if (includeStatusBarInsets) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier)
-        .headingRule(MaterialTheme.colorScheme.secondary)
         .padding(top = if (compact) 18.dp else 24.dp, bottom = 20.dp)) {
         // Подпись над заголовком, действия — справа в одной строке с названием экрана.
         if (eyebrow != null) { SignalLabel(eyebrow, Modifier.appear(0)); Spacer(Modifier.height(10.dp)) }
@@ -153,7 +150,6 @@ fun RoundIconButton(
     ) {
         Box(
             Modifier.size(42.dp).background(if (filled) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent, MaterialTheme.shapes.medium)
-                .then(if (filled) Modifier.engravedSurface(MaterialTheme.colorScheme.secondary).folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 3.dp) else Modifier)
                 .then(if (filled) Modifier.border(1.dp, MaterialTheme.colorScheme.controlBorder, MaterialTheme.shapes.medium) else Modifier),
             contentAlignment = Alignment.Center,
         ) {
@@ -167,7 +163,7 @@ fun SettingsShortcut(onClick: () -> Unit) {
     RoundIconButton(AlbionIcons.Settings, "Настройки", onClick, filled = true)
 }
 
-/** Бумажная панель с тонким тиснением; декор не участвует в измерении. */
+/** Спокойная поверхность с одной внешней границей. */
 @Composable
 fun Panel(
     modifier: Modifier = Modifier,
@@ -185,13 +181,11 @@ fun Panel(
         val interaction = remember { MutableInteractionSource() }
         Surface(onClick = { feedback.selection(); onClick() }, modifier = modifier.pressScale(interaction, 0.97f), shape = shape,
             color = color, border = border, interactionSource = interaction) {
-            Column(Modifier.engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(edge)
-                .folioFrame(edge.copy(alpha = .65f)).padding(contentPadding), content = content)
+            Column(Modifier.padding(contentPadding), content = content)
         }
     } else {
         Surface(modifier = modifier, shape = shape, color = color, border = border) {
-            Column(Modifier.engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(edge)
-                .folioFrame(edge.copy(alpha = .65f)).padding(contentPadding), content = content)
+            Column(Modifier.padding(contentPadding), content = content)
         }
     }
 }
@@ -222,7 +216,7 @@ private fun PillButton(
         shape = MaterialTheme.shapes.medium, color = bg, contentColor = fg,
         border = border?.let { BorderStroke(1.dp, it) },
     ) {
-        Row(Modifier.engravedSurface(fg).folioFrame(fg.copy(alpha = .45f), inset = 4.dp).padding(contentPadding), verticalAlignment = Alignment.CenterVertically,
+        Row(Modifier.padding(contentPadding), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center, content = body)
     }
 }
@@ -277,25 +271,14 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
     val player = com.marat.albion.LocalAppContainer.current.audio
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
-    val reduced = LocalReducedMotion.current
-    val pulse = if (playing && !reduced) {
-        val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "audio")
-        transition.animateFloat(0f, 1f,
-            androidx.compose.animation.core.infiniteRepeatable(androidx.compose.animation.core.tween(1000)), label = "pulse").value
-    } else 0f
     val bg by animateColorAsState(if (playing) scheme.primary else if (primary) scheme.surfaceContainerHigh else Color.Transparent, label = "audioBg")
     val fg by animateColorAsState(if (playing) scheme.onPrimary else scheme.onSurface, label = "audioFg")
-    val ring = scheme.primary
     Box(
         modifier.size(size.coerceAtLeast(48.dp)).pressScale(interaction, 0.88f)
             .clickable(interaction, null, role = Role.Button) { if (playing) player.stop() else onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        if (pulse > 0f) Canvas(Modifier.size(size)) {
-            drawCircle(ring.copy(alpha = 0.3f * (1f - pulse)), radius = this.size.minDimension / 2 * (1f + 0.4f * pulse))
-        }
         Box(Modifier.size(size).clip(CircleShape).background(bg, CircleShape)
-            .engravedSurface(fg).medallionRim(if (playing) fg else scheme.secondary)
             .border(.75.dp, if (playing) fg.copy(alpha = .55f) else scheme.outline, CircleShape), contentAlignment = Alignment.Center) {
             Icon(
                 if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
@@ -353,8 +336,7 @@ fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 40.dp).appear(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
-            .engravedSeal(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
             Icon(AlbionIcons.Inventory2, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
@@ -370,8 +352,7 @@ fun TopBar(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
-            .headingRule(MaterialTheme.colorScheme.secondary)
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -492,7 +473,6 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
         modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.98f)
             .clip(MaterialTheme.shapes.medium).background(bg)
             .border(1.dp, edge, MaterialTheme.shapes.medium)
-            .engravedSurface(edge).folioFrame(edge.copy(alpha = .4f), inset = 4.dp)
             .selectable(selected, interaction, null, role = Role.RadioButton) { if (!selected) { feedback.selection(); onClick() } }
             .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

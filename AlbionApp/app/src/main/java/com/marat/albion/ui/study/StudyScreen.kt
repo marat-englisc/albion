@@ -1,8 +1,5 @@
 package com.marat.albion.ui.study
 
-import com.marat.albion.ui.components.folioFrame
-import com.marat.albion.ui.components.paperGrain
-import com.marat.albion.ui.components.engravedSurface
 import com.marat.albion.ui.theme.AlbionFonts
 import androidx.compose.ui.text.font.FontStyle
 
@@ -16,8 +13,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.animation.core.spring
-import androidx.compose.material3.CircularProgressIndicator
 import com.marat.albion.ui.theme.LocalFeedback
 import com.marat.albion.ui.theme.LocalReducedMotion
 
@@ -64,9 +59,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -78,7 +71,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -94,12 +86,10 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.StatPill
-import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.AnimatedNumber
 import com.marat.albion.ui.theme.Easing
 import kotlinx.coroutines.delay
 import kotlin.math.PI
@@ -153,7 +143,7 @@ fun StudyScreen(deck: Deck?, navigator: Navigator, answerLimit: Int? = null) {
     }
 
     BoxWithConstraints(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
@@ -334,8 +324,7 @@ private fun FlipCard(
     val shape = MaterialTheme.shapes.extraLarge
 
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .graphicsLayer {
                 rotationY = if (reduced) 0f else rotation
                 scaleX = dip; scaleY = dip
@@ -347,8 +336,8 @@ private fun FlipCard(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = androidx.compose.foundation.BorderStroke(.75.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        Box(Modifier.fillMaxSize().engravedSurface(MaterialTheme.colorScheme.secondary).paperGrain(MaterialTheme.colorScheme.outline)
-            .folioFrame(MaterialTheme.colorScheme.outline, embellished = true)) {
+        Box(Modifier.fillMaxSize()
+            ) {
             if (rotation <= 90f) {
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), contentAlignment = Alignment.Center) {

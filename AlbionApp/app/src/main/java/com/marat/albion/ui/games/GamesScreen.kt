@@ -1,10 +1,5 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.paperGrain
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-import com.marat.albion.ui.components.medallionRim
-
 import com.marat.albion.ui.theme.quietItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -80,7 +75,7 @@ fun GamesScreen(navigator: Navigator) {
         }
         LazyVerticalGrid(
             columns = GridCells.Adaptive(156.dp),
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline),
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             contentPadding = PaddingValues(start = gutter, end = gutter, bottom = 32.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -114,8 +109,7 @@ fun GamesScreen(navigator: Navigator) {
                 Panel(Modifier.fillMaxWidth().appear(3), onClick = { navigator.open(com.marat.albion.ui.nav.ConversationsRoute) },
                     contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                            .medallionRim(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
                             Icon(AlbionIcons.Chat, null, Modifier.size(22.dp))
                         }
                         Spacer(Modifier.width(14.dp))
@@ -163,8 +157,7 @@ internal fun PracticeContinuation(game: Game, options: PracticeOptions, continui
 private fun PracticeTile(game: Game, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)
-                .engravedSurface(MaterialTheme.colorScheme.secondary).folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 3.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
                 Icon(game.icon, null, Modifier.size(22.dp))
             }
             Spacer(Modifier.width(14.dp))

@@ -1,7 +1,5 @@
 package com.marat.albion.ui.grammar
 
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -39,7 +37,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +62,6 @@ import com.marat.albion.data.grammar.Topic
 import com.marat.albion.data.grammar.TopicKind
 import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinSlider
 import com.marat.albion.ui.components.LevelBadge
@@ -152,7 +148,7 @@ fun TopicScreen(topicId: String, navigator: Navigator, fromQuiz: Boolean = false
         }
     }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack = navigator::back) {
             if (headingIndex.isNotEmpty()) {
                 Box {
@@ -292,7 +288,6 @@ private fun TopicFooter(
         if (hasQuiz) {
             Column(
                 Modifier.fillMaxWidth()
-
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)).padding(20.dp),
             ) {
                 Eyebrow("Проверьте себя", color = MaterialTheme.colorScheme.onSurfaceVariant)

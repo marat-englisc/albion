@@ -1,7 +1,5 @@
 package com.marat.albion.ui.nav
 
-import com.marat.albion.ui.components.paperGrain
-
 import androidx.compose.material3.MaterialTheme
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.activity.compose.BackHandler
@@ -160,7 +158,7 @@ fun AlbionNavigation() {
     val listIndex = backStack.indexOfLast { paneOf(it) == Pane.List }
     val listDetailEligible = listIndex >= 0 && backStack.drop(listIndex + 1).all { paneOf(it) == Pane.Detail }
     NavigationWindow(current, chromeVisible, listDetailEligible) { listDetail, navigationHeight ->
-        BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+        BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             // На планшете вкладки — боковой панелью слева, на телефоне — снизу.
             val railMetrics = navigationRailMetrics(maxWidth, navigationHeight)
             val wide = railMetrics.enabled
@@ -208,7 +206,7 @@ fun AlbionNavigation() {
                             )
                         }
                         // Прокручиваемый контент не должен просвечивать под статус-баром.
-                        Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline))
+                        Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.background))
                     }
                 }
             }

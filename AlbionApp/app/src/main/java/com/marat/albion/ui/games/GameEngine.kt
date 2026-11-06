@@ -1,7 +1,5 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.paperGrain
-
 import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.flow.map
 
@@ -9,12 +7,6 @@ import android.os.SystemClock
 
 import androidx.activity.compose.BackHandler
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +39,6 @@ import com.marat.albion.data.games.SentencePuzzle
 import com.marat.albion.data.games.TenseDrill
 import com.marat.albion.data.games.TenseTask
 import com.marat.albion.ui.nav.Navigator
-import com.marat.albion.ui.theme.Easing
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -338,7 +328,7 @@ private fun GameFrame(
                 onlyMistakes = vm.onlyMistakes,
                 onOnlyMistakes = { vm.onlyMistakes = it },
             )
-            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline), contentAlignment = Alignment.Center) {
+            Phase.Loading -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
                 com.marat.albion.ui.components.LoadingState("Готовим упражнение")
             }
             Phase.Summary -> GameSummary(
@@ -352,7 +342,7 @@ private fun GameFrame(
                 scoreLabel = scoreLabel,
             )
             Phase.Playing -> Column(
-                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
             ) {
                 val leave = rememberLeaveGuard(active = vm.index > 0) { vm.backToSetup() }

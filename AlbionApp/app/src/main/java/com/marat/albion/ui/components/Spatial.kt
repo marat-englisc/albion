@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -41,26 +40,5 @@ fun AlbionMark(modifier: Modifier = Modifier, color: Color = MaterialTheme.color
 fun ModuleHeading(number: String, title: String, trailing: String? = null, modifier: Modifier = Modifier, compact: Boolean = false) {
     SectionHeading(title, trailing, modifier, leadingGap = 12.dp, compact = compact) {
         SignalLabel(number, color = MaterialTheme.colorScheme.primary)
-    }
-}
-
-/** Faint diamond tooling on the right half of a leather-bound feature panel. */
-fun Modifier.constructionLines(color: Color): Modifier = drawBehind {
-    val step = 36.dp.toPx()
-    var x = size.width / 2
-    while (x < size.width) {
-        var y = step / 2
-        while (y < size.height) {
-            val diamond = Path().apply {
-                moveTo(x, y - step / 2)
-                lineTo(x + step / 2, y)
-                lineTo(x, y + step / 2)
-                lineTo(x - step / 2, y)
-                close()
-            }
-            drawPath(diamond, color.copy(alpha = .045f), style = Stroke(.5.dp.toPx()))
-            y += step
-        }
-        x += step
     }
 }

@@ -1,7 +1,5 @@
 package com.marat.albion.ui.settings
 
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.layout.height
@@ -47,7 +45,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var resetError by remember { mutableStateOf<String?>(null) }
     var version by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(status) { version = repo.contentVersion() }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopBar(onBack, "Настройки")
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
             .windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = gutter).padding(bottom = 24.dp)) {
@@ -169,8 +167,7 @@ fun SettingsScreen(onBack: () -> Unit) {
 @Composable
 private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
             .heightIn(min = 48.dp)
             .selectionSurface(selected)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)

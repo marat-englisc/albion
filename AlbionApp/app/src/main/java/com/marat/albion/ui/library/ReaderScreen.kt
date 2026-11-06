@@ -1,12 +1,7 @@
 package com.marat.albion.ui.library
 
-import com.marat.albion.ui.components.headingRule
-
-import com.marat.albion.ui.components.paperGrain
-
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -15,7 +10,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
 import com.marat.albion.ui.components.SheetHeader
 import com.marat.albion.ui.components.LoadingState
-import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.settings.SliderSetting
 import com.marat.albion.ui.settings.SwitchSetting
 import androidx.compose.runtime.setValue
@@ -105,8 +99,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
@@ -126,7 +118,6 @@ import com.marat.albion.data.settings.Settings
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.ThinProgress
-import com.marat.albion.ui.components.ThinSlider
 import com.marat.albion.ui.nav.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
@@ -294,7 +285,7 @@ fun ReaderScreen(bookId: String, navigator: Navigator) {
 
     Box(Modifier.fillMaxSize()) {
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Row(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).heightIn(min = 64.dp).padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically) {
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.ArrowBack, "Назад", navigator::back)
@@ -634,8 +625,7 @@ private fun PageView(
             if (block.isHeading) {
                 Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth()) {
-                        Box(Modifier.fillMaxWidth().height(headingDecoration)
-                            .headingRule(MaterialTheme.colorScheme.secondary), contentAlignment = Alignment.Center) {
+                        Box(Modifier.fillMaxWidth().height(headingDecoration), contentAlignment = Alignment.Center) {
                             FolioDivider(label = romanNumeral(block.chapter + 1))
                         }
                         Text(readingChapterTitle(book.chapters[block.chapter].title), style = heading, modifier = Modifier.fillMaxWidth())

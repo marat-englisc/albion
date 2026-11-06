@@ -1,31 +1,18 @@
 package com.marat.albion.ui.home
 
-import com.marat.albion.ui.components.paperGrain
-
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.clickable
 
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalContentColor
 import com.marat.albion.ui.components.AlbionIcons
-import com.marat.albion.ui.components.RoundIconButton
 import com.marat.albion.ui.components.SegmentedPicker
 import com.marat.albion.ui.theme.appear
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -33,12 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -105,7 +87,7 @@ fun HomeScreen(navigator: Navigator) {
     LaunchedEffect(state.sessionSize) { sessionSize = state.sessionSize }
     val date = SimpleDateFormat("d MMMM · EEEE", Locale.forLanguageTag("ru")).format(Date())
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val compact = maxWidth < 360.dp || maxHeight < 640.dp || LocalDensity.current.fontScale > 1.2f
         val short = maxHeight < 480.dp
         val overview: LazyListScope.() -> Unit = {

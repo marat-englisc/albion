@@ -3,7 +3,6 @@ package com.marat.albion.ui.study
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -45,8 +44,6 @@ import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
 import com.marat.albion.ui.components.LevelBadge
 import com.marat.albion.ui.components.folioRule
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
 
 /** Озвучка, доступная лицевой и оборотной сторонам. */
 interface CardAudio {
@@ -127,8 +124,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
                         Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
-                            .engravedSurface(MaterialTheme.colorScheme.secondary)
-                            .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp).padding(horizontal = 18.dp, vertical = 12.dp),
+                            .padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text("V${i + 2}", style = MaterialTheme.typography.titleMedium)

@@ -37,8 +37,8 @@ fun Disclosure(
     Column(modifier.fillMaxWidth().padding(vertical = 5.dp)
         .background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)
         .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
-        .clip(MaterialTheme.shapes.large).engravedSurface(MaterialTheme.colorScheme.secondary)
-        .paperGrain(MaterialTheme.colorScheme.outline).folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp)) {
+        .clip(MaterialTheme.shapes.large)
+        ) {
         BoxWithConstraints(Modifier.fillMaxWidth().heightIn(min = 48.dp)
             .semantics { stateDescription = if (expanded) "Развёрнуто" else "Свёрнуто" }
             .clickable(role = Role.Button) { expanded = !expanded }, contentAlignment = Alignment.CenterStart) {

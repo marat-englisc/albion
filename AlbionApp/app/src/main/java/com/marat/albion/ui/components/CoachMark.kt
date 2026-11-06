@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -61,7 +60,6 @@ fun CoachMark(key: String, text: String, modifier: Modifier = Modifier, show: Bo
                 // Спокойная панель темы: в тёмной теме инверсная белая плашка слепила и спорила с карточкой.
                 .background(scheme.surfaceContainerHigh)
                 .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.large)
-                .engravedSurface(scheme.secondary).folioFrame(scheme.outlineVariant, inset = 4.dp)
                 .clickable(role = Role.Button, onClickLabel = "Понятно") { c.appScope.launch { c.settings.markHelpViewed("coach.$key") } }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,

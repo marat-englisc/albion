@@ -96,7 +96,7 @@ fun PaneBottomSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         scrimColor = if (folded) Color.Transparent else BottomSheetDefaults.ScrimColor) {
         ConstrainPopupToPane()
-        Column(Modifier.fillMaxWidth().paperGrain(MaterialTheme.colorScheme.outline)
+        Column(Modifier.fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)), content = content)
     }
 }

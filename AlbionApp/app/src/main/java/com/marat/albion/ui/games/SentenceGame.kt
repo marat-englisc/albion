@@ -1,12 +1,7 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.components.AlbionIcons
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.text.style.TextOverflow
 import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
@@ -35,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,16 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.marat.albion.LocalAppContainer
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
 
 /**
@@ -307,12 +298,9 @@ private fun WordTile(text: String, style: TileStyle, onClick: () -> Unit) {
     }
     val shape = MaterialTheme.shapes.small
     Box(
-        Modifier
-            .widthIn(min = 48.dp).heightIn(min = 48.dp)
+        Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp)
             .background(bg, shape)
             .border(1.dp, border, shape)
-            .engravedSurface(fg.copy(alpha = if (style == TileStyle.Ghost) 0f else 1f))
-            .folioFrame(border.copy(alpha = .45f), inset = 3.dp)
             .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = style == TileStyle.Idle || style == TileStyle.Placed, onClick = onClick)
             .padding(horizontal = if (LocalNarrow.current) 12.dp else 14.dp, vertical = 12.dp),
     ) {

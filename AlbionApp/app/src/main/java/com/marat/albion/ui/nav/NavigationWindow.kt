@@ -1,7 +1,5 @@
 package com.marat.albion.ui.nav
 
-import com.marat.albion.ui.components.paperGrain
-
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -51,7 +49,7 @@ internal fun NavigationWindow(current: NavKey?, showChrome: Boolean, listDetailE
     val density = LocalDensity.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var origin by remember { mutableStateOf(IntOffset.Zero) }
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(MaterialTheme.colorScheme.outline)) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             BoxWithConstraints(Modifier.fillMaxSize().onGloballyPositioned {
                 val p = it.positionInWindow(); origin = IntOffset(p.x.toInt(), p.y.toInt())

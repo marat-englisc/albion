@@ -40,8 +40,7 @@ fun DestructiveConfirmationDialog(
             }
             Surface(Modifier.fillMaxWidth().heightIn(max = (maxHeight - 24.dp).coerceAtLeast(0.dp)),
                 shape = MaterialTheme.shapes.extraLarge, color = scheme.surfaceContainerHigh) {
-                Column(Modifier.engravedSurface(scheme.secondary).paperGrain(scheme.outline)
-                    .folioFrame(scheme.outlineVariant).padding(horizontal = horizontalInset, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.padding(horizontal = horizontalInset, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f, fill = false).fillMaxWidth().verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(title, Modifier.semantics { heading() }, style = titleStyle,

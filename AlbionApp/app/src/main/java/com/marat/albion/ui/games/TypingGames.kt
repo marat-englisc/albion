@@ -1,8 +1,5 @@
 package com.marat.albion.ui.games
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.semantics.contentDescription
@@ -26,7 +23,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +45,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -83,9 +78,7 @@ import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.Chip
 import com.marat.albion.ui.components.Eyebrow
-import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.LevelBadge
-import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.components.lerpColor
 import com.marat.albion.ui.components.SignalLabel
 import com.marat.albion.ui.theme.AlbionFonts
@@ -149,7 +142,6 @@ internal fun AnswerField(
                         else -> MaterialTheme.colorScheme.surfaceContainerLow
                     }, shape)
                     .border(if (focused) 2.dp else 1.dp, border, shape)
-                    .engravedSurface(border).folioFrame(border.copy(alpha = .4f), inset = 4.dp)
                     .heightIn(min = 64.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,

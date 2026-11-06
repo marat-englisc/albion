@@ -1,8 +1,5 @@
 package com.marat.albion.ui.grammar
 
-import com.marat.albion.ui.components.engravedSurface
-import com.marat.albion.ui.components.folioFrame
-
 import com.marat.albion.ui.components.DisclosureIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -86,8 +83,6 @@ import com.marat.albion.ui.theme.Easing
 class MdEnv(val scale: Float, val onWikiLink: (String) -> Unit)
 
 val LocalMdEnv = staticCompositionLocalOf { MdEnv(1f) {} }
-
-
 
 internal operator fun TextUnit.times(f: Float): TextUnit = (value * f).sp
 
@@ -352,8 +347,7 @@ private fun TableAsCards(table: MdTable, headStyle: TextStyle, cellStyle: TextSt
         table.rows.forEach { row ->
             Column(
                 Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))
-                    .engravedSurface(MaterialTheme.colorScheme.secondary)
-                    .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp).padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 val title = row.firstOrNull().orEmpty()
@@ -407,8 +401,8 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
         Frame.Rule -> modifier.fillMaxWidth()
     }
     Row(container.height(IntrinsicSize.Min)
-        .then(if (l.frame == Frame.Rule) Modifier else Modifier.engravedSurface(MaterialTheme.colorScheme.secondary)
-            .folioFrame(MaterialTheme.colorScheme.outlineVariant, inset = 4.dp))) {
+        .then(if (l.frame == Frame.Rule) Modifier else Modifier
+            )) {
         if (l.frame == Frame.Rule) Box(Modifier.width(2.dp).fillMaxHeight().background(MaterialTheme.colorScheme.onSurfaceVariant))
         Column(Modifier.weight(1f)) {
             Row(
