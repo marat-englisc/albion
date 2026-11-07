@@ -5,17 +5,23 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "albion_settings")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "albion_settings",
+    // Повреждённый файл (например, после отключения питания во время записи) заменяется настройками по умолчанию.
+    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 enum class ThemeMode(val title: String) {
     SYSTEM("Как в системе"), LIGHT("Светлая"), DARK("Тёмная")
@@ -73,6 +79,9 @@ data class PracticeOptions(val deckId: String? = null, val count: Int = 10, val 
 class SettingsRepository internal constructor(private val store: DataStore<Preferences>) {
     constructor(context: Context) : this(context.dataStore)
 
+    /** Ошибка чтения с диска не должна ронять экраны: приложение работает с настройками по умолчанию. */
+    private val data: Flow<Preferences> = store.data.catch { e -> if (e is java.io.IOException) emit(emptyPreferences()) else throw e }
+
     private object Keys {
         val retention = floatPreferencesKey("desired_retention")
         val newPerDay = intPreferencesKey("new_per_day")
@@ -112,26 +121,26 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         val themeMode = stringPreferencesKey("theme_mode_v2")
     }
 
-    val settings: Flow<Settings> = store.data.map { p ->
+    val settings: Flow<Settings> = data.map { p ->
         Settings(
-            desiredRetention = p[Keys.retention] ?: 0.9f,
-            newPerDay = p[Keys.newPerDay] ?: 20,
-            reviewsPerDay = p[Keys.reviewsPerDay] ?: 200,
+            desiredRetention = (p[Keys.retention] ?: 0.9f).coerceIn(0.7f, 0.99f),
+            newPerDay = (p[Keys.newPerDay] ?: 20).coerceAtLeast(0),
+            reviewsPerDay = (p[Keys.reviewsPerDay] ?: 200).coerceAtLeast(0),
             newOrder = p[Keys.newOrder]?.let { runCatching { NewCardOrder.valueOf(it) }.getOrNull() } ?: NewCardOrder.LEVEL,
             autoplayFront = p[Keys.autoplayFront] ?: true,
             autoplayBack = p[Keys.autoplayBack] ?: false,
             showIpaOnFront = p[Keys.showIpaFront] ?: true,
-            playbackSpeed = p[Keys.speed] ?: 1.0f,
-            playbackVolume = p[Keys.volume] ?: 1.0f,
+            playbackSpeed = (p[Keys.speed] ?: 1.0f).coerceIn(0.5f, 2f),
+            playbackVolume = (p[Keys.volume] ?: 1.0f).coerceIn(0f, 1f),
             grammarTextScale = p[Keys.grammarScale] ?: 1.0f,
-            dayStartHour = p[Keys.dayStart] ?: 4,
+            dayStartHour = (p[Keys.dayStart] ?: 4).coerceIn(0, 23),
             lastGrammarTopic = p[Keys.lastTopic],
             showRussian = p[Keys.showRussian] ?: true,
             browseShowRussian = p[Keys.browseRussian] ?: true,
-            dailyGoal = p[Keys.dailyGoal] ?: 30,
+            dailyGoal = (p[Keys.dailyGoal] ?: 30).coerceAtLeast(1),
             reminderEnabled = p[Keys.reminderEnabled] ?: false,
-            reminderHour = p[Keys.reminderHour] ?: 19,
-            reminderMinute = p[Keys.reminderMinute] ?: 0,
+            reminderHour = (p[Keys.reminderHour] ?: 19).coerceIn(0, 23),
+            reminderMinute = (p[Keys.reminderMinute] ?: 0).coerceIn(0, 59),
             reminderOnlyIfNeeded = p[Keys.reminderOnlyIfNeeded] ?: true,
             fsrsParams = p[Keys.fsrsParams],
             fsrsUpdatedAt = p[Keys.fsrsUpdatedAt] ?: 0,
@@ -149,11 +158,11 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         )
     }.distinctUntilChanged()
 
-    val viewedHelp: Flow<Set<String>> = store.data.map { it[Keys.viewedHelp].orEmpty() }
+    val viewedHelp: Flow<Set<String>> = data.map { it[Keys.viewedHelp].orEmpty() }
 
-    val lastPractice: Flow<String?> = store.data.map { it[Keys.lastPractice] }
+    val lastPractice: Flow<String?> = data.map { it[Keys.lastPractice] }
 
-    fun practiceOptions(game: String, defaultCount: Int = 10): Flow<PracticeOptions> = store.data.map { p ->
+    fun practiceOptions(game: String, defaultCount: Int = 10): Flow<PracticeOptions> = data.map { p ->
         PracticeOptions(
             p[stringPreferencesKey("practice_${game}_deck")],
             p[intPreferencesKey("practice_${game}_count")] ?: defaultCount,
@@ -234,9 +243,9 @@ class SettingsRepository internal constructor(private val store: DataStore<Prefe
         return applied
     }
 
-    suspend fun contentVersion(): String? = store.data.first()[Keys.contentVersion]
+    suspend fun contentVersion(): String? = data.first()[Keys.contentVersion]
     suspend fun setContentVersion(v: String) = edit { it[Keys.contentVersion] = v }
-    suspend fun dictionaryVersion(): Int = store.data.first()[Keys.dictionaryVersion] ?: 0
+    suspend fun dictionaryVersion(): Int = data.first()[Keys.dictionaryVersion] ?: 0
     suspend fun setDictionaryVersion(v: Int) = edit { it[Keys.dictionaryVersion] = v }
 
     private suspend fun edit(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {

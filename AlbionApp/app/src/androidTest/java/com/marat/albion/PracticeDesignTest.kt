@@ -27,7 +27,6 @@ import com.marat.albion.ui.games.Game
 import com.marat.albion.ui.games.GameHost
 import com.marat.albion.data.settings.ThemeMode
 
-import com.marat.albion.ui.games.editionTitle
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.primaryRoutes
 import com.marat.albion.ui.theme.AlbionTheme

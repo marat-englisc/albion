@@ -92,6 +92,8 @@ class ContentImporter(
     }
 
     private suspend fun save(deck: Deck, cards: List<CardEntity>) {
+        // Пустой разбор означает повреждённую таблицу: удалять карточки нельзя — вместе с ними исчез бы прогресс FSRS.
+        check(cards.isNotEmpty()) { "Таблица колоды «${deck.title}» не прочиталась. Материалы не обновлены." }
         val newIds = cards.mapTo(HashSet()) { it.id }
         db.withTransaction {
             val stale = db.cards().idsOf(deck.id).filterNot { it in newIds }
@@ -101,6 +103,7 @@ class ContentImporter(
     }
 
     private suspend fun saveTasks(tasks: List<GrammarTaskEntity>) {
+        check(tasks.isNotEmpty()) { "Таблица грамматических заданий не прочиталась. Материалы не обновлены." }
         val dao = db.grammarTasks()
         val newIds = tasks.mapTo(HashSet()) { it.id }
         db.withTransaction {

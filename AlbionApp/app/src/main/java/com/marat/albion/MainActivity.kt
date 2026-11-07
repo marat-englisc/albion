@@ -1,6 +1,5 @@
 package com.marat.albion
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import android.content.pm.ActivityInfo
@@ -12,7 +11,6 @@ import androidx.activity.SystemBarStyle
 import android.graphics.Color
 import androidx.compose.runtime.LaunchedEffect
 import com.marat.albion.ui.theme.isAppInDarkTheme
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider

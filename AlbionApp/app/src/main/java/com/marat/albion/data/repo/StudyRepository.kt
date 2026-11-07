@@ -98,7 +98,6 @@ class StudyRepository(
             val memory = words.mapNotNull { WordCards.state(it, states) }
             DeckCounts(deck, words.size, memory.size,
                 memory.count { it.state == CardState.REVIEW && it.due <= now },
-                memory.count { it.state in listOf(CardState.LEARNING, CardState.RELEARNING) && it.due <= now + LEARN_AHEAD },
                 memory.count { it.state in listOf(CardState.LEARNING, CardState.RELEARNING) },
                 memory.count { it.state == CardState.REVIEW && it.stability >= 21 })
         }
@@ -489,7 +488,6 @@ class StudyRepository(
                 forecast = forecast.map { if (it.day < today) DayCount(today, it.count) else it }
                     .groupBy { it.day }.map { (d, l) -> DayCount(d, l.sumOf { it.count }) },
                 streak = streak(activeDays, today),
-                lastActiveDay = activeDays.firstOrNull(),
                 retention = if (retention.first == 0) null else retention.second.toFloat() / retention.first,
                 retentionSample = retention.first,
                 totalReviews = misc.total,
@@ -530,8 +528,6 @@ data class Stats(
     val daily: List<DayCount>,
     val forecast: List<DayCount>,
     val streak: Int,
-    /** Последний учебный день с ответами (в тех же единицах, что [today]); null — ещё не занимались. */
-    val lastActiveDay: Long?,
     val retention: Float?,
     val retentionSample: Int,
     val totalReviews: Int,

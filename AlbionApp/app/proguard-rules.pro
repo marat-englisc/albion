@@ -17,3 +17,7 @@
 -dontwarn com.gemalto.jp2.**
 -keep class com.tom_roush.pdfbox.** { *; }
 -keep class com.tom_roush.fontbox.** { *; }
+
+# ML Kit находит свои компоненты рефлексией по имени класса и вызывает конструктор без аргументов.
+# Полный режим R8 удаляет такие конструкторы — без правила офлайн-перевод книг в релизе не запускается.
+-keep class * implements com.google.firebase.components.ComponentRegistrar { public <init>(); }

@@ -9,15 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Классы ширины окна, как в Material: телефон, планшет вертикально / раскладушка, планшет горизонтально. */
-enum class WidthClass { Compact, Medium, Expanded }
-
-fun widthClassOf(width: Dp): WidthClass = when {
-    width < 600.dp -> WidthClass.Compact
-    width < 840.dp -> WidthClass.Medium
-    else -> WidthClass.Expanded
-}
-
 /** Самая широкая колонка, в которой удобно читать списки и текст. */
 val ReadableWidth = 760.dp
 

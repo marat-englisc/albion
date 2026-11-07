@@ -196,17 +196,6 @@ private fun days(source: List<DayCount>, from: Long, to: Long): List<Int> {
     return (from..to).map { map[it] ?: 0 }
 }
 
-@Composable
-private fun Tile(value: Int?, label: String, modifier: Modifier, suffix: String = "") {
-    Column(modifier) {
-        if (value == null) Text("—", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        else AnimatedNumber(value, MaterialTheme.typography.displaySmall, color = if (value == 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface, suffix = suffix)
-        Spacer(Modifier.height(2.dp))
-        Text(label.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 12.dp))
-    }
-}
-
 /** Один график — одна область касания: узкие столбики не перекрывают соседние touch targets. */
 @Composable
 private fun BarChart(values: List<Int>, startDay: Long, forecast: Boolean = false) {

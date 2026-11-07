@@ -10,19 +10,13 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect as ComposeRect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextLayoutResult
@@ -31,10 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.marat.albion.data.fsrs.Rating
 import com.marat.albion.ui.components.*
-import com.marat.albion.ui.conversation.PartnerBubble
-import com.marat.albion.ui.stats.ActivityCalendar
 import com.marat.albion.ui.launch.LaunchScreen
 import com.marat.albion.ui.nav.*
 import com.marat.albion.ui.games.*
@@ -42,10 +33,7 @@ import com.marat.albion.data.settings.PracticeOptions
 import com.marat.albion.data.content.Deck
 import com.marat.albion.data.library.BookPosition
 import kotlinx.coroutines.flow.first
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import android.os.Bundle
-import com.marat.albion.ui.study.SwipeToRate
 import com.marat.albion.ui.theme.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -53,7 +41,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
-import java.time.LocalDate
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 

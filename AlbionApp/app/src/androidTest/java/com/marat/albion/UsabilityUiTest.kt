@@ -24,9 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.marat.albion.data.library.BookWordSource
-import com.marat.albion.ui.library.TranslationSheet
-import com.marat.albion.ui.nav.AlbionNavigation
 import com.marat.albion.ui.theme.AlbionTheme
 import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.runBlocking

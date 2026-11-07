@@ -2,7 +2,6 @@ package com.marat.albion
 
 import com.marat.albion.data.content.CollectionParser
 import com.marat.albion.data.content.XlsxReader
-import com.marat.albion.data.db.GrammarTaskEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.data.grammar.GrammarPrompt

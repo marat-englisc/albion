@@ -4,11 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +45,6 @@ import com.marat.albion.data.settings.Settings
 import com.marat.albion.notify.Reminders
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.Hairline
-import com.marat.albion.ui.components.SectionHeader
 import com.marat.albion.ui.components.ThinProgress
 import kotlinx.coroutines.launch
 import java.text.DateFormat

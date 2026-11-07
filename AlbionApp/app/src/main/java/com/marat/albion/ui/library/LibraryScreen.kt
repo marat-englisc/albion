@@ -2,7 +2,6 @@ package com.marat.albion.ui.library
 
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.marat.albion.ui.theme.pressScale
@@ -12,7 +11,6 @@ import com.marat.albion.ui.components.FieldError
 import com.marat.albion.ui.components.LoadingState
 import com.marat.albion.ui.components.RoundIconButton
 import androidx.compose.ui.draw.clip
-import androidx.compose.material3.Surface
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.lazy.items

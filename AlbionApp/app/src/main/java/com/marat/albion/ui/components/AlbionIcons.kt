@@ -91,7 +91,6 @@ object AlbionIcons {
     val Info = pen("Information", "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M12 11v6 M12 7h.01")
     val HelpOutline = pen("Help", "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3 M12 17h.01")
     val Lightbulb = pen("Hint", "M8 15c0-2-3-3-3-7a7 7 0 0 1 14 0c0 4-3 5-3 7 M8 18h8 M10 21h4 M12 5v6")
-    val WorkspacePremium = pen("Achievement", "M18 8a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M8 13L6 22l6-3 6 3-2-9 M10 8l1.5 1.5L15 6")
     val Route = pen("Path", "M6 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4 M18 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4 M6 7v5h12v5")
     val Timeline = pen("Timeline", "M3 17l6-7 5 3 7-9 M3 17h.01 M9 10h.01 M14 13h.01 M21 4h.01")
     val Keyboard = pen("Keyboard", "M2 5h20v14H2z M6 9h1 M11 9h1 M16 9h1 M6 12h1 M11 12h1 M16 12h1 M7 16h10")
@@ -106,7 +105,6 @@ object AlbionIcons {
     val CloudOff = pen("Offline", "M5 17a4 4 0 0 1-1-8 7 7 0 0 1 12-4 M18 9a4 4 0 0 1 2 8 M2 2l20 20")
     val ReportProblem = pen("Attention", "M12 3l10 18H2z M12 9v5 M12 17h.01")
     val Inventory2 = pen("Collection", "M3 4h18v5H3z M5 9v12h14V9 M9 13h6")
-    val Inventory = Inventory2
 
     // ---- разговор с ИИ: свой знак у каждой ситуации ----
     val Chat = pen("Chat", "M4 5.5h16v10H9l-5 4z M8 9.5h8 M8 12.5h5")

@@ -46,9 +46,7 @@ data class HomeState(
     val decks: List<DeckSummary> = Deck.entries.map { DeckSummary(it) },
     val streak: Int = 0,
     val answersToday: Int = 0,
-    val daysAway: Long? = null,
     val grammar: GrammarBook = GrammarBook.EMPTY,
-    val grammarRead: Int = 0,
     val continueTopic: Topic? = null,
     val dailyGoal: Int = 30,
     val sessionSize: Int = 10,
@@ -64,14 +62,13 @@ class HomeViewModel(c: AppContainer) : ViewModel() {
 
     val state: StateFlow<HomeState> = combine(
         c.study.observeSummaries(),
-        c.study.observeStats().map { Triple(it.streak, it.answersToday, it.lastActiveDay?.let { day -> it.today - day }) },
+        c.study.observeStats().map { it.streak to it.answersToday },
         flow { emit(c.grammar.book()) },
         c.grammar.observeProgress(),
         combine(c.settings.settings, c.grammar.observeQuizTopics()) { s, q -> s to q.toSet() },
-    ) { decks, (streak, today, away), book, progress, (s, quizTopics) ->
-        val read = progress.count { it.readAt != null && book.topic(it.topicId) != null }
+    ) { decks, (streak, today), book, progress, (s, quizTopics) ->
         val step = GrammarNextStep.recommend(book, progress.associateBy { it.topicId }, quizTopics, System.currentTimeMillis(), lastId = s.lastGrammarTopic)
-        HomeState(decks, streak, today, away, book, read, step?.topic, s.dailyGoal,
+        HomeState(decks, streak, today, book, step?.topic, s.dailyGoal,
             sessionSize = s.shortSessionAnswers, grammarStep = step, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeState())
 }

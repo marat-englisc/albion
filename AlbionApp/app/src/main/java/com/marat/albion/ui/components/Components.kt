@@ -53,7 +53,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -188,9 +187,6 @@ fun Panel(
         }
     }
 }
-
-fun Modifier.softShadow(shape: androidx.compose.ui.graphics.Shape, elevation: Dp = 2.dp): Modifier =
-    shadow(elevation, shape, ambientColor = Color.Black.copy(alpha = 0.08f), spotColor = Color.Black.copy(alpha = 0.08f))
 
 enum class ButtonTone { Accent, Warm, Error }
 

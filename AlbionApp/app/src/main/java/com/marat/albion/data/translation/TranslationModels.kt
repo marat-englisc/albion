@@ -87,13 +87,19 @@ data class ModelStatus(
 /** Persistent system download, verified staging files and a single active model. No model in the APK. */
 class TranslationModels(private val context: Context, private val scope: CoroutineScope,
                         private val catalog: ModelCatalog = QWEN_CATALOG) {
+    private companion object { const val MAX_CUSTOM_BYTES = 8L * 1024 * 1024 * 1024 }
     private val prefs = context.getSharedPreferences(catalog.key, Context.MODE_PRIVATE)
     private val dm = context.getSystemService(DownloadManager::class.java)
     private val mutex = Mutex()
     private var watcher: Job? = null
     private var importing: Job? = null
-    private val directory get() = (context.getExternalFilesDir(catalog.directory)
-        ?: File(context.noBackupFilesDir, catalog.directory)).apply { mkdirs() }
+    /**
+     * Проверенные модели живут во внутренней памяти: на Android 8–9 внешнюю папку приложения может
+     * переписать любое приложение с доступом к памяти, а файл модели читает нативный код.
+     */
+    private val directory get() = File(context.noBackupFilesDir, catalog.directory).apply { mkdirs() }
+    /** DownloadManager пишет только во внешнюю память; там лежат лишь незавершённые загрузки. */
+    private val downloads get() = context.getExternalFilesDir(catalog.directory)?.apply { mkdirs() }
     private val recommended: String by lazy {
         val info = ActivityManager.MemoryInfo()
         context.getSystemService(ActivityManager::class.java)?.getMemoryInfo(info)
@@ -105,7 +111,8 @@ class TranslationModels(private val context: Context, private val scope: Corouti
     private val _state = MutableStateFlow(ModelStatus(selected = selected, allowMobile = mobile, catalog = catalog))
     val state = _state.asStateFlow()
     private fun file(id: String) = File(directory, catalog.options.firstOrNull { it.id == id }?.fileName ?: catalog.customFile)
-    private fun part(id: String) = File(directory, ".${catalog.partPrefix}-$id.download")
+    private fun part(id: String) = File(downloads ?: directory, ".${catalog.partPrefix}-$id.download")
+    private fun legacy(id: String) = downloads?.let { File(it, file(id).name) }
     private fun installed(id: String): Boolean {
         val f = file(id)
         val known = catalog.options.firstOrNull { it.id == id }
@@ -132,6 +139,7 @@ class TranslationModels(private val context: Context, private val scope: Corouti
             try {
                 catalog.requireRuntime()
                 if (importing?.isActive != true) File(directory, ".import-${catalog.key}.part").delete()
+                migrateLegacy()
                 if (reconcile()) startWatcher()
             } catch (error: CancellationException) { throw error }
             catch (error: Exception) {
@@ -160,8 +168,11 @@ class TranslationModels(private val context: Context, private val scope: Corouti
                 catalog.requireRuntime()
                 val option = catalog.options.firstOrNull { it.id == selected } ?: error("Выберите модель для загрузки.")
                 if (installed(option.id)) { publish(); return@withLock }
-                require(StatFs(directory.absolutePath).availableBytes > option.bytes + 200_000_000L) {
-                    "Недостаточно места. Освободите ${(option.bytes + 200_000_000L) / 1_000_000} МБ для модели."
+                checkNotNull(downloads) { "Внешняя память недоступна: загрузка модели невозможна." }
+                // Загрузка и её проверенная копия во внутренней памяти какое-то время существуют вместе.
+                val needed = option.bytes * 2 + 200_000_000L
+                require(StatFs(directory.absolutePath).availableBytes > needed) {
+                    "Недостаточно места. Освободите ${needed / 1_000_000} МБ для модели."
                 }
                 part(option.id).delete()
                 val request = DownloadManager.Request(Uri.parse(option.url))
@@ -214,18 +225,23 @@ class TranslationModels(private val context: Context, private val scope: Corouti
         }
         if (snapshot?.first == DownloadManager.STATUS_SUCCESSFUL) {
             _state.value = _state.value.copy(phase = ModelState.Verifying, downloaded = option.bytes, total = option.bytes, message = null)
-            val source = part(option.id)
+            val staging = File(directory, ".verify-${option.id}.part")
             try {
+                val source = part(option.id)
                 require(source.length() == option.bytes) { "Файл модели загружен не полностью." }
-                val hash = digest(source)
+                // Хэш считается по внутренней копии: внешний файл после проверки мог бы подменить кто-то другой.
+                copyInto(source, staging, option.bytes)
+                source.delete()
+                val hash = digest(staging)
                 require(hash == option.sha256) { "Файл модели повреждён. Повторите загрузку." }
-                catalog.validate(source)
-                atomicReplace(source, file(option.id))
+                catalog.validate(staging)
+                atomicReplace(staging, file(option.id))
                 markVerified(option.id, hash)
                 clearDownload()
                 publish()
             } catch (error: CancellationException) { throw error }
             catch (error: Exception) { clearDownload(); publish(error.message ?: "Не удалось проверить модель.", failed = true) }
+            finally { staging.delete() }
         } else {
             clearDownload()
             publish("Загрузка не завершена. Проверьте сеть и свободное место, затем повторите попытку.", failed = true)
@@ -250,15 +266,7 @@ class TranslationModels(private val context: Context, private val scope: Corouti
                 try {
                     _state.value = _state.value.copy(phase = ModelState.Importing, message = null)
                     context.contentResolver.openInputStream(uri)?.use { input ->
-                        staging.outputStream().use { output ->
-                            val buffer = ByteArray(1024 * 1024)
-                            while (true) {
-                                currentCoroutineContext().ensureActive()
-                                val count = input.read(buffer)
-                                if (count < 0) break
-                                output.write(buffer, 0, count)
-                            }
-                        }
+                        copyStream(input, staging, MAX_CUSTOM_BYTES)
                     } ?: error("Не удалось открыть выбранный файл.")
                     require(staging.length() >= 50_000_000) { "GGUF не содержит полную модель Qwen3.5." }
                     catalog.validate(staging)
@@ -283,6 +291,53 @@ class TranslationModels(private val context: Context, private val scope: Corouti
                     if (selected == "custom") prefs.edit().putString("selected", recommended).commit()
                     publish()
                 } catch (_: Exception) { publish("Не удалось удалить модель. Попробуйте ещё раз.", failed = true) }
+            }
+        }
+    }
+    /** Переносит модели, проверенные прежними версиями во внешней папке, с повторной сверкой хэша. */
+    private suspend fun migrateLegacy() {
+        for (id in catalog.options.map { it.id } + "custom") {
+            val old = legacy(id) ?: continue
+            if (!old.isFile || installed(id)) continue
+            val trusted = prefs.getLong("verifiedTime.$id", -1) == old.lastModified() && prefs.getLong("verifiedSize.$id", -1) == old.length()
+            val expected = catalog.options.firstOrNull { it.id == id }?.sha256 ?: prefs.getString("digest.$id", null)
+            if (!trusted || expected == null) { old.delete(); continue }
+            val staging = File(directory, ".verify-$id.part")
+            try {
+                _state.value = _state.value.copy(phase = ModelState.Verifying, message = null)
+                copyInto(old, staging, old.length())
+                val hash = digest(staging)
+                if (hash == expected) {
+                    catalog.validate(staging)
+                    atomicReplace(staging, file(id))
+                    markVerified(id, hash)
+                }
+                old.delete()
+            } catch (error: CancellationException) { throw error }
+            catch (_: Exception) { /* Модель останется неустановленной — её можно скачать заново. */ }
+            finally { staging.delete() }
+        }
+    }
+    private suspend fun copyInto(source: File, target: File, limit: Long) = source.inputStream().use { copyStream(it, target, limit) }
+    private suspend fun copyStream(input: java.io.InputStream, target: File, limit: Long) {
+        target.outputStream().use { output ->
+            val buffer = ByteArray(1024 * 1024)
+            var written = 0L
+            var checked = 0L
+            while (true) {
+                currentCoroutineContext().ensureActive()
+                val count = input.read(buffer)
+                if (count < 0) break
+                written += count
+                require(written <= limit) { "Файл модели слишком большой." }
+                // Не заполняем память устройства до отказа: оставляем запас системе.
+                if (written - checked >= 64L * 1024 * 1024) {
+                    checked = written
+                    require(StatFs(directory.absolutePath).availableBytes > 200_000_000L) {
+                        "Недостаточно места для модели. Освободите память устройства."
+                    }
+                }
+                output.write(buffer, 0, count)
             }
         }
     }

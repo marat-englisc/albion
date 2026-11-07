@@ -1,8 +1,6 @@
 package com.marat.albion.ui.games
 
 import com.marat.albion.ui.theme.IpaStyle
-import com.marat.albion.ui.components.AlbionIcons
-import com.marat.albion.ui.components.LocalNarrow
 import com.marat.albion.ui.components.gutter
 import com.marat.albion.ui.theme.QuietAnimatedContent as AnimatedContent
 import com.marat.albion.ui.theme.QuietAnimatedVisibility as AnimatedVisibility
@@ -39,7 +37,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -55,7 +52,6 @@ import com.marat.albion.data.games.TenseTask
 import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.LevelBadge
-import com.marat.albion.ui.components.PrimaryButton
 import com.marat.albion.ui.study.rememberCardAudio
 
 /**

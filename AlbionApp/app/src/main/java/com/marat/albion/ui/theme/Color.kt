@@ -15,7 +15,6 @@ internal val EstateDark = Color(0xFFF2F2F2)
 
 /** Нейтральные «металлы» для служебной графики; цвета в интерфейсе нет. */
 object Heritage {
-    val Brass = Color(0xFF8A8A8A)
     val Champagne = Color(0xFFD9D9D9)
     val Cream = Color(0xFFFAFAFA)
 }

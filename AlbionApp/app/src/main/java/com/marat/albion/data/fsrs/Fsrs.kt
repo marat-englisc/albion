@@ -271,7 +271,8 @@ class Fsrs(
 
         fun decodeParams(s: String?): DoubleArray? {
             val values = s?.split(',')?.mapNotNull { it.trim().toDoubleOrNull() } ?: return null
-            return if (values.size == DEFAULT_W.size) values.toDoubleArray() else null
+            // NaN или бесконечность в параметрах сломали бы сроки всех карточек.
+            return if (values.size == DEFAULT_W.size && values.all { it.isFinite() }) values.toDoubleArray() else null
         }
 
         private val FUZZ_RANGES = listOf(

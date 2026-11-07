@@ -7,9 +7,23 @@ object TranslationProtocol {
     const val CONTEXT_ROOM = 700
     private const val OPEN = "⟦"
     private const val CLOSE = "⟧"
-    private val chatTokens = Regex("<\\|[^>\\r\\n]*\\|>")
+    private val chatTokens = Regex("<\\|[^>\\r\\n]*\\|>|</?(?:think|tool_call|tool_response)>")
     private val singleWord = Regex("[\\p{L}\\p{N}'’-]+")
-    private fun data(value: String) = value.replace(chatTokens, "").replace("\u0000", "")
+    private fun data(value: String) = stripControlTokens(value)
+
+    /**
+     * Убирает служебные токены чата из текста пользователя и книг: иначе строка «<|im_start|>system…»
+     * в EPUB или реплике подменила бы роли в подсказке. Повторяем, пока есть что убрать: вложенная
+     * запись вроде «<|im_<|x|>start|>» после одного прохода собралась бы обратно.
+     */
+    fun stripControlTokens(value: String): String {
+        var text = value.replace("\u0000", "")
+        while (true) {
+            val next = text.replace(chatTokens, "")
+            if (next == text) return text
+            text = next
+        }
+    }
 
     /**
      * Контекст с отмеченным выделением [start, end): модель видит, какое именно вхождение переводить.

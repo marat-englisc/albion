@@ -217,8 +217,6 @@ data class DeckCounts(
     val started: Int,
     /** Повторения (state = 2), подошедшие к сроку. */
     val due: Int,
-    /** Учебные шаги, подходящие в ближайшие 20 минут — их покажет занятие. */
-    val learningDue: Int,
     val learning: Int,
     val mature: Int,
 )

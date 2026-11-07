@@ -1,33 +1,26 @@
 package com.marat.albion.ui.components
 
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import com.marat.albion.ui.theme.Hero
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -70,46 +63,6 @@ fun BoundVolume(modifier: Modifier = Modifier, compact: Boolean = false,
 @Composable
 fun CatalogueTab(label: String, modifier: Modifier = Modifier) {
     Eyebrow(label, modifier)
-}
-
-/** Карточка продолжения: подпись, заголовок, описание, стрелка в круге и прогресс. */
-@Composable
-fun CatalogueCard(
-    label: String,
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    ribbon: Boolean = false,
-    progress: Float? = null,
-    compact: Boolean = false,
-) {
-    Panel(modifier.fillMaxWidth(), onClick = onClick) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f)) {
-                Eyebrow(label)
-                Spacer(Modifier.height(6.dp))
-                Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(4.dp))
-                Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Spacer(Modifier.width(12.dp))
-            ArrowBadge()
-        }
-        if (progress != null && progress > 0f) {
-            Spacer(Modifier.height(16.dp))
-            ThinProgress(progress)
-        }
-    }
-}
-
-/** Стрелка «перейти» в квадрате. */
-@Composable
-fun ArrowBadge(modifier: Modifier = Modifier) {
-    Box(modifier.size(36.dp).background(MaterialTheme.colorScheme.background, RectangleShape)
-        .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape), contentAlignment = Alignment.Center) {
-        Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp))
-    }
 }
 
 @Composable

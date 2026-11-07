@@ -64,8 +64,7 @@ object ConversationProtocol {
     /** Сколько истории пересказывается за раз: вместе с инструкцией и ответом это помещается в слот задач. */
     private const val CHUNK_TOKENS = 1_200
     const val SUMMARY_TOKENS = 220
-    private val chatTokens = Regex("<\\|[^>\\r\\n]*\\|>")
-    private fun data(value: String) = value.replace(chatTokens, "").replace("\u0000", "").trim()
+    private fun data(value: String) = com.marat.albion.data.translation.TranslationProtocol.stripControlTokens(value).trim()
     private const val NO_THINK = "<think>\n\n</think>\n\n"
 
     /** Грубая оценка токенов для английского текста: ≈ 3,3 символа на токен. */

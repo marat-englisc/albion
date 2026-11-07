@@ -7,8 +7,6 @@ import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import com.marat.albion.ui.components.ThinProgress
 import com.marat.albion.ui.components.lerpColor
@@ -52,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -69,7 +66,6 @@ import com.marat.albion.data.games.Verdict
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
-import com.marat.albion.ui.components.lerpColor
 import kotlinx.coroutines.flow.first
 
 /** Термин крупно на карточке задания — общий заголовок голосовых игр. */

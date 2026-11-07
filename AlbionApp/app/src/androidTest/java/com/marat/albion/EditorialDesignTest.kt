@@ -5,17 +5,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.activity.compose.setContent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.marat.albion.data.content.ImportStatus
-import com.marat.albion.ui.theme.AlbionTheme
 import com.marat.albion.data.settings.ThemeMode
 import android.graphics.Color
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
-import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
