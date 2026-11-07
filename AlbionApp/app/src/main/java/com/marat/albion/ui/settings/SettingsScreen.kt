@@ -1,5 +1,7 @@
 package com.marat.albion.ui.settings
 
+import com.marat.albion.ui.components.TextButton
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.selectedContent
 import androidx.compose.foundation.layout.height
@@ -7,13 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import com.marat.albion.ui.components.SegmentedPicker
 import com.marat.albion.data.settings.ThemeMode
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -174,14 +176,11 @@ private fun RadioSettingOption(title: String, selected: Boolean, onClick: () -> 
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        )
+        // Квадратная отметка: на инверсной плашке выбора берёт цвет её содержимого.
+        val mark = if (selected) MaterialTheme.colorScheme.selectedContent else MaterialTheme.colorScheme.onSurfaceVariant
+        Box(Modifier.size(20.dp).border(1.5.dp, mark, RectangleShape), contentAlignment = Alignment.Center) {
+            if (selected) Box(Modifier.size(10.dp).background(mark))
+        }
         Spacer(Modifier.width(12.dp))
         Text(
             title,
@@ -207,7 +206,7 @@ internal fun SliderSetting(
             Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
             Text(
                 value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer, CircleShape).padding(horizontal = 10.dp, vertical = 2.dp),
+                modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer, RectangleShape).padding(horizontal = 10.dp, vertical = 2.dp),
             )
         }
         val step = (range.endInclusive - range.start) / (steps + 1)
@@ -233,18 +232,7 @@ internal fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) 
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).toggleable(value = checked, role = Role.Switch, onValueChange = onChange).padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         Spacer(Modifier.width(12.dp))
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            colors = SwitchDefaults.colors(
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedBorderColor = MaterialTheme.colorScheme.primary,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainer,
-                uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
-            ),
-        )
+        SquareSwitch(checked)
     }
 }
 
@@ -258,5 +246,20 @@ internal fun ActionRow(title: String, destructive: Boolean = false, onClick: () 
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
         )
         Hairline()
+    }
+}
+
+/** Переключатель с прямыми углами: квадратный бегунок едет по прямоугольной дорожке. */
+@Composable
+private fun SquareSwitch(checked: Boolean) {
+    val scheme = MaterialTheme.colorScheme
+    val reduced = com.marat.albion.ui.theme.LocalReducedMotion.current
+    val offset by androidx.compose.animation.core.animateDpAsState(if (checked) 22.dp else 0.dp,
+        if (reduced) androidx.compose.animation.core.snap() else com.marat.albion.ui.theme.Springs.snappy(), label = "switch")
+    val track by androidx.compose.animation.animateColorAsState(if (checked) scheme.primary else androidx.compose.ui.graphics.Color.Transparent, label = "switchTrack")
+    val thumb by androidx.compose.animation.animateColorAsState(if (checked) scheme.onPrimary else scheme.onSurfaceVariant, label = "switchThumb")
+    Box(Modifier.size(width = 52.dp, height = 30.dp).background(track)
+        .border(1.5.dp, if (checked) scheme.primary else scheme.outline, RectangleShape).padding(4.dp)) {
+        Box(Modifier.offset(x = offset).size(22.dp).background(thumb))
     }
 }

@@ -1,9 +1,9 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,8 +57,8 @@ internal fun MelodyChart(report: ShadowReport, words: List<ChartWord> = emptyLis
                 if (mine.available) MelodyLegend(dashed = true, label = "Вы")
             }
             Row(
-                Modifier.fillMaxWidth().background(band, RoundedCornerShape(8.dp))
-                    .border(.75.dp, grid, RoundedCornerShape(8.dp))
+                Modifier.fillMaxWidth().background(band, RectangleShape)
+                    .border(.75.dp, grid, RectangleShape)
                     .padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
@@ -174,13 +174,13 @@ private fun WordLabels(words: List<ChartWord>, frames: Int, inset: androidx.comp
 private fun MelodyLegend(dashed: Boolean, label: String) {
     val color = if (dashed) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     Row(
-        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 4.dp),
+        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RectangleShape).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Canvas(Modifier.size(width = 24.dp, height = 8.dp)) {
             drawLine(
                 color, Offset(0f, size.height / 2), Offset(size.width, size.height / 2),
-                strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round,
+                strokeWidth = 3.dp.toPx(), cap = StrokeCap.Butt,
                 pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())) else null,
             )
         }

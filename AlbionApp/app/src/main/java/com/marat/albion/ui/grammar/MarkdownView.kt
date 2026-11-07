@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.DisclosureIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -29,7 +30,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -314,7 +314,7 @@ private fun TableView(table: MdTable, modifier: Modifier) {
             TableAsCards(table, headStyle, cellStyle)
         } else {
             val widths = layout.map { with(density) { it.toDp() } }
-            Column(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))) {
+            Column(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)) {
                 TableRow(table.header, widths, headStyle, MaterialTheme.colorScheme.surfaceContainerHigh, cellPadding)
                 table.rows.forEachIndexed { r, row ->
                     Hairline()
@@ -346,7 +346,7 @@ private fun TableAsCards(table: MdTable, headStyle: TextStyle, cellStyle: TextSt
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         table.rows.forEach { row ->
             Column(
-                Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))
+                Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -393,7 +393,7 @@ private fun CalloutView(c: MdCallout, modifier: Modifier) {
     val l = look(c.kind)
     var open by rememberSaveable(c.title, c.kind) { mutableStateOf(c.initiallyExpanded) }
     val scale = LocalMdEnv.current.scale
-    val shape = RoundedCornerShape(10.dp)
+    val shape = RectangleShape
     val container = when (l.frame) {
         Frame.Box -> modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), shape)
         Frame.Filled -> modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
@@ -439,7 +439,7 @@ private fun QuoteView(q: MdQuote, modifier: Modifier) {
 @Composable
 private fun CodeView(code: MdCode, modifier: Modifier) {
     val scale = LocalMdEnv.current.scale
-    Box(modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp)) {
+    Box(modifier.fillMaxWidth().clip(RectangleShape).background(MaterialTheme.colorScheme.surfaceContainer).padding(14.dp)) {
         Text(code.code, Modifier.horizontalScroll(rememberScrollState()), softWrap = false,
             style = TextStyle(fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
                 fontSize = 13.sp * scale, lineHeight = 20.sp * scale, color = MaterialTheme.colorScheme.onSurface))

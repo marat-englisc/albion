@@ -1,5 +1,6 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,7 +51,7 @@ fun EditorialLink(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null || index != null) {
-            Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, RectangleShape), contentAlignment = Alignment.Center) {
                 if (icon != null) Icon(icon, null, Modifier.size(22.dp))
                 else if (index != null) Text(index, style = MaterialTheme.typography.labelLarge)
             }
@@ -59,7 +59,7 @@ fun EditorialLink(
         }
         Column(Modifier.weight(1f)) {
             if (eyebrow != null) { Eyebrow(eyebrow); Spacer(Modifier.height(2.dp)) }
-            Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(title, style = MaterialTheme.typography.titleMedium)
             if (description.isNotBlank()) {
                 Spacer(Modifier.height(2.dp))
                 Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

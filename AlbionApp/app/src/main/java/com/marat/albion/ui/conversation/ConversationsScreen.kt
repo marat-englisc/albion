@@ -87,18 +87,25 @@ fun ConversationsScreen(navigator: Navigator) {
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) { ModuleHeading("01", "Ситуации", (Scenario.entries.size - 1).toString().padStart(2, '0')) }
-            items(Scenario.entries.filter { it != Scenario.FREE }, key = { it.id }) { scenario ->
-                Panel(quietItem(Modifier.fillMaxWidth().heightIn(min = 132.dp)),
-                    onClick = if (model.ready) ({ start(scenario) }) else null, contentPadding = PaddingValues(18.dp)) {
-                    Box(Modifier.size(36.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small),
-                        contentAlignment = Alignment.Center) {
-                        Icon(scenario.icon, null, Modifier.size(18.dp))
+            items(Scenario.entries.filter { it != Scenario.FREE }, key = { it.id }, span = { GridItemSpan(maxLineSpan) }) { scenario ->
+                // Строка как в «Практике»: иконка слева, справа название и пояснение.
+                Panel(quietItem(Modifier.fillMaxWidth()), onClick = if (model.ready) ({ start(scenario) }) else null,
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small),
+                            contentAlignment = Alignment.Center) {
+                            Icon(scenario.icon, null, Modifier.size(22.dp))
+                        }
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(scenario.title, style = MaterialTheme.typography.titleMedium)
+                            Text(scenario.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (model.ready) {
+                            Spacer(Modifier.width(8.dp))
+                            Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
-                    Spacer(Modifier.weight(1f).heightIn(min = 16.dp))
-                    Text(scenario.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Spacer(Modifier.height(4.dp))
-                    Text(scenario.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3, overflow = TextOverflow.Ellipsis)
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {

@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.drawSquareProgress
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.isImeVisible
 import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.SegmentedPicker
@@ -20,7 +22,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.*
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -267,7 +268,7 @@ fun GameTopRow(game: Game?, index: Int, total: Int, onClose: () -> Unit, title: 
             com.marat.albion.ui.components.RoundIconButton(AlbionIcons.Close, "Закрыть", onClose, filled = true)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                SignalLabel(game?.let { "%02d / %s".format(it.editionNumber, it.editionTitle) } ?: "УЧЕБНИК / ПРОВЕРКА")
+                SignalLabel(game?.let { "${it.editionCode} / ${it.editionTitle}" } ?: "УЧЕБНИК / ПРОВЕРКА")
                 if (title.isNotBlank() && !typing) {
                     Spacer(Modifier.height(4.dp))
                     Text(title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
@@ -294,11 +295,11 @@ internal fun rememberLeaveGuard(active: Boolean, onLeave: () -> Unit): () -> Uni
         title = { Text("Прервать тренировку?") },
         text = { Text("Ответы уже сохранены, но итог этой сессии не будет показан.") },
         confirmButton = {
-            androidx.compose.material3.TextButton(onClick = { asking = false; onLeave() }) {
+            com.marat.albion.ui.components.TextButton(onClick = { asking = false; onLeave() }) {
                 Text("Прервать", color = MaterialTheme.colorScheme.error)
             }
         },
-        dismissButton = { androidx.compose.material3.TextButton(onClick = { asking = false }) { Text("Продолжить") } },
+        dismissButton = { com.marat.albion.ui.components.TextButton(onClick = { asking = false }) { Text("Продолжить") } },
     )
     return request
 }
@@ -318,7 +319,7 @@ internal fun SegmentedProgress(index: Int, total: Int, modifier: Modifier = Modi
                 else if (i == index) MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
                 else MaterialTheme.colorScheme.surfaceContainerHighest,
                 if (reduced) snap() else com.marat.albion.ui.theme.Springs.smooth(), label = "segment$i")
-            Box(Modifier.weight(1f).fillMaxHeight().background(fill, RoundedCornerShape(1.dp)))
+            Box(Modifier.weight(1f).fillMaxHeight().background(fill, RectangleShape))
         }
     }
 }
@@ -377,7 +378,7 @@ data class Mistake(val prompt: String, val answer: String, val correct: String, 
 internal fun GameSetupHeader(game: Game, modifier: Modifier = Modifier, options: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth().padding(top = 8.dp)) {
         Panel(Modifier.fillMaxWidth().appear(0), contentPadding = PaddingValues(20.dp)) {
-            SignalLabel("%02d / %s".format(game.editionNumber, game.editionTitle))
+            SignalLabel("${game.editionCode} / ${game.editionTitle}")
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(game.title, Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium)
@@ -446,7 +447,7 @@ fun GameSummary(
                 Spacer(Modifier.height(8.dp))
                 GhostButton("Готово", onDone)
             } else PrimaryButton("Готово", onDone)
-            androidx.compose.material3.TextButton(onClick = onRestart, modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) { Text(restartLabel) }
+            com.marat.albion.ui.components.TextButton(onClick = onRestart, modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) { Text(restartLabel) }
         }
     }
 }
@@ -471,11 +472,7 @@ private fun ResultRing(correct: Int, total: Int, modifier: Modifier = Modifier) 
     val arc = MaterialTheme.colorScheme.primary
     Box(modifier.size(164.dp), contentAlignment = Alignment.Center) {
         androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
-            val inset = 8.dp.toPx()
-            val diameter = Size(size.width - inset * 2, size.height - inset * 2)
-            val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
-            drawArc(track, -90f, 360f, false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
-            if ((if (reduced) target else sweep.value) > 0f) drawArc(arc, -90f, 360f * (if (reduced) target else sweep.value), false, topLeft = Offset(inset, inset), size = diameter, style = stroke)
+            drawSquareProgress(track, arc, if (reduced) target else sweep.value, 2.dp.toPx(), inset = 8.dp.toPx())
         }
         com.marat.albion.ui.theme.AnimatedNumber(if (total == 0) 0 else correct * 100 / total,
             if (LocalDensity.current.fontScale > 1.3f) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium, suffix = "%")

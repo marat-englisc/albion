@@ -1,5 +1,9 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.ui.geometry.Size
+
+import androidx.compose.ui.geometry.Offset
+
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -67,8 +71,10 @@ fun CoachMark(key: String, text: String, modifier: Modifier = Modifier, show: Bo
             Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
                 val dot = scheme.primary
                 Canvas(Modifier.size(22.dp)) {
-                    drawCircle(dot.copy(alpha = 0.35f * (1f - pulse)), radius = size.minDimension / 2 * (0.4f + 0.6f * pulse))
-                    drawCircle(dot, radius = size.minDimension * 0.18f)
+                    val halo = size.minDimension * (0.4f + 0.6f * pulse)
+                    drawRect(dot.copy(alpha = 0.35f * (1f - pulse)), Offset((size.width - halo) / 2, (size.height - halo) / 2), Size(halo, halo))
+                    val core = size.minDimension * 0.36f
+                    drawRect(dot, Offset((size.width - core) / 2, (size.height - core) / 2), Size(core, core))
                 }
             }
             Spacer(Modifier.width(12.dp))

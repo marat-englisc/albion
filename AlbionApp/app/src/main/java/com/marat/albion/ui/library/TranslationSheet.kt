@@ -1,5 +1,6 @@
 package com.marat.albion.ui.library
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.QuietLinearProgressIndicator as LinearProgressIndicator
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.draw.clip
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -53,10 +53,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.marat.albion.ui.components.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextButton
+import com.marat.albion.ui.components.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -336,7 +336,7 @@ private fun DictionaryArticle(entry: DictEntry, showHeadword: Boolean) {
 
 @Composable
 private fun DictionaryEntry(card: CardEntity) {
-    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(card.term, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(10.dp))
@@ -375,7 +375,7 @@ private fun HighlightSection(
 
     Column(Modifier.fillMaxWidth().padding(top = 14.dp)) {
         if (highlight != null) {
-            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(10.dp)).padding(14.dp)) {
+            Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RectangleShape).padding(14.dp)) {
                 Eyebrow("Выделено")
                 Spacer(Modifier.height(6.dp))
                 Text(highlight.text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 4)
@@ -427,7 +427,7 @@ private fun HighlightSection(
 @Composable
 private fun RowScope.SmallAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        Modifier.weight(1f).clip(RoundedCornerShape(8.dp)).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+        Modifier.weight(1f).clip(RectangleShape).border(1.dp, MaterialTheme.colorScheme.outline, RectangleShape)
             .clickable(onClick = onClick).heightIn(min = 48.dp).padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
     ) {

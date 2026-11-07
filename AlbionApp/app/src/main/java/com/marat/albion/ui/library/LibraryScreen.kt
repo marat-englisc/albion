@@ -4,6 +4,7 @@ import com.marat.albion.ui.components.DestructiveConfirmationDialog
 import com.marat.albion.ui.theme.quietItem
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.marat.albion.ui.theme.pressScale
 import com.marat.albion.ui.theme.appear
 import com.marat.albion.ui.components.Disclosure
@@ -43,7 +44,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.marat.albion.ui.components.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.heightIn
 import com.marat.albion.ui.components.*
@@ -136,19 +137,7 @@ fun LibraryScreen(navigator: Navigator) {
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             ScreenHeader("Библиотека", eyebrow = "03 / КНИГИ", compact = true, trailing = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(onClick = launchPicker, enabled = !importing, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(48.dp).semantics { contentDescription = if (importing) "Открываю книгу" else "Добавить книгу" }) {
-                        Box(contentAlignment = Alignment.Center) {
-                            if (importing) com.marat.albion.ui.components.QuietCircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary)
-                            else Icon(AlbionIcons.Add, null, Modifier.size(22.dp))
-                        }
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    SettingsShortcut(navigator::openSettings)
-                }
+                SettingsShortcut(navigator::openSettings)
             })
         }
         item(key = "book-search", span = { GridItemSpan(maxLineSpan) }) {
@@ -188,9 +177,11 @@ fun LibraryScreen(navigator: Navigator) {
         }
         if (query.isNotBlank()) controls()
         item(span = { GridItemSpan(maxLineSpan) }) {
-            // Добавление книги — кнопкой «+» в шапке; здесь вторая такая же кнопка не нужна.
             Column(Modifier.padding(top = 12.dp)) {
-                Disclosure("Офлайн-перевод", model.summary) { BookTranslationControls() }
+                GhostButton(if (importing) "Открываю книгу…" else "Добавить книгу", launchPicker,
+                    Modifier.padding(bottom = 12.dp).semantics { if (importing) stateDescription = "Книга открывается" },
+                    icon = AlbionIcons.Add, enabled = !importing)
+                Disclosure("Офлайн-перевод", model.summary, icon = AlbionIcons.CloudOff) { BookTranslationControls() }
                 Disclosure("Подсказки по чтению", "Перевод касанием, выделение и заметки", icon = AlbionIcons.HelpOutline) {
                     Text("Коснитесь слова — откроется перевод. Долгое нажатие выбирает предложение, протяжка — любой фрагмент. " +
                         "В панели перевода можно выбрать значение и сохранить слово в карточки. В меню читалки — поиск, закладки, заметки и оформление. " +

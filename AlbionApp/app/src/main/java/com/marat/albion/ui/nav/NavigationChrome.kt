@@ -1,5 +1,7 @@
 package com.marat.albion.ui.nav
 
+import com.marat.albion.ui.components.IconButton
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.PaneBottomSheet as ModalBottomSheet
 import com.marat.albion.ui.theme.selectedContent
 import com.marat.albion.ui.components.selectionSurface
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -112,14 +113,14 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
         val labelHeight = with(density) { labels.maxOf { measurer.measure(it, style, softWrap = false).size.height }.toDp() }
         val barHeight = maxOf(58.dp, labelHeight + 41.dp)
         Row(Modifier.fillMaxWidth().padding(horizontal = outer, vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp)).background(scheme.surfaceContainerLow)
-            .border(.75.dp, scheme.outlineVariant, RoundedCornerShape(12.dp))
+            .clip(RectangleShape).background(scheme.surfaceContainerLow)
+            .border(.75.dp, scheme.outlineVariant, RectangleShape)
             .padding(5.dp).height(barHeight).selectableGroup()) {
             direct.forEach { tab ->
                 val active = tab.route == selected
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(10.dp))
-                    .selectionSurface(active, RoundedCornerShape(10.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RectangleShape)
+                    .selectionSurface(active, RectangleShape)
                     .selectable(active, role = Role.Tab, onClick = { onSelect(tab.route) }),
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     TabIcon(tab, active, tint)
@@ -131,8 +132,8 @@ internal fun BottomBar(selected: TopLevel, onSelect: (TopLevel) -> Unit) {
                 val active = direct.none { it.route == selected }
                 val current = tabs.first { it.route == selected }
                 val tint = if (active) scheme.selectedContent else scheme.onSurfaceVariant
-                Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(10.dp))
-                    .selectionSurface(active, RoundedCornerShape(10.dp))
+                Column(Modifier.weight(1f).fillMaxHeight().clip(RectangleShape)
+                    .selectionSurface(active, RectangleShape)
                     .clickable(role = Role.Button, onClickLabel = "Все разделы") { open = true }
                     .semantics { if (active) stateDescription = "Открыт раздел: ${current.label}" },
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -162,7 +163,7 @@ private fun NavigationMenu(selected: TopLevel, onDismiss: () -> Unit, onSelect: 
                     tabs.forEach { tab ->
                         val active = tab.route == selected
                         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
-                            .clip(RoundedCornerShape(10.dp)).selectionSurface(active, RoundedCornerShape(10.dp))
+                            .clip(RectangleShape).selectionSurface(active, RectangleShape)
                             .selectable(active, role = Role.Tab, onClick = { onDismiss(); onSelect(tab.route) })
                             .padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {

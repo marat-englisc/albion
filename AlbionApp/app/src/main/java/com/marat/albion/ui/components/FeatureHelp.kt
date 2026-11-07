@@ -1,5 +1,6 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +46,7 @@ fun FeatureHelp(key: String, title: String, text: String, showOnFirstUse: Boolea
     if (expanded) {
         AlertDialog(
             onDismissRequest = ::dismiss,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+            shape = RectangleShape,
             title = { Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface) },
             text = {
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface,

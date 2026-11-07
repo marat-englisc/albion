@@ -15,6 +15,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.semantics.*
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,10 +46,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.marat.albion.ui.components.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.marat.albion.ui.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -187,14 +190,14 @@ fun BrowseScreen(deck: Deck, navigator: Navigator) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = gutter).padding(top = 4.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     BrowseFilterButton(activeFilters, openFilters, Modifier.weight(1f))
-                    com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
-                        if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
+                    FieldIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                        if (detailed) "Кратко" else "Подробно") { detailed = !detailed }
                 }
             } else {
                 BrowseFilterFields(filter, level, { filter = it }, { level = it },
                     Modifier.padding(horizontal = gutter).padding(top = 12.dp, bottom = 8.dp)) {
-                    com.marat.albion.ui.components.RoundIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
-                        if (detailed) "Кратко" else "Подробно", { detailed = !detailed }, filled = true)
+                    FieldIconButton(if (detailed) AlbionIcons.List else AlbionIcons.Menu,
+                        if (detailed) "Кратко" else "Подробно") { detailed = !detailed }
                 }
             }
             cardList(Modifier.weight(1f), true)
@@ -249,11 +252,26 @@ private fun BrowseFilterFields(
 ) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OptionPicker("Статус карточек", filters, filter, onFilter)
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Кнопка справа — квадрат на всю высоту поля уровня.
+        Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OptionPicker("Уровень", cardLevels.map { it.ifEmpty { "Все уровни" } }, cardLevels.indexOf(level),
                 { onLevel(cardLevels[it]) }, Modifier.weight(1f))
             trailing()
         }
+    }
+}
+
+/** Квадратная кнопка рядом с полем выбора: та же поверхность и рамка, высота поля. */
+@Composable
+private fun FieldIconButton(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, onClick: () -> Unit) {
+    val feedback = com.marat.albion.ui.theme.LocalFeedback.current
+    Box(Modifier.fillMaxHeight().aspectRatio(1f, matchHeightConstraintsFirst = true).heightIn(min = 48.dp)
+        .background(MaterialTheme.colorScheme.surfaceContainerLow)
+        .border(1.dp, MaterialTheme.colorScheme.controlBorder)
+        .clickable(role = androidx.compose.ui.semantics.Role.Button, onClickLabel = description) { feedback.selection(); onClick() }
+        .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center) {
+        Icon(icon, null, Modifier.size(22.dp))
     }
 }
 

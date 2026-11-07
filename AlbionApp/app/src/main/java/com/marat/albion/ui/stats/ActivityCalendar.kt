@@ -1,12 +1,12 @@
 package com.marat.albion.ui.stats
 
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -42,7 +42,7 @@ internal fun ActivityCalendar(counts: List<Int>, endDay: Long) {
     val dates = List<Long?>(lead) { null } + (startDay..endDay).map { it } + List(trailing) { null }
     val labels = listOf("0", "1–9", "10–24", "25–49", "50+")
     val scheme = MaterialTheme.colorScheme
-    val fills = listOf(scheme.surfaceContainerHigh, scheme.primaryContainer,
+    val fills = listOf(scheme.surfaceContainerHigh, lerp(scheme.surfaceContainerHigh, scheme.primary, .18f),
         lerp(scheme.surfaceContainerHigh, scheme.primary, .4f),
         lerp(scheme.surfaceContainerHigh, scheme.primary, .7f), scheme.primary)
     fun level(count: Int) = when { count <= 0 -> 0; count < 10 -> 1; count < 25 -> 2; count < 50 -> 3; else -> 4 }
@@ -103,7 +103,7 @@ internal fun ActivityCalendar(counts: List<Int>, endDay: Long) {
                                         contentAlignment = Alignment.Center) {
                                         Text(date.dayOfMonth.toString(), Modifier.clearAndSetSemantics {}, style = style, color = foreground)
                                         if (day == endDay) Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp)
-                                            .size(3.dp).background(foreground, CircleShape).clearAndSetSemantics {})
+                                            .size(3.dp).background(foreground, RectangleShape).clearAndSetSemantics {})
                                     }
                                 }
                             }

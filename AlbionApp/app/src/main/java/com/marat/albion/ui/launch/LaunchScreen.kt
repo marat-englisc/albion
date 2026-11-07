@@ -119,11 +119,11 @@ fun LaunchScreen(
             Spacer(Modifier.height(12.dp))
             Canvas(Modifier.size(132.dp, 2.dp)) {
                 val y = size.height / 2
-                drawLine(Heritage.Champagne.copy(alpha = .2f), Offset(0f, y), Offset(size.width, y), size.height, StrokeCap.Round)
+                drawLine(Heritage.Champagne.copy(alpha = .2f), Offset(0f, y), Offset(size.width, y), size.height, StrokeCap.Butt)
                 val head = barLoop * 1.3f
                 val start = (head - .3f).coerceIn(0f, 1f) * size.width
                 val end = head.coerceIn(0f, 1f) * size.width
-                if (end > start) drawLine(Heritage.Champagne, Offset(start, y), Offset(end, y), size.height, StrokeCap.Round)
+                if (end > start) drawLine(Heritage.Champagne, Offset(start, y), Offset(end, y), size.height, StrokeCap.Butt)
             }
         }
     }

@@ -52,8 +52,7 @@ class UsabilityUiTest {
                 val name = "$width-$scale"
                 val nav = navigator()
                 show(scenario, "library-$name", width, scale, false) { com.marat.albion.ui.library.LibraryScreen(nav) }
-                val add = clickableBounds(awaitNode { it.contentDescription?.toString() == "Добавить книгу" })
-                assertTrue(add.height() >= 48 * instrumentation.targetContext.resources.displayMetrics.density)
+                awaitNode { it.contentDescription?.toString() == "Настройки" }
                 // Поиск стоит под блоком «Продолжить»: на узком экране с крупным шрифтом к нему нужно прокрутить.
                 scrollToDescription("Поиск книги")
                 val field = awaitNode { it.isEditable }

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.quietItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marat.albion.LocalAppContainer
@@ -28,7 +27,7 @@ import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.theme.appear
 import androidx.compose.foundation.border
 
-private val practiceGroups = listOf(
+internal val practiceGroups = listOf(
     "Словарный запас" to listOf(Game.TYPE_ANSWER, Game.IRREGULAR),
     "Грамматика" to listOf(Game.GRAMMAR_CHOICE, Game.GRAMMAR_GAP, Game.SENTENCE, Game.TENSES),
     "Речь и слух" to listOf(Game.PRONUNCIATION, Game.SHADOWING),
@@ -107,9 +106,9 @@ fun GamesScreen(navigator: Navigator) {
             if (short) saved()
             item(key = "conversation", span = { GridItemSpan(maxLineSpan) }) {
                 Panel(Modifier.fillMaxWidth().appear(3), onClick = { navigator.open(com.marat.albion.ui.nav.ConversationsRoute) },
-                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp)) {
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(44.dp).border(.75.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape), contentAlignment = Alignment.Center) {
                             Icon(AlbionIcons.Chat, null, Modifier.size(22.dp))
                         }
                         Spacer(Modifier.width(14.dp))
@@ -118,6 +117,7 @@ fun GamesScreen(navigator: Navigator) {
                             Text("Беседа текстом и голосом с разбором ошибок · офлайн", style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        Spacer(Modifier.width(8.dp))
                         Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -162,9 +162,8 @@ private fun PracticeTile(game: Game, modifier: Modifier = Modifier, onClick: () 
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(game.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(game.title, style = MaterialTheme.typography.titleMedium)
+                Text(game.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.width(8.dp))
             Icon(AlbionIcons.ArrowForward, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -172,17 +171,17 @@ private fun PracticeTile(game: Game, modifier: Modifier = Modifier, onClick: () 
     }
 }
 
-/** Строка «повторить ошибки»: число ошибок в круге, упражнение и колода, стрелка. */
+/** Строка «повторить ошибки»: число ошибок в квадрате, упражнение и колода, стрелка. */
 @Composable
 private fun MistakeRow(game: Game, deck: Deck?, count: Int, onClick: () -> Unit) {
     Panel(Modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(MaterialTheme.colorScheme.errorContainer, CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).background(MaterialTheme.colorScheme.errorContainer, RectangleShape), contentAlignment = Alignment.Center) {
                 Text("$count", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.error)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(game.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(game.title, style = MaterialTheme.typography.titleMedium)
                 Text(if (deck != null && game.decks.size > 1) "${deck.title} · ${mistakesLabel(count)}" else mistakesLabel(count),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

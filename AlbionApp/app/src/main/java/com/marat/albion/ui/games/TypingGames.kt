@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.ui.semantics.contentDescription
@@ -45,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -331,7 +331,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp)).padding(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, RectangleShape).padding(horizontal = 14.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -413,7 +413,7 @@ fun TypeAnswerRound(vm: GameViewModel, card: CardEntity) {
                 // Как во всех тренажёрах: «Проверить | Не знаю», подсказка — тихой ссылкой над ними.
                 Column {
                     val canReveal = hints < letters - 1
-                    if (canReveal || !showEn) androidx.compose.material3.TextButton(
+                    if (canReveal || !showEn) com.marat.albion.ui.components.TextButton(
                         onClick = { if (canReveal) hints++ else showEn = true },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     ) { Text(if (canReveal) "Подсказка: открыть букву" else "Подсказка: определение", color = MaterialTheme.colorScheme.primary) }

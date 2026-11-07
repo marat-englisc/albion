@@ -1,5 +1,7 @@
 package com.marat.albion.ui.home
 
+import com.marat.albion.ui.components.drawSquareProgress
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -18,7 +20,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,9 +56,7 @@ internal fun GoalRing(answered: Int, goal: Int, modifier: Modifier = Modifier) {
     val arc = if (done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
     Box(modifier.size(76.dp).semantics { contentDescription = "Цель дня: $answered из $goal ответов" }, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            val stroke = Stroke(7.dp.toPx(), cap = StrokeCap.Round)
-            drawArc(track, -90f, 360f, false, style = stroke)
-            if ((if (reduced) target else sweep.value) > 0f) drawArc(arc, -90f, 360f * (if (reduced) target else sweep.value), false, style = stroke)
+            drawSquareProgress(track, arc, if (reduced) target else sweep.value, 5.dp.toPx())
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (done) Icon(AlbionIcons.Check, null, Modifier.size(22.dp), tint = arc)
@@ -87,8 +86,8 @@ internal fun PlanRow(
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 if (progress != null && progress > 0f) {
                     Spacer(Modifier.height(8.dp))
                     ThinProgress(progress, height = 4.dp)
@@ -104,7 +103,7 @@ internal fun PlanRow(
 @Composable
 internal fun DeckTile(summary: DeckSummary, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Panel(modifier.width(168.dp).heightIn(min = 152.dp), onClick = onClick, contentPadding = PaddingValues(16.dp)) {
-        Text(summary.deck.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(summary.deck.title, style = MaterialTheme.typography.titleSmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.weight(1f).heightIn(min = 12.dp))
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             AnimatedNumber(summary.toStudy, MaterialTheme.typography.displaySmall)
@@ -124,17 +123,17 @@ internal fun DeckRow(summary: DeckSummary, modifier: Modifier = Modifier, onClic
     val scheme = MaterialTheme.colorScheme
     Panel(modifier.fillMaxWidth(), onClick = onClick, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Число с подписью: без неё было непонятно, что значит «20».
+            // Число карточек на сегодня; расшифровка — в строке под названием («5 повторить · 15 новых»).
             Column(Modifier.size(56.dp).background(scheme.background, MaterialTheme.shapes.small)
-                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small),
+                .border(.75.dp, scheme.outlineVariant, MaterialTheme.shapes.small)
+                .semantics { contentDescription = "На сегодня: ${summary.toStudy}" },
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text("${summary.toStudy}", style = MaterialTheme.typography.titleLarge,
                     color = if (summary.toStudy > 0) scheme.onSurface else scheme.onSurfaceVariant)
-                Text("сегодня", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant, maxLines = 1)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(summary.deck.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(summary.deck.title, style = MaterialTheme.typography.titleMedium, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 Text(when {
                     summary.total == 0 -> summary.deck.subtitle
                     summary.toStudy == 0 -> "На сегодня всё · ${summary.started} из ${summary.total} начато"

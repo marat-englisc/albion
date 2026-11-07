@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -14,7 +15,6 @@ import com.marat.albion.data.grammar.MdParagraph
 import com.marat.albion.data.grammar.MdBlock
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -71,7 +71,6 @@ import com.marat.albion.ui.components.TopBar
 import com.marat.albion.ui.nav.GrammarRoute
 import com.marat.albion.ui.nav.Navigator
 import com.marat.albion.ui.nav.TopicRoute
-import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.flow.first
 import com.marat.albion.ui.nav.TopicQuizRoute
 import kotlinx.coroutines.launch
@@ -288,7 +287,7 @@ private fun TopicFooter(
         if (hasQuiz) {
             Column(
                 Modifier.fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)).padding(20.dp),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RectangleShape).padding(20.dp),
             ) {
                 Eyebrow("Проверьте себя", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(10.dp))
@@ -340,7 +339,7 @@ private fun NavArrows(onPrev: (() -> Unit)?, onContents: (() -> Unit)?, onNext: 
                 contentDescription = "Оглавление",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(44.dp)
-                    .clip(CircleShape)
+                    .clip(RectangleShape)
                     .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, onClick = onContents)
                     .padding(12.dp),
             )
@@ -356,9 +355,9 @@ private fun RoundArrow(icon: ImageVector, description: String, filled: Boolean, 
     val interaction = remember { MutableInteractionSource() }
     Box(
         Modifier.size(58.dp)
-            .clip(CircleShape)
+            .clip(RectangleShape)
             .background(if (filled && enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-            .border(1.dp, if (enabled) (if (filled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline) else MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            .border(1.dp, if (enabled) (if (filled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline) else MaterialTheme.colorScheme.outlineVariant, RectangleShape)
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled) { onClick?.invoke() },
         contentAlignment = Alignment.Center,
     ) {

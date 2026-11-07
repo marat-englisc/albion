@@ -27,62 +27,60 @@ private fun variable(id: Int, weight: FontWeight, italic: Boolean = false, optic
 private val weights = listOf(FontWeight.Light, FontWeight.Normal, FontWeight.Medium, FontWeight.SemiBold, FontWeight.Bold)
 
 object AlbionFonts {
-    /** Интерфейс: строгий современный гротеск с родной кириллицей. */
-    val Sans = FontFamily(weights.map { variable(R.font.onest, it) })
+    /** Интерфейс: Geist — строгий швейцарский гротеск с родной кириллицей. */
+    val Sans = FontFamily(weights.map { variable(R.font.geist, it) })
 
-    /** Книжная антиква: заголовки, термины и цифры; кегли и интерлиньяж сохранены. */
-    val Display = FontFamily(
-        weights.map { variable(R.font.literata, it, opticalSize = 36f) } +
-            weights.map { variable(R.font.literata_italic, it, italic = true, opticalSize = 36f) },
-    )
+    /** Заголовки, термины и цифры: тот же Geist, светлые начертания и плотная разрядка. */
+    val Display = Sans
 
-    /** Информационные подписи и счётчики используют тот же читаемый гротеск, что и интерфейс. */
-    val Tech = Sans
+    /** Служебные подписи, индексы и счётчики: моноширинный Geist Mono. */
+    val Tech = FontFamily(weights.map { variable(R.font.geist_mono, it) })
 
     /** Транскрипции целиком набраны одной встроенной гарнитурой, включая IPA и диакритику. */
     val Ipa = FontFamily(Font(R.font.noto_sans, FontWeight.Normal))
 
-    /** Книги и учебник: шрифт, созданный для долгого чтения с экрана. */
+    /** Книги и учебник: Source Serif 4 с оптическим кеглем для долгого чтения. */
     val Reading = FontFamily(
-        weights.map { variable(R.font.literata, it, opticalSize = 12f) } +
-            weights.map { variable(R.font.literata_italic, it, italic = true, opticalSize = 12f) },
+        weights.map { variable(R.font.source_serif, it, opticalSize = 14f) } +
+            weights.map { variable(R.font.source_serif_italic, it, italic = true, opticalSize = 14f) },
     )
 }
 
 private val trim = PlatformTextStyle(includeFontPadding = false)
 private val centered = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None)
 
-private fun display(size: Int, line: Int, weight: FontWeight = FontWeight.Medium) = TextStyle(
+private fun display(size: Int, line: Int, weight: FontWeight = FontWeight.Medium, tracking: Double = -0.03) = TextStyle(
     fontFamily = AlbionFonts.Display, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
-    letterSpacing = (-0.015).em, platformStyle = trim, lineHeightStyle = centered,
+    letterSpacing = tracking.em, platformStyle = trim, lineHeightStyle = centered,
     lineBreak = LineBreak.Heading, hyphens = Hyphens.Auto,
 )
 
-private fun sans(size: Float, line: Int, weight: FontWeight, tracking: Double = 0.0) = TextStyle(
-    fontFamily = AlbionFonts.Sans, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
+private fun sans(size: Float, line: Int, weight: FontWeight, tracking: Double = 0.0, family: FontFamily = AlbionFonts.Sans) = TextStyle(
+    fontFamily = family, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
     letterSpacing = tracking.em, platformStyle = trim, lineHeightStyle = centered,
     lineBreak = LineBreak.Paragraph, hyphens = Hyphens.Auto,
 )
 
 val Typography = Typography(
-    displayLarge = display(52, 58, FontWeight.Light),
-    displayMedium = display(38, 44, FontWeight.Light),
-    displaySmall = display(28, 34, FontWeight.Normal),
+    displayLarge = display(52, 56, FontWeight.Light, -0.045),
+    displayMedium = display(38, 42, FontWeight.Light, -0.04),
+    displaySmall = display(28, 34, FontWeight.Normal, -0.035),
     headlineLarge = display(30, 36, FontWeight.Medium),
     headlineMedium = display(26, 32, FontWeight.Medium),
-    headlineSmall = display(22, 28, FontWeight.Medium),
-    titleLarge = display(20, 26, FontWeight.Medium),
-    titleMedium = sans(16f, 22, FontWeight.SemiBold, -0.005),
+    headlineSmall = display(22, 28, FontWeight.Medium, -0.025),
+    titleLarge = display(20, 26, FontWeight.Medium, -0.02),
+    titleMedium = sans(16f, 22, FontWeight.SemiBold, -0.01),
     titleSmall = sans(14f, 20, FontWeight.SemiBold),
-    bodyLarge = sans(16f, 25, FontWeight.Normal, 0.003),
-    bodyMedium = sans(15f, 22, FontWeight.Normal, 0.003),
+    bodyLarge = sans(16f, 25, FontWeight.Normal),
+    bodyMedium = sans(15f, 22, FontWeight.Normal),
     bodySmall = sans(13f, 19, FontWeight.Normal, 0.005),
-    labelLarge = sans(15f, 20, FontWeight.SemiBold, 0.005),
-    labelMedium = sans(12.5f, 16, FontWeight.Medium, 0.02),
-    labelSmall = sans(11f, 14, FontWeight.Medium, 0.03),
+    labelLarge = sans(15f, 20, FontWeight.Medium, 0.005),
+    // Служебные подписи — моноширинные: индексы, счётчики, «04 / НАВЫКИ».
+    labelMedium = sans(12.5f, 16, FontWeight.Medium, 0.04, AlbionFonts.Tech),
+    labelSmall = sans(11f, 14, FontWeight.Medium, 0.05, AlbionFonts.Tech),
 )
 
-/** Текст книг и правил: Literata, щедрый интерлиньяж. */
+/** Текст книг и правил: Source Serif 4, щедрый интерлиньяж. */
 val ReadingStyle = TextStyle(
     fontFamily = AlbionFonts.Reading, fontWeight = FontWeight.Normal, fontSize = 18.sp, lineHeight = 29.sp,
 )

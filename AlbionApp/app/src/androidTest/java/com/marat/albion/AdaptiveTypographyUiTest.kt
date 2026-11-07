@@ -162,7 +162,7 @@ class AdaptiveTypographyUiTest {
                 val sample = text(label)
                 assertWholeText(sample)
                 assertEquals(12.5.sp, sample.layout.layoutInput.style.fontSize)
-                assertEquals(AlbionFonts.Sans, sample.layout.layoutInput.style.fontFamily)
+                assertEquals(AlbionFonts.Tech, sample.layout.layoutInput.style.fontFamily)
             }
             val ipa = text(card.ipa)
             assertWholeText(ipa)

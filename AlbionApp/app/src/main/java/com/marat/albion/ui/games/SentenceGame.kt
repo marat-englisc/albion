@@ -140,8 +140,8 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
             Spacer(Modifier.height(12.dp))
 
             if (verdict == null && placed.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                androidx.compose.material3.TextButton(onClick = { placed.removeAt(placed.lastIndex); validation = null }) { Text("Отменить слово") }
-                androidx.compose.material3.TextButton(onClick = { placed.clear(); validation = null }) { Text("Сбросить") }
+                com.marat.albion.ui.components.TextButton(onClick = { placed.removeAt(placed.lastIndex); validation = null }) { Text("Отменить слово") }
+                com.marat.albion.ui.components.TextButton(onClick = { placed.clear(); validation = null }) { Text("Сбросить") }
             }
             // Ответ: поставленные плашки на линии «тетради».
             Column(
@@ -253,10 +253,10 @@ fun SentenceRound(vm: GameViewModel, card: CardEntity) {
                     supportingText = { Text("Исправление сохранится и заменит перевод модели.") })
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { vm.editTranslation(card, draft); editingTranslation = false },
+                com.marat.albion.ui.components.TextButton(onClick = { vm.editTranslation(card, draft); editingTranslation = false },
                     enabled = draft.isNotBlank()) { Text("Сохранить") }
             },
-            dismissButton = { androidx.compose.material3.TextButton(onClick = { editingTranslation = false }) { Text("Отмена") } },
+            dismissButton = { com.marat.albion.ui.components.TextButton(onClick = { editingTranslation = false }) { Text("Отмена") } },
         )
     }
 }

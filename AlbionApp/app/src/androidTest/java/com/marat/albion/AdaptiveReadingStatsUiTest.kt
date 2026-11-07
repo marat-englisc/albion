@@ -138,7 +138,6 @@ class AdaptiveReadingStatsUiTest {
             fun nav() = Navigator(primaryRoutes.associateWith { NavBackStack<NavKey>(it) }, mutableIntStateOf(0))
             show(scenario, "library") { LibraryScreen(nav()) }
             assertUnclipped("Библиотека", layout("Библиотека"))
-            await { it.contentDescription?.toString() == "Добавить книгу" }
             val settings = await { it.contentDescription?.toString() == "Настройки" }
             val settingsBounds = android.graphics.Rect().also(settings::getBoundsInScreen)
             assertTrue("Library settings are outside the window: $settingsBounds", settingsBounds.right <= activity!!.resources.displayMetrics.widthPixels && settingsBounds.width() > 0)

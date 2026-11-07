@@ -1,5 +1,7 @@
 package com.marat.albion.ui.games
 
+import com.marat.albion.ui.components.drawSquareProgress
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.IpaStyle
 import com.marat.albion.ui.components.AlbionIcons
@@ -34,7 +36,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,7 +66,6 @@ import com.marat.albion.data.content.Deck
 import com.marat.albion.data.db.CardEntity
 import com.marat.albion.data.games.AnswerCheck
 import com.marat.albion.data.games.Verdict
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.marat.albion.ui.components.Eyebrow
 import com.marat.albion.ui.components.GhostButton
 import com.marat.albion.ui.components.PrimaryButton
@@ -109,8 +109,8 @@ internal fun PlaybackAction(
         Box(
             Modifier.size(size)
                 .pressScale(interaction, .95f).clip(MaterialTheme.shapes.medium)
-                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
-                .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RoundedCornerShape(8.dp))
+                .background(lerpColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary, on), RectangleShape)
+                .border(1.dp, if (!enabled) MaterialTheme.colorScheme.outlineVariant else lerpColor(MaterialTheme.colorScheme.controlBorder, MaterialTheme.colorScheme.primary, on), RectangleShape)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -152,14 +152,9 @@ internal fun MicButton(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(size), contentAlignment = Alignment.Center) {
             if (active) Canvas(Modifier.size(size)) {
-                val radius = this.size.minDimension / 2 - 2.dp.toPx()
-                val inset = Offset(center.x - radius, center.y - radius)
-                val diameter = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
-                val stroke = Stroke(2.dp.toPx(), cap = StrokeCap.Round)
-                drawArc(line.copy(alpha = .15f), -90f, 360f, false, inset, diameter, style = stroke)
-                drawArc(face, -90f, amp * 360f, false, inset, diameter, style = stroke)
+                drawSquareProgress(line.copy(alpha = .15f), face, amp, 2.dp.toPx(), inset = 2.dp.toPx())
             }
-            Box(Modifier.size((size - 24.dp).coerceAtLeast(48.dp)).pressScale(interaction, .94f).clip(CircleShape).background(face, CircleShape)
+            Box(Modifier.size((size - 24.dp).coerceAtLeast(48.dp)).pressScale(interaction, .94f).clip(RectangleShape).background(face, RectangleShape)
                 .clickable(interaction, indication = androidx.compose.foundation.LocalIndication.current, enabled = enabled, role = Role.Button) { feedback.selection(); onClick() },
                 contentAlignment = Alignment.Center) {
                 Icon(if (active) AlbionIcons.Stop else AlbionIcons.Mic,

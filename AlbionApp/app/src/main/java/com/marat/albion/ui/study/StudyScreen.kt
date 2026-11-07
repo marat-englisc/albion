@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.AlbionFonts
 import androidx.compose.ui.text.font.FontStyle
 
@@ -57,13 +58,12 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.marat.albion.ui.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -404,9 +404,9 @@ private fun RatingButton(r: Rating, index: Int, interval: String, onRate: (Ratin
     Column(
         modifier.fillMaxHeight().heightIn(min = 64.dp)
             .graphicsLayer { alpha = if (reduced) 1f else appear.value; translationY = if (reduced) 0f else (1f - appear.value) * 12f }
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RectangleShape)
             .background(bg)
-            .border(1.dp, border, RoundedCornerShape(10.dp))
+            .border(1.dp, border, RectangleShape)
             .clickable(interactionSource = interaction, indication = androidx.compose.foundation.LocalIndication.current, role = Role.Button) { onRate(r) }
             .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

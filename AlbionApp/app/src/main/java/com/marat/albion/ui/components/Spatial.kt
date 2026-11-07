@@ -31,8 +31,9 @@ fun AlbionMark(modifier: Modifier = Modifier, color: Color = MaterialTheme.color
             moveTo(w * .32f, h * .65f)
             lineTo(w * .68f, h * .65f)
         }
-        drawPath(path, color, style = Stroke(1.7.dp.toPx()))
-        drawCircle(color, 2.dp.toPx(), Offset(w * .5f, h * .86f))
+        drawPath(path, color, style = Stroke(1.7.dp.toPx(), join = androidx.compose.ui.graphics.StrokeJoin.Miter))
+        val dot = 3.5.dp.toPx()
+        drawRect(color, Offset(w * .5f - dot / 2, h * .86f - dot / 2), androidx.compose.ui.geometry.Size(dot, dot))
     }
 }
 

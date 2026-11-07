@@ -44,15 +44,10 @@ internal val Game.editionTitle: String get() = when (this) {
     Game.SHADOWING -> "РЕЧЬ И РИТМ"
 }
 
-internal val Game.editionNumber: Int get() = when (this) {
-    Game.TYPE_ANSWER -> 1
-    Game.IRREGULAR -> 2
-    Game.GRAMMAR_CHOICE -> 3
-    Game.GRAMMAR_GAP -> 4
-    Game.SENTENCE -> 5
-    Game.TENSES -> 6
-    Game.PRONUNCIATION -> 7
-    Game.SHADOWING -> 8
+/** Код формата совпадает с нумерацией каталога практики: «02.1» — первое упражнение раздела 02. */
+internal val Game.editionCode: String get() {
+    val group = practiceGroups.indexOfFirst { this in it.second }
+    return "%02d.%d".format(group + 1, practiceGroups[group].second.indexOf(this) + 1)
 }
 
 internal fun practiceTransition(reduced: Boolean): ContentTransform =

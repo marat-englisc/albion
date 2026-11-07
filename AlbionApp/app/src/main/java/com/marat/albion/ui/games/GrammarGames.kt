@@ -1,5 +1,6 @@
 package com.marat.albion.ui.games
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.QuietCircularProgressIndicator as CircularProgressIndicator
 import com.marat.albion.ui.theme.controlBorder
 import com.marat.albion.ui.theme.pressScale
@@ -40,7 +41,6 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -391,11 +391,11 @@ private fun Explanation(task: GrammarTaskEntity, openRule: (Int) -> Unit) {
         task.topic?.let { n ->
 
             Row(
-                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(8.dp))
+                Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp).clip(RectangleShape)
                     // Без фокуса: после «Готово» на клавиатуре ссылка не должна подсвечиваться.
                     .clickable { openRule(n) }
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surface, RectangleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RectangleShape)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

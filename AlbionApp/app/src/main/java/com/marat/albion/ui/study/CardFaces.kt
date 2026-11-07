@@ -1,5 +1,6 @@
 package com.marat.albion.ui.study
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.IpaStyle
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -123,7 +123,7 @@ fun CardFront(card: CardEntity, irregular: IrregularData?, audio: CardAudio, sho
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 irregular.forms.drop(1).forEachIndexed { i, form ->
                     Column(
-                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)
                             .padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
@@ -191,7 +191,7 @@ fun CardBack(
                 Spacer(Modifier.height(22.dp))
                 Column(
                     Modifier.fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)).padding(14.dp),
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape).padding(14.dp),
                 ) {
                     Eyebrow("Примечание")
                     Spacer(Modifier.height(6.dp))
@@ -259,7 +259,7 @@ private fun SenseContent(
 @Composable
 private fun IrregularForms(card: CardEntity, data: IrregularData, audio: CardAudio, modifier: Modifier) {
     val deck = deckOf(card)
-    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)) {
         data.forms.forEachIndexed { index, form ->
             if (index > 0) Hairline()
             Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {

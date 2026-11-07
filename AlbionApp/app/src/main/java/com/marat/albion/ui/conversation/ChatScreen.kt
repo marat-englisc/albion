@@ -1,5 +1,7 @@
 package com.marat.albion.ui.conversation
 
+import com.marat.albion.ui.components.TextButton
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import com.marat.albion.ui.components.PaneAlertDialog as AlertDialog
 import com.marat.albion.ui.components.DestructiveConfirmationDialog
@@ -13,8 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -205,15 +205,14 @@ internal fun ChatContext(scenario: String, level: String, status: String? = null
     }
 }
 
-private val bubbleShape = RoundedCornerShape(12.dp)
 
 /** Реплика собеседника: слева, на поверхности с тонкой рамкой. */
 @Composable
 internal fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: @Composable ColumnScope.() -> Unit = {}) {
     Column(modifier.fillMaxWidth(0.88f).quietContentSize()) {
-        Column(Modifier.clip(bubbleShape.copy(topStart = CornerSizeSmall))
+        Column(Modifier.clip(RectangleShape)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, bubbleShape.copy(topStart = CornerSizeSmall))
+            .border(.75.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)
             .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (text.isNotEmpty()) Text(text, style = MaterialTheme.typography.bodyLarge)
             footer()
@@ -221,15 +220,14 @@ internal fun PartnerBubble(text: String, modifier: Modifier = Modifier, footer: 
     }
 }
 
-private val CornerSizeSmall = androidx.compose.foundation.shape.CornerSize(6.dp)
 
 /** Реплика ученика: справа, инверсная; под ней — разбор ошибок. */
 @Composable
 private fun UserBubble(message: ConversationMessageEntity, checking: Boolean, modifier: Modifier = Modifier, onCheck: () -> Unit) {
     Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(0.88f), horizontalArrangement = Arrangement.End) {
-            Row(Modifier.clip(bubbleShape.copy(topEnd = CornerSizeSmall)).background(MaterialTheme.colorScheme.primary)
-                .border(.75.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = .35f), bubbleShape.copy(topEnd = CornerSizeSmall))
+            Row(Modifier.clip(RectangleShape).background(MaterialTheme.colorScheme.primary)
+                .border(.75.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = .35f), RectangleShape)
                 .padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.Top) {
                 if (message.voice) {
                     Icon(AlbionIcons.Mic, "Голосом", Modifier.padding(top = 3.dp, end = 8.dp).size(14.dp),
@@ -297,7 +295,7 @@ private fun TypingDots() {
                 transition.animateFloat(0.25f, 1f, infiniteRepeatable(
                     keyframes { durationMillis = 1200; 0.25f at 0; 1f at 200 + i * 150; 0.25f at 700 + i * 150 }), label = "dot$i").value
             }
-            Box(Modifier.size(7.dp).alpha(if (reduced) 0.6f else alpha).background(MaterialTheme.colorScheme.onSurface, CircleShape))
+            Box(Modifier.size(7.dp).alpha(if (reduced) 0.6f else alpha).background(MaterialTheme.colorScheme.onSurface, RectangleShape))
         }
     }
 }
@@ -351,8 +349,8 @@ internal fun ChatComposer(
                         leadingIcon = { Icon(AlbionIcons.Mic, null) })
                 }
             }
-            Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RoundedCornerShape(14.dp)).background(scheme.surfaceContainerLow)
-                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RoundedCornerShape(14.dp))
+            Box(Modifier.weight(1f).heightIn(min = maxOf(52.dp, minInputHeight), max = maxOf(maxInputHeight, minInputHeight, 52.dp)).clip(RectangleShape).background(scheme.surfaceContainerLow)
+                .border(if (focused) 2.dp else 1.dp, if (focused) scheme.primary else scheme.controlBorder, RectangleShape)
                 .padding(horizontal = 12.dp, vertical = 12.dp),
                 contentAlignment = Alignment.CenterStart) {
                 when {
@@ -391,7 +389,7 @@ private fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, 
         val transition = rememberInfiniteTransition(label = "pulse")
         transition.animateFloat(1f, 1.08f, infiniteRepeatable(tween(700, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "scale").value
     } else 1f
-    Box(Modifier.size(52.dp).graphicsLayer { scaleX = scale; scaleY = scale }.clip(CircleShape)
+    Box(Modifier.size(52.dp).graphicsLayer { scaleX = scale; scaleY = scale }.clip(RectangleShape)
         .background(if (enabled) scheme.primary else scheme.surfaceContainerHigh)
         .clickable(enabled = enabled, role = androidx.compose.ui.semantics.Role.Button, onClickLabel = description) { feedback.selection(); onClick() }
         .semantics { contentDescription = description }, contentAlignment = Alignment.Center) {
@@ -412,7 +410,7 @@ private fun RecordingLevel(level: Float) {
     Row(Modifier.fillMaxWidth().height(24.dp).semantics { contentDescription = "Идёт запись. Пауза завершит её" },
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         history.forEach { value ->
-            Box(Modifier.weight(1f).fillMaxHeight(0.15f + 0.85f * value).background(MaterialTheme.colorScheme.onSurface, CircleShape))
+            Box(Modifier.weight(1f).fillMaxHeight(0.15f + 0.85f * value).background(MaterialTheme.colorScheme.onSurface, RectangleShape))
         }
     }
 }

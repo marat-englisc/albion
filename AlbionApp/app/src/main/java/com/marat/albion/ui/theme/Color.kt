@@ -3,36 +3,38 @@ package com.marat.albion.ui.theme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-/** Albion / Old Money: тёплая бумага, лесные чернила и состаренная латунь. */
+/** Albion / Mono: строгая монохромная система — чернила, графит и бумага, без оттенка. */
 
-/** Нейтрали: зелёные чернила и слоновая кость. */
-val Ink = Color(0xFF161D19)
-val Paper = Color(0xFFF4EBDD)
+/** Нейтрали: почти чёрный и холодная бумага. */
+val Ink = Color(0xFF0A0A0A)
+val Paper = Color(0xFFF4F4F3)
 
-/** Акцент действий и выбора: переплётная зелень / светлая латунь. */
-internal val EstateLight = Color(0xFF284D3E)
-internal val EstateDark = Color(0xFFD6BD87)
+/** Акцент действий — сам контраст: чёрный на бумаге, белый на чернилах. */
+internal val EstateLight = Ink
+internal val EstateDark = Color(0xFFF2F2F2)
 
-/** Декоративная фольга; функциональные границы используют контрастный outline. */
+/** Нейтральные «металлы» для служебной графики; цвета в интерфейсе нет. */
 object Heritage {
-    val Brass = Color(0xFF947039)
-    val Champagne = Color(0xFFD6BD87)
-    val Cream = Color(0xFFFFF8EB)
+    val Brass = Color(0xFF8A8A8A)
+    val Champagne = Color(0xFFD9D9D9)
+    val Cream = Color(0xFFFAFAFA)
 }
 
-/** Сигналы ответа: шалфей и бордо; всегда вместе с подписью и иконкой. */
-internal val SuccessLight = Color(0xFF416344)
-internal val SuccessDark = Color(0xFFACC5A1)
-internal val ErrorLight = Color(0xFF963F43)
-internal val ErrorDark = Color(0xFFE3A3A0)
+/** Сигналы ответа: приглушённые, всегда вместе с подписью и иконкой — единственный цвет в системе. */
+internal val SuccessLight = Color(0xFF256B3E)
+internal val SuccessDark = Color(0xFF8FCB9F)
+internal val ErrorLight = Color(0xFFB0302F)
+internal val ErrorDark = Color(0xFFF09A96)
 
-/** Кожаный переплёт: слоновая кость и запас контраста поверх тиснения. */
+/** Акцентная плита: чёрный монолит с белым текстом, одинаковый в обеих темах. */
 object Hero {
-    val Base = Color(0xFF263F32)
+    val Base = Color(0xFF111111)
     val Content = Heritage.Cream
-    /** Тёмный тон акцента — текст на кремовых кнопках внутри плиты. */
-    val Deep = Color(0xFF182B21)
-    internal val GradientStops = listOf(Color(0xFF354E3E), Base, Color(0xFF1B3025))
-    internal val Glow = Heritage.Champagne.copy(alpha = .07f)
+    /** Текст на белых кнопках внутри плиты. */
+    val Deep = Ink
+    /** Граница плиты: в светлой теме незаметна, в тёмной отделяет монолит от фона. */
+    val Edge = Color(0x2EFFFFFF)
+    internal val GradientStops = listOf(Color(0xFF1A1A1A), Base, Color(0xFF0B0B0B))
+    internal val Glow = Color.White.copy(alpha = .05f)
     val Gradient = Brush.linearGradient(GradientStops)
 }

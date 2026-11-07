@@ -1,5 +1,6 @@
 package com.marat.albion.ui.components
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.theme.selectedBorder
 import com.marat.albion.ui.theme.selectedContent
 import com.marat.albion.ui.theme.selectedContainer
@@ -39,7 +40,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -54,7 +54,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -255,9 +254,10 @@ fun GhostButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+    enabled: Boolean = true,
 ) {
     PillButton(onClick, modifier, Color.Transparent, MaterialTheme.colorScheme.onSurface,
-        MaterialTheme.colorScheme.controlBorder, true, contentPadding) {
+        MaterialTheme.colorScheme.controlBorder, enabled, contentPadding) {
         if (icon != null) { Icon(icon, null, Modifier.size(20.dp)); Spacer(Modifier.width(10.dp)) }
         Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
     }
@@ -278,8 +278,8 @@ fun AudioButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modi
             .clickable(interaction, null, role = Role.Button) { if (playing) player.stop() else onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.size(size).clip(CircleShape).background(bg, CircleShape)
-            .border(.75.dp, if (playing) fg.copy(alpha = .55f) else scheme.outline, CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(size).clip(RectangleShape).background(bg, RectangleShape)
+            .border(.75.dp, if (playing) fg.copy(alpha = .55f) else scheme.outline, RectangleShape), contentAlignment = Alignment.Center) {
             Icon(
                 if (playing) AlbionIcons.Stop else AlbionIcons.VolumeUp,
                 contentDescription = if (playing) "Остановить озвучку" else "Озвучить",
@@ -295,7 +295,7 @@ fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
     Text(
         level.uppercase(),
         // Одна высота с [Chip]: рядом стоящие «article» и «A1» больше не прыгают по вертикали.
-        modifier = modifier.heightIn(min = 28.dp).border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+        modifier = modifier.heightIn(min = 28.dp).border(1.dp, MaterialTheme.colorScheme.outline, RectangleShape)
             .wrapContentHeight(Alignment.CenterVertically).padding(horizontal = 10.dp),
         style = MaterialTheme.typography.labelSmall,
     )
@@ -305,13 +305,13 @@ fun LevelBadge(level: String?, modifier: Modifier = Modifier) {
 fun Chip(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
-        modifier = modifier.heightIn(min = 28.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
+        modifier = modifier.heightIn(min = 28.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, RectangleShape)
             .wrapContentHeight(Alignment.CenterVertically).padding(horizontal = 12.dp, vertical = 4.dp),
         style = MaterialTheme.typography.labelMedium,
     )
 }
 
-/** Прогресс: скруглённая дорожка, заполнение догоняет значение на пружине. */
+/** Прогресс: прямая дорожка, заполнение догоняет значение на пружине. */
 @Composable
 fun ThinProgress(
     progress: Float,
@@ -324,10 +324,9 @@ fun ThinProgress(
     val p by animateFloatAsState(progress.coerceIn(0f, 1f),
         if (reduced) androidx.compose.animation.core.snap() else Springs.smooth(), label = "progress")
     Canvas(modifier.fillMaxWidth().height(height).progressSemantics(progress.coerceIn(0f, 1f))) {
-        val r = CornerRadius(size.height / 2)
-        drawRoundRect(track, cornerRadius = r)
+        drawRect(track)
         val w = size.width * p
-        if (w > 0f) drawRoundRect(color, size = Size(w.coerceAtLeast(size.height), size.height), cornerRadius = r)
+        if (w > 0f) drawRect(color, size = Size(w, size.height))
     }
 }
 
@@ -336,7 +335,7 @@ fun EmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 40.dp).appear(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, RectangleShape), contentAlignment = Alignment.Center) {
             Icon(AlbionIcons.Inventory2, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
@@ -387,7 +386,7 @@ fun ThinSlider(
     Slider(
         value = value, onValueChange = onValueChange, valueRange = valueRange, steps = steps,
         modifier = modifier, colors = colors, interactionSource = interaction,
-        thumb = { Box(Modifier.size(width = thumbWidth, height = 28.dp).background(MaterialTheme.colorScheme.primary, CircleShape)) },
+        thumb = { Box(Modifier.size(width = thumbWidth, height = 28.dp).background(MaterialTheme.colorScheme.primary, RectangleShape)) },
         track = { state ->
             SliderDefaults.Track(sliderState = state, colors = colors, modifier = Modifier.height(6.dp),
                 drawStopIndicator = null, drawTick = { _, _ -> }, thumbTrackGapSize = 4.dp)
@@ -467,7 +466,7 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
     val bg by animateColorAsState(if (selected) scheme.selectedContainer else scheme.surfaceContainerLow, label = "choiceBg")
     val fg by animateColorAsState(if (selected) scheme.selectedContent else scheme.onSurface, label = "choiceFg")
     val edge by animateColorAsState(if (selected) scheme.selectedBorder else scheme.controlBorder, label = "choiceEdge")
-    val mark = if (selected) scheme.primary else fg
+    val mark = fg
     val dot by animateFloatAsState(if (selected) 1f else 0f, Springs.bouncy(), label = "choiceDot")
     Row(
         modifier.fillMaxWidth().heightIn(min = 56.dp).pressScale(interaction, 0.98f)
@@ -481,8 +480,8 @@ fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit, modifier: M
             Text(label, style = MaterialTheme.typography.titleMedium, color = fg)
             if (supporting != null) Text(supporting, style = MaterialTheme.typography.bodySmall, color = if (selected) scheme.selectedContent else scheme.onSurfaceVariant)
         }
-        Box(Modifier.size(22.dp).border(1.5.dp, if (selected) mark else scheme.controlBorder, CircleShape), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(12.dp * dot).background(mark, CircleShape))
+        Box(Modifier.size(22.dp).border(1.5.dp, if (selected) mark else scheme.controlBorder, RectangleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(10.dp * dot).background(mark, RectangleShape))
         }
     }
 }

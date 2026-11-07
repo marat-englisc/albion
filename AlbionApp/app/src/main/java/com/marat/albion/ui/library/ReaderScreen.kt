@@ -2,7 +2,7 @@ package com.marat.albion.ui.library
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.TextButton
+import com.marat.albion.ui.components.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
@@ -63,7 +63,7 @@ import com.marat.albion.ui.components.PaneDropdownMenu as DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.marat.albion.ui.components.IconButton
 import androidx.compose.material3.MaterialTheme
 import com.marat.albion.ui.components.PaneBottomSheet as ModalBottomSheet
 import androidx.compose.material3.Text

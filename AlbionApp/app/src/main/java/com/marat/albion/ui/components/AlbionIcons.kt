@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
 /**
- * Собственный набор иконок Albion: сетка 24, линия 1.6, круглые концы и скругления.
+ * Собственный набор иконок Albion: сетка 24, линия 1.6, прямые концы и острые углы.
  * У вкладок есть пары «контур / заливка» для выбранного состояния.
  */
 object AlbionIcons {
@@ -25,7 +25,7 @@ object AlbionIcons {
         if (stroke != null) b.addPath(
             pathData = PathParser().parsePathString(stroke).toNodes(),
             fill = null, stroke = SolidColor(Color.Black), strokeLineWidth = STROKE,
-            strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+            strokeLineCap = StrokeCap.Butt, strokeLineJoin = StrokeJoin.Miter,
         )
         return b.build()
     }
@@ -33,7 +33,7 @@ object AlbionIcons {
     private fun pen(name: String, data: String, mirror: Boolean = false) = glyph(name, stroke = data, mirror = mirror)
 
     // ---- вкладки: контур и заливка ----
-    private const val CARD = "M6.5 9.5h11a2.5 2.5 0 0 1 2.5 2.5v5.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5V12a2.5 2.5 0 0 1 2.5-2.5z"
+    private const val CARD = "M4 9.5h16v10.5H4z"
     val Layers = pen("Today", "M8 4h8 M6 6.75h12 $CARD")
     val LayersFilled = glyph("TodayFilled", stroke = "M8 4h8 M6 6.75h12", fill = CARD)
 
@@ -42,17 +42,17 @@ object AlbionIcons {
     val MenuBookFilled = glyph("GrammarFilled",
         fill = "M11.2 6.05C9.3 4.85 7 4.45 3.75 4.6v13.65c3.3-.15 5.6.3 7.45 1.45z M12.8 6.05c1.9-1.2 4.2-1.6 7.45-1.45v13.65c-3.3-.15-5.6.3-7.45 1.45z")
 
-    private const val COVER = "M7 3.75h10.5a1.75 1.75 0 0 1 1.75 1.75v10.75H7A2.25 2.25 0 0 0 4.75 18.5V6A2.25 2.25 0 0 1 7 3.75z"
-    val AutoStories = pen("Reading", "$COVER M4.75 18.5A2 2 0 0 0 6.75 20.25h12.5 M9 3.75v5.5l1.75-1.25 1.75 1.25v-5.5")
-    val AutoStoriesFilled = glyph("ReadingFilled", stroke = "M4.75 18.5A2 2 0 0 0 6.75 20.25h12.5", fill = COVER)
+    private const val COVER = "M4.75 3.75h14.5v12.5H4.75z"
+    val AutoStories = pen("Reading", "$COVER M4.75 16.25v4h14.5 M9 3.75v5.5l1.75-1.25 1.75 1.25v-5.5")
+    val AutoStoriesFilled = glyph("ReadingFilled", stroke = "M4.75 16.25v4h14.5", fill = COVER)
 
     private const val PENCIL = "M14.75 19.25l-3.25.75.75-3.25 6.9-6.9a1.77 1.77 0 0 1 2.5 2.5z"
     val EditNote = pen("Practice", "M3.75 6h10 M3.75 11h6.5 M3.75 16h4 $PENCIL")
     val EditNoteFilled = glyph("PracticeFilled", stroke = "M3.75 6h10 M3.75 11h6.5 M3.75 16h4", fill = PENCIL)
 
-    private const val BARS = "M5.75 12h1.5a1 1 0 0 1 1 1v6.25a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1z " +
-        "M11.25 7.75h1.5a1 1 0 0 1 1 1v10.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V8.75a1 1 0 0 1 1-1z " +
-        "M16.75 3.75h1.5a1 1 0 0 1 1 1v14.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V4.75a1 1 0 0 1 1-1z"
+    private const val BARS = "M4.75 12h3.5v8.25h-3.5z " +
+        "M10.25 7.75h3.5v12.5h-3.5z " +
+        "M15.75 3.75h3.5v16.5h-3.5z"
     val Insights = pen("Progress", BARS)
     val InsightsFilled = glyph("ProgressFilled", fill = BARS)
 
@@ -77,8 +77,8 @@ object AlbionIcons {
     val VolumeUp = pen("Listen", "M3 9h4l5-5v16l-5-5H3z M16 8c2 2 2 6 0 8 M19 5c4 4 4 10 0 14", true)
     val Mic = pen("Microphone", "M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0z M5 11v1a7 7 0 0 0 14 0v-1 M12 19v3 M8 22h8")
     val RecordVoiceOver = pen("Speech", "M8 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6 M2 21v-3a6 6 0 0 1 12 0v3 M17 5c3 2 3 6 0 8 M20 2c5 4 5 10 0 14")
-    val PlayArrow = pen("Play", "M8 5.2v13.6a1 1 0 0 0 1.5.85l10.4-6.8a1 1 0 0 0 0-1.7L9.5 4.35A1 1 0 0 0 8 5.2z")
-    val Stop = pen("Stop", "M8 6.5h8A1.5 1.5 0 0 1 17.5 8v8a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 16V8A1.5 1.5 0 0 1 8 6.5z")
+    val PlayArrow = pen("Play", "M8 4.5v15L19.5 12z")
+    val Stop = pen("Stop", "M6.5 6.5h11v11h-11z")
     val SlowMotionVideo = pen("Slow", "M20 12a8 8 0 1 1-8-8 M12 1v6 M18 3l-3 4 M23 7l-5 2 M10 9l5 3-5 3z")
     val Undo = pen("Undo", "M8 4L3 9l5 5 M3 9h11a6 6 0 0 1 0 12", true)
     val Redo = pen("Redo", "M16 4l5 5-5 5 M21 9H10a6 6 0 0 0 0 12", true)

@@ -1,5 +1,6 @@
 package com.marat.albion.ui.grammar
 
+import androidx.compose.ui.graphics.RectangleShape
 import com.marat.albion.ui.components.AlbionIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,7 +55,7 @@ private fun buildForest(graph: FlowGraph): List<TreeNode> {
 @Composable
 fun FlowDiagram(graph: FlowGraph, modifier: Modifier = Modifier) {
     val forest = remember(graph) { buildForest(graph) }
-    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp)).padding(16.dp)) {
+    Column(modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape).padding(16.dp)) {
         Eyebrow("Схема")
         Spacer(Modifier.height(14.dp))
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { forest.forEach { TreeView(it) } }
@@ -106,8 +106,8 @@ private fun Arrow() {
 private fun NodeBox(node: FlowNode, reference: Boolean) {
     val decision = node.shape == NodeShape.Decision && !reference
     val shape = when (node.shape) {
-        NodeShape.Round, NodeShape.Circle -> RoundedCornerShape(50)
-        else -> RoundedCornerShape(10.dp)
+        NodeShape.Round, NodeShape.Circle -> androidx.compose.foundation.shape.CutCornerShape(8.dp)
+        else -> RectangleShape
     }
     val scale = LocalMdEnv.current.scale
     Row(
